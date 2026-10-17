@@ -1,0 +1,14 @@
+{
+  "url": "https://apisidra.ibge.gov.br/values/t/6392/n1/all/v/6293/p/201601-202608",
+  "file": "data/scenarios/sources/pnad_real_mass.json.gz",
+  "sha256": "336a8f5ebb51e3025d07b1b567bad6fd2d17c982aad50c4910e686ebdaed0dd1",
+  "compressedSha256": "19ac4e40983b65bf406c7ad4a6fb3883a44124a30f23dd3ed6e112bb70b1eb34",
+  "retrievedAt": "2026-10-15T23:49:10.733170+00:00",
+  "bytes": 54770,
+  "compressedBytes": 1776,
+  "rows": 128,
+  "contentType": "application/json; charset=utf-8",
+  "releaseDate": null,
+  "releaseVintage": "unknown",
+  "hashDefinition": "sha256 of exact uncompressed HTTP response body"
+}

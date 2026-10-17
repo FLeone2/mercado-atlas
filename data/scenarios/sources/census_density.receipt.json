@@ -1,0 +1,14 @@
+{
+  "url": "https://apisidra.ibge.gov.br/values/t/4714/n6/all/v/614/p/2022",
+  "file": "data/scenarios/sources/census_density.json.gz",
+  "sha256": "e1d9c45208e368bb8fa995c0b886ea52d9b1786696ddd526445b7ad6637f75d2",
+  "compressedSha256": "f0c94affbffebf50fb554751db22e2836236cf5c8f71fc6f38d86a606f32c1d5",
+  "retrievedAt": "2026-10-15T23:49:15.026079+00:00",
+  "bytes": 1610419,
+  "compressedBytes": 88356,
+  "rows": 5570,
+  "contentType": "application/json; charset=utf-8",
+  "releaseDate": null,
+  "releaseVintage": "unknown",
+  "hashDefinition": "sha256 of exact uncompressed HTTP response body"
+}

@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict');const {hideUnclassified}=require('../src/market/modules/display-filters.js');
+const input={total:100,groups:{bd_segmento:[{name:'SUV',count:60,marketShare:.6},{name:'Sem correspondência BD',count:1,marketShare:.01},{name:'HATCH',count:39}],marca:[{name:'FIAT',count:100}]},technologyByMonth:[{date:'2026-09-01',name:'Não classificado',count:1},{date:'2026-09-01',name:'HEV',count:5}],joints:{x:{rows:[{month:'2026-09',left:'FIAT',right:'Não classificado no BD',count:2}]}},interactive:{monthlyGroups:{bd_segmento:[{name:'Sem correspondência BD',count:1}]}},labels:['Não classificado']};
+const out=hideUnclassified(input);
+assert.equal(out.total,100,'totals untouched');assert.deepEqual(out.groups.bd_segmento.map(r=>r.name),['SUV','HATCH']);assert.equal(out.groups.bd_segmento[0].marketShare,.6,'shares keep the full denominator');
+assert.equal(out.groups.marca,input.groups.marca,'untouched branches are shared, not copied');
+assert.deepEqual(out.technologyByMonth.map(r=>r.name),['HEV']);assert.equal(out.joints.x.rows.length,0);
+assert.equal(out.interactive,input.interactive,'Explorar período keeps the complete composition');
+assert.deepEqual(out.labels,['Não classificado'],'plain string lists are not data rows');
+assert.equal(input.groups.bd_segmento.length,3,'input never mutated');
+console.log('PASS display filters: unclassified rows hidden from category lists, totals and shares untouched.');

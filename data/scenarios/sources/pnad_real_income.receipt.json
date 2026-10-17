@@ -1,0 +1,14 @@
+{
+  "url": "https://apisidra.ibge.gov.br/values/t/6390/n1/all/v/5933/p/201601-202608",
+  "file": "data/scenarios/sources/pnad_real_income.json.gz",
+  "sha256": "651dbaff11dd3b0a8771b5afe3b86d531c8e10c9d0116e63e23f53e794bec9bf",
+  "compressedSha256": "fa8bad85fba53bed704d001fcc87dc266c6dfa6ef8837c56eba2042c9a22e6ef",
+  "retrievedAt": "2026-10-15T23:49:07.114494+00:00",
+  "bytes": 52466,
+  "compressedBytes": 1572,
+  "rows": 128,
+  "contentType": "application/json; charset=utf-8",
+  "releaseDate": null,
+  "releaseVintage": "unknown",
+  "hashDefinition": "sha256 of exact uncompressed HTTP response body"
+}

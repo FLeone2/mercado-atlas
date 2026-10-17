@@ -1,0 +1,12 @@
+/* Sankey origem → canal → combustível → tipo de veículo. */
+.fs-chart{min-width:0}
+.fs-scroll{overflow-x:auto;overscroll-behavior-inline:contain}
+.fs-scroll svg{display:block;min-width:680px;height:auto;overflow:visible}
+.fs-title-col{letter-spacing:.06em;font-weight:600}
+.fs-ribbon{transition:opacity .15s}
+.fs-bar{fill:var(--text);fill-opacity:.78}
+.fs-node{cursor:pointer;outline:none}
+.fs-node:hover .fs-bar,.fs-node.is-active .fs-bar,.fs-node:focus-visible .fs-bar{fill-opacity:1;stroke:var(--accent);stroke-width:2}
+.fs-label{fill:var(--text);font-size:12px;font-weight:600;paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round;pointer-events:none}
+.fs-pct{fill:var(--secondary);font-weight:500}
+@media print{.fs-scroll{overflow:visible}}

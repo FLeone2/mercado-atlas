@@ -1,0 +1,24 @@
+/* Baixar PNG: a quiet button in the corner of each exportable chart. */
+[data-export-root]{position:relative}
+.export-image-button{position:absolute;top:0;right:0;z-index:2;min-height:30px;padding:4px 10px;border:1px solid var(--border);border-radius:0;background:var(--control);color:var(--secondary);font:500 12px var(--font-sans);cursor:pointer;transition:background-color .15s}
+.export-image-button:hover,.export-image-button:focus-visible{background:var(--control-hover);color:var(--text)}
+.ac-bubbles>.export-image-button{top:4px}
+.tbm-card>.export-image-button{top:12px;right:12px}
+.print-header{display:none}
+@media print{
+ @page{margin:12mm}
+ html,body{background:#fff!important}
+ :root{color-scheme:light}
+ .print-header{display:flex!important;flex-direction:column;gap:2px;margin:0 0 10px;padding:0 0 8px;border-bottom:1px solid #ccc;font:12px var(--font-sans);color:#333}
+ .print-header strong{font-size:16px;color:#111}
+ [data-print-hide]{display:none!important}
+ .dashboard-topbar,.am-primary-nav,.am-subnavigation,.market-filter-bar,.am-context-actions,.export-image-button,.am-small-button,.mp-question button,footer .am-analysis-actions,.am-footer-actions{display:none!important}
+ .dashboard-component,.mp-question,.oi-card,.mp-strip,.tbm-card,.cc-chart,.ac-chart,figure,svg{break-inside:avoid}
+ .am-app,.dashboard-root,main,[data-data-app-content]{padding:0!important;margin:0!important;box-shadow:none!important;background:#fff!important}
+ .mp-strip{grid-template-columns:repeat(5,minmax(0,1fr))!important;overflow:visible!important}
+ .mp-tile{padding:6px 8px}.mp-tile strong{font-size:15px}.mp-label,.mp-change{white-space:normal;overflow:visible;font-size:10px}
+ html.print-summary,html.print-summary *{min-height:0!important}
+ html.print-summary body{height:auto!important}
+ html.print-summary .mp-question-grid{grid-template-columns:repeat(3,1fr)}
+ html.print-summary .mp-question{padding:8px 10px}
+}

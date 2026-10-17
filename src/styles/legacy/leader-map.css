@@ -1,0 +1,22 @@
+/* Marca líder por município: own section, same family as "Marcas no território". */
+.lm{--tbm-other:color-mix(in srgb,var(--secondary) 45%,var(--surface));margin:24px 0;display:flex;flex-direction:column;gap:12px}
+.lm-controls{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:flex-end}
+.lm-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:1100px){.lm-grid{grid-template-columns:1fr}}
+.lm-card{position:relative;margin:0;padding:14px 16px;background:transparent;border:1px solid var(--border);border-radius:0;min-width:0}
+.lm-zoom{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 8px}
+.lm-zoom button{min-width:36px;min-height:32px;padding:2px 10px;border:1px solid var(--border);border-radius:0;background:var(--control);color:var(--text);font:500 13px var(--font-sans);cursor:pointer}
+.lm-zoom button:hover{background:var(--control-hover)}
+.lm-svg{display:block;width:100%;height:auto;max-height:620px;background:var(--muted);border-radius:0;touch-action:pan-y}
+.lm-svg.is-zoomed{cursor:grab;touch-action:none}
+.lm-muni{stroke:var(--surface);stroke-width:.6;transition:fill-opacity .15s}
+.lm-muni.is-hover{stroke:var(--text);stroke-width:1.6}
+.lm-label{fill:var(--text);font-weight:600;text-anchor:middle;paint-order:stroke;stroke:var(--surface);stroke-width:2.5px;stroke-linejoin:round;pointer-events:none}
+.lm-side{display:flex;flex-direction:column;gap:14px;min-width:0}
+.lm-brand{display:inline-flex;align-items:center;gap:8px;min-height:28px;padding:0;border:0;background:none;color:var(--text);font:500 12px var(--font-sans);cursor:pointer}
+.lm-brand i{width:12px;height:12px;border-radius:3px;flex:none}
+.lm-brand[aria-pressed=true]{font-weight:700;text-decoration:underline}
+.hx-table tr.is-active{background:var(--muted)}
+.lm .hx-select{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--secondary)}
+.lm .hx-select select{min-height:36px}
+@media print{.lm-zoom{display:none}}

@@ -1,0 +1,14 @@
+{
+  "url": "https://apisidra.ibge.gov.br/values/t/1737/n1/all/v/2266,63,2265/p/201601-202609",
+  "file": "data/scenarios/sources/ipca.json.gz",
+  "sha256": "10e4a0913e7eb52887e80617d67cf147401677b399b71ba1bf657529d3e04661",
+  "compressedSha256": "9691774162021e9615b8b790e2efbfa71e93c6f20d56c85576b47f9e37c9dfec",
+  "retrievedAt": "2026-10-15T23:49:02.796193+00:00",
+  "bytes": 104529,
+  "compressedBytes": 3827,
+  "rows": 387,
+  "contentType": "application/json; charset=utf-8",
+  "releaseDate": null,
+  "releaseVintage": "unknown",
+  "hashDefinition": "sha256 of exact uncompressed HTTP response body"
+}

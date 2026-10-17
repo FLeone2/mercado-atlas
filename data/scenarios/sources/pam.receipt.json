@@ -1,0 +1,14 @@
+{
+  "url": "https://apisidra.ibge.gov.br/values/t/5457/n6/all/v/8331,215/p/2025/c782/0",
+  "file": "data/scenarios/sources/pam.json.gz",
+  "sha256": "b817a9f9b5ffe78727446e7e9716b0d866cf0b1f0d7bb82b3fb3b5581fd0fc52",
+  "compressedSha256": "7472f389e12428b390e3a04b77d4c911c047885eea8c8c66e73eea13fb9d0249",
+  "retrievedAt": "2026-10-15T23:49:45.331968+00:00",
+  "bytes": 3445905,
+  "compressedBytes": 142700,
+  "rows": 11128,
+  "contentType": "application/json; charset=utf-8",
+  "releaseDate": null,
+  "releaseVintage": "unknown",
+  "hashDefinition": "sha256 of exact uncompressed HTTP response body"
+}

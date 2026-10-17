@@ -1,0 +1,13 @@
+/* Overview-only composition and chart proportions; no navigation/data changes. */
+.am-overview-visuals{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+.am-overview-visuals>.am-overview-trend{grid-column:1;grid-row:1}
+.am-overview-visuals>.am-overview-brands{grid-column:2;grid-row:1}
+.am-overview-visuals>.am-overview-composition{grid-column:1/-1;grid-row:2;width:100%;max-width:960px;justify-self:center;box-sizing:border-box}
+.am-overview-composition .am-composition{width:100%;max-width:820px;margin-inline:auto;box-sizing:border-box}
+@media(max-width:1000px){
+ .am-overview-visuals{grid-template-columns:minmax(0,1fr)}
+ .am-overview-visuals>.am-overview-trend{grid-column:1;grid-row:1}
+ .am-overview-visuals>.am-overview-brands{grid-column:1;grid-row:2}
+ .am-overview-visuals>.am-overview-composition{grid-column:1;grid-row:3}
+}
+@media(max-width:540px){.am-overview-composition .am-composition-row{grid-template-columns:7px minmax(0,1fr) auto 44px;gap:6px}}

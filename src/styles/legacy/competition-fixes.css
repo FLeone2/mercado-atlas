@@ -1,0 +1,6 @@
+/* PageNotedEvidenceChart renders the chart and local note as React siblings.
+   Keep their source order and allocate each a full row, at every viewport. */
+.am-competition-view{display:flex;flex-direction:column;gap:var(--data-section-gap,40px);min-width:0}
+.am-competition-view .data-section{grid-template-columns:minmax(0,1fr)}
+.am-competition-view .data-section>*{grid-column:1/-1;min-width:0;max-width:100%}
+.am-competition-view .data-section>.am-footnote{margin-block:0 8px;overflow-wrap:anywhere}

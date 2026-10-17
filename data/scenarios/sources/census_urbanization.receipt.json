@@ -1,0 +1,14 @@
+{
+  "url": "https://apisidra.ibge.gov.br/values/t/9923/n6/all/v/93/p/2022/c1/6795,1",
+  "file": "data/scenarios/sources/census_urbanization.json.gz",
+  "sha256": "f39ae2d4de8655bf062d4827620a4772a7d516cc1ddbf853e75fc7db2533c9e8",
+  "compressedSha256": "a38fda430343bd18e9f839cfc96c29223f2164d6d0bbd0cb0015a0aa452f32d9",
+  "retrievedAt": "2026-10-15T23:49:45.862010+00:00",
+  "bytes": 3338381,
+  "compressedBytes": 135177,
+  "rows": 11140,
+  "contentType": "application/json; charset=utf-8",
+  "releaseDate": null,
+  "releaseVintage": "unknown",
+  "hashDefinition": "sha256 of exact uncompressed HTTP response body"
+}

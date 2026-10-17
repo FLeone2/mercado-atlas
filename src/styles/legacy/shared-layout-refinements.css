@@ -1,0 +1,95 @@
+/* Shared finishing for every authored tab and subview. Only layout and type:
+   chart canvases, data, selections, visibility and disclosure state stay owned
+   by their existing components. Load after the individual view styles. */
+.am-app {
+  --data-card-gap: 16px;
+  --data-section-content-gap: 20px;
+  --data-section-gap: 28px;
+  --data-after-metrics-gap: 24px;
+}
+.am-app .data-section-header { gap: 10px 16px; align-items: center; }
+.am-app .data-section-header .data-section-title {
+  font-size: clamp(18px, 1.6vw, 21px);
+  line-height: 1.35;
+  letter-spacing: -.025em;
+}
+.am-app :is(.am-ranking-compact-heading h2, .am-ranking-heading h2, .animations-heading h2, .cm-catalog h2) {
+  font-size: clamp(20px, 2vw, 25px);
+  line-height: 1.25;
+  letter-spacing: -.025em;
+  margin-block: 0 8px;
+  overflow-wrap: anywhere;
+}
+.am-app :is(.am-ranking-compact-heading, .am-ranking-heading, .animations-heading) {
+  gap: 10px 16px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+/* Controls wrap as complete groups instead of competing with chart width. */
+.am-app :is(.data-section-controls, .am-geography-controls, .am-market-views-controls, .am-explore-local-controls, .am-ranking-comparison-controls, .ev-interactive-controls, .ev-toolbar, .cm-controls) {
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  min-width: 0;
+  max-width: 100%;
+}
+.am-app :is(.data-section-controls, .am-geography-controls, .am-market-views-controls, .am-explore-local-controls, .am-ranking-comparison-controls, .ev-interactive-controls, .ev-toolbar, .cm-controls) > * {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.am-app :is(.catalog-controls, .cm-controls, .am-explore-local-controls) { align-items: end; }
+.am-app :is(.catalog-controls, .cm-controls) label { line-height: 1.45; }
+.am-app :is(.am-footnote, .am-market-view-note, .am-ranking-note, .ev-interactive-note, .catalog-method, .cc-method, .cm-method, .tc-panel-note, .animations-method, .am-quality-notes p) {
+  font-size: 12px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.am-app :is(.am-note-entry, .am-note-inline, .am-scenario-provenance) { overflow-wrap: anywhere; }
+.am-app :is(.am-note-entry, .am-scenario-source-card) p:last-child { margin-bottom: 0; }
+.am-app :is(.am-coverage-scroll, .am-ranking-scroll, .am-pyramid-scroll, .ev-years-scroll, .cc-scroll) {
+  min-width: 0;
+  max-width: 100%;
+  overscroll-behavior-inline: contain;
+}
+.am-app :is(.am-quality-metrics > div, .am-quality-notes > *, .tc-values > div) { min-width: 0; }
+.am-app :is(.am-quality-metrics strong, .am-quality-metrics span) { overflow-wrap: anywhere; }
+/* Dense desktop keeps generous chart space; compactness is in the surrounding chrome. */
+@media (min-width: 1200px) {
+  .am-app .am-explore-local-controls { margin-block: 14px; }
+  .am-app .catalog-panel { padding: 16px; }
+  .am-app .catalog-controls { padding: 12px; }
+  .am-app .am-ranking-comparison-controls { margin-block: 10px 16px; }
+}
+@media (max-width: 600px) {
+  .am-app {
+    --data-card-gap: 12px;
+    --data-section-content-gap: 16px;
+    --data-section-gap: 22px;
+    --data-after-metrics-gap: 18px;
+  }
+  .am-app .data-section-controls { margin-inline-start: 0; }
+  .am-app :is(.am-market-views-controls, .am-geography-controls, .am-ranking-comparison-controls) { align-items: flex-start; }
+  .am-app :is(.am-small-button, .cm-controls button, .ev-toolbar button) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    min-height: 44px;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .am-app .am-explore-local-controls > div { flex-basis: 100%; }
+  .am-app .cm-controls label { flex: 1 1 160px; }
+  .am-app .cm-controls select { width: 100%; min-width: 0; }
+  .am-app .am-quality-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 0; padding-block: 18px; }
+  .am-app .am-quality-metrics > div { padding-inline: 12px; }
+  .am-app .am-quality-metrics > div:nth-child(2n) { border-right: 0; }
+}
+/* At 320px allow full labels and totals, rather than squeezing three detail columns. */
+@media (max-width: 360px) {
+  .am-app .tc-values { grid-template-columns: minmax(0, 1fr); }
+  .am-app .tc-values > div { flex-direction: row; align-items: center; }
+  .am-app .tc-values dd { align-items: flex-end; }
+  .am-app .am-quality-metrics { grid-template-columns: minmax(0, 1fr); }
+  .am-app .am-quality-metrics > div { border-right: 0; }
+  .am-app .am-ranking-periods { grid-template-columns: minmax(0, 1fr); }
+  .am-app .am-ranking-periods > div:last-child { text-align: left; }
+}

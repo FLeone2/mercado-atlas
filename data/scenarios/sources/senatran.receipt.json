@@ -1,0 +1,9 @@
+{
+  "url": "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-2026-2/Frota_por_municipio_e_tipo_Setembro_2026.xlsx",
+  "file": "data/scenarios/sources/senatran_2026_09.xlsx",
+  "sha256": "889d133da1ee2c301ad9a3e6b41b24fbb94286b4ba483c15cb706775bef5e16a",
+  "bytes": 737420,
+  "retrievedAt": "2026-10-15T23:49:57.774302+00:00",
+  "releaseDate": null,
+  "releaseVintage": "unknown"
+}

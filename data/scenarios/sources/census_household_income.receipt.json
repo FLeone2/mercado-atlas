@@ -1,0 +1,14 @@
+{
+  "url": "https://apisidra.ibge.gov.br/values/t/10295/n6/all/v/13431,13534/p/2022/c2/6794/c58/95253/c86/95251",
+  "file": "data/scenarios/sources/census_household_income.json.gz",
+  "sha256": "692034d28e5bd5d8b184f58d64137a5fcf464be2a1e93d20819c1b4f654425fb",
+  "compressedSha256": "cc36e7b86f51e333105ff9bd91e4e48e18e2a35763fb08729e23fa8908823140",
+  "retrievedAt": "2026-10-15T23:53:21.087977+00:00",
+  "bytes": 6964561,
+  "compressedBytes": 179308,
+  "rows": 11140,
+  "contentType": "application/json; charset=utf-8",
+  "releaseDate": null,
+  "releaseVintage": "unknown",
+  "hashDefinition": "sha256 of exact uncompressed HTTP response body"
+}
