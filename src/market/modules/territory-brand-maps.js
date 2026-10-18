@@ -279,7 +279,7 @@ function HeatMap({spikes,states,channelLabel}){
   tip&&hs('div',{className:'tbm-tip',style:{left:tip.x+14,top:tip.y+14},children:[h('strong',{children:spikes.names[tip.i]}),hs('div',{className:'tbm-tip-row',children:[h('span',{children:measure==='mit'?'Mitsubishi':'Mercado'}),h('span',{children:tbmInt(values[tip.i])})]})]})]});
 }
 
-function TerritoryBrandMaps({filters,manifest,base}){
+function TerritoryBrandMaps({filters,manifest,base,view='main'}){
  const h=jsxRuntime.jsx,hs=jsxRuntime.jsxs;
  const [channel,setChannel]=React.useState('VAREJO');
  const [density,setDensity]=React.useState('spikes');
@@ -300,17 +300,17 @@ function TerritoryBrandMaps({filters,manifest,base}){
  const loading=market.pending||explore.pending;
  return hs('section',{className:'tbm',id:'territory-brand-maps','aria-labelledby':'tbm-title',children:[
   hs('div',{className:'tbm-head',children:[
-   hs('div',{children:[h('h2',{id:'tbm-title',children:'Marcas no território'}),h('p',{children:'Visão nacional, com canal próprio.'})]}),
+   hs('div',{children:[h('h2',{id:'tbm-title',children:view==='3d'?'Por estado':'Marcas no território'}),h('p',{children:'Visão nacional, com canal próprio.'})]}),
    hs('div',{className:'tbm-channel',children:[h('span',{children:'Canal'}),h('div',{className:'tbm-seg',role:'group','aria-label':'Canal de venda',children:[['VAREJO','Varejo'],['all','Todos os canais']].map(([v,l])=>h('button',{type:'button','aria-pressed':channel===v,onClick:()=>setChannel(v),children:l},v))})]})]}),
   channel==='all'&&h('p',{className:'tbm-warn',children:'Todos os canais inclui locadoras e frotas, que emplacam na sede da empresa. Belo Horizonte e Curitiba aparecem muito maiores do que a demanda das lojas.'}),
   (market.error||explore.error||points.error)&&h('p',{role:'alert',className:'tbm-warn',children:market.error||explore.error||points.error}),
   loading&&!tops&&h('p',{role:'status',className:'tbm-status',children:'Calculando marcas por estado…'}),
+  view==='3d'?(tops&&model?h(ExtrudedStates,{states,geo,tops,ufTotals,population:population.data,channelLabel}):null):hs(jsxRuntime.Fragment,{children:[
   tops&&h(TopThreeMap,{tops,states}),
   explore.result&&h(BrandStrengthMap,{result:explore.result,states}),
-  (spikes||tops)&&hs('div',{className:'tbm-density-switch',children:[h('h3',{children:'Onde se concentra'}),h('div',{className:'tbm-seg',role:'group','aria-label':'Forma do mapa',children:[['spikes','Espigões'],['heat','Calor'],['3d','3D']].map(([v,l])=>h('button',{type:'button','aria-pressed':density===v,onClick:()=>setDensity(v),children:l},v))})]}),
+  spikes&&hs('div',{className:'tbm-density-switch',children:[h('h3',{children:'Onde se concentra'}),h('div',{className:'tbm-seg',role:'group','aria-label':'Forma do mapa',children:[['spikes','Espigões'],['heat','Calor']].map(([v,l])=>h('button',{type:'button','aria-pressed':density===v,onClick:()=>setDensity(v),children:l},v))})]}),
   density==='spikes'&&spikes&&h(SpikeMap,{spikes,states,geo,channelLabel}),
-  density==='heat'&&spikes&&h(HeatMap,{spikes,states,channelLabel}),
-  density==='3d'&&tops&&model&&h(ExtrudedStates,{states,geo,tops,ufTotals,population:population.data,channelLabel})]});
+  density==='heat'&&spikes&&h(HeatMap,{spikes,states,channelLabel})]})]});
 }
 
 if(typeof module!=='undefined'&&module.exports)module.exports={tbmTops,tbmStrength,tbmGeometry,tbmProjection,tbmName,tbmColor};

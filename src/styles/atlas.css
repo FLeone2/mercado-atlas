@@ -554,7 +554,7 @@ h1, h2, h3, h4 { color: var(--ink); }
 .ax-info:hover, .ax-info[aria-expanded="true"] { color: var(--brass); }
 .ax-info-pop { width: min(380px, 86vw); padding: 12px 14px; font: 400 12.5px/1.55 var(--sans); color: var(--ink); letter-spacing: 0; text-transform: none; white-space: normal; }
 .ax-card-title .ax-info-pop { left: auto; right: auto; }
-.am-note-info { margin: 8px 0 0; }
+.am-note-info { display: inline-flex; margin: 8px 18px 0 0; vertical-align: top; }
 .ax-card-note { margin-top: 6px; }
 /* Territórios: one switch for the intensity map; tables stay folded. */
 .am-map-switch { display: flex; justify-content: flex-start; margin: 40px 0 12px; }
@@ -564,3 +564,7 @@ h1, h2, h3, h4 { color: var(--ink); }
 .am-geo-tables[open] > summary::before { content: '− '; }
 .tbm-density-switch { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin: 48px 0 8px; padding-top: 18px; border-top: 1px solid var(--line); }
 .tbm-density-switch h3 { font: 400 26px/1.1 var(--serif); margin: 0; }
+/* Several ⓘ notes in a row sit side by side instead of one per grid row. */
+.ax-section-body[data-columns="1"]:has(> .am-note-info) { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 32px 18px; }
+.ax-section-body[data-columns="1"]:has(> .am-note-info) > :not(.am-note-info) { flex: 1 1 100%; min-width: 0; }
+.ax-section-body > .am-note-info { margin: 0; }

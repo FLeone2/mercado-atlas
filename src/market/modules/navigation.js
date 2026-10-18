@@ -1,13 +1,13 @@
 // Registered leaf IDs are stable contracts for old links, favorites and history.
 // Old leaf routes now shown inside another area.
 const TAB_ALIASES={ranking:'competition',structure:'segments'};
-const marketTabs=[{id:'dashboard',label:'Panorama',previousLabels:['Visão geral']},{id:'history',label:'Evolução'},{id:'competition',label:'Concorrência',previousLabels:['Marcas e modelos']},{id:'ranking',label:'Ranking'},{id:'segments',label:'Porte',previousLabels:['Estrutura BD']},{id:'structure',label:'Pirâmide BD'},{id:'technology',label:'Propulsão'},{id:'origin',label:'Origem'},{id:'geography',label:'Territórios',previousLabels:['Mapa do mercado']},{id:'explore',label:'Explorar'},{id:'animations',label:'Animações'},{id:'models',label:'Economia',previousLabels:['Cenários','Modelos e cenários']},{id:'quality',label:'Dados e metodologia',previousLabels:['Dados e atualização']}];
+const marketTabs=[{id:'dashboard',label:'Panorama',previousLabels:['Visão geral']},{id:'history',label:'Evolução'},{id:'competition',label:'Concorrência',previousLabels:['Marcas e modelos']},{id:'ranking',label:'Ranking'},{id:'segments',label:'Porte',previousLabels:['Estrutura BD']},{id:'structure',label:'Pirâmide BD'},{id:'technology',label:'Propulsão'},{id:'origin',label:'Origem'},{id:'geography',label:'Mapas',previousLabels:['Territórios','Mapa do mercado']},{id:'geography3d',label:'3D'},{id:'explore',label:'Explorar'},{id:'animations',label:'Animações'},{id:'models',label:'Economia',previousLabels:['Cenários','Modelos e cenários']},{id:'quality',label:'Dados e metodologia',previousLabels:['Dados e atualização']}];
 const marketNavigation=[
  {id:'dashboard',label:'Panorama',routes:['dashboard']},
  {id:'history',label:'Evolução',routes:['history']},
  {id:'competition',label:'Concorrência',routes:['competition']},
  {id:'segments',label:'Segmentos',routes:['segments','technology','origin']},
- {id:'geography',label:'Territórios',routes:['geography']},
+ {id:'geography',label:'Territórios',routes:['geography','geography3d']},
  {id:'explore',label:'Explorar',routes:['explore']},
  {id:'models',label:'Economia',routes:['models']},
  {id:'animations',label:'Animações',routes:['animations']}
