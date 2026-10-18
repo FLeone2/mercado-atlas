@@ -64,13 +64,13 @@ export function Chart({ spec = {}, rows = [], height = 280, chartOptions = {}, t
   const tooltip = () => {
     if (!hover) return null;
     const { category, keys } = hover;
-    const payload = keys.map(k => ({ dataKey: k, name: k, value: model.get(category, k)?.value, payload: model.get(category, k)?.row ?? {} })).filter(p => p.value != null || p.payload);
+    const payload = keys.map(k => ({ dataKey: k, name: k, color: colorFor(s, k, model.keys.indexOf(k), category), value: model.get(category, k)?.value, payload: model.get(category, k)?.row ?? {} })).filter(p => p.value != null || p.payload);
     const kind = axisKind(model.categories.slice(0, 40));
     const label = axisFormatter(kind === 'text' ? 'text' : kind)(category);
     const content = isValidElement(chartOptions.tooltipContent)
       ? cloneElement(chartOptions.tooltipContent, { active: true, payload, label: category })
       : <ChartTooltip active label={kind === 'month' ? label.replace(/\/(\d\d)$/, '/20$1') : label}
-          details={payload.filter(p => p.value != null).map(p => ({ label: labels[p.dataKey] ?? (single ? (labels[spec.y] ?? 'Valor') : p.dataKey), value: fmt(p.value) + (model.type.endsWith('100') && model.get(category, p.dataKey)?.raw != null ? ' · ' + formatNumber(model.get(category, p.dataKey).raw) : '') }))} />;
+          details={payload.filter(p => p.value != null).map(p => ({ color: p.color, label: labels[p.dataKey] ?? (single ? (labels[spec.y] ?? 'Valor') : p.dataKey), value: fmt(p.value) + (model.type.endsWith('100') && model.get(category, p.dataKey)?.raw != null ? ' · ' + formatNumber(model.get(category, p.dataKey).raw) : '') }))} />;
     const left = Math.min(Math.max(hover.x + 14, 0), Math.max(0, width - 220));
     return <div className="ax-tooltip-host" style={{ left, top: Math.max(0, hover.y - 12) }}>{content}</div>;
   };
