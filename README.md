@@ -54,6 +54,13 @@ Quem faz isso é o plugin `atlas-market` em `vite.config.js`.
   todo o período), meses de/até e dia inicial/final.
 - Ao abrir sem período na URL, o painel mostra o último mês disponível.
 
+## Explore as conexões
+
+Gráfico de cordas trazido do Atlas Automotivo, em Concorrência (depois do Sankey): liga regiões, marcas
+(6 maiores + Mitsubishi + Outras) e propulsões do recorte. Passar o mouse destaca; clicar numa marca filtra o painel.
+Os dados (região × marca e marca × propulsão) vêm na mesma consulta de Concorrência, sem leitura extra dos cubos,
+e entram no pré-cálculo. Fonte: `src/market/modules/connections-chord.js`; teste: `tests/connections.test.cjs`.
+
 ## Tempo de carregamento
 
 - **Pré-cálculo dos períodos rápidos.** `npm run build` roda antes `scripts/precompute.cjs`, que usa o mesmo cálculo

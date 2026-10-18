@@ -489,3 +489,42 @@ h1, h2, h3, h4 { color: var(--ink); }
 .mp-questions-head h2 { font-size: clamp(40px, 4.4vw, 64px); letter-spacing: -.03em; }
 .ax-metric-value, .mp-tile strong { font-size: clamp(28px, 2.6vw, 40px); letter-spacing: -.02em; }
 .at-wordmark { font-size: 34px; letter-spacing: .16em; }
+
+/* Explore as conexões (chord diagram from the Atlas Automotivo) */
+.cc-chord { display: grid; grid-template-columns: minmax(0, 34%) minmax(0, 1fr); gap: 32px 5%; align-items: start; }
+.cc-chord-copy { padding-top: 48px; }
+.cc-chord-copy { display: flex; flex-direction: column; gap: 18px; }
+.cc-chord-lede { margin: 0; font-size: 15px; line-height: 1.7; color: var(--ink-soft); }
+.cc-chord-focus { padding: 16px 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); }
+.cc-chord-focus strong { display: block; font: 400 30px/1.1 var(--serif); letter-spacing: -.015em; }
+.cc-chord-focus span { display: block; margin-top: 6px; color: var(--brass); font-weight: 600; font-variant-numeric: tabular-nums; }
+.cc-chord-focus p { margin: 8px 0 0; font-size: 12.5px; color: var(--ink-soft); min-height: 2.4em; }
+.cc-chord-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12px; color: var(--ink-soft); }
+.cc-chord-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.cc-chord-legend i { width: 10px; height: 10px; border-radius: 50%; }
+.cc-chord-copy .am-small-button { align-self: flex-start; }
+.cc-chord-figure { position: relative; min-width: 0; }
+.cc-chord-figure svg { display: block; width: 100%; max-width: 760px; margin: 0 auto; overflow: visible; }
+.cc-ribbon { fill-opacity: .22; transition: fill-opacity .15s, opacity .15s; }
+.cc-ribbon:hover { fill-opacity: .55; }
+.cc-ribbon.cc-dim { opacity: .09; }
+.cc-arc { cursor: pointer; transition: opacity .15s; }
+.cc-arc:focus-visible { outline: none; stroke: var(--ink); stroke-width: 2; }
+.cc-arc[aria-pressed="true"] { stroke: var(--ink); stroke-width: 2.5; }
+.cc-group.cc-dim { opacity: .3; }
+.cc-label { fill: var(--ink); font-family: var(--sans); font-size: 12px; pointer-events: none; }
+.cc-label-brand { font-family: var(--serif); font-size: 15px; }
+.cc-center circle { fill: color-mix(in srgb, var(--paper) 90%, transparent); }
+.cc-center-label { fill: var(--ink-soft); font: 600 10px var(--sans); letter-spacing: .14em; }
+.cc-center-number { fill: var(--ink); font: 400 42px var(--serif); letter-spacing: -.02em; }
+@media (max-width: 900px) {
+  .cc-chord { grid-template-columns: minmax(0, 1fr); }
+  .cc-chord-copy { padding-top: 0; }
+  .cc-chord-figure { order: -1; }
+  .cc-chord-figure svg { max-width: 560px; }
+  .cc-label { font-size: 21px; }
+  .cc-label-brand { font-size: 25px; }
+  .cc-label-small { display: none; }
+  .cc-center-number { font-size: 56px; }
+  .cc-center-label { font-size: 15px; }
+}

@@ -12,7 +12,8 @@ function marketRequestOptions(mode){
   includeHistoryComparisons:mode==='history',
   includeChannelReference:['geography','primary-map'].includes(mode),
   includeOriginAnalysis:mode==='origin',
-  includeMitsubishiProfile:['competition','ranking','segments'].includes(mode)
+  includeMitsubishiProfile:['competition','ranking','segments'].includes(mode),
+  includeConnections:mode==='competition'
  };
 }
 // The pulse follows the single brand in the filters, otherwise Mitsubishi.
