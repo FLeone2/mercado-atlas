@@ -51,7 +51,7 @@
 
   function monthlyRequestIdentity(request) {
     const filters=A.canonicalFilters(request.filters);delete filters.date;
-    return JSON.stringify({version:1,filters,dimension:request.dimension,projection:A.projectionSpec(request),selectedUF:request.selectedUF,preset:request.preset,porte:A.selection(request.porte),originMapping:request.originMapping??null,includeVehicleOrigin:request.includeVehicleOrigin!==false});
+    return JSON.stringify({version:1,filters,dimension:request.dimension,projection:A.projectionSpec(request),selectedUF:request.selectedUF,preset:request.preset,porte:A.selection(request.porte),focusBrand:request.focusBrand??null,heatBrands:request.heatBrands??null,originMapping:request.originMapping??null,includeVehicleOrigin:request.includeVehicleOrigin!==false});
   }
 
   const cancelled=(signal,stale=false)=>{if(signal?.aborted||stale)throw new DOMException('Consulta cancelada.','AbortError');};

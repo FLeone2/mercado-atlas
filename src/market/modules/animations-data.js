@@ -47,9 +47,9 @@
   const MIX_DIMENSIONS = {technology:'propulsao',body:'bd_carroceria',porte:'bd_segmento',vehicleOrigin:'bd_origem',channel:'tipo_venda'};
   function projectionSpec(request={}) {
     const view=request.dataView;
-    if(!['races','bubbles','mix','maps'].includes(view))return null;
+    if(!['races','bubbles','mix','maps','heat'].includes(view))return null;
     const kind=request.mixKind??'technology',municipal=view==='maps'&&['municipalVolume','municipality','municipal','municipal-volume','concentration','volume','count'].includes(request.mapMetric);
-    return {view,kind,dimensions:['races','bubbles'].includes(view)?[request.dimension??'marca']:view==='mix'&&kind!=='origin'?[MIX_DIMENSIONS[kind]??'propulsao']:[],origin:view==='mix'&&kind==='origin',ufs:view==='maps'&&!municipal,municipal,brands:['races','bubbles'].includes(view)};
+    return {view,kind,dimensions:['races','bubbles'].includes(view)?[request.dimension??'marca']:view==='mix'&&kind!=='origin'?[MIX_DIMENSIONS[kind]??'propulsao']:[],origin:view==='mix'&&kind==='origin',ufs:view==='maps'&&!municipal,municipal,brands:['races','bubbles'].includes(view),heat:view==='heat'};
   }
   function projectFrame(frame,request={},final=false) {
     const spec=projectionSpec(request);if(!spec)return frame;
@@ -68,7 +68,7 @@
   const add = (object,key,count) => { object[key]=(object[key]??0)+count; };
   const record = () => Object.create(null);
   function counter(name,extra={}) { return {name,observedCount:0,observedMitCount:0,brands:record(),observedTechnologyCounts:record(),...extra}; }
-  function increment(map,name,count,brand,technology,extra,trackBrands=true) { let row=map.get(name);if(!row){row=counter(name,extra);map.set(name,row);}row.observedCount+=count;if(brand==='MITSUBISHI')row.observedMitCount+=count;if(trackBrands)add(row.brands,brand,count);if(technology)add(row.observedTechnologyCounts,technology,count);return row; }
+  function increment(map,name,count,brand,technology,extra,trackBrands=true,focus='MITSUBISHI') { let row=map.get(name);if(!row){row=counter(name,extra);map.set(name,row);}row.observedCount+=count;if(brand===focus)row.observedMitCount+=count;if(trackBrands)add(row.brands,brand,count);if(technology)add(row.observedTechnologyCounts,technology,count);return row; }
   function finishRow(row,total,complete) {
     const count=complete?row.observedCount:null,mitCount=complete?row.observedMitCount:null;
     const observedElectrifiedCount=ELECTRIFIED.reduce((sum,key)=>sum+(row.observedTechnologyCounts?.[key]??0),0);
@@ -89,7 +89,8 @@
     return finishFrame({month,date:month+'-01',mode:'monthly',dimension:request.dimension??'marca',complete:coverage.complete,coverageStatus:coverage.status,coverage,scopeKey:scopeKey(meta,request.filters??{}),observedTotal:['missing','unavailable'].includes(coverage.status)?null:0,groups:{},originRows:[],ufRows:[],municipalityRows:[],sourceRows:0,selectedUF:request.selectedUF??'',municipalityRequested:Boolean(request.selectedUF),channelCoverage:{observedCount:0,knownCount:0,unknownCount:0,available:false,sourceFields:meta?.channelSourceFields??[]}});
   }
   function aggregateCube(cube,meta,request) {
-    const projection=projectionSpec(request),dimensions=projection?.dimensions??GROUP_DIMS;
+    const projection=projectionSpec(request),dimensions=projection?.dimensions??GROUP_DIMS,focus=String(request.focusBrand||'MITSUBISHI').toUpperCase();
+    const heatSet=projection?.heat?new Set((request.heatBrands??[]).map(b=>String(b).toUpperCase())):null,heat=Object.fromEntries([...(heatSet??[])].map(b=>[b,record()]));
     const filters=request.filters??{},month=cube.month,frame=emptyFrame(month,meta,request),cols=cube.columns??[...cube.dimensions,'count'],index=Object.fromEntries(cols.map((c,i)=>[c,i])),dict=cube.dictionaries??{};
     const descriptors=new Map();
     function descriptor(dim){if(descriptors.has(dim))return descriptors.get(dim);const field=dim==='propulsao'?'bd_combustivel':dim;const labels=(dict[field]??[]).map(v=>dim==='propulsao'?propulsion(v):label(v));const d={column:index[field],labels,fallback:dim==='propulsao'?'Não classificado':UNKNOWN};descriptors.set(dim,d);return d;}
@@ -109,24 +110,30 @@
       const date=dict.date?.[row[index.date]]??row[index.date];if(typeof date!=='string'||date.slice(0,7)!==month)throw Error('Data fora do mês de origem: '+month);
       const count=Number(row[index.count]);if(!Number.isSafeInteger(count)||count<0)throw Error('Quantidade inválida no cubo revisado.');if(!count)continue;
       const brand=value(row,'marca'),technology=value(row,'propulsao'),uf=value(row,'uf');frame.observedTotal+=count;frame.sourceRows++;
-      for(const dim of dimensions)increment(groups[dim],value(row,dim),count,brand,projection?null:technology,undefined,!projection||projection.brands);
-      if(trackUF)increment(ufs,uf,count,brand,technology,{uf},!projection);
-      if(trackMunicipal&&request.selectedUF&&uf===request.selectedUF){const municipality=value(row,'municipio'),name=municipality+' · '+uf;increment(municipalities,name,count,brand,technology,{municipality,uf,ibgeCode:null,geographicMatch:'Sem correspondência oficial'},!projection);}
-      if(trackOrigin){const origin=brandOrigins.get(brand)??classifyBrandOrigin(brand,+month.slice(0,4),request.originMapping);const originRow=increment(origins,origin.name,count,brand,projection?null:technology,{kind:origin.kind,sourceUrls:[]},!projection);if(origin.sourceUrl&&!originRow.sourceUrls.includes(origin.sourceUrl))originRow.sourceUrls.push(origin.sourceUrl);}
+      for(const dim of dimensions)increment(groups[dim],value(row,dim),count,brand,projection?null:technology,undefined,!projection||projection.brands,focus);
+      if(trackUF)increment(ufs,uf,count,brand,technology,{uf},!projection,focus);
+      if(trackMunicipal&&request.selectedUF&&uf===request.selectedUF){const municipality=value(row,'municipio'),name=municipality+' · '+uf;increment(municipalities,name,count,brand,technology,{municipality,uf,ibgeCode:null,geographicMatch:'Sem correspondência oficial'},!projection,focus);}
+      if(trackOrigin){const origin=brandOrigins.get(brand)??classifyBrandOrigin(brand,+month.slice(0,4),request.originMapping);const originRow=increment(origins,origin.name,count,brand,projection?null:technology,{kind:origin.kind,sourceUrls:[]},!projection,focus);if(origin.sourceUrl&&!originRow.sourceUrls.includes(origin.sourceUrl))originRow.sourceUrls.push(origin.sourceUrl);}
+      if(heatSet?.has(brand)){const key=value(row,'municipio')+' · '+uf;add(heat[brand],key,count);}
       channel.observedCount+=count;if(['VD','VAREJO'].includes(value(row,'tipo_venda')))channel.knownCount+=count;else channel.unknownCount+=count;
     }
-    return finishFrame({...frame,vehicleOriginAvailable:cols.includes('bd_origem'),technologyAvailable:cols.includes('bd_combustivel'),groups:Object.fromEntries(dimensions.map(dim=>[dim,[...groups[dim].values()]])),ufRows:[...ufs.values()],municipalityRows:[...municipalities.values()],originRows:[...origins.values()],channelCoverage:channel});
+    return finishFrame({...frame,vehicleOriginAvailable:cols.includes('bd_origem'),technologyAvailable:cols.includes('bd_combustivel'),groups:Object.fromEntries(dimensions.map(dim=>[dim,[...groups[dim].values()]])),ufRows:[...ufs.values()],municipalityRows:[...municipalities.values()],originRows:[...origins.values()],channelCoverage:channel,...(heatSet?{heat}:{})});
   }
   function mergeRows(frames,field,dimension) {
     const rows=new Map();for(const frame of frames)for(const original of dimension?frame[field]?.[dimension]??[]:frame[field]??[]){let row=rows.get(original.name);if(!row){row={...original,observedCount:0,observedMitCount:0,brands:record(),observedTechnologyCounts:record(),sourceUrls:[]};rows.set(original.name,row);}row.observedCount+=original.observedCount??0;row.observedMitCount+=original.observedMitCount??0;for(const [brand,n]of Object.entries(original.brands??{}))add(row.brands,brand,n);for(const [tech,n]of Object.entries(original.observedTechnologyCounts??{}))add(row.observedTechnologyCounts,tech,n);for(const source of original.sourceUrls??[])if(!row.sourceUrls.includes(source))row.sourceUrls.push(source);}
     return [...rows.values()];
+  }
+  // Cumulative municipality counts per brand: the sum of every month's heat in the window.
+  function mergeHeat(frames) {
+    const out={};for(const frame of frames)for(const [brand,rows] of Object.entries(frame.heat??{})){const target=out[brand]??(out[brand]=record());for(const [name,n] of Object.entries(rows))add(target,name,n);}
+    return out;
   }
   function yearToDateFrames(frames,request={}) {
     const index=new Map(frames.map(f=>[f.month,f]));return [...frames].sort((a,b)=>textCompare(a.month,b.month)).map(frame=>{
       const expected=listMonths(frame.month.slice(0,4)+'-01',frame.month),rows=expected.map(month=>index.get(month)),present=rows.filter(Boolean),missingMonths=expected.filter((m,i)=>!rows[i]||!rows[i].complete);
       const scopeConsistent=new Set(present.map(f=>f.scopeKey)).size<=1,complete=!missingMonths.length&&scopeConsistent;
       const total=present.reduce((sum,f)=>sum+f.observedTotal,0),channel={observedCount:total,knownCount:0,unknownCount:0,available:present.some(f=>f.channelCoverage.available),sourceFields:[...new Set(present.flatMap(f=>f.channelCoverage.sourceFields??[]))]};for(const f of present){channel.knownCount+=f.channelCoverage.knownCount;channel.unknownCount+=f.channelCoverage.unknownCount;}
-      return projectFrame(finishFrame({...frame,mode:'ytd',periodStart:frame.month.slice(0,4)+'-01-01',periodEnd:monthEnd(frame.month),complete,coverageStatus:complete?'complete':scopeConsistent?'incomplete-ytd':'scope-changed',missingMonths,scopeConsistent,observedTotal:total,groups:Object.fromEntries(GROUP_DIMS.map(dim=>[dim,mergeRows(present,'groups',dim)])),ufRows:mergeRows(present,'ufRows'),municipalityRows:mergeRows(present,'municipalityRows'),originRows:mergeRows(present,'originRows'),channelCoverage:channel,sourceRows:present.reduce((sum,f)=>sum+f.sourceRows,0)}),request);
+      return projectFrame(finishFrame({...frame,mode:'ytd',periodStart:frame.month.slice(0,4)+'-01-01',periodEnd:monthEnd(frame.month),complete,coverageStatus:complete?'complete':scopeConsistent?'incomplete-ytd':'scope-changed',missingMonths,scopeConsistent,observedTotal:total,groups:Object.fromEntries(GROUP_DIMS.map(dim=>[dim,mergeRows(present,'groups',dim)])),ufRows:mergeRows(present,'ufRows'),municipalityRows:mergeRows(present,'municipalityRows'),originRows:mergeRows(present,'originRows'),heat:mergeHeat(present),channelCoverage:channel,sourceRows:present.reduce((sum,f)=>sum+f.sourceRows,0)}),request);
     });
   }
 

@@ -237,26 +237,22 @@ function ExtrudedStates({states,geo,tops,ufTotals,population,channelLabel}){
 /* ---------- 2b. heat map ---------- */
 // Every municipality adds a soft blob of heat at its position; the blobs add up where cities are close
 // together. One hue, light to dark (sequential), compressed so the biggest metros do not erase the rest.
-function HeatMap({spikes,states,channelLabel}){
- const h=jsxRuntime.jsx,hs=jsxRuntime.jsxs;
- const wrap=React.useRef(null),canvas=React.useRef(null),w=useCanvasWidth(wrap),frame=React.useRef(null);
- const [measure,setMeasure]=React.useState('market'),[scale,setScale]=React.useState('sqrt'),[radius,setRadius]=React.useState(18),[tip,setTip]=React.useState(null);
- const [vx,vy,vw,vh]=React.useMemo(()=>value$3.viewBox.split(/\s+/).map(Number),[]);
- const values=measure==='mit'?spikes.mit:spikes.market;
- const top=React.useMemo(()=>values.map((v,i)=>({i,v})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,5),[values]),total=React.useMemo(()=>values.reduce((a,b)=>a+b,0),[values]);
- React.useEffect(()=>{const cv=canvas.current;if(!cv||!w)return;const dpr=Math.min(devicePixelRatio||1,2),H=Math.round(w*vh/vw),W=Math.round(w*dpr),HH=Math.round(H*dpr);
+// Draws one heat layer: soft alpha blobs per municipality, coloured with a one-hue ramp and clipped to Brazil.
+function tbmDrawHeat(cv,w,{points,values,scale,radius,color,states,view,max=Math.max(1,...values)}){
+ const [vx,vy,vw,vh]=view;
+ const dpr=Math.min(devicePixelRatio||1,2),H=Math.round(w*vh/vw),W=Math.round(w*dpr),HH=Math.round(H*dpr);
   if(cv.width!==W||cv.height!==HH){cv.width=W;cv.height=HH;cv.style.height=H+'px';}
   const ctx=cv.getContext('2d');ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,W,HH);
   const k=W/vw,drawStates=(fill,stroke)=>{ctx.save();ctx.setTransform(k,0,0,k,-vx*k,-vy*k);ctx.lineWidth=1.1/k;states.forEach(st=>{if(fill){ctx.fillStyle=fill;ctx.fill(st.p);}ctx.strokeStyle=stroke;ctx.stroke(st.p);});ctx.restore();};
   const surface=tbmResolve(cv,'var(--surface)');drawStates(tbmResolve(cv,'var(--muted)'),surface);
   // 1. accumulate alpha with soft blobs
   const layer=document.createElement('canvas');layer.width=W;layer.height=HH;const lc=layer.getContext('2d',{willReadFrequently:true});
-  const max=Math.max(1,...values),weight=v=>scale==='log'?Math.log1p(v)/Math.log1p(max):Math.sqrt(v/max),r0=radius*dpr*(W/(900*dpr));
+  const weight=v=>scale==='log'?Math.log1p(v)/Math.log1p(max):Math.sqrt(v/max),r0=radius*dpr*(W/(900*dpr));
   const pts=[];
-  for(let i=0;i<values.length;i++){const v=values[i];if(!(v>0))continue;const x=(spikes.points[i][0]-vx)*k,y=(spikes.points[i][1]-vy)*k,wt=weight(v),rad=r0*(.55+.9*wt),a=Math.min(.9,.05+.55*wt);pts.push([x/dpr,y/dpr,i]);
+  for(let i=0;i<values.length;i++){const v=values[i];if(!(v>0))continue;const x=(points[i][0]-vx)*k,y=(points[i][1]-vy)*k,wt=weight(v),rad=r0*(.55+.9*wt),a=Math.min(.9,.05+.55*wt);pts.push([x/dpr,y/dpr,i]);
    const g=lc.createRadialGradient(x,y,0,x,y,rad);g.addColorStop(0,'rgba(0,0,0,'+a+')');g.addColorStop(1,'rgba(0,0,0,0)');lc.fillStyle=g;lc.beginPath();lc.arc(x,y,rad,0,Math.PI*2);lc.fill();}
   // 2. colour the accumulated alpha with a one-hue ramp
-  const base=tbmResolve(cv,measure==='mit'?'var(--mitsubishi-color)':'var(--accent)'),stops=[[0,base,0],[.18,base,.22],[.5,base,.6],[.8,tbmShade(base,.82),.88],[1,tbmShade(base,.6),1]];
+  const base=tbmResolve(cv,color),stops=[[0,base,0],[.18,base,.22],[.5,base,.6],[.8,tbmShade(base,.82),.88],[1,tbmShade(base,.6),1]];
   const lut=document.createElement('canvas');lut.width=256;lut.height=1;const lg=lut.getContext('2d',{willReadFrequently:true}),grad=lg.createLinearGradient(0,0,256,0);
   const rgba=(c,a)=>{const m=/rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c);return m?'rgba('+m[1]+','+m[2]+','+m[3]+','+a+')':c;};
   stops.forEach(([o,c,a])=>grad.addColorStop(o,rgba(tbmShade(c,1),a)));lg.fillStyle=grad;lg.fillRect(0,0,256,1);const ramp=lg.getImageData(0,0,256,1).data;
@@ -265,7 +261,17 @@ function HeatMap({spikes,states,channelLabel}){
   // Heat stays inside Brazil: clip to the union of the state outlines.
   const country=new Path2D();states.forEach(st=>country.addPath(st.p));ctx.save();ctx.setTransform(k,0,0,k,-vx*k,-vy*k);ctx.clip(country);ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(layer,0,0);ctx.restore();
   drawStates(null,tbmResolve(cv,'var(--surface)'));
-  frame.current={pts};
+  return pts;
+
+}
+function HeatMap({spikes,states,channelLabel}){
+ const h=jsxRuntime.jsx,hs=jsxRuntime.jsxs;
+ const wrap=React.useRef(null),canvas=React.useRef(null),w=useCanvasWidth(wrap),frame=React.useRef(null);
+ const [measure,setMeasure]=React.useState('market'),[scale,setScale]=React.useState('sqrt'),[radius,setRadius]=React.useState(18),[tip,setTip]=React.useState(null);
+ const [vx,vy,vw,vh]=React.useMemo(()=>value$3.viewBox.split(/\s+/).map(Number),[]);
+ const values=measure==='mit'?spikes.mit:spikes.market;
+ const top=React.useMemo(()=>values.map((v,i)=>({i,v})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,5),[values]),total=React.useMemo(()=>values.reduce((a,b)=>a+b,0),[values]);
+ React.useEffect(()=>{const cv=canvas.current;if(!cv||!w)return;frame.current={pts:tbmDrawHeat(cv,w,{points:spikes.points,values,scale,radius,color:measure==='mit'?'var(--mitsubishi-color)':'var(--accent)',states,view:[vx,vy,vw,vh]})};
  },[w,values,scale,radius,measure,states,spikes,vx,vy,vw,vh]);
  const move=e=>{const f=frame.current;if(!f)return;const r=canvas.current.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;let best=null,bd=14;for(const [x,y,i] of f.pts){const dd=Math.hypot(px-x,py-y);if(dd<bd||(dd<=bd&&best!=null&&values[i]>values[best])){bd=dd;best=i;}}setTip(best==null?null:{i:best,x:e.clientX,y:e.clientY});};
  return hs('div',{className:'tbm-card tbm-heat','data-export-root':'',children:[typeof ExportImageButton==='function'&&h(ExportImageButton,{name:'mapa-de-calor'}),

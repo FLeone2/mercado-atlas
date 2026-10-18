@@ -103,3 +103,17 @@ test('Scoped projections preserve exact values for every view, mix, map metric, 
  }
  const expanded=await W.runAnimations({...base,mode:'ytd',dataView:'races',dimension:'modelo',includeMonthlyFrames:true},deps);assert.equal(expanded.monthlyFrames.length,2);assert.equal(expanded.monthlyFramesIncluded,true);assert.equal(expanded.frames[1].total,expanded.monthlyFrames[1].total*2);
 });
+
+test('Cumulative frames sum from January, any brand can be in focus, and heat counts add up per municipality',()=>{
+ const rec=(marca,municipio,count)=>({marca,municipio,uf:'SP',count});
+ const records={'2026-01':[rec('TOYOTA','Santos',5),rec('FIAT','Santos',20),rec('TOYOTA','Campinas',2)],'2026-02':[rec('TOYOTA','Santos',3),rec('FIAT','Campinas',10)],'2026-03':[rec('TOYOTA','Campinas',4)]};
+ const frames=Object.entries(records).map(([month,rows])=>aggregate(month,rows,{dataView:'heat',heatBrands:['toyota','FIAT'],focusBrand:'TOYOTA'}));
+ const ytd=A.yearToDateFrames(frames,{dataView:'heat',heatBrands:['TOYOTA','FIAT']});
+ assert.deepEqual(ytd.map(f=>f.total),[27,40,44]);
+ assert.deepEqual({...ytd[1].heat.TOYOTA},{'Santos · SP':8,'Campinas · SP':2});
+ assert.deepEqual({...ytd[2].heat.TOYOTA},{'Santos · SP':8,'Campinas · SP':6});
+ assert.deepEqual({...ytd[2].heat.FIAT},{'Santos · SP':20,'Campinas · SP':10});
+ const maps=Object.entries(records).map(([month,rows])=>aggregate(month,rows,{dataView:'maps',focusBrand:'TOYOTA'}));
+ const last=A.yearToDateFrames(maps,{dataView:'maps',focusBrand:'TOYOTA'}).at(-1).ufRows[0];
+ assert.equal(last.mitCount,14);assert.equal(last.mitShare,14/44);
+});
