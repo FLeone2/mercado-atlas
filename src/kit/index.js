@@ -1,7 +1,7 @@
 // The component kit the market views are written against (the same names the old
 // Data app runtime exposed), implemented here in the Atlas style.
 export { DataAppProvider, useDataApp, useDashboardTabs, useSectionFilters } from './context.jsx';
-export { Icon, Button, SegmentedControl, Switch, Dropdown, NativeSelect, DateRangePicker, Filters, InlineFilters, Dialog, ContainedDialog, filterChoices, periodPresets, rangeLabel } from './controls.jsx';
+export { Info, Icon, Button, SegmentedControl, Switch, Dropdown, NativeSelect, DateRangePicker, Filters, InlineFilters, Dialog, ContainedDialog, filterChoices, periodPresets, rangeLabel } from './controls.jsx';
 export {
   Section, SectionHeader, ReportSection, DataComponent, QueryDataBoundary, MetricCard, SortableRegion, SortableItem, ChartTooltip,
   Tooltip, InfoTooltip, TruncatedText, RichNarrative, EditableText, ExecutiveSummary, MetricCardTabs, MetricSparkline,

@@ -1,20 +1,21 @@
 // Registered leaf IDs are stable contracts for old links, favorites and history.
-const marketTabs=[{id:'dashboard',label:'Panorama',previousLabels:['Visão geral']},{id:'history',label:'Evolução'},{id:'competition',label:'Marcas e modelos'},{id:'ranking',label:'Ranking'},{id:'segments',label:'Estrutura BD'},{id:'structure',label:'Pirâmide BD'},{id:'technology',label:'Propulsão'},{id:'origin',label:'Origem'},{id:'geography',label:'Territórios',previousLabels:['Mapa do mercado']},{id:'explore',label:'Explorar'},{id:'animations',label:'Animações'},{id:'models',label:'Economia',previousLabels:['Cenários','Modelos e cenários']},{id:'quality',label:'Dados e metodologia',previousLabels:['Dados e atualização']}];
+// Old leaf routes now shown inside another area.
+const TAB_ALIASES={ranking:'competition',structure:'segments'};
+const marketTabs=[{id:'dashboard',label:'Panorama',previousLabels:['Visão geral']},{id:'history',label:'Evolução'},{id:'competition',label:'Concorrência',previousLabels:['Marcas e modelos']},{id:'ranking',label:'Ranking'},{id:'segments',label:'Porte',previousLabels:['Estrutura BD']},{id:'structure',label:'Pirâmide BD'},{id:'technology',label:'Propulsão'},{id:'origin',label:'Origem'},{id:'geography',label:'Territórios',previousLabels:['Mapa do mercado']},{id:'explore',label:'Explorar'},{id:'animations',label:'Animações'},{id:'models',label:'Economia',previousLabels:['Cenários','Modelos e cenários']},{id:'quality',label:'Dados e metodologia',previousLabels:['Dados e atualização']}];
 const marketNavigation=[
  {id:'dashboard',label:'Panorama',routes:['dashboard']},
  {id:'history',label:'Evolução',routes:['history']},
- {id:'competition',label:'Concorrência',routes:['competition','ranking']},
- {id:'segments',label:'Segmentos',routes:['segments','structure','technology','origin']},
+ {id:'competition',label:'Concorrência',routes:['competition']},
+ {id:'segments',label:'Segmentos',routes:['segments','technology','origin']},
  {id:'geography',label:'Territórios',routes:['geography']},
  {id:'explore',label:'Explorar',routes:['explore']},
  {id:'models',label:'Economia',routes:['models']},
  {id:'animations',label:'Animações',routes:['animations']}
 ];
 function navigationLocation(tab,explorationView){
- const leaf=tab==='explore'&&explorationView==='structure'?'structure':tab;
+ const leaf=TAB_ALIASES[tab]??tab;
  return {leaf,group:marketNavigation.find(group=>group.routes.includes(leaf))??null,label:marketTabs.find(item=>item.id===leaf)?.label??'Panorama'};
 }
-const EVOLUTION_TABS=[{value:'executive',label:'Executiva'},{value:'composition',label:'Composição'},{value:'growth',label:'Crescimento'}];
 function MarketNavigation({tab,explorationView,onNavigate}){
  const location=navigationLocation(tab,explorationView);
  return jsxRuntime.jsx('nav',{'aria-label':'Áreas do mercado',className:'at-nav am-primary-nav',children:marketNavigation.map(group=>jsxRuntime.jsx('button',{type:'button',className:'am-nav-link','aria-current':location.group?.id===group.id?'page':undefined,onClick:()=>onNavigate(group.id),children:group.label},group.id))});
@@ -31,10 +32,10 @@ function CopyViewLink(){
 }
 function MarketSubnavigation({tab,explorationView,onNavigate,evolutionView='executive',onEvolutionView,scenarioView='diagnostic',onScenarioView}){
  const location=navigationLocation(tab,explorationView);
- const options=tab==='history'?EVOLUTION_TABS:tab==='models'?SCENARIO_TABS:(location.group?.routes??[tab]).map(id=>({value:id,label:marketTabs.find(item=>item.id===id)?.label??location.label}));
- const value=tab==='history'?evolutionView:tab==='models'?scenarioView:location.leaf;
- const choose=tab==='history'?onEvolutionView:tab==='models'?onScenarioView:onNavigate;
- return jsxRuntime.jsxs('div',{className:'am-subnavigation',children:[jsxRuntime.jsx('nav',{'aria-label':'Análises de '+(location.group?.label??location.label),className:'am-leaf-nav',children:options.map(item=>jsxRuntime.jsx('button',{type:'button',className:'am-nav-link','aria-current':value===item.value?'page':undefined,onClick:()=>choose?.(item.value),children:item.label},item.value))}),jsxRuntime.jsxs('nav',{'aria-label':'Compartilhar e documentação',className:'am-secondary-nav',children:[jsxRuntime.jsx(CopyViewLink,{}),typeof PrintButton==='function'&&jsxRuntime.jsx(PrintButton,{label:'Imprimir / PDF'}),jsxRuntime.jsx('button',{type:'button',className:'am-nav-link','aria-current':tab==='quality'?'page':undefined,onClick:()=>onNavigate('quality'),children:'Dados e metodologia'})]})]});
+ const options=tab==='models'?SCENARIO_TABS.filter(item=>!item.hidden||item.value===scenarioView):(location.group?.routes??[tab]).map(id=>({value:id,label:marketTabs.find(item=>item.id===id)?.label??location.label}));
+ const value=tab==='models'?scenarioView:location.leaf;
+ const choose=tab==='models'?onScenarioView:onNavigate;
+ return jsxRuntime.jsxs('div',{className:'am-subnavigation',children:[options.length>1?jsxRuntime.jsx('nav',{'aria-label':'Análises de '+(location.group?.label??location.label),className:'am-leaf-nav',children:options.map(item=>jsxRuntime.jsx('button',{type:'button',className:'am-nav-link','aria-current':value===item.value?'page':undefined,onClick:()=>choose?.(item.value),children:item.label},item.value))}):jsxRuntime.jsx('span',{className:'am-leaf-nav'}),jsxRuntime.jsxs('nav',{'aria-label':'Compartilhar e documentação',className:'am-secondary-nav',children:[jsxRuntime.jsx(CopyViewLink,{}),typeof PrintButton==='function'&&jsxRuntime.jsx(PrintButton,{label:'Imprimir / PDF'}),jsxRuntime.jsx('button',{type:'button',className:'am-nav-link','aria-current':tab==='quality'?'page':undefined,onClick:()=>onNavigate('quality'),children:'Dados e metodologia'})]})]});
 }
 
 // Atlas masthead: wordmark, the eight areas, theme and (on phones) a menu toggle.

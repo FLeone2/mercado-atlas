@@ -331,6 +331,23 @@ h1, h2, h3, h4 { color: var(--ink); }
 .mp-question p { font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); }
 .mp-question button { border: 0; padding: 0; font: 500 18px/1.2 var(--serif); color: var(--brass); background: none; }
 .mp-question button:hover { color: var(--ink); border: 0; }
+/* Panorama · Destaques: four numbers, each a door into its area. */
+.mp-highlights { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin: 0 0 24px; border-bottom: 1px solid var(--line); position: relative; }
+.mp-highlight { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 20px 28px 20px 0; border: 0; border-radius: 0; background: none; color: var(--ink); text-align: left; cursor: pointer; font: inherit; }
+.mp-highlight + .mp-highlight { border-left: 1px solid var(--line); padding-left: 22px; }
+.mp-highlight strong { font: 400 clamp(24px, 2.4vw, 34px)/1.05 var(--serif); letter-spacing: -.02em; overflow-wrap: anywhere; }
+.mp-highlight small { font-size: 12.5px; color: var(--ink-soft); min-height: 1em; }
+.mp-highlight-go { position: absolute; right: 12px; top: 20px; color: var(--brass); transition: transform .15s; }
+.mp-highlight:hover strong { color: var(--brass); }
+.mp-highlight:hover .mp-highlight-go { transform: translateX(3px); }
+.mp-highlight:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+.mp-highlight-print { grid-column: 1 / -1; justify-self: end; margin: 10px 0; }
+@media (max-width: 760px) {
+  .mp-highlights { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mp-highlight:nth-child(3) { border-left: 0; padding-left: 0; }
+  .mp-highlight:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .mp-highlight-print { justify-self: start; }
+}
 
 /* KPIs and composition (Panorama) */
 .am-overview-summary { margin: 40px 0 0; }
@@ -528,3 +545,22 @@ h1, h2, h3, h4 { color: var(--ink); }
   .cc-center-number { font-size: 56px; }
   .cc-center-label { font-size: 15px; }
 }
+
+/* ⓘ notes: the explanation is one click away instead of a paragraph under every chart */
+.ax-info-wrap { position: relative; display: inline-flex; vertical-align: middle; margin-left: 8px; }
+.ax-info { appearance: none; display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; background: none; color: var(--ink-soft); cursor: pointer; font: 500 11.5px/1 var(--sans); letter-spacing: 0; }
+.ax-info > span { display: inline-grid; place-items: center; width: 17px; height: 17px; border: 1px solid currentColor; border-radius: 50%; font: italic 600 11px/1 Georgia, serif; }
+.ax-info em { font-style: normal; }
+.ax-info:hover, .ax-info[aria-expanded="true"] { color: var(--brass); }
+.ax-info-pop { width: min(380px, 86vw); padding: 12px 14px; font: 400 12.5px/1.55 var(--sans); color: var(--ink); letter-spacing: 0; text-transform: none; white-space: normal; }
+.ax-card-title .ax-info-pop { left: auto; right: auto; }
+.am-note-info { margin: 8px 0 0; }
+.ax-card-note { margin-top: 6px; }
+/* Territórios: one switch for the intensity map; tables stay folded. */
+.am-map-switch { display: flex; justify-content: flex-start; margin: 40px 0 12px; }
+.am-geo-tables { margin: 32px 0; border-top: 1px solid var(--line); }
+.am-geo-tables > summary { cursor: pointer; padding: 14px 0; font-size: 13px; color: var(--ink-soft); list-style: none; }
+.am-geo-tables > summary::before { content: '+ '; color: var(--brass); }
+.am-geo-tables[open] > summary::before { content: '− '; }
+.tbm-density-switch { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin: 48px 0 8px; padding-top: 18px; border-top: 1px solid var(--line); }
+.tbm-density-switch h3 { font: 400 26px/1.1 var(--serif); margin: 0; }

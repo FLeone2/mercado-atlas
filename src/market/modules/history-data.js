@@ -64,6 +64,7 @@ function useHistory(filters,base,enabled=true){
  return {...state,pending:enabled&&state.file!==plan.file,plan};
 }
 function HistoryScopeNote({plan,extra}){
+ if(!plan.ignored.length)return null;
  return jsxRuntime.jsx('p',{className:'hx-scope',children:'Histórico mensal pré-calculado (2016 em diante), com os filtros globais'+(plan.ignored.length?' exceto '+plan.ignoredLabels.join(', ')+', que este painel não consegue aplicar':'')+'.'+(extra?' '+extra:'')});
 }
 if(typeof module!=='undefined'&&module.exports)module.exports={HISTORY_FILES,HISTORY_REGIONS,historyPlan,historyRows,historyMonthly,historyEaster,historyHolidays,historyWorkingDays,historyEndMonth,historySelection};

@@ -13,7 +13,7 @@ assert.equal(index.identity, core.precomputedIdentity(manifest), 'índice gerado
 const presets = core.latestPeriodPresets(manifest).presets.map(p => p.value);
 assert.deepEqual(index.presets, presets, 'períodos rápidos = Ano atual e Último mês do manifesto');
 const read = file => JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root, 'data/precomputed', file))).toString('utf8'));
-for (const date of presets) for (const mode of ['dashboard', 'pulse', 'history', 'competition', 'ranking', 'segments', 'technology', 'origin', 'geography', 'primary-map']) {
+for (const date of presets) for (const mode of ['dashboard', 'pulse', 'history', 'competition', 'ranking', 'segments', 'technology', 'origin', 'geography', 'primary-map', 'catalog']) {
   const filters = { date, population: 'light' }, key = core.marketRequestKey(core.canonicalFilterKey(filters), core.marketRequestOptions(mode), core.marketFocusBrand(filters));
   const file = index.entries[key]; assert(file, `sem entrada para ${date} ${mode}`);
   assert(fs.existsSync(path.join(root, 'data/precomputed', file)), file);

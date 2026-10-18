@@ -1,7 +1,7 @@
 // Editorial containers: a section is a chapter (serif title over a hairline), a data
 // component is one figure with its title, controls, CSV/PNG tools and a footnote.
 import { Children, useRef, useState } from 'react';
-import { Icon } from './controls.jsx';
+import { Icon, Info } from './controls.jsx';
 import { downloadCsv } from './format.js';
 import { exportLegend, exportSvgToPng } from './export.js';
 
@@ -55,12 +55,12 @@ export function DataComponent({ id, title, kind, variant, className = '', source
     <article className={`ax-card ax-card-${kind ?? 'block'} ${className}`} id={id} data-export-root data-export-title={typeof title === 'string' ? title : undefined} data-variant={variant}>
       {(title || headerControls) && (
         <header className="ax-card-head">
-          {title && <h3 className="ax-card-title">{title}</h3>}
+          {title && <h3 className="ax-card-title">{title}{description && <Info>{description}</Info>}</h3>}
           <div className="ax-card-controls">{headerControls}<ToolMenu id={id} title={typeof title === 'string' ? title : ''} rows={rows} /></div>
         </header>
       )}
       <div className="ax-card-body">{children}</div>
-      {description && (typeof description === 'string' ? <p className="ax-card-note">{description}</p> : <div className="ax-card-note">{description}</div>)}
+      {description && !title && <div className="ax-card-note"><Info label="Como ler">{description}</Info></div>}
       {footer}
     </article>
   );

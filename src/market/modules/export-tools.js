@@ -22,7 +22,7 @@ function printView(mode='area'){
  const area=document.querySelector('.at-nav [aria-current=page]')?.textContent?.trim()??'Mercado Automotivo';
  header.className='print-header';header.innerHTML='';const strong=document.createElement('strong');strong.textContent='Atlas · Mercado Automotivo · '+(mode==='summary'?'Resumo':area);const small=document.createElement('span');small.textContent=printFilterSummary()+' · gerado em '+new Date().toLocaleDateString('pt-BR');header.append(strong,small);document.body.prepend(header);
  if(mode==='summary'){
-  const keep=[...document.querySelectorAll('.mp-strip,.oi-card,.mp-questions')],path=new Set();
+  const keep=[...document.querySelectorAll('.mp-strip,.oi-card,.mp-highlights')],path=new Set();
   keep.push(header);for(const el of keep){let n=el;while(n&&n!==document.documentElement){path.add(n);n=n.parentElement;}}
   for(const el of path){if(keep.includes(el))continue;for(const child of el.children)if(!path.has(child)){child.setAttribute('data-print-hide','');hidden.push(child);}}
   root.classList.add('print-summary');

@@ -72,6 +72,21 @@ function usePopover(open, setOpen, ref) {
   }, [open, setOpen, ref]);
 }
 
+// Notes and method live behind an ⓘ: the chart stays in front, the text is one click away.
+export function Info({ children, label, className = '' }) {
+  const [open, setOpen] = useState(false), ref = useRef(null), id = useId();
+  usePopover(open, setOpen, ref);
+  if (children == null || children === '') return null;
+  return (
+    <span className={'ax-info-wrap ' + className} ref={ref}>
+      <button type="button" className="ax-info" aria-expanded={open} aria-controls={id} aria-label={label ? undefined : 'Como ler'} onClick={() => setOpen(o => !o)}>
+        <span aria-hidden="true">i</span>{label && <em>{label}</em>}
+      </button>
+      {open && <div className="ax-popover ax-info-pop" id={id} role="note">{children}</div>}
+    </span>
+  );
+}
+
 export function Dropdown({ label, value = 'all', choices = [], onChange, allLabel = 'Todos', multiple = false, searchable = false,
   showLabel = false, formatChoice, choiceLabels, placeholder, disabled = false, className = '' }) {
   const [open, setOpen] = useState(false), [query, setQuery] = useState(''), [active, setActive] = useState(0);

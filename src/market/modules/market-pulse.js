@@ -30,7 +30,7 @@ function pulseModel(market,focusResult,focus,filters){
  const electrified=(market.groups?.propulsao??[]).filter(r=>['HEV','PHEV','BEV','MHEV'].includes(r.name)).reduce((s,r)=>s+r.count,0);
  return {focus,range,market:market.total,marketYearChange:market.yearChangeRate,marketPreviousChange:market.changeRate,focusTotal,focusYearChange:focusResult?.yearChangeRate??null,share,shareYearChange:share!=null&&shareYear!=null?share-shareYear:null,
   rank:i>=0?i+1:null,brands:brands.length,previousRank:pi>=0?pi+1:null,pace,paceYearChange:pace!=null&&paceYear>0?pace/paceYear-1:null,days,yearDays,
-  strongestUF:strong[0]??null,topSegment:(focusResult?.groups?.bd_segmento??[])[0]??null,electrifiedShare:market.total>0?electrified/market.total:null,complete:market.complete!==false};
+  leader:brands[0]?{name:brands[0].name,share:market.total>0?brands[0].count/market.total:null}:null,strongestUF:strong[0]??null,topSegment:(focusResult?.groups?.bd_segmento??[])[0]??null,electrifiedShare:market.total>0?electrified/market.total:null,complete:market.complete!==false};
 }
 // One query answers both numbers: the market result carries the focus brand (result.focus).
 // When the page's own market query has no brand/model filter, it already is that query.
@@ -60,22 +60,20 @@ function MarketPulse({filters,enabled=true,shared=null}){
   tile('pace','Ritmo por dia útil',model?.pace!=null?pulseFormat.number(model.pace)+'/dia':'—',jsxRuntime.jsx(PulseChange,{value:model?.paceYearChange,label:'vs ano anterior'}),'Mercado ÷ dias úteis do período ('+(model?.days??'—')+' dias; sem fins de semana, feriados nacionais, Carnaval e Corpus Christi). Compara períodos com números de dias úteis diferentes.')
  ]});
 }
-// Panorama: questions first, each with a live one-line answer and a way into the area.
-function QuickQuestions({filters,onNavigate,onEvolutionView,shared=null}){
+// Panorama: four highlights, a number each, with a way into the area.
+function QuickQuestions({filters,onNavigate,shared=null}){
  const {model,pending,focus}=useMarketPulse(filters,true,shared),name=focus.charAt(0)+focus.slice(1).toLowerCase(),f=pulseFormat;
- const go=(tab,view)=>()=>{onNavigate?.(tab);if(view)onEvolutionView?.(view);globalThis.scrollTo?.({top:0,behavior:'smooth'});};
- const answer=text=>pending||!model?'Calculando…':text;
+ const go=tab=>()=>{onNavigate?.(tab);globalThis.scrollTo?.({top:0,behavior:'smooth'});};
+ const ready=!pending&&model;
  const cards=[
-  ['gaining','A '+name+' está ganhando espaço?',answer('Participação de '+f.percent(model?.share,2)+' no período, '+f.pp(model?.shareYearChange)+' sobre o mesmo período do ano anterior.'),'Ver evolução',go('history','growth')],
-  ['strong','Onde a '+name+' é mais forte?',answer(model?.strongestUF?model.strongestUF.name+': '+f.percent(model.strongestUF.share,1)+' do mercado local ('+f.number(model.strongestUF.count)+' emplacamentos).':'Sem volume suficiente por UF neste recorte.'),'Ver territórios',go('geography')],
-  ['segment','Em que segmento a '+name+' joga?',answer(model?.topSegment?model.topSegment.name+' concentra '+f.percent(model.focusTotal>0?model.topSegment.count/model.focusTotal:null,0)+' das vendas da marca.':'Sem vendas da marca neste recorte.'),'Ver concorrência',go('competition')],
-  ['pace','O mercado acelerou?',answer(model?.pace!=null?f.number(model.pace)+' emplacamentos por dia útil, '+f.signed(model.paceYearChange)+' sobre o ano anterior (ajustado aos dias úteis).':'Ritmo indisponível para este período.'),'Ver ritmo e sazonalidade',go('history','executive')],
-  ['electric','Quanto do mercado já é eletrificado?',answer(f.percent(model?.electrifiedShare,1)+' dos emplacamentos do recorte são HEV, PHEV, BEV ou MHEV.'),'Ver propulsão',go('technology')],
-  ['rank','Qual a posição da '+name+'?',answer(model?.rank?model.rank+'º lugar entre '+model.brands+' marcas'+(model.previousRank?' (período anterior: '+model.previousRank+'º).':'.'):'A marca não aparece neste recorte.'),'Ver ranking',go('ranking')]
+  ['leader','Marca líder',model?.leader?.name??'—',model?.leader?f.percent(model.leader.share,1)+' do mercado':'','competition'],
+  ['strong','UF mais forte · '+name,model?.strongestUF?.name??'—',model?.strongestUF?f.percent(model.strongestUF.share,1)+' do mercado local':'','geography'],
+  ['segment','Segmento principal · '+name,model?.topSegment?.name??'—',model?.topSegment&&model.focusTotal>0?f.percent(model.topSegment.count/model.focusTotal,0)+' da marca':'','segments'],
+  ['electric','Eletrificados',f.percent(model?.electrifiedShare,1),'HEV, PHEV, BEV, MHEV','technology']
  ];
- return jsxRuntime.jsxs('section',{className:'mp-questions','aria-labelledby':'mp-questions-title',children:[
-  jsxRuntime.jsxs('div',{className:'mp-questions-head',children:[jsxRuntime.jsx('h2',{id:'mp-questions-title',children:'Perguntas rápidas'}),typeof PrintButton==='function'&&jsxRuntime.jsx(PrintButton,{mode:'summary',label:'Resumo de uma página (PDF)',className:'am-small-button'})]}),
-  jsxRuntime.jsx('div',{className:'mp-question-grid',children:cards.map(([key,question,text,action,onClick])=>jsxRuntime.jsxs('article',{className:'mp-question',children:[jsxRuntime.jsx('h3',{children:question}),jsxRuntime.jsx('p',{'aria-live':'polite',children:text}),jsxRuntime.jsx('button',{type:'button',className:'am-small-button',onClick,children:action+' →'})]},key))})
+ return jsxRuntime.jsxs('section',{className:'mp-highlights','aria-label':'Destaques',children:[
+  cards.map(([key,label,value,detail,tab])=>jsxRuntime.jsxs('button',{type:'button',className:'mp-highlight',onClick:go(tab),children:[jsxRuntime.jsx('span',{className:'mp-label',children:label}),jsxRuntime.jsx('strong',{'aria-live':'polite',children:ready?value:'…'}),jsxRuntime.jsx('small',{children:ready?detail:' '}),jsxRuntime.jsx('span',{className:'mp-highlight-go','aria-hidden':true,children:'→'})]},key)),
+  typeof PrintButton==='function'&&jsxRuntime.jsx(PrintButton,{mode:'summary',label:'Resumo (PDF)',className:'am-small-button mp-highlight-print'})
  ]});
 }
 if(typeof module!=='undefined'&&module.exports)module.exports={pulseFocusBrand,pulseFilters,pulseModel,pulseWorkingDays,pulseShiftYear,pulseFormat};

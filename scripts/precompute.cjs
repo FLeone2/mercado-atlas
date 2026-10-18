@@ -9,7 +9,7 @@ const core = loadCore(), worker = loadWorker();
 const manifestText = fs.readFileSync(path.join(root, 'data/manifest.json'), 'utf8');
 const manifest = JSON.parse(manifestText);
 // Main query of each area plus the pulse (also the query of areas without one) and the map.
-const MODES = ['dashboard', 'pulse', 'history', 'competition', 'ranking', 'segments', 'technology', 'origin', 'geography', 'primary-map'];
+const MODES = ['dashboard', 'pulse', 'history', 'competition', 'ranking', 'segments', 'technology', 'origin', 'geography', 'primary-map', 'catalog'];
 
 (async () => {
   const started = Date.now();

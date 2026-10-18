@@ -15,29 +15,21 @@ function pageNotePlan(text,props={}){
  if(summary.length>=text.length-30)return null;
  return {text,summary};
 }
+// Notes sit behind an ⓘ next to where they apply; no footer of notes per area.
+// Status notes (role / aria-live) stay visible text: they report the current state.
 function PageNotesLayout({children,notesScope,...props}){
- const [target,setTarget]=React.useState(null),details=React.useRef(null);
- const context=React.useMemo(()=>({target,reveal(id){if(details.current)details.current.open=true;const node=document.getElementById(id);if(node){node.focus({preventScroll:true});node.scrollIntoView({block:'nearest',behavior:'auto'});}}}),[target]);
- return jsxRuntime.jsx(getPageNotesContext().Provider,{value:context,children:jsxRuntime.jsxs('div',{...props,children:[children,jsxRuntime.jsx('footer',{className:'am-notes-footer','aria-label':'Notas e metodologia da análise atual',children:jsxRuntime.jsxs('details',{ref:details,className:'am-page-notes',children:[jsxRuntime.jsx('summary',{children:'Notas, metodologia e ajuda desta análise'}),jsxRuntime.jsx('div',{className:'am-notes-list',ref:setTarget})]},notesScope)})]})});
+ return jsxRuntime.jsx('div',{...props,children});
 }
 function PageNote({children,originalTag='p',...props}){
- const context=React.useContext(getPageNotesContext()),id='page-note-'+React.useId(),plan=pageNotePlan(children,props);
- if(!context?.target||!plan)return jsxRuntime.jsx(originalTag,{...props,children});
- const reference=id+'-reference';
- return jsxRuntime.jsxs(jsxRuntime.Fragment,{children:[jsxRuntime.jsxs(originalTag,{...props,className:props.className+' am-note-inline',children:[plan.summary?plan.summary+' ':null,jsxRuntime.jsx('button',{id:reference,type:'button',className:'am-note-reference','aria-controls':id,onClick:()=>context.reveal(id),children:'Detalhes no rodapé ↓'})]}),require('react-dom').createPortal(jsxRuntime.jsxs('section',{id,tabIndex:-1,className:'am-note-entry',children:[jsxRuntime.jsx('p',{children:plan.text}),jsxRuntime.jsx('a',{href:'#'+reference,children:'Voltar à análise ↑'})]}),context.target,id)]});
+ if(props.role||props['aria-live'])return jsxRuntime.jsx(originalTag,{...props,children});
+ return jsxRuntime.jsx('div',{className:'am-note-info',children:jsxRuntime.jsx(dataApp.Info,{label:'Nota',children})});
 }
 function PageNoteBlock({children,className='am-scenario-method',...props}){
- const context=React.useContext(getPageNotesContext()),id='page-note-'+React.useId(),reference=id+'-reference';
- if(!context?.target)return jsxRuntime.jsx('details',{...props,className,children});
- return jsxRuntime.jsxs(jsxRuntime.Fragment,{children:[jsxRuntime.jsx('button',{id:reference,type:'button',className:'am-note-reference','aria-controls':id,onClick:()=>context.reveal(id),children:'Método e fontes no rodapé ↓'}),require('react-dom').createPortal(jsxRuntime.jsxs('section',{id,tabIndex:-1,className:'am-note-entry',children:[jsxRuntime.jsx('details',{...props,className,open:true,children}),jsxRuntime.jsx('a',{href:'#'+reference,children:'Voltar à análise ↑'})]}),context.target,id)]});
+ return jsxRuntime.jsx('details',{...props,className,children});
 }
 if(typeof module!=='undefined'&&module.exports)module.exports={pageNotePlan,PAGE_NOTE_CLASSES};
-// Shared chart/table descriptions are also authored explanations. Keep the
-// original component/data/export contract and route only long prose through PageNote.
+// Chart and table descriptions show as the ⓘ next to the title (src/kit/cards.jsx).
+
 function PageNotedEvidenceChart(props){return pageNotedComponent(dataApp.EvidenceChart,props);}
 function PageNotedDataComponent(props){return pageNotedComponent(dataApp.DataComponent,props);}
-function pageNotedComponent(Component,props){
- const plan=pageNotePlan(props.description,{className:'am-footnote'});
- if(!plan)return jsxRuntime.jsx(Component,props);
- return jsxRuntime.jsxs(jsxRuntime.Fragment,{children:[jsxRuntime.jsx(Component,{...props,description:undefined}),jsxRuntime.jsx(PageNote,{className:'am-footnote',children:props.description})]});
-}
+function pageNotedComponent(Component,props){return jsxRuntime.jsx(Component,props);}

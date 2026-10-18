@@ -230,7 +230,7 @@ function ExtrudedStates({states,geo,tops,ufTotals,population,channelLabel}){
    h('div',{className:'tbm-seg',role:'group','aria-label':'Medida da altura',children:[['volume','Volume'],['per1000','Por mil habitantes']].map(([v,l])=>h('button',{type:'button','aria-pressed':metric===v,onClick:()=>setMetric(v),children:l},v))})]}),
   h(OrbitControls,{orbit,home}),
   h('div',{ref:wrap,className:'tbm-canvas',children:h('canvas',{ref:canvas,role:'img','aria-label':'Estados extrudados em 3D',...orbit.handlers,onMouseMove:move,onMouseLeave:()=>{setHover(null);setTip(null);}})}),
-  h('p',{className:'tbm-note',children:'População: estimativa oficial do IBGE para 2026. “Por mil habitantes” mostra onde os carros são emplacados, não onde moram os compradores.'}),
+  jsxRuntime.jsx(HxMethod,{children:'População: estimativa oficial do IBGE para 2026. “Por mil habitantes” mostra onde os carros são emplacados, não onde moram os compradores.'}),
   tip&&hs('div',{className:'tbm-tip',style:{left:tip.x+14,top:tip.y+14},children:[h('strong',{children:TBM_UF_NAMES[states[tip.i].uf]}),hs('div',{className:'tbm-tip-row',children:[h('span',{children:'Emplacamentos'}),h('span',{children:tbmInt(ufTotals.get(states[tip.i].uf))})]}),hs('div',{className:'tbm-tip-row',children:[h('span',{children:'Por mil habitantes'}),h('span',{children:pop.get(states[tip.i].uf)>0?((ufTotals.get(states[tip.i].uf)??0)/pop.get(states[tip.i].uf)*1000).toLocaleString('pt-BR',{maximumFractionDigits:1}):'—'})]}),tops?.get(states[tip.i].uf)?.top?.[0]&&hs('div',{className:'tbm-tip-row tbm-muted',children:[h('span',{children:'Marca líder'}),h('span',{children:tbmName(tops.get(states[tip.i].uf).top[0].b)})]})]})]});
 }
 
@@ -282,6 +282,7 @@ function HeatMap({spikes,states,channelLabel}){
 function TerritoryBrandMaps({filters,manifest,base}){
  const h=jsxRuntime.jsx,hs=jsxRuntime.jsxs;
  const [channel,setChannel]=React.useState('VAREJO');
+ const [density,setDensity]=React.useState('spikes');
  const local=React.useMemo(()=>({...filters,uf:'all',municipio:'all',tipo_venda:channel}),[canonicalFilterKey(filters),channel]);
  const market=useMarketData(local,true,'primary-map',false),model=market.result;
  const explore=useExploration({type:'explore',filters:local,xDimension:'uf',seriesDimension:'marca',topN:20,xTopN:50,order:'value_desc',includeOthers:true,highlightBrands:['MITSUBISHI']},manifest,base);
@@ -299,16 +300,17 @@ function TerritoryBrandMaps({filters,manifest,base}){
  const loading=market.pending||explore.pending;
  return hs('section',{className:'tbm',id:'territory-brand-maps','aria-labelledby':'tbm-title',children:[
   hs('div',{className:'tbm-head',children:[
-   hs('div',{children:[h('h2',{id:'tbm-title',children:'Marcas no território'}),h('p',{children:'Mesmos filtros do painel, em visão nacional. Canal próprio desta seção.'})]}),
+   hs('div',{children:[h('h2',{id:'tbm-title',children:'Marcas no território'}),h('p',{children:'Visão nacional, com canal próprio.'})]}),
    hs('div',{className:'tbm-channel',children:[h('span',{children:'Canal'}),h('div',{className:'tbm-seg',role:'group','aria-label':'Canal de venda',children:[['VAREJO','Varejo'],['all','Todos os canais']].map(([v,l])=>h('button',{type:'button','aria-pressed':channel===v,onClick:()=>setChannel(v),children:l},v))})]})]}),
   channel==='all'&&h('p',{className:'tbm-warn',children:'Todos os canais inclui locadoras e frotas, que emplacam na sede da empresa. Belo Horizonte e Curitiba aparecem muito maiores do que a demanda das lojas.'}),
   (market.error||explore.error||points.error)&&h('p',{role:'alert',className:'tbm-warn',children:market.error||explore.error||points.error}),
   loading&&!tops&&h('p',{role:'status',className:'tbm-status',children:'Calculando marcas por estado…'}),
   tops&&h(TopThreeMap,{tops,states}),
   explore.result&&h(BrandStrengthMap,{result:explore.result,states}),
-  spikes&&h(SpikeMap,{spikes,states,geo,channelLabel}),
-  spikes&&h(HeatMap,{spikes,states,channelLabel}),
-  tops&&model&&h(ExtrudedStates,{states,geo,tops,ufTotals,population:population.data,channelLabel})]});
+  (spikes||tops)&&hs('div',{className:'tbm-density-switch',children:[h('h3',{children:'Onde se concentra'}),h('div',{className:'tbm-seg',role:'group','aria-label':'Forma do mapa',children:[['spikes','Espigões'],['heat','Calor'],['3d','3D']].map(([v,l])=>h('button',{type:'button','aria-pressed':density===v,onClick:()=>setDensity(v),children:l},v))})]}),
+  density==='spikes'&&spikes&&h(SpikeMap,{spikes,states,geo,channelLabel}),
+  density==='heat'&&spikes&&h(HeatMap,{spikes,states,channelLabel}),
+  density==='3d'&&tops&&model&&h(ExtrudedStates,{states,geo,tops,ufTotals,population:population.data,channelLabel})]});
 }
 
 if(typeof module!=='undefined'&&module.exports)module.exports={tbmTops,tbmStrength,tbmGeometry,tbmProjection,tbmName,tbmColor};

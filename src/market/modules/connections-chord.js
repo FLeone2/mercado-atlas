@@ -69,7 +69,7 @@ function ConnectionsChord({model,filters,setFilter}){
  const focusNode=active!=null?nodes[active]:null;
  return h(dataApp.Section,{id:'connections-chord-heading',title:'Explore as conexões',children:hs('div',{className:'cc-chord','data-export-root':true,'data-export-title':'Explore as conexões',children:[
   hs('div',{className:'cc-chord-copy',children:[
-   h('p',{className:'cc-chord-lede',children:'As faixas ligam regiões, marcas e propulsões dos emplacamentos do recorte. Passe o mouse para destacar uma categoria; clique em uma marca para filtrar todo o painel.'}),
+   h('p',{className:'cc-chord-lede',children:'Regiões, marcas e propulsões do recorte. Clique numa marca para filtrar.'}),
    hs('div',{className:'cc-chord-focus','aria-live':'polite',children:[
     h('strong',{children:focusNode?focusNode.label:'Todas as conexões'}),
     h('span',{children:focusNode?ccInt(nodeCount(active))+' emplacamentos · '+ccPct(nodeCount(active)/total)+' do recorte':ccInt(total)+' emplacamentos'}),
@@ -81,7 +81,7 @@ function ConnectionsChord({model,filters,setFilter}){
     hs('span',{children:[h('i',{style:{background:CC_FUEL_COLORS.Flex}}),'Propulsões']})
    ]}),
    (locked!=null||selectedBrands.length===1)&&h('button',{type:'button',className:'am-small-button',onClick:()=>{setLocked(null);if(selectedBrands.length===1)setFilter?.('marca',[]);},children:'Limpar destaque e filtro de marca'}),
-   h('p',{className:'am-footnote',children:'Seis marcas de maior volume, mais Mitsubishi; as demais ficam em "Outras". O arco de cada marca soma suas ligações com região e com propulsão (cada emplacamento aparece duas vezes); os números do destaque contam uma vez. Propulsão sem classificação BD fica fora, como no resto do painel.'})
+   jsxRuntime.jsx(HxMethod,{children:'Seis marcas de maior volume, mais Mitsubishi; as demais ficam em "Outras". O arco de cada marca soma suas ligações com região e com propulsão (cada emplacamento aparece duas vezes); os números do destaque contam uma vez. Propulsão sem classificação BD fica fora, como no resto do painel.'})
   ]}),
   hs('div',{className:'cc-chord-figure',children:[
    hs('svg',{viewBox:`${-box} ${-box} ${box*2} ${box*2}`,role:'group','aria-label':'Conexões entre regiões, marcas e propulsões',onPointerLeave:()=>{setHover(null);setTip(null);},children:[
