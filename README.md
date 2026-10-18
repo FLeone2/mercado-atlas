@@ -1,8 +1,8 @@
 # Atlas · Mercado Automotivo
 
 Painel dos emplacamentos de automóveis e comerciais leves no Brasil, com a estética
-**Marfim Botânico** do Atlas: fundo marfim, títulos em Cormorant Garamond, interface em
-Manrope, tinta verde-escura, latão para ação e seleção, filetes no lugar de caixas.
+**Marfim Botânico** do Atlas: fundo marfim, títulos em DM Serif Display, interface em
+Inter (as mesmas fontes do Mercado Atlas 2), tinta verde-escura, latão para ação e seleção, filetes no lugar de caixas.
 
 É a reconstrução do `mercado-automotivo-2` com o mesmo conteúdo e a mesma base de dados:
 as 8 áreas (Panorama, Evolução, Concorrência, Segmentos, Territórios, Explorar, Economia,

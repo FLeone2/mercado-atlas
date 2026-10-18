@@ -1,5 +1,5 @@
 /* Atlas · Marfim Botânico. Ivory paper, deep green ink, brass for action and selection,
-   hairline rules instead of boxes, Cormorant Garamond for titles and figures, Manrope
+   hairline rules instead of boxes, DM Serif Display for titles and figures, Inter
    for the interface. Loaded after the legacy view styles, so it wins on equal specificity.
    Red is reserved for Mitsubishi; decline uses copper. */
 
@@ -7,8 +7,8 @@
   --paper: #f4f1e8; --paper-deep: #eae8dc; --paper-raised: #fbf9f3;
   --ink: #173e35; --ink-soft: #65726a; --brass: #93672e; --brass-light: #b88d52;
   --line: #c9cec0; --line-soft: #dcdfd3; --green: #39776a; --sage: #91a892; --copper: #a8642c;
-  --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-  --sans: 'Manrope Variable', 'Manrope', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+  --serif: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+  --sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
   --gutter: clamp(18px, 3.9vw, 56px);
 
   /* Tokens the market views are written against. */
@@ -481,3 +481,11 @@ h1, h2, h3, h4 { color: var(--ink); }
 .am-app .cm-diverging { background: linear-gradient(90deg, var(--copper), var(--paper-deep), var(--green)); }
 .am-app .ctx-value { font-family: var(--serif); font-weight: 500; font-size: 34px; letter-spacing: -.02em; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) body { background: var(--paper); } }
+
+/* DM Serif Display is a single, wide weight: titles one step smaller and less tight than with Cormorant. */
+.at-hero h1 { font-size: clamp(54px, 6.6vw, 96px); letter-spacing: -.035em; line-height: .98; }
+.at-hero-figures strong { font-size: clamp(42px, 4.4vw, 64px); }
+.ax-section-title { font-size: clamp(28px, 2.8vw, 40px); letter-spacing: -.02em; }
+.mp-questions-head h2 { font-size: clamp(40px, 4.4vw, 64px); letter-spacing: -.03em; }
+.ax-metric-value, .mp-tile strong { font-size: clamp(28px, 2.6vw, 40px); letter-spacing: -.02em; }
+.at-wordmark { font-size: 34px; letter-spacing: .16em; }

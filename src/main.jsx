@@ -1,8 +1,7 @@
 import { createRoot } from 'react-dom/client';
-import '@fontsource/cormorant-garamond/500.css';
-import '@fontsource/cormorant-garamond/600.css';
-import '@fontsource/cormorant-garamond/500-italic.css';
-import '@fontsource-variable/manrope';
+import '@fontsource/dm-serif-display/latin-400.css';
+import '@fontsource/dm-serif-display/latin-400-italic.css';
+import '@fontsource-variable/inter/wght.css';
 import './styles/legacy/app.css';
 import.meta.glob('./styles/legacy/*.css', { eager: true });
 import './styles/atlas.css';
