@@ -1,5 +1,7 @@
 node_modules/
 dist/
+data/precomputed/
+data/precomputed.json
 tests/visual/output/
 __pycache__/
 *.pyc

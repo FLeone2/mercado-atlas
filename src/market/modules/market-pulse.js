@@ -8,8 +8,8 @@ const pulseFormat={
  signed:(v,d=1)=>v==null||!Number.isFinite(v)?'—':(v>0?'+':'')+new Intl.NumberFormat('pt-BR',{style:'percent',minimumFractionDigits:d,maximumFractionDigits:d}).format(v),
  pp:v=>v==null||!Number.isFinite(v)?'—':(v>0?'+':'')+new Intl.NumberFormat('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}).format(v*100)+' pp'
 };
-// Focus: the single brand the user filtered, otherwise Mitsubishi.
-function pulseFocusBrand(filters){const list=(Array.isArray(filters?.marca)?filters.marca:filters?.marca&&filters.marca!=='all'?[filters.marca]:[]).filter(v=>v!=='all');return list.length===1?String(list[0]):'MITSUBISHI';}
+// Focus: the single brand the user filtered, otherwise Mitsubishi (src/market/modules/market-request.js).
+function pulseFocusBrand(filters){return marketFocusBrand(filters);}
 function pulseFilters(filters,focus){const market={...filters};for(const k of PULSE_BRAND_FILTERS)delete market[k];return {market,focus:{...market,marca:[focus]}};}
 function pulseRange(result,filters){const r=result?.range??result?.requestedRange;if(r?.start&&r?.end)return r;const m=/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/.exec(String(filters?.date??''));return m?{start:m[1],end:m[2]}:null;}
 function pulseWorkingDays(range){
@@ -32,19 +32,23 @@ function pulseModel(market,focusResult,focus,filters){
   rank:i>=0?i+1:null,brands:brands.length,previousRank:pi>=0?pi+1:null,pace,paceYearChange:pace!=null&&paceYear>0?pace/paceYear-1:null,days,yearDays,
   strongestUF:strong[0]??null,topSegment:(focusResult?.groups?.bd_segmento??[])[0]??null,electrifiedShare:market.total>0?electrified/market.total:null,complete:market.complete!==false};
 }
-function useMarketPulse(filters,enabled=true){
+// One query answers both numbers: the market result carries the focus brand (result.focus).
+// When the page's own market query has no brand/model filter, it already is that query.
+function useMarketPulse(filters,enabled=true,shared=null){
  const focus=pulseFocusBrand(filters),split=React.useMemo(()=>pulseFilters(filters,focus),[canonicalFilterKey(filters),focus]);
- const market=useMarketData(split.market,enabled,'pulse',false),brand=useMarketData(split.focus,enabled,'pulse',false);
- const model=React.useMemo(()=>pulseModel(market.result,brand.result,focus,filters),[market.result,brand.result,focus]);
- return {model,pending:market.pending||brand.pending,error:market.error||brand.error,focus};
+ const reuse=Boolean(shared)&&canonicalFilterKey(split.market)===canonicalFilterKey(filters);
+ const own=useMarketData(split.market,enabled&&!reuse,'pulse',false,focus);
+ const source=reuse?shared:own,market=source.result??null,brand=market?.focus?.brand===focus?market.focus:null;
+ const model=React.useMemo(()=>pulseModel(market,brand,focus,filters),[market,brand,focus]);
+ return {model,pending:Boolean(source.pending),error:source.error??null,focus};
 }
 function PulseChange({value,format='signed',label}){
  if(value==null||!Number.isFinite(value))return jsxRuntime.jsx('small',{className:'mp-change',children:label?label+': —':'—'});
  const dir=value>0?'up':value<0?'down':'flat';
  return jsxRuntime.jsxs('small',{className:'mp-change mp-'+dir,children:[jsxRuntime.jsx('span',{'aria-hidden':true,children:dir==='up'?'▲ ':dir==='down'?'▼ ':'■ '}),pulseFormat[format](value),label?' '+label:'']});
 }
-function MarketPulse({filters,enabled=true}){
- const {model,pending,error,focus}=useMarketPulse(filters,enabled),name=focus.charAt(0)+focus.slice(1).toLowerCase();
+function MarketPulse({filters,enabled=true,shared=null}){
+ const {model,pending,error,focus}=useMarketPulse(filters,enabled,shared),name=focus.charAt(0)+focus.slice(1).toLowerCase();
  if(error)return null;
  const tile=(key,label,value,change,title)=>jsxRuntime.jsxs('div',{className:'mp-tile',title,children:[jsxRuntime.jsx('span',{className:'mp-label',children:label}),jsxRuntime.jsx('strong',{children:pending||!model?'…':value}),pending||!model?jsxRuntime.jsx('small',{className:'mp-change',children:' '}):change]},key);
  const br=d=>d?d.slice(8,10)+'/'+d.slice(5,7)+'/'+d.slice(0,4):'';
@@ -57,8 +61,8 @@ function MarketPulse({filters,enabled=true}){
  ]});
 }
 // Panorama: questions first, each with a live one-line answer and a way into the area.
-function QuickQuestions({filters,onNavigate,onEvolutionView}){
- const {model,pending,focus}=useMarketPulse(filters),name=focus.charAt(0)+focus.slice(1).toLowerCase(),f=pulseFormat;
+function QuickQuestions({filters,onNavigate,onEvolutionView,shared=null}){
+ const {model,pending,focus}=useMarketPulse(filters,true,shared),name=focus.charAt(0)+focus.slice(1).toLowerCase(),f=pulseFormat;
  const go=(tab,view)=>()=>{onNavigate?.(tab);if(view)onEvolutionView?.(view);globalThis.scrollTo?.({top:0,behavior:'smooth'});};
  const answer=text=>pending||!model?'Calculando…':text;
  const cards=[

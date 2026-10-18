@@ -6,7 +6,8 @@
   "description": "Atlas · Mercado Automotivo: painel de emplacamentos de automóveis e comerciais leves no Brasil.",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "precompute": "node scripts/precompute.cjs",
+    "build": "node scripts/precompute.cjs && vite build",
     "preview": "vite preview --port 8765",
     "test": "bash scripts/test.sh"
   },

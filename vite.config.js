@@ -55,7 +55,7 @@ function dataPlugin() {
     closeBundle() {
       const out = resolve(root, 'dist/data');
       rmSync(out, { recursive: true, force: true });
-      for (const name of ['manifest.json', 'snapshot.json', 'cubes', 'origin-cubes', 'geography', 'history', 'reference']) cpSync(join(dataDir, name), join(out, name), { recursive: true });
+      for (const name of ['manifest.json', 'snapshot.json', 'precomputed.json', 'precomputed', 'cubes', 'origin-cubes', 'geography', 'history', 'reference']) if (existsSync(join(dataDir, name))) cpSync(join(dataDir, name), join(out, name), { recursive: true });
       for (const name of readdirSync(join(dataDir, 'scenarios'))) if (name.endsWith('.json')) cpSync(join(dataDir, 'scenarios', name), join(out, 'scenarios', name));
       rmSync(join(out, 'geography/.gitkeep'), { force: true });
     },

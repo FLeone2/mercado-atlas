@@ -197,7 +197,8 @@ function PenetrationMap({filters,base}){
  const [population,setPopulation]=React.useState(null),[error,setError]=React.useState(null),[who,setWho]=React.useState('market'),[hover,setHover]=React.useState(null),h=jsxRuntime.jsx,hs=jsxRuntime.jsxs;
  React.useEffect(()=>{let alive=true;hxPopulation(base).then(p=>{if(alive)setPopulation(p);}).catch(e=>{if(alive)setError(e.message);});return ()=>{alive=false;};},[base]);
  const focus=pulseFocusBrand(filters),name=focus.charAt(0)+focus.slice(1).toLowerCase();
- const market=useMarketData(pulseFilters(filters,focus).market,true,'pulse',false),brand=useMarketData(pulseFilters(filters,focus).focus,true,'pulse',false),src=who==='market'?market.result:brand.result;
+ // One query: the market result carries the focus brand (result.focus, with its UF groups).
+ const market=useMarketData(pulseFilters(filters,focus).market,true,'pulse',false,focus),src=who==='market'?market.result:(market.result?.focus?.brand===focus?market.result.focus:null);
  const body=()=>{
   if(error)return h('p',{role:'alert',className:'hx-empty',children:error});
   if(!population||!src)return h('p',{role:'status',className:'hx-empty',children:'Carregando…'});

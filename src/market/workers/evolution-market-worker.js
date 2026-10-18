@@ -388,12 +388,12 @@
     const token=++generation;controller?.abort();controller=null;
     if(data.type==='clear-cache'){loader.clear();resultCache.clear();aggregateCache.clear();sourceSummaries.clear();namespace=null;try{await aggregateStore?.clear();}catch{}return;}
     if(data.type==='cancel'){if(data.releaseCubes)loader.clear();return;}
-    const {id,manifest,filters={},base,includeMarketBaseline=false,includeHistoryComparisons=false,includeChannelReference=false,includeOriginAnalysis=false,includeMitsubishiProfile=false,includeInteractive=false,includeDaily=false,includeMunicipalLeaders=false,includeFlow=false,includeCatalog=false}=data;
+    const {id,manifest,filters={},base,includeMarketBaseline=false,includeHistoryComparisons=false,includeChannelReference=false,includeOriginAnalysis=false,includeMitsubishiProfile=false,includeInteractive=false,includeDaily=false,includeMunicipalLeaders=false,includeFlow=false,includeCatalog=false,focusBrand=null}=data;
     const activeController=new AbortController();controller=activeController;
     try{
      const identity=await manifestCacheIdentity(manifest,base);if(generation!==token)return;
      if(identity!==namespace){loader.setNamespace(identity);resultCache.clear();aggregateCache.clear();sourceSummaries.clear();namespace=identity;}
-     const options={includeMarketBaseline:Boolean(includeMarketBaseline),includeHistoryComparisons:Boolean(includeHistoryComparisons),includeChannelReference:Boolean(includeChannelReference),includeOriginAnalysis:Boolean(includeOriginAnalysis),includeMitsubishiProfile:Boolean(includeMitsubishiProfile),includeInteractive:Boolean(includeInteractive),includeDaily:Boolean(includeInteractive&&includeDaily),includeMunicipalLeaders:Boolean(includeMunicipalLeaders),includeFlow:Boolean(includeFlow),includeCatalog:Boolean(includeCatalog)};
+     const options={includeMarketBaseline:Boolean(includeMarketBaseline),includeHistoryComparisons:Boolean(includeHistoryComparisons),includeChannelReference:Boolean(includeChannelReference),includeOriginAnalysis:Boolean(includeOriginAnalysis),includeMitsubishiProfile:Boolean(includeMitsubishiProfile),includeInteractive:Boolean(includeInteractive),includeDaily:Boolean(includeInteractive&&includeDaily),includeMunicipalLeaders:Boolean(includeMunicipalLeaders),includeFlow:Boolean(includeFlow),includeCatalog:Boolean(includeCatalog),focusBrand:typeof focusBrand==='string'&&focusBrand?focusBrand:null};
      const queryKey=canonicalFilterKey(filters)+'|'+JSON.stringify(options),cached=resultCache.get(queryKey);
      if(cached){port.postMessage({id,result:cached});return;}
      const requestedRange=rangeFrom(filters.date,manifest);let range=requestedRange;
@@ -427,6 +427,10 @@
      const a=createAccumulator(),p=createAccumulator(),y=createAccumulator(),baseline=createAccumulator(),channelReference=createAccumulator(),mitsubishiProfile=createAccumulator(),historyMarket=createAccumulator(),historyMit=createAccumulator(),historyYear=createAccumulator();
      const catalogMarket=includeCatalog?createAccumulator():null,catalogMarketPrior=includeCatalog?createAccumulator():null,catalogMit=includeCatalog?createAccumulator():null,catalogCurrentExtra=includeCatalog?createCatalogExtras():null,catalogMarketExtra=includeCatalog?createCatalogExtras():null;
      const brandMembership=includeMitsubishiProfile?createBrandMembership():null;
+     // The pulse's brand in focus, in the same pass over the cubes: the market without
+     // brand/model filters, restricted to that brand (what a separate pulse query would ask).
+     const focus=options.focusBrand,focusFilters=focus?{...filters,modelo:'all',grupo_modelo:'all',marca:[focus]}:null;
+     const focusCurrent=focus?createAccumulator():null,focusYear=focus?createAccumulator():null;
      const baselineFilters={...filters,marca:'all',modelo:'all',grupo_modelo:'all',propulsao:'all'},channelReferenceFilters={...filters,tipo_venda:'all'};
      const historyFilters={...filters,marca:'all',modelo:'all',grupo_modelo:'all'};
      const selectedBrands=categoricalSelection(filters.marca),mitsubishiAllowed=!selectedBrands.length||selectedBrands.includes('MITSUBISHI');
@@ -480,6 +484,8 @@
        if(includeMarketBaseline)await collectMonthly(baseline,cube,baselineFilters,range,{groupDimensions:['marca','propulsao','bd_carroceria'],includeBody:true});
        if(includeChannelReference)await collectMonthly(channelReference,cube,channelReferenceFilters,range,{groupDimensions:['uf','municipio','tipo_venda'],includeChannelCoverage:true,includeStateChannels:true,sourceMeta:meta});
       }
+      if(focus&&overlaps(cube.month,range))await collectMonthly(focusCurrent,cube,focusFilters,range,{groupDimensions:['uf','bd_segmento']});
+      if(focus&&yearOK&&overlaps(cube.month,yearRange))await collectMonthly(focusYear,cube,focusFilters,yearRange,{groupDimensions:['uf','bd_segmento']});
       if(priorOK&&overlaps(cube.month,previousRange))await collectMonthly(p,cube,filters,previousRange);
       if(yearOK&&overlaps(cube.month,yearRange)){await collectMonthly(y,cube,filters,yearRange,{groupDimensions:includeCatalog?DIMS:[]});if(includeCatalog)await collectMonthly(catalogMarketPrior,cube,historyFilters,yearRange);if(includeHistoryComparisons)await collectMonthly(historyYear,cube,historyFilters,yearRange,{groupDimensions:['marca','propulsao','bd_carroceria'],includeBody:true});}
       if(expected.includes(needed[i]))for(const dim of DIMS)for(const value of cube.dictionaries?.[dim]??[])choices[dim].add(categoryLabel(value));
@@ -504,6 +510,7 @@
       const state={complete:result.complete,missingMonths:missing,incompleteMonths:incomplete,unavailableMonths:channelUnavailableMonths},yearCoverage=yearOK?listMonths(yearRange).map(m=>index.get(m)):[];
       result.catalog={current:finishCatalog(a,catalogCurrentExtra,range,fullCoverage,state),prior:yearOK?finishCatalog(y,null,yearRange,yearCoverage):null,market:finishCatalog(catalogMarket,catalogMarketExtra,range,fullCoverage,state),marketPrior:yearOK?finishCatalog(catalogMarketPrior,null,yearRange,yearCoverage):null,mitsubishi:finishCatalog(catalogMit,null,range,fullCoverage,state),removedFilters:['marca','modelo','grupo_modelo'],filters:canonicalFilters(filters),marketFilters:canonicalFilters(historyFilters),range,priorRange:yearRange,comparisonKind:'same_dates_prior_year',yearAvailable:yearOK};
      }
+     if(focus){const f=finish(focusCurrent,createAccumulator(),focusYear,range,fullCoverage,false,yearOK);result.focus={brand:focus,total:f.total,year:f.year,yearChangeRate:f.yearChangeRate,groups:{uf:f.groups.uf,bd_segmento:f.groups.bd_segmento}};}
      result.choices=Object.fromEntries(DIMS.map(d=>[d,[...choices[d]].sort()]));
      if(generation!==token)return;resultCache.set(queryKey,result);port.postMessage({id,result});
     }catch(error){if(generation===token&&error.name!=='AbortError')port.postMessage({id,error:error.message});}
