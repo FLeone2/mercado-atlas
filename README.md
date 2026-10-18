@@ -116,3 +116,13 @@ mercado-automotivo-2): mudança visual não pode alterar dados.
 
 Vermelho carmim é exclusivo da Mitsubishi. Queda usa cobre; crescimento, verde.
 Cada marca tem a mesma cor em todas as áreas (FIAT azul, VW âmbar, GM lavanda, BYD verde…).
+
+## Temas visuais
+
+O seletor **Tema do site** oferece **Original** (padrão) e **Liquid Aurora**.
+O Original preserva as aparências clara e escura de Marfim Botânico e sua preferência
+existente (`atlas-theme`). Liquid Aurora é um tema visual adicional, com vidro escuro
+e luz azul fria, aplicado apenas quando selecionado (`atlas-visual-theme`).
+Ao voltar ao Original, a preferência clara/escura anterior é restaurada.
+Os estilos adicionais ficam isolados em `src/styles/liquid-aurora.css`; dados e
+organização do painel são compartilhados pelos dois temas.

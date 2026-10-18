@@ -5,6 +5,7 @@ import '@fontsource-variable/inter/wght.css';
 import './styles/legacy/app.css';
 import.meta.glob('./styles/legacy/*.css', { eager: true });
 import './styles/atlas.css';
+import './styles/liquid-aurora.css';
 import { DataAppProvider } from './kit/index.js';
 import { DashboardContent } from 'virtual:market';
 

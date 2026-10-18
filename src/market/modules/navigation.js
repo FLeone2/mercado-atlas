@@ -49,9 +49,27 @@ function MarketIdentity(){
 function readTheme(){try{const t=document.documentElement.dataset.theme;if(t)return t;}catch{}return globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches?'dark':'light';}
 function ThemeToggle(){
  const [theme,setTheme]=React.useState(readTheme);
+ const [visual,setVisual]=React.useState(()=>document.documentElement.dataset.visualTheme==='liquid-aurora'?'liquid-aurora':'original');
+ const originalMode=()=>{try{const saved=localStorage.getItem('atlas-theme');if(saved==='light'||saved==='dark')return saved;}catch{}return globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches?'dark':'light';};
+ const selectVisual=value=>{
+  const mode=value==='liquid-aurora'?'dark':originalMode();
+  document.documentElement.dataset.visualTheme=value;
+  document.documentElement.dataset.theme=mode;
+  try{localStorage.setItem('atlas-visual-theme',value);}catch{}
+  setVisual(value);setTheme(mode);
+ };
  const next=theme==='dark'?'light':'dark';
  const choose=()=>{document.documentElement.dataset.theme=next;try{localStorage.setItem('atlas-theme',next);}catch{}setTheme(next);};
- return jsxRuntime.jsx('button',{type:'button',className:'at-theme',onClick:choose,'aria-label':next==='dark'?'Usar tema escuro':'Usar tema claro',title:next==='dark'?'Tema escuro':'Tema claro',children:jsxRuntime.jsx('span',{'aria-hidden':true,children:theme==='dark'?'☼':'☾'})});
+ return jsxRuntime.jsxs(jsxRuntime.Fragment,{children:[
+  jsxRuntime.jsxs('label',{className:'at-visual-theme',children:[
+   jsxRuntime.jsx('span',{className:'visually-hidden',children:'Tema do site'}),
+   jsxRuntime.jsxs('select',{'aria-label':'Tema do site',value:visual,onChange:e=>selectVisual(e.target.value),children:[
+    jsxRuntime.jsx('option',{value:'original',children:'Original'}),
+    jsxRuntime.jsx('option',{value:'liquid-aurora',children:'Liquid Aurora'})
+   ]})
+  ]}),
+  visual==='original'&&jsxRuntime.jsx('button',{type:'button',className:'at-theme',onClick:choose,'aria-label':next==='dark'?'Usar tema escuro':'Usar tema claro',title:next==='dark'?'Tema escuro':'Tema claro',children:jsxRuntime.jsx('span',{'aria-hidden':true,children:theme==='dark'?'☼':'☾'})})
+ ]});
 }
 function MarketHeader(props){
  const [open,setOpen]=React.useState(false);
