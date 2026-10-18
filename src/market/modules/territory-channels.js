@@ -133,7 +133,7 @@ function TerritoryChannelMap({ model, filters = {}, scope = [], onSelect }) {
   ];
   return jsxRuntime.jsxs(dataApp.Section, { id: 'geo-channel-composition-heading', title: 'Varejo × Venda Direta', children: [
     jsxRuntime.jsxs(dataApp.DataComponent, { id: 'territory-channel-map', queryId: 'registrations', kind: 'chart', title: 'Composição dos canais por UF', variant: 'card', className: 'am-glass tc-card', sourceRows: data.rows, displayRows: data.rows, scopeFilters: channelsScope, description: TERRITORY_CHANNEL_DESCRIPTION, children: [
-      jsxRuntime.jsx(PageNote, {originalTag:'p', className: 'tc-intro', children: 'Duas cores, uma composição por estado. Passe o cursor, use Tab ou toque em uma UF para consultar volumes e participações.' }),
+      jsxRuntime.jsx(PageNote, {originalTag:'p', className: 'tc-intro', children: 'Duas cores, uma composição por estado.' }),
       jsxRuntime.jsxs('p', { className: 'tc-scope', children: [jsxRuntime.jsx('strong', { children: 'Todos os canais · demais filtros mantidos. ' }), selectedChannels.length > 0 ? `Canal selecionado acima: ${selectedChannels.map(value => value === 'VD' ? 'Venda Direta' : value === 'VAREJO' ? 'Varejo' : value).join(', ')}. Somente este comparativo e sua lista retiram o filtro de Canal para mostrar a composição completa.` : 'Este mapa e a lista abaixo comparam Varejo, Venda Direta e canais não identificados no mesmo recorte.'] }),
       jsxRuntime.jsxs('div', { className: 'tc-legend', 'aria-label': 'Legenda dos canais', children: [
         jsxRuntime.jsxs('span', { children: [jsxRuntime.jsx('i', { className: 'tc-dot tc-retail', 'aria-hidden': true }), 'Varejo'] }),

@@ -54,7 +54,7 @@ function CrMatrix({matrix}){
    h('text',{x:L+6,y:T+12,className:'cr-q',children:'Nicho'}),
    ...matrix.rows.map(r=>hs('g',{className:'cr-point cr-'+crQuadrant(r,matrix)+(hover===r.uf?' is-hover':''),tabIndex:0,'aria-label':r.uf+': segmento '+crInt(r.total)+', Mitsubishi '+crPct(r.share),onMouseEnter:()=>setHover(r.uf),onMouseLeave:()=>setHover(null),onFocus:()=>setHover(r.uf),onBlur:()=>setHover(null),children:[
     h('circle',{cx:x(r.total),cy:y(r.share),r:5}),h('text',{x:x(r.total)>W-R-34?x(r.total)-8:x(r.total)+7,y:y(r.share)+3,textAnchor:x(r.total)>W-R-34?'end':'start',children:r.uf})]},r.uf))]}),
-  h('p',{className:'cr-readout',role:'status',children:hr?hr.uf+': '+crInt(hr.total)+' emplacamentos no segmento, Mitsubishi com '+crInt(hr.mit)+' ('+crPct(hr.share)+'). '+CR_QUADRANTS[crQuadrant(hr,matrix)]+'.':'Linhas tracejadas: medianas entre as UFs. Passe o mouse ou use Tab sobre uma UF.'})]});
+  h('p',{className:'cr-readout',role:'status',children:hr?hr.uf+': '+crInt(hr.total)+' emplacamentos no segmento, Mitsubishi com '+crInt(hr.mit)+' ('+crPct(hr.share)+'). '+CR_QUADRANTS[crQuadrant(hr,matrix)]+'.':'Linhas tracejadas: medianas.'})]});
 }
 function CrConcentration(){
  const h=jsxRuntime.jsx,hs=jsxRuntime.jsxs,shell=dataApp.useDataApp();
@@ -84,13 +84,13 @@ function CompetitiveReading({filters,manifest,base}){
  const opp=matrix?matrix.rows.filter(r=>crQuadrant(r,matrix)==='opportunity').sort((a,b)=>b.total-a.total).slice(0,3).map(r=>r.uf):[];
  const max=ranking?.rows[0]?.count??1;
  return hs('section',{className:'cr','aria-labelledby':'cr-title',children:[
-  hs('div',{className:'cr-head',children:[hs('div',{children:[h('h2',{id:'cr-title',children:'Mitsubishi no seu segmento'}),h('p',{children:'Comparação com os modelos que disputam o mesmo comprador. Filtros do painel valem, exceto marca e modelo.'})]}),
+  hs('div',{className:'cr-head',children:[hs('div',{children:[h('h2',{id:'cr-title',children:'Mitsubishi no seu segmento'}),h('p',{children:'Contra os modelos que disputam o mesmo comprador.'})]}),
    h('div',{className:'tbm-seg',role:'group','aria-label':'Segmento',children:CR_SETS.map(s=>h('button',{type:'button','aria-pressed':s.id===setId,onClick:()=>setSetId(s.id),children:s.label+' · '+s.product},s.id))})]}),
   (models.error||states.error)&&h('p',{role:'alert',className:'tbm-warn',children:models.error||states.error}),
   hs('div',{className:'cr-grid2',children:[
    hs('div',{className:'cr-card',children:[h('h3',{children:headline}),h('p',{className:'cr-sub',children:ranking?'Participação no segmento, '+crInt(ranking.total)+' emplacamentos no total. Mitsubishi em vermelho.':'Calculando…'}),
     ranking&&h('div',{className:'cr-bars',role:'list',children:ranking.rows.map(r=>hs('div',{role:'listitem',className:'cr-bar'+(r.mitsubishi?' is-mit':''),children:[h('span',{className:'cr-name',children:r.rank+'. '+crTitle(r.model)}),h('span',{className:'cr-track',children:h('span',{className:'cr-fill',style:{width:(r.count/max*100).toFixed(1)+'%'}})}),h('span',{className:'cr-val',children:crPct(r.share)})]},r.model))})]}),
-   hs('div',{className:'cr-card',children:[h('h3',{children:opp.length?'Onde crescer: '+opp.join(', '):'Participação Mitsubishi por UF'}),h('p',{className:'cr-sub',children:'Cada ponto é uma UF: tamanho do segmento contra a participação Mitsubishi nele. “Oportunidade” reúne UFs com segmento acima da mediana e participação abaixo dela.'}),
+   hs('div',{className:'cr-card',children:[h('h3',{children:opp.length?'Onde crescer: '+opp.join(', '):'Participação Mitsubishi por UF'}),h('p',{className:'cr-sub',children:'Cada ponto é uma UF: tamanho do segmento × participação Mitsubishi.'}),
     matrix?h(CrMatrix,{matrix}):h('p',{className:'cr-sub',children:'Calculando…'})]})]}),
   h(CrConcentration,{})]});
 }

@@ -562,8 +562,6 @@ h1, h2, h3, h4 { color: var(--ink); }
 .am-geo-tables > summary { cursor: pointer; padding: 14px 0; font-size: 13px; color: var(--ink-soft); list-style: none; }
 .am-geo-tables > summary::before { content: '+ '; color: var(--brass); }
 .am-geo-tables[open] > summary::before { content: '− '; }
-.tbm-density-switch { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin: 48px 0 8px; padding-top: 18px; border-top: 1px solid var(--line); }
-.tbm-density-switch h3 { font: 400 26px/1.1 var(--serif); margin: 0; }
 /* Several ⓘ notes in a row sit side by side instead of one per grid row. */
 .ax-section-body[data-columns="1"]:has(> .am-note-info) { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 32px 18px; }
 .ax-section-body[data-columns="1"]:has(> .am-note-info) > :not(.am-note-info) { flex: 1 1 100%; min-width: 0; }

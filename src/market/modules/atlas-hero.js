@@ -17,7 +17,7 @@ function AtlasHero({model,period,base,yearLabel,onExplore,onTerritory}){
   hs('div',{className:'at-hero-copy',children:[
    h('p',{className:'at-eyebrow',children:'Painel do mercado · '+(period??'carregando')}),
    hs('h1',{id:'at-hero-title',children:['O mercado,',h('br',{}),'em um olhar.']}),
-   h('p',{className:'at-hero-lede',children:'Volume, marcas, tecnologia e território dos emplacamentos no Brasil, com o mesmo recorte em todas as telas.'}),
+   h('p',{className:'at-hero-lede',children:'Emplacamentos no Brasil: volume, marcas, tecnologia e território.'}),
    hs('div',{className:'at-hero-figures',children:[
     hs('div',{children:[h('strong',{children:model?number(model.total):'—'}),h('span',{children:'Emplacamentos'})]}),
     hs('div',{children:[h('strong',{children:model?signed(model.yearChangeRate):'—'}),h('span',{children:model?.yearAvailable?'Sobre '+yearLabel:'Sem base anual comparável'})]})

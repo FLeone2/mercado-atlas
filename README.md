@@ -4,9 +4,21 @@ Painel dos emplacamentos de automóveis e comerciais leves no Brasil, com a est�
 **Marfim Botânico** do Atlas: fundo marfim, títulos em DM Serif Display, interface em
 Inter (as mesmas fontes do Mercado Atlas 2), tinta verde-escura, latão para ação e seleção, filetes no lugar de caixas.
 
-É a reconstrução do `mercado-automotivo-2` com o mesmo conteúdo e a mesma base de dados:
-as 8 áreas (Panorama, Evolução, Concorrência, Segmentos, Territórios, Explorar, Economia,
-Animações), mais Dados e metodologia, com todos os gráficos, mapas e ferramentas.
+É a reconstrução do `mercado-automotivo-2` com a mesma base de dados, reorganizada para
+mostrar cada análise uma vez, com pouco texto (método e ressalvas ficam atrás do ⓘ):
+
+| Área | O que tem |
+|---|---|
+| Panorama | Mapa, pulso, 4 destaques, evolução, marcas, combustível e canal |
+| Evolução | Uma página: ritmo e sazonalidade, trajetórias, propulsão, crescimento, modelos/carrocerias, combustível/canal, linha do tempo |
+| Concorrência | Mitsubishi no segmento e onde crescer, concentração, ranking (lista, conectado, pirâmide), ganhos e perdas, duelo, ranking mês a mês, Sankey, conexões |
+| Segmentos | Porte (pirâmide + segmentos/carrocerias), Propulsão, Origem |
+| Territórios | Mapas (mapa principal, líder por município, top 3, força da marca, calor, por mil habitantes / canal) e 3D (espigões, estados em 3D, atlas municipal) |
+| Explorar | Monte seu gráfico e todos os formatos |
+| Economia | Contexto, Potencial regional, Projeções (testes técnicos em Dados e metodologia) |
+| Animações | Corrida, liderança, mapas e composição no tempo |
+
+Links antigos (`?tab=ranking`, `?tab=structure`) abrem Concorrência e Segmentos.
 Os repositórios `mercado-automotivo`, `mercado-automotivo-2` e `atlas-automotivo` seguem intocados.
 
 ## Publicação (Cloudflare Pages)

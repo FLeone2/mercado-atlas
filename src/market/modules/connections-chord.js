@@ -73,7 +73,7 @@ function ConnectionsChord({model,filters,setFilter}){
    hs('div',{className:'cc-chord-focus','aria-live':'polite',children:[
     h('strong',{children:focusNode?focusNode.label:'Todas as conexões'}),
     h('span',{children:focusNode?ccInt(nodeCount(active))+' emplacamentos · '+ccPct(nodeCount(active)/total)+' do recorte':ccInt(total)+' emplacamentos'}),
-    h('p',{children:focusNode?(focusNode.type==='brand'&&focusNode.name!=='OUTRAS'?(selectedBrands.length===1&&selectedBrands[0]===focusNode.name?'Clique de novo para remover o filtro de marca.':'Clique para filtrar o painel por esta marca.'):'Clique para fixar o destaque; clique de novo para soltar.'):'Regiões em verde-claro, marcas nas suas cores, propulsões no fim do círculo.'})
+    h('p',{children:focusNode?(focusNode.type==='brand'&&focusNode.name!=='OUTRAS'?(selectedBrands.length===1&&selectedBrands[0]===focusNode.name?'Clique de novo para remover o filtro de marca.':'Clique para filtrar o painel por esta marca.'):'Clique para fixar o destaque; clique de novo para soltar.'):''})
    ]}),
    hs('div',{className:'cc-chord-legend','data-export-legend':true,children:[
     hs('span',{children:[h('i',{style:{background:'var(--sage)'}}),'Regiões']}),
