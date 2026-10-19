@@ -52,15 +52,20 @@ function HxChart({labels,series=[],band=null,stacked=false,height=260,format=hxF
 function HxPanel({title,lead,children,scope}){const h=jsxRuntime.jsx,hs=jsxRuntime.jsxs;return hs('section',{className:'hx-panel','aria-label':title,children:[hs('header',{className:'hx-head',children:[hs('h2',{children:[title,lead&&h(dataApp.Info,{children:lead})]})]}),scope,children]});}
 // Method notes sit behind an ⓘ, next to the figure they explain.
 function HxMethod({children}){return jsxRuntime.jsx('div',{className:'am-note-info hx-method',children:jsxRuntime.jsx(dataApp.Info,{label:'Como ler',children})});}
-// Search-and-add control for a list of groups: type to filter, click to add; nothing is ever locked.
+// Add a group: pick a brand first (its vehicles then list in full), or search across all brands. Nothing is ever locked.
 function HxAddGroup({options,chosen,onPick}){
- const h=jsxRuntime.jsx,hs=jsxRuntime.jsxs,[query,setQuery]=React.useState(''),[open,setOpen]=React.useState(false);
+ const h=jsxRuntime.jsx,hs=jsxRuntime.jsxs,[brand,setBrand]=React.useState(''),[query,setQuery]=React.useState(''),[open,setOpen]=React.useState(false);
  const norm=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(),q=norm(query).trim();
- const shown=options.filter(g=>!chosen.includes(g.name)&&(!q||norm(g.name).includes(q)||norm(g.brand).includes(q))).slice(0,14);
+ const brands=React.useMemo(()=>[...new Set(options.map(g=>g.brand))],[options]);
+ const pool=brand?options.filter(g=>g.brand===brand):options;
+ const shown=pool.filter(g=>!chosen.includes(g.name)&&(!q||norm(g.name).includes(q)||(!brand&&norm(g.brand).includes(q)))).slice(0,brand?80:14);
  const pick=n=>{onPick(n);setQuery('');setOpen(false);};
- return hs('label',{className:'hx-select hx-add',onBlur:e=>{if(!e.currentTarget.contains(e.relatedTarget))setOpen(false);},children:['Adicionar grupo',
-  h('input',{type:'search',value:query,placeholder:'Buscar modelo ou marca',autoComplete:'off',onFocus:()=>setOpen(true),onClick:()=>setOpen(true),onChange:e=>{setQuery(e.target.value);setOpen(true);}}),
-  open&&h('ul',{className:'hx-add-list',role:'listbox',children:shown.length?shown.map(g=>h('li',{key:g.name,children:h('button',{type:'button',role:'option',onMouseDown:e=>e.preventDefault(),onClick:()=>pick(g.name),children:hs(jsxRuntime.Fragment,{children:[g.name,h('small',{children:' · '+g.brand})]})})})):h('li',{className:'hx-add-empty',children:'Nenhum grupo encontrado'})})]});
+ return hs(jsxRuntime.Fragment,{children:[
+  hs('label',{className:'hx-select',children:['Marca',h('select',{value:brand,onChange:e=>{setBrand(e.target.value);setQuery('');setOpen(true);},children:[h('option',{value:'',children:'Todas as marcas'}),...brands.map(b=>h('option',{value:b,children:b},b))]})]}),
+  hs('label',{className:'hx-select hx-add',onBlur:e=>{if(!e.currentTarget.contains(e.relatedTarget))setOpen(false);},children:[brand?'Adicionar veículo · '+brand:'Adicionar veículo',
+   h('input',{type:'search',value:query,placeholder:brand?'Buscar entre os veículos da marca':'Buscar modelo ou marca',autoComplete:'off',onFocus:()=>setOpen(true),onClick:()=>setOpen(true),onChange:e=>{setQuery(e.target.value);setOpen(true);}}),
+   open&&h('ul',{className:'hx-add-list',role:'listbox',children:shown.length?shown.map(g=>h('li',{key:g.name,children:h('button',{type:'button',role:'option',onMouseDown:e=>e.preventDefault(),onClick:()=>pick(g.name),children:hs(jsxRuntime.Fragment,{children:[g.name,!brand&&h('small',{children:' · '+g.brand})]})})})):h('li',{className:'hx-add-empty',children:'Nenhum veículo encontrado'})})]})
+ ]});
 }
 function HxSegmented({value,options,onChange,label}){return jsxRuntime.jsx('div',{className:'hx-seg',role:'group','aria-label':label,children:options.map(([v,l])=>jsxRuntime.jsx('button',{type:'button','aria-pressed':value===v,onClick:()=>onChange(v),children:l},v))});}
 function HxState({history,children}){if(history.error)return jsxRuntime.jsx('p',{role:'alert',className:'hx-empty',children:history.error});if(history.pending||!history.data)return jsxRuntime.jsx('p',{role:'status',className:'hx-empty',children:'Carregando o histórico…'});return children();}
