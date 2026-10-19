@@ -23,7 +23,7 @@
   --chart-5: #9b8bb3; --chart-6: #c9a86a; --chart-7: #8a7b5c; --chart-8: #a9b8a2;
   --brand-1: #507fa5; --brand-2: #d5a24b; --brand-3: #4d9382; --brand-4: #9b8bb3; --brand-5: #677e92; --brand-6: #8b9b70;
   --brand-7: #c29352; --brand-8: #7c8869; --brand-9: #ab7566; --brand-10: #8a7b5c; --brand-11: #5f84a1; --brand-12: #9a8f6d;
-  --tbm-other: #c4c8bb; --pm-land: var(--paper-deep); --anm-map-land: var(--paper-deep);
+  --tbm-other: #c4c8bb; --pm-land: color-mix(in srgb, var(--ink) 13%, var(--paper)); --anm-map-land: color-mix(in srgb, var(--ink) 13%, var(--paper));
   --card-radius: 0; --control-radius: 0; --mark-radius: 0; --shadow: none; --shadow-md: none; --card-shadow: none;
   --font-sans: var(--sans); --ds-ease: cubic-bezier(.2, .7, .2, 1);
   --am-glass-edge: transparent; --interaction-hover: rgba(147, 103, 46, .08);
@@ -583,3 +583,6 @@ h1, h2, h3, h4 { color: var(--ink); }
 .anh-scale i { flex: 1; height: 6px; background: linear-gradient(90deg, color-mix(in srgb, var(--anh-color) 8%, transparent), var(--anh-color)); }
 .anh-note { margin: 0; font-size: 12px; color: var(--ink-soft); }
 @media (max-width: 900px) { .anh-grid, .anh-grid[data-count="3"] { grid-template-columns: minmax(0, 1fr); } }
+
+/* Mapas com zoom: municípios e estados legíveis (fundo mais marcado, divisas em tinta). */
+.pm-primary .pm-city, .pm-primary .pm-state, .anm-maps .anm-map-city { stroke: color-mix(in srgb, var(--ink) 42%, var(--paper)); stroke-width: .7; }

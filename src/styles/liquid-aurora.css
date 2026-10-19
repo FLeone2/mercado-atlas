@@ -60,78 +60,27 @@
 :root[data-visual-theme="liquid-aurora"] .at-hero-annotation { border-top-color: #66c5f2; }
 :root[data-visual-theme="liquid-aurora"] .at-cta { text-shadow: 0 0 14px #55d4ff26; }
 
-/* Glass surfaces and alignment, scoped to the additional theme only. */
+/* Glass surfaces: colour, glow and edge only. Size, spacing and alignment stay exactly as in the Original theme. */
 :root[data-visual-theme="liquid-aurora"] .market-filter-bar {
   background: linear-gradient(112deg, #122d44f5, #081522f5 62%, #102e44f5);
   border-bottom-color: var(--aurora-edge);
-  margin-inline: 0;
-  justify-content: center;
-  padding: 16px 20px;
-  border-radius: 6px;
-  box-shadow: inset 0 0 0 1px #4ab2e83b, var(--aurora-shadow);
+  box-shadow: var(--aurora-shadow);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
 :root[data-visual-theme="liquid-aurora"] :is(.mp-strip, .mp-highlights) {
   border-color: var(--aurora-edge);
-  border-radius: 6px;
-  background: var(--aurora-glass);
-  box-shadow: inset 1px 0 0 #4ab2e83b, inset -1px 0 0 #4ab2e83b, var(--aurora-shadow);
-}
-:root[data-visual-theme="liquid-aurora"] .market-filter-structure {
-  width: 100%; margin: 0; justify-content: center;
-}
-:root[data-visual-theme="liquid-aurora"] .market-filter-primary { justify-content: center; }
-:root[data-visual-theme="liquid-aurora"] .am-period-chip { align-items: center; text-align: center; }
-:root[data-visual-theme="liquid-aurora"] :is(.mp-tile, .mp-highlight) {
-  background: transparent;
-  padding: 20px 24px;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-:root[data-visual-theme="liquid-aurora"] :is(.mp-label, .mp-change) {
-  width: 100%; min-height: 32px;
-  display: flex; align-items: center; justify-content: center;
-  white-space: normal; overflow-wrap: anywhere;
-}
-:root[data-visual-theme="liquid-aurora"] .mp-highlight small {
-  width: 100%; min-height: 38px;
-  display: flex; align-items: center; justify-content: center;
-}
-:root[data-visual-theme="liquid-aurora"] .mp-highlight-go { right: 10px; }
-:root[data-visual-theme="liquid-aurora"] .mp-highlight-print { margin: 10px 20px 16px; }
-:root[data-visual-theme="liquid-aurora"] .at-hero-figures > div { align-items: center; text-align: center; }
-
-/* Shared panel edges and equal insets for the analytical content. */
-:root[data-visual-theme="liquid-aurora"] .am-overview-visuals,
-:root[data-visual-theme="liquid-aurora"] .am-overview-composition { position: relative; isolation: isolate; }
-:root[data-visual-theme="liquid-aurora"] .am-overview-visuals::before,
-:root[data-visual-theme="liquid-aurora"] .am-overview-composition::before {
-  content: "";
-  pointer-events: none;
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  border: 1px solid var(--aurora-edge);
-  border-radius: 6px;
   background: var(--aurora-glass);
   box-shadow: var(--aurora-shadow);
-}
-:root[data-visual-theme="liquid-aurora"] .am-overview-visuals::before { grid-column: 1 / -1; grid-row: 1; }
-:root[data-visual-theme="liquid-aurora"] :is(.am-overview-trend, .am-overview-brands, .am-overview-composition) > .ax-card {
-  padding: 20px; border-top: 0;
 }
 :root[data-visual-theme="liquid-aurora"] .am-overview-trend .ax-mark { filter: drop-shadow(0 0 3px #29b6ff33); }
 :root[data-visual-theme="liquid-aurora"] :is(.ax-popover, .ax-dialog, .ax-tooltip, .ax-tooltip-host > *) {
   background: linear-gradient(130deg, #142b40, #0a1726 85%);
   border-color: var(--aurora-edge);
-  border-radius: 6px;
   box-shadow: 0 18px 50px #0008, inset 0 1px 0 #bcddff16;
 }
 :root[data-visual-theme="liquid-aurora"] .ax-dialog-backdrop { background: #020913b3; backdrop-filter: blur(7px); }
 :root[data-visual-theme="liquid-aurora"] :is(.ax-segmented, .am-period-chip, .ax-button, .am-small-button) {
-  border-radius: 3px;
   border-color: #36739b;
   box-shadow: inset 0 1px 0 #9ddfff0d;
 }
@@ -153,26 +102,10 @@
   box-shadow: 0 12px 32px #0006;
 }
 :root[data-visual-theme="liquid-aurora"] .am-page-footer { border-top-color: var(--aurora-edge); }
-@media (max-width: 900px) {
-  :root[data-visual-theme="liquid-aurora"] .am-overview-visuals::before { display: none; }
-  :root[data-visual-theme="liquid-aurora"] :is(.am-overview-trend, .am-overview-brands) {
-    border-radius: 6px;
-    background: var(--aurora-glass);
-    box-shadow: 0 0 0 1px #4ab2e83b, var(--aurora-shadow);
-  }
-  :root[data-visual-theme="liquid-aurora"] .am-overview-composition::before { inset-inline: 0; }
-  :root[data-visual-theme="liquid-aurora"] .at-hero-map { padding-bottom: 24px; }
-  :root[data-visual-theme="liquid-aurora"] .at-hero-map svg { height: auto; }
-  :root[data-visual-theme="liquid-aurora"] .at-hero-annotation {
-    position: static; width: min(240px, 100%); margin: 12px auto 0; text-align: center;
-  }
-  :root[data-visual-theme="liquid-aurora"] .at-hero-annotation button { text-align: center; }
-}
 @media print {
   :root[data-visual-theme="liquid-aurora"] { --ink: #173e35; --ink-soft: #65726a; --paper: #fff; --line: #c9cec0; --line-soft: #dcdfd3; }
   :root[data-visual-theme="liquid-aurora"] body { background: #fff; }
   :root[data-visual-theme="liquid-aurora"] :is(.mp-strip, .mp-highlights, .market-filter-bar) { background: none; box-shadow: none; }
-  :root[data-visual-theme="liquid-aurora"] :is(.am-overview-visuals, .am-overview-composition)::before { display: none; }
 }
 
 /* Theme picker: only the new control uses these unscoped rules. */
@@ -184,21 +117,3 @@
 }
 .at-visual-theme option { background: var(--paper); color: var(--ink); }
 @media print { .at-visual-theme { display: none; } }
-
-@media (min-width: 901px) {
-  :root[data-visual-theme="liquid-aurora"] .am-overview-composition > .ax-card {
-    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 48px;
-  }
-  :root[data-visual-theme="liquid-aurora"] .am-overview-composition > .ax-card > .ax-card-head {
-    grid-column: 1; grid-row: 1; align-self: start;
-  }
-  :root[data-visual-theme="liquid-aurora"] .am-overview-composition > .ax-card > .ax-card-body {
-    display: contents;
-  }
-  :root[data-visual-theme="liquid-aurora"] .am-overview-composition > .ax-card > .ax-card-body > .am-composition {
-    grid-column: 1; grid-row: 2; align-self: start;
-  }
-  :root[data-visual-theme="liquid-aurora"] .am-overview-composition > .ax-card > .ax-card-body > .ax-card {
-    grid-column: 2; grid-row: 1 / span 2; padding-top: 0; align-self: start;
-  }
-}

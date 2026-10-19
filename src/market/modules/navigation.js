@@ -68,7 +68,8 @@ function ThemeToggle(){
     jsxRuntime.jsx('option',{value:'liquid-aurora',children:'Liquid Aurora'})
    ]})
   ]}),
-  visual==='original'&&jsxRuntime.jsx('button',{type:'button',className:'at-theme',onClick:choose,'aria-label':next==='dark'?'Usar tema escuro':'Usar tema claro',title:next==='dark'?'Tema escuro':'Tema claro',children:jsxRuntime.jsx('span',{'aria-hidden':true,children:theme==='dark'?'☼':'☾'})})
+  // Liquid Aurora is dark only: the toggle keeps its place (hidden) so the masthead sits where it does in the Original.
+  jsxRuntime.jsx('button',{type:'button',className:'at-theme',...(visual==='original'?{}:{style:{visibility:'hidden'},'aria-hidden':true,tabIndex:-1,disabled:true}),onClick:choose,'aria-label':next==='dark'?'Usar tema escuro':'Usar tema claro',title:next==='dark'?'Tema escuro':'Tema claro',children:jsxRuntime.jsx('span',{'aria-hidden':true,children:theme==='dark'?'☼':'☾'})})
  ]});
 }
 function MarketHeader(props){

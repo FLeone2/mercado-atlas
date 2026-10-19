@@ -163,11 +163,12 @@ function BrandStrengthMap({result,states}){
 }
 
 /* ---------- 2. municipal spikes ---------- */
-function SpikeMap({spikes,states,geo,channelLabel}){
+function SpikeMap({spikes,states,geo,channelLabel,brands=[]}){
  const h=jsxRuntime.jsx,hs=jsxRuntime.jsxs;
  const wrap=React.useRef(null),canvas=React.useRef(null),w=useCanvasWidth(wrap);
  const home={yaw:0,tilt:55,minT:15,maxT:82},orbit=useOrbit(home);
- const [color,setColor]=React.useState('market'),[hover,setHover]=React.useState(null),[tip,setTip]=React.useState(null);
+ const [pickedColor,setColor]=React.useState('market'),[hover,setHover]=React.useState(null),[tip,setTip]=React.useState(null);
+ const color=brands.length&&pickedColor==='mit'?'market':pickedColor,brandLabel=brands.map(tbmName).join(' + ');
  const values=color==='mit'?spikes.mit:spikes.market;
  // Network mode: markets without a Mitsubishi dealer in the municipality stand out.
  const gaps=React.useMemo(()=>spikes.market.map((v,i)=>({i,v,has:spikes.dealer[i]})).filter(r=>!r.has&&r.v>0).sort((a,b)=>b.v-a.v).slice(0,8),[spikes]);
@@ -194,7 +195,7 @@ function SpikeMap({spikes,states,geo,channelLabel}){
  const top=React.useMemo(()=>{let t=-1;values.forEach((v,i)=>{if(t<0||v>values[t])t=i;});const sum=values.reduce((a,b)=>a+b,0);return t<0?null:{name:spikes.names[t],v:values[t],share:sum>0?values[t]/sum:null};},[values,spikes]);
  return hs('div',{className:'tbm-card','data-export-root':'',children:[typeof ExportImageButton==='function'&&h(ExportImageButton,{name:'mapa-marcas'}),
   hs('div',{className:'tbm-card-head',children:[hs('div',{children:[h('h3',{children:'Espigões por município'}),h('p',{children:'Altura proporcional aos emplacamentos de cada município, '+channelLabel+'.'})]}),
-   h('div',{className:'tbm-seg',role:'group','aria-label':'Medida dos espigões',children:[['market','Mercado'],['mit','Mitsubishi'],['network','Rede × oportunidade']].map(([v,l])=>h('button',{type:'button','aria-pressed':color===v,onClick:()=>setColor(v),children:l},v))})]}),
+   h('div',{className:'tbm-seg',role:'group','aria-label':'Medida dos espigões',children:[['market',brands.length?brandLabel:'Mercado'],...(brands.length?[]:[['mit','Mitsubishi']]),['network','Rede × oportunidade']].map(([v,l])=>h('button',{type:'button','aria-pressed':color===v,onClick:()=>setColor(v),children:l},v))})]}),
   h(OrbitControls,{orbit,home}),
   h('div',{ref:wrap,className:'tbm-canvas',children:h('canvas',{ref:canvas,role:'img','aria-label':'Mapa de espigões dos municípios brasileiros',...orbit.handlers,onMouseMove:move,onMouseLeave:()=>{setHover(null);setTip(null);}})}),
   color==='network'?hs('div',{className:'tbm-callout',children:[h('b',{children:'Maiores mercados sem concessionária Mitsubishi na cidade: '}),gaps.map(g=>spikes.names[g.i]+' ('+tbmInt(g.v)+')').join(', ')+'. Cinza: municípios com loja da rede (lista de 07/07/2026, localização por município).']}):top&&hs('p',{className:'tbm-callout',children:[h('b',{children:'Maior espigão: '}),top.name+' com '+tbmInt(top.v)+' emplacamentos, '+tbmPct(top.share)+' do total'+(color==='mit'?' da Mitsubishi':'')+'.']}),
@@ -264,30 +265,31 @@ function tbmDrawHeat(cv,w,{points,values,scale,radius,color,states,view,max=Math
   return pts;
 
 }
-function HeatMap({spikes,states,channelLabel}){
+function HeatMap({spikes,states,channelLabel,brands=[]}){
  const h=jsxRuntime.jsx,hs=jsxRuntime.jsxs;
  const wrap=React.useRef(null),canvas=React.useRef(null),w=useCanvasWidth(wrap),frame=React.useRef(null);
  const [measure,setMeasure]=React.useState('market'),[scale,setScale]=React.useState('sqrt'),[radius,setRadius]=React.useState(18),[tip,setTip]=React.useState(null);
  const [vx,vy,vw,vh]=React.useMemo(()=>value$3.viewBox.split(/\s+/).map(Number),[]);
- const values=measure==='mit'?spikes.mit:spikes.market;
+ // A brand picked in the filter bar already narrows the volumes: name it, and drop the Mitsubishi comparison.
+ const m=brands.length?'market':measure,brandLabel=brands.map(tbmName).join(' + '),values=m==='mit'?spikes.mit:spikes.market;
  const top=React.useMemo(()=>values.map((v,i)=>({i,v})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,5),[values]),total=React.useMemo(()=>values.reduce((a,b)=>a+b,0),[values]);
- React.useEffect(()=>{const cv=canvas.current;if(!cv||!w)return;frame.current={pts:tbmDrawHeat(cv,w,{points:spikes.points,values,scale,radius,color:measure==='mit'?'var(--mitsubishi-color)':'var(--accent)',states,view:[vx,vy,vw,vh]})};
- },[w,values,scale,radius,measure,states,spikes,vx,vy,vw,vh]);
+ React.useEffect(()=>{const cv=canvas.current;if(!cv||!w)return;frame.current={pts:tbmDrawHeat(cv,w,{points:spikes.points,values,scale,radius,color:m==='mit'?'var(--mitsubishi-color)':brands.length===1?tbmColor(brands[0]):'var(--accent)',states,view:[vx,vy,vw,vh]})};
+ },[w,values,scale,radius,m,brands.join('|'),states,spikes,vx,vy,vw,vh]);
  const move=e=>{const f=frame.current;if(!f)return;const r=canvas.current.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;let best=null,bd=14;for(const [x,y,i] of f.pts){const dd=Math.hypot(px-x,py-y);if(dd<bd||(dd<=bd&&best!=null&&values[i]>values[best])){bd=dd;best=i;}}setTip(best==null?null:{i:best,x:e.clientX,y:e.clientY});};
  return hs('div',{className:'tbm-card tbm-heat','data-export-root':'',children:[typeof ExportImageButton==='function'&&h(ExportImageButton,{name:'mapa-de-calor'}),
   hs('div',{className:'tbm-card-head',children:[hs('div',{children:[h('h3',{children:'Mapa de calor'}),h('p',{children:'Concentração dos emplacamentos '+channelLabel+'; escala relativa.'})]}),
-   hs('div',{className:'tbm-heat-controls',children:[h('div',{className:'tbm-seg',role:'group','aria-label':'Medida do mapa de calor',children:[['market','Mercado'],['mit','Mitsubishi']].map(([v,l])=>h('button',{type:'button','aria-pressed':measure===v,onClick:()=>setMeasure(v),children:l},v))}),
+   hs('div',{className:'tbm-heat-controls',children:[h('div',{className:'tbm-seg',role:'group','aria-label':'Medida do mapa de calor',children:(brands.length?[['market',brandLabel]]:[['market','Mercado'],['mit','Mitsubishi']]).map(([v,l])=>h('button',{type:'button','aria-pressed':m===v,onClick:()=>setMeasure(v),children:l},v))}),
     h('div',{className:'tbm-seg',role:'group','aria-label':'Escala de cor',children:[['sqrt','Suave'],['log','Realça o interior']].map(([v,l])=>h('button',{type:'button','aria-pressed':scale===v,onClick:()=>setScale(v),title:v==='sqrt'?'Raiz quadrada: as grandes metrópoles aparecem sem apagar o resto':'Logarítmica: municípios pequenos ganham mais destaque',children:l},v))}),
     hs('label',{className:'tbm-range',children:['Raio',h('input',{type:'range',min:8,max:40,value:radius,'aria-label':'Raio do mapa de calor',onChange:e=>setRadius(+e.target.value)})]})]})]}),
   h('div',{ref:wrap,className:'tbm-canvas',children:h('canvas',{ref:canvas,role:'img','aria-label':'Mapa de calor dos emplacamentos por município',onMouseMove:move,onMouseLeave:()=>setTip(null)})}),
-  hs('div',{className:'tbm-heat-scale'+(measure==='mit'?' is-mit':''),children:[h('span',{children:'Menos concentrado'}),h('i',{'aria-hidden':true}),h('span',{children:'Mais concentrado'})]}),
-  hs('p',{className:'tbm-callout',children:[h('b',{children:'Maiores pontos: '}),top.map(t=>spikes.names[t.i]+' ('+tbmInt(t.v)+')').join(', ')+'. Juntos, são '+tbmPct(total>0?top.reduce((a,t)=>a+t.v,0)/total:null)+' do total'+(measure==='mit'?' da Mitsubishi':'')+'.']}),
-  tip&&hs('div',{className:'tbm-tip',style:{left:tip.x+14,top:tip.y+14},children:[h('strong',{children:spikes.names[tip.i]}),hs('div',{className:'tbm-tip-row',children:[h('span',{children:measure==='mit'?'Mitsubishi':'Mercado'}),h('span',{children:tbmInt(values[tip.i])})]})]})]});
+  hs('div',{className:'tbm-heat-scale'+(m==='mit'?' is-mit':''),children:[h('span',{children:'Menos concentrado'}),h('i',{'aria-hidden':true}),h('span',{children:'Mais concentrado'})]}),
+  hs('p',{className:'tbm-callout',children:[h('b',{children:'Maiores pontos: '}),top.map(t=>spikes.names[t.i]+' ('+tbmInt(t.v)+')').join(', ')+'. Juntos, são '+tbmPct(total>0?top.reduce((a,t)=>a+t.v,0)/total:null)+' do total'+(m==='mit'?' da Mitsubishi':brands.length?' de '+brandLabel:'')+'.']}),
+  tip&&hs('div',{className:'tbm-tip',style:{left:tip.x+14,top:tip.y+14},children:[h('strong',{children:spikes.names[tip.i]}),hs('div',{className:'tbm-tip-row',children:[h('span',{children:m==='mit'?'Mitsubishi':brands.length?brandLabel:'Mercado'}),h('span',{children:tbmInt(values[tip.i])})]})]})]});
 }
 
 function TerritoryBrandMaps({filters,manifest,base,view='main'}){
  const h=jsxRuntime.jsx,hs=jsxRuntime.jsxs;
- const [channel,setChannel]=React.useState('VAREJO');
+ const [channel,setChannel]=React.useState('VAREJO'),brands=[].concat(filters?.marca??[]).filter(v=>v&&v!=='all');
  const local=React.useMemo(()=>({...filters,uf:'all',municipio:'all',tipo_venda:channel}),[canonicalFilterKey(filters),channel]);
  const market=useMarketData(local,true,'primary-map',false),model=market.result;
  const explore=useExploration({type:'explore',filters:local,xDimension:'uf',seriesDimension:'marca',topN:20,xTopN:50,order:'value_desc',includeOthers:true,highlightBrands:['MITSUBISHI']},manifest,base);
@@ -310,10 +312,10 @@ function TerritoryBrandMaps({filters,manifest,base,view='main'}){
   channel==='all'&&h('p',{className:'tbm-warn',children:'Todos os canais inclui locadoras e frotas, que emplacam na sede da empresa. Belo Horizonte e Curitiba aparecem muito maiores do que a demanda das lojas.'}),
   (market.error||explore.error||points.error)&&h('p',{role:'alert',className:'tbm-warn',children:market.error||explore.error||points.error}),
   loading&&!tops&&h('p',{role:'status',className:'tbm-status',children:'Calculando marcas por estado…'}),
-  view==='3d'?hs(jsxRuntime.Fragment,{children:[spikes&&h(SpikeMap,{spikes,states,geo,channelLabel}),tops&&model&&h(ExtrudedStates,{states,geo,tops,ufTotals,population:population.data,channelLabel})]}):hs(jsxRuntime.Fragment,{children:[
+  view==='3d'?hs(jsxRuntime.Fragment,{children:[spikes&&h(SpikeMap,{spikes,states,geo,channelLabel,brands}),tops&&model&&h(ExtrudedStates,{states,geo,tops,ufTotals,population:population.data,channelLabel})]}):hs(jsxRuntime.Fragment,{children:[
   tops&&h(TopThreeMap,{tops,states}),
   explore.result&&h(BrandStrengthMap,{result:explore.result,states}),
-  spikes&&h(HeatMap,{spikes,states,channelLabel})]})]});
+  spikes&&h(HeatMap,{spikes,states,channelLabel,brands})]})]});
 }
 
 if(typeof module!=='undefined'&&module.exports)module.exports={tbmTops,tbmStrength,tbmGeometry,tbmProjection,tbmName,tbmColor};
