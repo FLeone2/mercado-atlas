@@ -186,10 +186,11 @@
     return {xDomain:[0,Math.min(1,maxShare>0?maxShare*1.08:1)],yDomain:[low-pad,high+pad],radiusDomain:[0,maxCount],maxCount,maxShare,radius:count=>count>0&&maxCount>0?32*Math.sqrt(count/maxCount):0};
   }
 
+  const geoName = (name,uf) => (typeof geoKey==='function'?geoKey:require('./geo-names.js').geoKey)(name,uf);
   const normalizeName = value => String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim().replace(/\s+/g,' ');
   function joinMunicipalities(frames,geometry) {
-    const index=new Map();for(const feature of geometry?.features??[]){if(feature.uf&&feature.uf!==geometry.uf)continue;const key=normalizeName(feature.name);index.set(key,index.has(key)?null:feature);}
-    return frames.map(frame=>({...frame,municipalityRows:frame.municipalityRows.map(row=>{const feature=row.uf===geometry?.uf?index.get(normalizeName(row.municipality)):null;const code=feature&&/^\d{7}$/.test(String(feature.code))?String(feature.code):null;return {...row,ibgeCode:code,geographicMatch:code?'Nome normalizado + UF únicos':'Sem correspondência única'};})}));
+    const index=new Map();for(const feature of geometry?.features??[]){if(feature.uf&&feature.uf!==geometry.uf)continue;const key=geoName(feature.name,geometry.uf);index.set(key,index.has(key)?null:feature);}
+    return frames.map(frame=>({...frame,municipalityRows:frame.municipalityRows.map(row=>{const feature=row.uf===geometry?.uf?index.get(geoName(row.municipality,row.uf)):null;const code=feature&&/^\d{7}$/.test(String(feature.code))?String(feature.code):null;return {...row,ibgeCode:code,geographicMatch:code?'Nome normalizado + UF únicos':'Sem correspondência única'};})}));
   }
   return {DIMS,GROUP_DIMS,ELECTRIFIED,selection,canonicalFilters,validMonth,monthEnd,listMonths,priorMonth,sourceCoverage,propulsion,classifyBrandOrigin,presetChecks,normalizeRequest,projectionSpec,projectFrame,scopeKey,aggregateCube,emptyFrame,yearToDateFrames,dailyFrames,emptyDays,rollingFrames,pickYearFrames,priorDay,prevMonth,daysOf,attachYoY,safeYoY,rankFrame,bubbleRows,fixedBubbleScales,joinMunicipalities,textCompare};
 });

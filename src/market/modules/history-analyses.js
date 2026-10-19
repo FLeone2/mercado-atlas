@@ -208,7 +208,9 @@ function ElectrificationHistory({filters,base}){
 
 // ---------- Emplacamentos por mil habitantes ----------
 const hxPopulationCache=new Map();
-function hxPopulation(base){const url=new URL('reference/population.json',base).href;if(!hxPopulationCache.has(url))hxPopulationCache.set(url,fetch(url,{credentials:'same-origin'}).then(r=>{if(!r.ok)throw Error('População indisponível (HTTP '+r.status+').');return r.json();}).catch(e=>{hxPopulationCache.delete(url);throw e;}));return hxPopulationCache.get(url);}
+// One population for every map, table and export: the complete 2026 catalog (5.571 municipalities), not the partial reference file (AT-03).
+function hxPopulationFromCatalog(d){return {year:d.populationYear,source:'IBGE (estimativa oficial)',states:Object.fromEntries((d.states??[]).map(s=>[s.name,s.population2026])),columns:['code','name','uf','population'],municipalities:(d.municipalities??[]).map(m=>[m.code,m.name,m.uf,m.population])};}
+function hxPopulation(base){const url=new URL('geography/catalog-population.json',base).href;if(!hxPopulationCache.has(url))hxPopulationCache.set(url,fetch(url,{credentials:'same-origin'}).then(r=>{if(!r.ok)throw Error('População indisponível (HTTP '+r.status+').');return r.json();}).then(hxPopulationFromCatalog).catch(e=>{hxPopulationCache.delete(url);throw e;}));return hxPopulationCache.get(url);}
 const hxNorm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim();
 function PenetrationMap({filters,base}){
  const [population,setPopulation]=React.useState(null),[error,setError]=React.useState(null),[who,setWho]=React.useState('market'),[hover,setHover]=React.useState(null),h=jsxRuntime.jsx,hs=jsxRuntime.jsxs;
@@ -223,8 +225,8 @@ function PenetrationMap({filters,base}){
   const values=[...rate.values()].sort((a,b)=>a-b),q=k=>values[Math.min(values.length-1,Math.floor(k*values.length))],breaks=[q(.2),q(.4),q(.6),q(.8)],cls=v=>breaks.filter(b=>v>b).length;
   const shades=[14,32,50,70,90].map(p=>`color-mix(in oklab, var(--accent) ${p}%, var(--surface))`);
   const national=population&&src.total?src.total/Object.values(population.states).reduce((a,b)=>a+b,0)*1000:null;
-  const popIndex=new Map(population.municipalities.map(([code,mun,uf,pop])=>[hxNorm(mun)+'|'+uf,{pop,name:mun}]));
-  const cities=(src.groups?.municipio??[]).map(r=>{const [mun,uf]=String(r.name).split(' · ');const ref=popIndex.get(hxNorm(mun)+'|'+uf);return ref?{name:ref.name,uf,count:r.count,pop:ref.pop,rate:r.count/ref.pop*1000}:null;}).filter(r=>r&&r.pop>=50000).sort((a,b)=>b.rate-a.rate);
+  const popIndex=new Map(population.municipalities.map(([code,mun,uf,pop])=>[geoKey(mun,uf)+'|'+uf,{pop,name:mun}]));
+  const cities=(src.groups?.municipio??[]).map(r=>{const [mun,uf]=String(r.name).split(' · ');const ref=popIndex.get(geoKey(mun,uf)+'|'+uf);return ref?{name:ref.name,uf,count:r.count,pop:ref.pop,rate:r.count/ref.pop*1000}:null;}).filter(r=>r&&r.pop>=50000).sort((a,b)=>b.rate-a.rate);
   const states=typeof tbmStates==='function'?tbmStates():[];
   const fmt=v=>hxFmt.d(v,v<1?2:1);
   return hs(jsxRuntime.Fragment,{children:[
@@ -244,4 +246,4 @@ function PenetrationMap({filters,base}){
  };
  return h(HxPanel,{title:'Emplacamentos por mil habitantes',lead:'Onde o mercado (ou a marca em foco) é mais denso em relação à população: aponta espaço para crescer.',children:body()});
 }
-if(typeof module!=='undefined'&&module.exports)module.exports={hxRhythmModel,hxDecomposition,hxGroupStats,hxPeriodMonths,hxMedian,hxNorm};
+if(typeof module!=='undefined'&&module.exports)module.exports={hxRhythmModel,hxDecomposition,hxGroupStats,hxPeriodMonths,hxMedian,hxNorm,hxPopulationFromCatalog};

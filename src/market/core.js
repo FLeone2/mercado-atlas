@@ -1816,6 +1816,7 @@ const colors=['var(--chart-1)','var(--chart-2)','var(--chart-3)','var(--chart-4)
 function download(name,rows){const url=URL.createObjectURL(new Blob([csvText(rows)],{type:'text/csv;charset=utf-8;'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 function getBase(snapshot){return new URL(snapshot?.marketDataBase??'data/',globalThis.location?.href??'http://localhost/').href;}
 /*@include ./modules/catalog-charts.js*/
+/*@include ./modules/geo-names.js*/
 /*@include ./modules/catalog-maps.js*/
 /*@include ./modules/catalog-workspace.js*/
 /*@include ./modules/primary-map-state.js*/

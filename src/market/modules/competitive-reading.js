@@ -10,11 +10,15 @@ const CR_SETS=[
  {id:'suv-mid',label:'SUVs médios',of:'dos SUVs médios',product:'Outlander',filters:{bd_segmento:'MID',bd_carroceria:'SUV'}}
 ];
 const CR_MITSUBISHI_GROUPS=new Set(['TRITON','L200','ECLIPSE CROSS','OUTLANDER','PAJERO','ASX','PAJERO SPORT']);
+// Every model group of the segment is requested (the largest segment has ~60), so a model outside the visible Top 12 is still found, ranked and shared (AT-02).
+const CR_MODEL_LIMIT=200,CR_BRAND_LIMIT=60,CR_VISIBLE=12;
 const crTitle=s=>String(s).toLowerCase().replace(/(^|[\s\/-])(\p{L})/gu,(m,a,b)=>a+b.toUpperCase());
 const crPct=(x,d=1)=>x==null||!Number.isFinite(x)?'—':(x*100).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d})+'%';
 const crInt=n=>n==null||!Number.isFinite(n)?'—':Math.round(n).toLocaleString('pt-BR');
 
 // Model ranking inside a set: shares over the whole set (others included).
+// The list shows the Top 12 plus every Mitsubishi model below the cut, each with its real rank.
+function crDisplayRows(rows,visible=CR_VISIBLE){return (rows??[]).filter((r,i)=>i<visible||r.mitsubishi);}
 function crModelRanking(result){
  if(!result?.cells)return null;
  const others=result.categoryOthersLabel,brands=new Map((result.modelBrandIdentities??[]).map(r=>[r.model,r.brands??[]]));
@@ -76,8 +80,8 @@ function CompetitiveReading({filters,manifest,base}){
  const h=jsxRuntime.jsx,hs=jsxRuntime.jsxs,[setId,setSetId]=React.useState(CR_SETS[0].id);
  const set=CR_SETS.find(s=>s.id===setId);
  const local=React.useMemo(()=>({...filters,marca:'all',modelo:'all',grupo_modelo:'all',bd_segmento:'all',bd_carroceria:'all',...set.filters}),[canonicalFilterKey(filters),setId]);
- const models=useExploration({type:'explore',filters:local,xDimension:'grupo_modelo',seriesDimension:null,topN:1,xTopN:12,order:'value_desc',includeOthers:true,highlightBrands:['MITSUBISHI']},manifest,base);
- const states=useExploration({type:'explore',filters:local,xDimension:'uf',seriesDimension:'marca',topN:12,xTopN:50,order:'value_desc',includeOthers:true,highlightBrands:['MITSUBISHI']},manifest,base);
+ const models=useExploration({type:'explore',filters:local,xDimension:'grupo_modelo',seriesDimension:null,topN:1,xTopN:CR_MODEL_LIMIT,order:'value_desc',includeOthers:true,highlightBrands:['MITSUBISHI']},manifest,base);
+ const states=useExploration({type:'explore',filters:local,xDimension:'uf',seriesDimension:'marca',topN:CR_BRAND_LIMIT,xTopN:50,order:'value_desc',includeOthers:true,highlightBrands:['MITSUBISHI']},manifest,base);
  const ranking=React.useMemo(()=>crModelRanking(models.result),[models.result]),matrix=React.useMemo(()=>crStateMatrix(states.result),[states.result]);
  const mitRows=ranking?.rows.filter(r=>r.mitsubishi)??[],lead=mitRows[0];
  const headline=!ranking?set.label:lead?crTitle(lead.model)+' tem '+crPct(lead.share)+' '+set.of+' e é o '+lead.rank+'º modelo':'Mitsubishi sem emplacamentos '+set.of.replace(/^d/,'n')+' no recorte';
@@ -89,9 +93,9 @@ function CompetitiveReading({filters,manifest,base}){
   (models.error||states.error)&&h('p',{role:'alert',className:'tbm-warn',children:models.error||states.error}),
   hs('div',{className:'cr-grid2',children:[
    hs('div',{className:'cr-card',children:[h('h3',{children:headline}),h('p',{className:'cr-sub',children:ranking?'Participação no segmento, '+crInt(ranking.total)+' emplacamentos no total. Mitsubishi em vermelho.':'Calculando…'}),
-    ranking&&h('div',{className:'cr-bars',role:'list',children:ranking.rows.map(r=>hs('div',{role:'listitem',className:'cr-bar'+(r.mitsubishi?' is-mit':''),children:[h('span',{className:'cr-name',children:r.rank+'. '+crTitle(r.model)}),h('span',{className:'cr-track',children:h('span',{className:'cr-fill',style:{width:(r.count/max*100).toFixed(1)+'%'}})}),h('span',{className:'cr-val',children:crPct(r.share)})]},r.model))})]}),
+    ranking&&h('div',{className:'cr-bars',role:'list',children:crDisplayRows(ranking.rows).map(r=>hs('div',{role:'listitem',className:'cr-bar'+(r.mitsubishi?' is-mit':''),children:[h('span',{className:'cr-name',children:r.rank+'. '+crTitle(r.model)}),h('span',{className:'cr-track',children:h('span',{className:'cr-fill',style:{width:(r.count/max*100).toFixed(1)+'%'}})}),h('span',{className:'cr-val',children:crPct(r.share)})]},r.model))})]}),
    hs('div',{className:'cr-card',children:[h('h3',{children:opp.length?'Onde crescer: '+opp.join(', '):'Participação Mitsubishi por UF'}),h('p',{className:'cr-sub',children:'Cada ponto é uma UF: tamanho do segmento × participação Mitsubishi.'}),
     matrix?h(CrMatrix,{matrix}):h('p',{className:'cr-sub',children:'Calculando…'})]})]}),
   h(CrConcentration,{})]});
 }
-if(typeof module!=='undefined'&&module.exports)module.exports={crModelRanking,crStateMatrix,crQuadrant,CR_SETS};
+if(typeof module!=='undefined'&&module.exports)module.exports={crModelRanking,crDisplayRows,crStateMatrix,crQuadrant,CR_SETS,CR_MODEL_LIMIT};

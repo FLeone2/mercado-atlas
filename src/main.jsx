@@ -7,6 +7,7 @@ import.meta.glob('./styles/legacy/*.css', { eager: true });
 import './styles/atlas.css';
 import './styles/liquid-aurora.css';
 import { DataAppProvider } from './kit/index.js';
+import { ErrorBoundary } from './kit/boundary.jsx';
 import { DashboardContent } from 'virtual:market';
 
 const root = createRoot(document.getElementById('root'));
@@ -14,7 +15,9 @@ fetch('/data/snapshot.json')
   .then(r => { if (!r.ok) throw new Error('snapshot ' + r.status); return r.json(); })
   .then(snapshot => root.render(
     <DataAppProvider snapshot={snapshot}>
-      <DashboardContent />
+      <ErrorBoundary>
+        <DashboardContent />
+      </ErrorBoundary>
     </DataAppProvider>,
   ))
   .catch(error => root.render(

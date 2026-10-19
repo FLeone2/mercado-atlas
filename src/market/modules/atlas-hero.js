@@ -5,8 +5,8 @@ const heroNorm=s=>String(s??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperC
 function heroDots(points,rows){
  if(!points?.rows||!rows?.length)return [];
  const totals=new Map();
- for(const r of rows){const name=String(r.name??''),i=name.lastIndexOf(' · ');if(i<0)continue;totals.set(heroNorm(name.slice(0,i))+'|'+name.slice(i+3).trim(),r.count);}
- return points.rows.map(([code,name,uf,x,y])=>({code,name,uf,x,y,v:totals.get(heroNorm(name)+'|'+uf)??0})).filter(d=>d.v>0).sort((a,b)=>a.v-b.v);
+ for(const r of rows){const name=String(r.name??''),i=name.lastIndexOf(' · ');if(i<0)continue;totals.set(geoKey(name.slice(0,i),name.slice(i+3).trim())+'|'+name.slice(i+3).trim(),r.count);}
+ return points.rows.map(([code,name,uf,x,y])=>({code,name,uf,x,y,v:totals.get(geoKey(name,uf)+'|'+uf)??0})).filter(d=>d.v>0).sort((a,b)=>a.v-b.v);
 }
 function AtlasHero({model,period,base,yearLabel,onExplore,onTerritory}){
  const h=jsxRuntime.jsx,hs=jsxRuntime.jsxs,points=useTbmPoints(base).data;

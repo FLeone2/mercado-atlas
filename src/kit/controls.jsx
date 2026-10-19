@@ -90,7 +90,7 @@ export function Info({ children, label, className = '' }) {
 export function Dropdown({ label, value = 'all', choices = [], onChange, allLabel = 'Todos', multiple = false, searchable = false,
   showLabel = false, formatChoice, choiceLabels, placeholder, disabled = false, className = '' }) {
   const [open, setOpen] = useState(false), [query, setQuery] = useState(''), [active, setActive] = useState(0);
-  const ref = useRef(null), listId = useId();
+  const ref = useRef(null), listId = useId(), labelId = useId(), valueId = useId();
   usePopover(open, setOpen, ref);
   const selected = useMemo(() => new Set((multiple ? (Array.isArray(value) ? value : [value]) : []).filter(v => v != null && v !== '' && v !== 'all')), [value, multiple]);
   const show = v => v === 'all' ? allLabel : (formatChoice?.(v) ?? choiceLabels?.[v] ?? String(v ?? '—'));
@@ -112,10 +112,10 @@ export function Dropdown({ label, value = 'all', choices = [], onChange, allLabe
   };
   return (
     <div className={`ax-field ax-dropdown ${className}`} ref={ref} data-open={open || undefined}>
-      {showLabel !== false && <span className="ax-field-label">{label}</span>}
+      {showLabel !== false && <span className="ax-field-label" id={labelId}>{label}</span>}
       <button type="button" className="ax-field-trigger" aria-haspopup="listbox" aria-expanded={open} aria-controls={listId}
-        aria-label={showLabel === false ? `${label}: ${shown}` : undefined} disabled={disabled} onClick={() => { setOpen(o => !o); setActive(0); }} onKeyDown={onKey}>
-        <span className="ax-field-value" title={typeof shown === 'string' ? shown : undefined}>{shown}</span>
+        aria-label={showLabel === false ? `${label}: ${shown}` : undefined} aria-labelledby={showLabel === false ? undefined : `${labelId} ${valueId}`} disabled={disabled} onClick={() => { setOpen(o => !o); setActive(0); }} onKeyDown={onKey}>
+        <span className="ax-field-value" id={valueId} title={typeof shown === 'string' ? shown : undefined}>{shown}</span>
         <Icon name="chevronDown" size={14} />
       </button>
       {open && (
@@ -246,7 +246,10 @@ export function Dialog({ open, onClose, title, children, initialFocusSelector, e
     if (!open) return undefined;
     const previous = document.activeElement;
     const node = ref.current;
-    (node?.querySelector(initialFocusSelector ?? '') ?? node?.querySelector('button, input, select, textarea'))?.focus?.();
+    // An empty or invalid selector must never throw: it would unmount the whole app (audit AT-01).
+    let target = null;
+    try { target = initialFocusSelector ? node?.querySelector(initialFocusSelector) : null; } catch { target = null; }
+    (target ?? node?.querySelector('button, input, select, textarea'))?.focus?.();
     const key = e => { if (e.key === 'Escape') onClose?.(); };
     document.addEventListener('keydown', key);
     document.body.dataset.dialogOpen = 'true';

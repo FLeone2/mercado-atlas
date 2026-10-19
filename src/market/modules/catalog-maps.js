@@ -9,6 +9,8 @@ const CATALOG_UF_TILES = [['RR',2,0],['AP',4,0],['AM',1,1],['PA',3,1],['MA',4,1]
 const CATALOG_BIVARIATE_COLORS = ['#e8e8e8','#ace4e4','#5ac8c8','#dfb0d6','#a5add3','#5698b9','#be64ac','#8c62aa','#3b4994'];
 const catalogMapNumber = v => v == null || !Number.isFinite(v) ? '—' : v.toLocaleString('pt-BR',{maximumFractionDigits:0});
 const catalogMapPercent = v => v == null || !Number.isFinite(v) ? '—' : (v*100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%';
+// Municipality names compare through geo-names.js (accents, apostrophes, de/do/da and UF-scoped aliases).
+const catalogGeoKey=(name,uf)=>(typeof geoKey==='function'?geoKey:require('./geo-names.js').geoKey)(name,uf);
 const catalogMapNormalize = v => String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim().replace(/\s+/g,' ');
 function catalogMapRows(model,dimension){
  const market=model?.catalog?.market,mit=model?.catalog?.mitsubishi;
@@ -39,12 +41,12 @@ const catalogMunicipalGeometryIndex=new WeakMap();
 function catalogMunicipalIndex(geometry){
  if(!geometry)return new Map();
  if(catalogMunicipalGeometryIndex.has(geometry))return catalogMunicipalGeometryIndex.get(geometry);
- const names=new Map();for(const f of geometry.features??[]){const key=catalogMapNormalize(f.name);names.set(key,names.has(key)?null:{feature:f,point:catalogPathCentroid(f.path)});}
+ const names=new Map();for(const f of geometry.features??[]){const key=catalogGeoKey(f.name,geometry.uf);names.set(key,names.has(key)?null:{feature:f,point:catalogPathCentroid(f.path)});}
  catalogMunicipalGeometryIndex.set(geometry,names);return names;
 }
 function catalogMunicipalJoin(rows,geometry){
  const names=catalogMunicipalIndex(geometry); const matches=[],unmatched=[];
- for(const row of rows){if(!row.name.endsWith(' · '+geometry?.uf))continue;const name=row.name.slice(0,-(' · '+geometry.uf).length),entry=names.get(catalogMapNormalize(name)),f=entry?.feature,point=entry?.point;
+ for(const row of rows){if(!row.name.endsWith(' · '+geometry?.uf))continue;const name=row.name.slice(0,-(' · '+geometry.uf).length),entry=names.get(catalogGeoKey(name,geometry?.uf)),f=entry?.feature,point=entry?.point;
   if(f&&point)matches.push({...row,ibgeCode:f.code,municipality:f.name,uf:geometry.uf,x:point[0],y:point[1],path:f.path,geographicMatch:'Nome normalizado + UF únicos'});
   else unmatched.push({...row,ibgeCode:null,uf:geometry.uf,geographicMatch:'Sem correspondência única'});
  }

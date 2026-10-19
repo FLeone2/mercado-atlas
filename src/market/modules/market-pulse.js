@@ -22,13 +22,14 @@ function pulseModel(market,focusResult,focus,filters){
  if(!market)return null;
  const brands=(market.groups?.marca??[]).filter(b=>b.count>0),i=brands.findIndex(b=>b.name===focus);
  const previous=[...(market.groups?.marca??[])].filter(b=>(b.previous??0)>0).sort((a,b)=>b.previous-a.previous||a.name.localeCompare(b.name)),pi=previous.findIndex(b=>b.name===focus);
- const focusTotal=focusResult?.total??(i>=0?brands[i].count:null),share=market.total>0&&focusTotal!=null?focusTotal/market.total:null;
+ // No market total means the channel (or the data) does not exist in the source: the brand is unavailable too, never zero (AT-08).
+ const unavailable=market.total==null,focusTotal=unavailable?null:(focusResult?.total??(i>=0?brands[i].count:null)),share=market.total>0&&focusTotal!=null?focusTotal/market.total:null;
  const shareYear=focusResult?.year!=null&&market.year>0?focusResult.year/market.year:null;
  const range=pulseRange(market,filters),yearRange=market.yearRange??pulseShiftYear(range),days=pulseWorkingDays(range),yearDays=pulseWorkingDays(yearRange);
  const pace=days&&market.total!=null?market.total/days:null,paceYear=yearDays&&market.year!=null?market.year/yearDays:null;
  const ufs=new Map((market.groups?.uf??[]).map(r=>[r.name,r.count])),strong=(focusResult?.groups?.uf??[]).map(r=>({name:r.name,count:r.count,share:ufs.get(r.name)>0?r.count/ufs.get(r.name):null})).filter(r=>r.share!=null&&r.count>=Math.max(50,(focusTotal??0)*0.03)).sort((a,b)=>b.share-a.share);
  const electrified=(market.groups?.propulsao??[]).filter(r=>['HEV','PHEV','BEV','MHEV'].includes(r.name)).reduce((s,r)=>s+r.count,0);
- return {focus,range,market:market.total,marketYearChange:market.yearChangeRate,marketPreviousChange:market.changeRate,focusTotal,focusYearChange:focusResult?.yearChangeRate??null,share,shareYearChange:share!=null&&shareYear!=null?share-shareYear:null,
+ return {focus,range,market:market.total,marketYearChange:market.yearChangeRate,marketPreviousChange:market.changeRate,focusTotal,focusYearChange:unavailable?null:(focusResult?.yearChangeRate??null),share,shareYearChange:share!=null&&shareYear!=null?share-shareYear:null,
   rank:i>=0?i+1:null,brands:brands.length,previousRank:pi>=0?pi+1:null,pace,paceYearChange:pace!=null&&paceYear>0?pace/paceYear-1:null,days,yearDays,
   leader:brands[0]?{name:brands[0].name,share:market.total>0?brands[0].count/market.total:null}:null,strongestUF:strong[0]??null,topSegment:(focusResult?.groups?.bd_segmento??[])[0]??null,electrifiedShare:market.total>0?electrified/market.total:null,complete:market.complete!==false};
 }

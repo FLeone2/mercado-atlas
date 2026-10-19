@@ -60,7 +60,7 @@ export async function exportSvgToPng(svg, { filename = 'grafico', title = '', le
   const url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' }));
   try {
     const image = await new Promise((resolve, reject) => { const img = new Image(); img.onload = () => resolve(img); img.onerror = () => reject(Error('Não foi possível desenhar o gráfico.')); img.src = url; });
-    const paper = resolveColor('--paper', '#f4f1e8'), ink = resolveColor('--ink', '#173e35'), muted = resolveColor('--muted', '#65726a');
+    const paper = resolveColor('--paper', '#f4f1e8'), ink = resolveColor('--ink', '#173e35'), muted = resolveColor('--ink-soft', '#5b6b63');
     const scale = 2, pad = 28, titleH = title ? 40 : 0, rows = [], probe = document.createElement('canvas').getContext('2d');
     probe.font = '13px Inter, sans-serif';
     let row = [], x = 0;

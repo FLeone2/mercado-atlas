@@ -87,6 +87,15 @@ e entram no pré-cálculo. Fonte: `src/market/modules/connections-chord.js`; tes
 - Testes: `tests/precompute.test.cjs` (índice do manifesto atual, uma entrada por área, arquivo = cálculo ao vivo) e
   `tests/market-focus.test.cjs` (marca em foco = consulta separada da marca).
 
+## Nomes de municípios e população
+
+Um só módulo compara nomes de municípios entre registros, malhas do IBGE, pontos e população: `src/market/modules/geo-names.js`.
+Ele ignora acentos, apóstrofos e "de/do/da" (Alta Floresta D'Oeste = ALTA FLORESTA DO OESTE) e tem uma lista curta de apelidos
+por UF (Campos dos Goitacazes → Goytacazes, Embu → Embu das Artes…). Quem não casa fica "N/D", nunca zero.
+Os cálculos por mil habitantes usam o catálogo completo (`data/geography/catalog-population.json`, 5.571 municípios).
+Testes: `tests/geo-names.test.cjs` (os 129 cubos casam inteiros) e `tests/audit-regression.test.cjs` (números do dossiê de auditoria de 19/10/2026).
+Pendente: os pacotes regionais pré-calculados (`scripts/build_scenarios.py`) ainda usam a regra antiga; regenerá-los muda arquivos de dados.
+
 ## Ferramentas
 
 Copiar link (área + filtros + vistas na URL), favoritos, relatório executivo, exportar recorte (CSV),

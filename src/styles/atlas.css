@@ -594,3 +594,13 @@ h1, h2, h3, h4 { color: var(--ink); }
 .hx-add-list button:hover, .hx-add-list button:focus-visible { background: var(--muted); }
 .hx-add-list small, .hx-add-empty { color: var(--ink-soft); }
 .hx-add-empty { padding: 7px 12px; }
+
+/* Erro de tela: aviso no lugar do app apagado. */
+.ax-error-boundary { max-width: 560px; margin: 120px auto; padding: 0 24px; text-align: center; }
+.ax-error-boundary h2 { font: 400 32px/1.1 var(--serif); margin: 0 0 12px; }
+.ax-error-boundary p { color: var(--ink-soft); margin: 0 0 10px; }
+.ax-error-detail { font-size: 12px; opacity: .7; }
+.ax-error-actions { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
+
+/* Barra de filtros fixa: o foco e os saltos de rolagem não ficam escondidos atrás dela. */
+@media (min-width: 901px) { html { scroll-padding-top: 11rem; } .ax-card, .ax-section, [id] { scroll-margin-top: 11rem; } }
