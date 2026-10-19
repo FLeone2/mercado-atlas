@@ -94,7 +94,16 @@ Ele ignora acentos, apóstrofos e "de/do/da" (Alta Floresta D'Oeste = ALTA FLORE
 por UF (Campos dos Goitacazes → Goytacazes, Embu → Embu das Artes…). Quem não casa fica "N/D", nunca zero.
 Os cálculos por mil habitantes usam o catálogo completo (`data/geography/catalog-population.json`, 5.571 municípios).
 Testes: `tests/geo-names.test.cjs` (os 129 cubos casam inteiros) e `tests/audit-regression.test.cjs` (números do dossiê de auditoria de 19/10/2026).
-Pendente: os pacotes regionais pré-calculados (`scripts/build_scenarios.py`) ainda usam a regra antiga; regenerá-los muda arquivos de dados.
+Pacotes regionais (Economia › Potencial regional): `scripts/relink_regional.py` religa ao código IBGE só os municípios que ficaram sem código
+(regra e apelidos iguais aos do site, em `scripts/lib/geo_names.py`; `tests/test_geo_names.py` mantém os dois idênticos). Para refazer depois de mudar a regra:
+
+```sh
+python3 scripts/relink_regional.py && python3 scripts/phase2_regional.py
+python3 scripts/phase23_models.py --regional-only   # refaz só a seção regional; previsões e economia ficam como publicadas
+python3 scripts/phase3_spatial.py && python3 scripts/refresh_scenario_receipts.py && node tests/lib/data-baseline.cjs --update
+```
+
+Em 19/10/2026: 90 municípios (10.676 emplacamentos) ganharam código; sobram 3 sem vínculo (61 emplacamentos: Não Identificado, Boa Esperança do Norte, São Bento de Pombal).
 
 ## Ferramentas
 

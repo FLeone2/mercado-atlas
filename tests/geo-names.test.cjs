@@ -25,6 +25,8 @@ test('aliases are scoped to their state',()=>{
  assert.equal(G.geoKey('Santa Rosa','RS'),G.geoBase('Santa Rosa'));
  assert.equal(G.geoKey('Embu','SP'),G.geoBase('Embu das Artes'));
 });
+// Left unmatched on purpose: 'São Bento de Pombal' is not an IBGE municipality and São Bento (PB) already has its own registrations, so merging would be a guess.
+const KNOWN_UNMATCHED=new Set(['PB|SAO BENTO DE POMBAL']);
 test('across all 129 monthly cubes, only unidentified places stay unmatched',()=>{
  const dir=path.join(root,'cubes'),pairs=new Map();
  for(const file of fs.readdirSync(dir).filter(f=>f.endsWith('.gz'))){
@@ -33,7 +35,7 @@ test('across all 129 monthly cubes, only unidentified places stay unmatched',()=
  }
  let total=0,lost=0;const missing=[];
  for(const [k,n] of pairs){total+=n;const [uf,name]=k.split('|');if(!byUF.get(uf)?.has(G.geoKey(name,uf))){lost+=n;missing.push([k,n]);}}
- const real=missing.filter(([k])=>!/^Não informado\|/.test(k));
+ const real=missing.filter(([k])=>!/^Não informado\|/.test(k)&&!KNOWN_UNMATCHED.has(k.replace(/\|(.*)$/,(m,n)=>'|'+n.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase())));
  assert.equal(real.length,0,'unmatched: '+JSON.stringify(real.slice(0,8)));
  assert(lost/total<0.00006,'unidentified volume '+lost+' of '+total);
 });

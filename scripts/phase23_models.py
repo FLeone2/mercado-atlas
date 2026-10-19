@@ -558,8 +558,28 @@ def real_credit_series(external, phase1):
             'warning': 'Descriptive current-vintage real flow, not credit stock. Does not replace the pre-specified nominal-credit forecasting candidate or create an intervention model.'}
 
 
-def build(repo):
+def build_regional_only(folder):
+    """Refit only the regional cross-section after regional.json changed (e.g. the municipality relink) and keep every other
+    section exactly as published, so forecasts and economics do not move with library versions."""
+    path = folder / 'phase23_models.json'
+    output = load(path)
+    phase1_path = folder / 'phase1_sources.json'
+    phase1 = load(phase1_path) if phase1_path.exists() else None
+    output['regional'] = regional_model(load(folder / 'regional.json'), load(folder / 'socioeconomic.json'), phase1)
+    for item in output['provenance']['inputs']:
+        if item['file'] in ('regional.json', 'socioeconomic.json', 'phase1_sources.json'):
+            item['sha256'] = hashlib.sha256((folder / item['file']).read_bytes()).hexdigest()
+    output['provenance']['regionalRefit'] = {'script': 'scripts/phase23_models.py --regional-only', 'numpyVersion': np.__version__, 'statsmodelsVersion': __import__('statsmodels').__version__,
+        'note': 'Only the regional section was refit (after the municipality relink); economics and forecasts keep the published build.'}
+    path.write_text(json.dumps(safe(output), ensure_ascii=False, separators=(',', ':'), allow_nan=False) + '\n')
+    print('Regional:', len(output['regional']['rows']), output['regional']['diagnostics']['converged'], output['regional']['diagnostics']['zeroMitCounts'], output['regional']['missingCovariates'])
+    return output
+
+
+def build(repo, regional_only=False):
     folder = repo / 'data/scenarios'
+    if regional_only:
+        return build_regional_only(folder)
     monthly_file = load(folder / 'monthly.json'); monthly = monthly_file['rows']
     months = [r['month'] for r in monthly]
     if any(add_month(months[0], i) != m for i, m in enumerate(months)): raise ValueError('Monthly gaps')
@@ -613,5 +633,6 @@ def build(repo):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--repo', type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument('--regional-only', action='store_true', help='Refit only the regional section; keep economics and forecasts as published')
     args = parser.parse_args()
-    build(args.repo)
+    build(args.repo, args.regional_only)

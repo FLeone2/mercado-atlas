@@ -22,8 +22,7 @@ const GEO_ALIAS_PAIRS=[
  ['TO','Sao Valerio da Natividade','São Valério'],['MG','Queluzita','Queluzito'],['PE','Iguaraci','Iguaracy'],
  ['PB','Sao Domingos de Pombal','São Domingos'],['BA','Lagedo do Tabocal','Lajedo do Tabocal'],['PB','Santarem','Joca Claudino'],
  ['PB','Serido','São Vicente do Seridó'],['TO','Fortaleza do Tabocao','Tabocão'],['RR','Sao Luiz','São Luiz do Anauá'],
- ['AC','Santa Rosa','Santa Rosa do Purus'],['RN','Sao Miguel de Touros','São Miguel do Gostoso'],['RN','Espirito Santo do Oeste','Espírito Santo'],
- ['PB','Sao Bento de Pombal','São Bento']
+ ['AC','Santa Rosa','Santa Rosa do Purus'],['RN','Sao Miguel de Touros','São Miguel do Gostoso'],['RN','Espirito Santo do Oeste','Espírito Santo']
 ];
 const GEO_ALIASES=new Map(GEO_ALIAS_PAIRS.map(([uf,from,to])=>[uf+'|'+geoBase(from),geoBase(to)]));
 // Comparison key. Pass the UF whenever it is known so the alias list stays scoped to that state.
