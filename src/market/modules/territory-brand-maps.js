@@ -299,7 +299,7 @@ function TerritoryBrandMaps({filters,manifest,base,view='main'}){
  const ufTotals=React.useMemo(()=>new Map((model?.groups?.uf??[]).map(r=>[r.name,r.count??0])),[model]);
  // Join municipal aggregates ("NOME · UF") to national points by normalized name + UF.
  const spikes=React.useMemo(()=>{if(!points.data||!model)return null;const key=(n,uf)=>geoKey(n,uf)+'|'+uf;
-  const split=rows=>{const m=new Map();for(const r of rows??[]){const i=String(r.name).lastIndexOf(' · ');if(i<0)continue;m.set(key(r.name.slice(0,i),r.name.slice(i+3)),r.count??0);}return m;};
+  const split=rows=>{const m=new Map();for(const r of rows??[]){const i=String(r.name).lastIndexOf(' · ');if(i<0)continue;{const k=key(r.name.slice(0,i),r.name.slice(i+3));m.set(k,(m.get(k)??0)+(r.count??0));}}return m;};
   const mk=split(model.groups?.municipio),mit=split(model.catalog?.mitsubishi?.groups?.municipio);
   const dealers=new Set((typeof value$2==='undefined'?[]:value$2.municipalities??[]).map(d=>String(d.municipalityCode)));
   const rows=points.data.rows;return {points:rows.map(r=>[r[3],r[4]]),names:rows.map(r=>r[1]+' · '+r[2]),market:rows.map(r=>mk.get(key(r[1],r[2]))??0),mit:rows.map(r=>mit.get(key(r[1],r[2]))??0),dealer:rows.map(r=>dealers.has(String(r[0])))};},[points.data,model]);

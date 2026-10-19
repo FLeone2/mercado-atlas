@@ -26,7 +26,7 @@ class GeoNamesTest(unittest.TestCase):
         regional = json.loads((R / 'data/scenarios/regional.json').read_text())
         rows = regional['municipalities']
         unmatched = sorted((r['uf'], r['name']) for r in rows if not r.get('code'))
-        self.assertEqual(unmatched, [('MT', 'BOA ESPERANCA DO NORTE'), ('Não informado', 'Não Identificado'), ('PB', 'SAO BENTO DE POMBAL')])
+        self.assertEqual(unmatched, [('MT', 'BOA ESPERANCA DO NORTE'), ('Não informado', 'Não Identificado')])
         self.assertEqual(sum(r['registrations'] for r in rows), 2156654)
         self.assertGreater(regional['joinAudit']['registrationCoverage'], 0.9999)
         by_name = {(r['uf'], r['name']): r for r in rows}
@@ -36,7 +36,7 @@ class GeoNamesTest(unittest.TestCase):
             self.assertEqual(row['population'], population)
             self.assertAlmostEqual(row['registrationsPer1000'], 1000 * row['registrations'] / population, places=9)
         phase2 = json.loads((R / 'data/scenarios/phase2_regional.json').read_text())
-        self.assertEqual(phase2['coverage']['unmatchedRows'], 61)
+        self.assertEqual(phase2['coverage']['unmatchedRows'], 53)
         self.assertEqual(phase2['national']['registrations'], 2156654)
 
 

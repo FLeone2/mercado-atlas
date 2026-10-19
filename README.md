@@ -103,7 +103,7 @@ python3 scripts/phase23_models.py --regional-only   # refaz só a seção region
 python3 scripts/phase3_spatial.py && python3 scripts/refresh_scenario_receipts.py && node tests/lib/data-baseline.cjs --update
 ```
 
-Em 19/10/2026: 90 municípios (10.676 emplacamentos) ganharam código; sobram 3 sem vínculo (61 emplacamentos: Não Identificado, Boa Esperança do Norte, São Bento de Pombal).
+Em 19/10/2026: 91 municípios (10.684 emplacamentos) ganharam código; sobram 2 sem vínculo (53 emplacamentos: Não Identificado, Boa Esperança do Norte). Duas grafias do mesmo município somam no código IBGE, sem sobrescrever (reteste D-03: Espírito Santo do Oeste → Paraú, São Bento de Pombal → São Bentinho).
 
 ## Ferramentas
 

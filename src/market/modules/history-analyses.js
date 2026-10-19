@@ -226,7 +226,8 @@ function PenetrationMap({filters,base}){
   const shades=[14,32,50,70,90].map(p=>`color-mix(in oklab, var(--accent) ${p}%, var(--surface))`);
   const national=population&&src.total?src.total/Object.values(population.states).reduce((a,b)=>a+b,0)*1000:null;
   const popIndex=new Map(population.municipalities.map(([code,mun,uf,pop])=>[geoKey(mun,uf)+'|'+uf,{pop,name:mun}]));
-  const cities=(src.groups?.municipio??[]).map(r=>{const [mun,uf]=String(r.name).split(' · ');const ref=popIndex.get(geoKey(mun,uf)+'|'+uf);return ref?{name:ref.name,uf,count:r.count,pop:ref.pop,rate:r.count/ref.pop*1000}:null;}).filter(r=>r&&r.pop>=50000).sort((a,b)=>b.rate-a.rate);
+  const cityTotals=new Map();for(const r of src.groups?.municipio??[]){const [mun,uf]=String(r.name).split(' · ');const key=geoKey(mun,uf)+'|'+uf,ref=popIndex.get(key);if(!ref)continue;const prev=cityTotals.get(key);cityTotals.set(key,{name:ref.name,uf,count:(prev?.count??0)+(r.count??0),pop:ref.pop});}
+  const cities=[...cityTotals.values()].map(c=>({...c,rate:c.count/c.pop*1000})).filter(r=>r&&r.pop>=50000).sort((a,b)=>b.rate-a.rate);
   const states=typeof tbmStates==='function'?tbmStates():[];
   const fmt=v=>hxFmt.d(v,v<1?2:1);
   return hs(jsxRuntime.Fragment,{children:[

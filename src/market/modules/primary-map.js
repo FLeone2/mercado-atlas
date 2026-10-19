@@ -15,7 +15,7 @@ function primaryMapMunicipalRows(rows,geometry,population,complete,uf){
  const empty=f=>({name:f.name+' · '+uf,municipality:f.name,uf,ibgeCode:f.code,count:complete?0:null,marketCount:complete?0:null,share:null,channelShare:null,denominator:null,path:f.path,geographicMatch:f.path?'Sem registros no recorte':'Sem ponto na malha municipal',coverage:complete?'Sem registros no recorte':'Cobertura incompleta'});
  let all;
  if(!geometry){all=scoped.map(withCode);}else{
-  const joined=catalogMunicipalJoin(scoped,geometry),byCode=new Map(joined.matches.map(r=>[String(r.ibgeCode),r]));
+  const joined=catalogMunicipalJoin(scoped,geometry),byCode=new Map(catalogMergeByCode(joined.matches).map(r=>[String(r.ibgeCode),r]));
   all=[...geometry.features.map(f=>byCode.get(String(f.code))??empty(f)),...joined.unmatched.map(withCode)];
  }
  const knownCodes=new Set(all.map(r=>String(r.ibgeCode)));

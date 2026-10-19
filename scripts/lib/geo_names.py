@@ -27,7 +27,7 @@ ALIAS_PAIRS = [
     ['TO', 'Sao Valerio da Natividade', 'São Valério'], ['MG', 'Queluzita', 'Queluzito'], ['PE', 'Iguaraci', 'Iguaracy'],
     ['PB', 'Sao Domingos de Pombal', 'São Domingos'], ['BA', 'Lagedo do Tabocal', 'Lajedo do Tabocal'], ['PB', 'Santarem', 'Joca Claudino'],
     ['PB', 'Serido', 'São Vicente do Seridó'], ['TO', 'Fortaleza do Tabocao', 'Tabocão'], ['RR', 'Sao Luiz', 'São Luiz do Anauá'],
-    ['AC', 'Santa Rosa', 'Santa Rosa do Purus'], ['RN', 'Sao Miguel de Touros', 'São Miguel do Gostoso'], ['RN', 'Espirito Santo do Oeste', 'Espírito Santo'],
+    ['AC', 'Santa Rosa', 'Santa Rosa do Purus'], ['RN', 'Sao Miguel de Touros', 'São Miguel do Gostoso'], ['RN', 'Espirito Santo do Oeste', 'Paraú'], ['PB', 'Sao Bento de Pombal', 'São Bentinho'],
 ]
 ALIASES = {uf + '|' + geo_base(source): geo_base(target) for uf, source, target in ALIAS_PAIRS}
 

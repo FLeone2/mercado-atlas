@@ -312,7 +312,7 @@ function AnimationHeat({frames=[],frame=0,brands=[],commonScale=false,dataBase})
  const index=React.useMemo(()=>{const m=new Map();(rows??[]).forEach((r,i)=>m.set(geoKey(r[1],r[2])+'|'+r[2],i));return m;},[rows]);
  const maxes=React.useMemo(()=>{const out={};for(const b of brands){let m=0;for(const f of list)for(const n of Object.values(f.heat?.[b]??{}))if(n>m)m=n;out[b]=Math.max(1,m);}return out;},[list,brands.join('|')]);
  const common=Math.max(1,...Object.values(maxes));
- const panels=brands.map(b=>{const heat=current?.heat?.[b]??{},v=new Array(coords.length).fill(0);let total=0,places=0;for(const [name,n] of Object.entries(heat)){total+=n;const cut=name.lastIndexOf(' · '),i=index.get(geoKey(name.slice(0,cut),name.slice(cut+3))+'|'+name.slice(cut+3));if(i!=null){v[i]=n;places++;}}return {brand:b,values:v,total,places};});
+ const panels=brands.map(b=>{const heat=current?.heat?.[b]??{},v=new Array(coords.length).fill(0);let total=0,places=0;for(const [name,n] of Object.entries(heat)){total+=n;const cut=name.lastIndexOf(' · '),i=index.get(geoKey(name.slice(0,cut),name.slice(cut+3))+'|'+name.slice(cut+3));if(i!=null){if(!v[i])places++;v[i]+=n;}}return {brand:b,values:v,total,places};});
  if(points.error)return h('p',{role:'alert',children:points.error});
  if(!rows)return h('p',{role:'status',children:'Carregando as posições dos municípios…'});
  return hs('section',{className:'anh','aria-label':'Mapa de calor acumulado por marca',children:[

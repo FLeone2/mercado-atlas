@@ -25,8 +25,8 @@ test('aliases are scoped to their state',()=>{
  assert.equal(G.geoKey('Santa Rosa','RS'),G.geoBase('Santa Rosa'));
  assert.equal(G.geoKey('Embu','SP'),G.geoBase('Embu das Artes'));
 });
-// Left unmatched on purpose: 'São Bento de Pombal' is not an IBGE municipality and São Bento (PB) already has its own registrations, so merging would be a guess.
-const KNOWN_UNMATCHED=new Set(['PB|SAO BENTO DE POMBAL']);
+// Nothing is left unmatched on purpose except the unidentified places.
+const KNOWN_UNMATCHED=new Set([]);
 test('across all 129 monthly cubes, only unidentified places stay unmatched',()=>{
  const dir=path.join(root,'cubes'),pairs=new Map();
  for(const file of fs.readdirSync(dir).filter(f=>f.endsWith('.gz'))){
@@ -38,4 +38,27 @@ test('across all 129 monthly cubes, only unidentified places stay unmatched',()=
  const real=missing.filter(([k])=>!/^Não informado\|/.test(k)&&!KNOWN_UNMATCHED.has(k.replace(/\|(.*)$/,(m,n)=>'|'+n.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase())));
  assert.equal(real.length,0,'unmatched: '+JSON.stringify(real.slice(0,8)));
  assert(lost/total<0.00006,'unidentified volume '+lost+' of '+total);
+});
+
+// Retest of 2026-10-19 (D-03): two spellings of one place must land on the right municipality and totals must survive the join.
+function monthByCode(month){
+ const file=fs.readdirSync(path.join(root,'cubes')).find(f=>f.startsWith(month+'_'));
+ const cube=JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,'cubes',file))).toString()),cols=cube.columns??[...cube.dimensions,'count'],iu=cols.indexOf('uf'),im=cols.indexOf('municipio'),ic=cols.indexOf('count'),d=cube.dictionaries;
+ const out=new Map();let total=0;
+ for(const r of cube.rows){const uf=d.uf[r[iu]],name=d.municipio[r[im]],n=r[ic];total+=n;const hit=byUF.get(uf)?.get(G.geoKey(name,uf))?.[0];const key=hit?hit.code:'sem|'+uf+'|'+name;out.set(key,(out.get(key)??0)+n);}
+ return {out,total,code:(uf,name)=>byUF.get(uf).get(G.geoKey(name,uf))[0].code};
+}
+test('RN 2016-02: Espírito Santo do Oeste is Paraú, Espírito Santo keeps its own count, sum is preserved',()=>{
+ const m=monthByCode('2016-02');
+ assert.equal(G.geoKey('Espirito Santo do Oeste','RN'),G.geoKey('Paraú','RN'));
+ assert.notEqual(G.geoKey('Espirito Santo','RN'),G.geoKey('Paraú','RN'));
+ assert.equal(m.out.get(m.code('RN','Paraú')),1);
+ assert.equal(m.out.get(m.code('RN','Espírito Santo')),1);
+ assert.equal([...m.out.values()].reduce((a,b)=>a+b,0),m.total);
+});
+test('PB 2016-01: São Bento de Pombal is São Bentinho, São Bento keeps 17',()=>{
+ const m=monthByCode('2016-01');
+ assert.equal(m.out.get(m.code('PB','São Bento')),17);
+ assert.equal(m.out.get(m.code('PB','São Bentinho')),1);
+ assert.equal([...m.out.values()].reduce((a,b)=>a+b,0),m.total);
 });

@@ -50,7 +50,25 @@ function catalogMunicipalJoin(rows,geometry){
   if(f&&point)matches.push({...row,ibgeCode:f.code,municipality:f.name,uf:geometry.uf,x:point[0],y:point[1],path:f.path,geographicMatch:'Nome normalizado + UF únicos'});
   else unmatched.push({...row,ibgeCode:null,uf:geometry.uf,geographicMatch:'Sem correspondência única'});
  }
- return {matches,unmatched};
+ return {matches,unmatched,collisions:catalogMunicipalCollisions(matches)};
+}
+// Two spellings can reach the same IBGE code (old and new names). Their rows are one municipality: sum them, never overwrite.
+const CATALOG_SUM_FIELDS=['count','marketCount','mitCount','observedCount','unclassifiedCount'];
+function catalogGroupByCode(matches){
+ const groups=new Map();for(const row of matches){const key=String(row.ibgeCode);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(row);}
+ return groups;
+}
+function catalogMunicipalCollisions(matches){
+ return [...catalogGroupByCode(matches).entries()].filter(([,list])=>list.length>1).map(([code,list])=>({ibgeCode:code,names:list.map(r=>r.name)}));
+}
+function catalogMergeByCode(matches){
+ return [...catalogGroupByCode(matches).values()].map(list=>{
+  if(list.length===1)return list[0];
+  const sum=field=>list.every(r=>typeof r[field]==='number'&&Number.isFinite(r[field]))?list.reduce((t,r)=>t+r[field],0):(list.some(r=>r[field]!==undefined)?null:undefined);
+  const out={...list[0],mergedFrom:list.map(r=>r.name),geographicMatch:'Nome normalizado + UF; grafias agregadas pelo código IBGE'};
+  for(const f of CATALOG_SUM_FIELDS){const v=sum(f);if(v!==undefined)out[f]=v;}
+  return out;
+ });
 }
 function catalogHexbin(rows,size){
  const bins=new Map();for(const row of rows){const q=(Math.sqrt(3)/3*row.x-row.y/3)/size,r=(2/3*row.y)/size;let rx=Math.round(q),rz=Math.round(r),ry=Math.round(-q-r);const dx=Math.abs(rx-q),dy=Math.abs(ry+q+r),dz=Math.abs(rz-r);if(dx>dy&&dx>dz)rx=-ry-rz;else if(dz>dy)rz=-rx-ry;
