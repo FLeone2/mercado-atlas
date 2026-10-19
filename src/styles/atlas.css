@@ -586,3 +586,11 @@ h1, h2, h3, h4 { color: var(--ink); }
 
 /* Mapas com zoom: municípios e estados legíveis (fundo mais marcado, divisas em tinta). */
 .pm-primary .pm-city, .pm-primary .pm-state, .anm-maps .anm-map-city { stroke: color-mix(in srgb, var(--ink) 42%, var(--paper)); stroke-width: .7; }
+.ax-tooltip-dot { display: inline-block; width: 8px; height: 8px; margin-right: 7px; border-radius: 50%; vertical-align: 1px; }
+.hx-add { position: relative; }
+.hx-add input { min-width: 230px; }
+.hx-add-list { position: absolute; z-index: 30; left: 0; top: 100%; min-width: 280px; max-height: 280px; overflow: auto; margin: 4px 0 0; padding: 4px 0; list-style: none; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+.hx-add-list button { display: block; width: 100%; padding: 7px 12px; text-align: left; border: 0; background: none; color: var(--ink); font: inherit; cursor: pointer; }
+.hx-add-list button:hover, .hx-add-list button:focus-visible { background: var(--muted); }
+.hx-add-list small, .hx-add-empty { color: var(--ink-soft); }
+.hx-add-empty { padding: 7px 12px; }

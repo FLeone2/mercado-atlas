@@ -52,6 +52,16 @@ function HxChart({labels,series=[],band=null,stacked=false,height=260,format=hxF
 function HxPanel({title,lead,children,scope}){const h=jsxRuntime.jsx,hs=jsxRuntime.jsxs;return hs('section',{className:'hx-panel','aria-label':title,children:[hs('header',{className:'hx-head',children:[hs('h2',{children:[title,lead&&h(dataApp.Info,{children:lead})]})]}),scope,children]});}
 // Method notes sit behind an ⓘ, next to the figure they explain.
 function HxMethod({children}){return jsxRuntime.jsx('div',{className:'am-note-info hx-method',children:jsxRuntime.jsx(dataApp.Info,{label:'Como ler',children})});}
+// Search-and-add control for a list of groups: type to filter, click to add; nothing is ever locked.
+function HxAddGroup({options,chosen,onPick}){
+ const h=jsxRuntime.jsx,hs=jsxRuntime.jsxs,[query,setQuery]=React.useState(''),[open,setOpen]=React.useState(false);
+ const norm=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(),q=norm(query).trim();
+ const shown=options.filter(g=>!chosen.includes(g.name)&&(!q||norm(g.name).includes(q)||norm(g.brand).includes(q))).slice(0,14);
+ const pick=n=>{onPick(n);setQuery('');setOpen(false);};
+ return hs('label',{className:'hx-select hx-add',onBlur:e=>{if(!e.currentTarget.contains(e.relatedTarget))setOpen(false);},children:['Adicionar grupo',
+  h('input',{type:'search',value:query,placeholder:'Buscar modelo ou marca',autoComplete:'off',onFocus:()=>setOpen(true),onClick:()=>setOpen(true),onChange:e=>{setQuery(e.target.value);setOpen(true);}}),
+  open&&h('ul',{className:'hx-add-list',role:'listbox',children:shown.length?shown.map(g=>h('li',{key:g.name,children:h('button',{type:'button',role:'option',onMouseDown:e=>e.preventDefault(),onClick:()=>pick(g.name),children:hs(jsxRuntime.Fragment,{children:[g.name,h('small',{children:' · '+g.brand})]})})})):h('li',{className:'hx-add-empty',children:'Nenhum grupo encontrado'})})]});
+}
 function HxSegmented({value,options,onChange,label}){return jsxRuntime.jsx('div',{className:'hx-seg',role:'group','aria-label':label,children:options.map(([v,l])=>jsxRuntime.jsx('button',{type:'button','aria-pressed':value===v,onClick:()=>onChange(v),children:l},v))});}
 function HxState({history,children}){if(history.error)return jsxRuntime.jsx('p',{role:'alert',className:'hx-empty',children:history.error});if(history.pending||!history.data)return jsxRuntime.jsx('p',{role:'status',className:'hx-empty',children:'Carregando o histórico…'});return children();}
 
@@ -160,9 +170,9 @@ function ModelDuel({filters,base}){
   const colorOf=(n,i)=>brandsDistinct&&typeof brandColor==='function'?brandColor(s12.groups.get(n)?.brand??n):palette[i];
   const toggle=n=>{const cur=picked??defaults;setPicked(cur.includes(n)?cur.filter(x=>x!==n):[...cur,n].slice(-4));};
   const series=chosen.map((n,i)=>{const g=stats.groups.get(n),seg=g?stats.segTotals.get(g.segment):null;return {key:n,name:n,color:colorOf(n,i),width:2,values:months.map((_,k)=>!g?null:measure==='share'?(seg?.[k]?g.series[k]/seg[k]:null):g.series[k])};});
-  const options=ranked.slice(0,60);
+  const options=ranked;
   return hs(jsxRuntime.Fragment,{children:[
-   hs('div',{className:'hx-controls',children:[h(HxSegmented,{label:'Janela',value:windowSize,onChange:setWindow,options:[[12,'12 meses'],[24,'24 meses'],[60,'5 anos']]}),h(HxSegmented,{label:'Medida',value:measure,onChange:setMeasure,options:[['count','Volume'],['share','Participação no segmento']]}),hs('label',{className:'hx-select',children:['Adicionar grupo',h('select',{value:'',onChange:e=>{if(e.target.value)toggle(e.target.value);},children:[h('option',{value:'',children:'Escolha (top 60 em 12 meses)'}),...options.map(g=>h('option',{value:g.name,disabled:chosen.includes(g.name),children:g.name+' · '+g.brand},g.name))]})]})]}),
+   hs('div',{className:'hx-controls',children:[h(HxSegmented,{label:'Janela',value:windowSize,onChange:setWindow,options:[[12,'12 meses'],[24,'24 meses'],[60,'5 anos']]}),h(HxSegmented,{label:'Medida',value:measure,onChange:setMeasure,options:[['count','Volume'],['share','Participação no segmento']]}),h(HxAddGroup,{options,chosen,onPick:n=>{if(!chosen.includes(n))toggle(n);}})]}),
    h('div',{className:'hx-chips',children:chosen.map((n,i)=>hs('button',{type:'button',className:'hx-chip',onClick:()=>toggle(n),'aria-label':'Remover '+n,children:[h('i',{style:{background:colorOf(n,i)}}),n,h('span',{'aria-hidden':true,children:' ×'})]},n))}),
    chosen.length?h(HxChart,{title:'Modelo contra modelo',labels:months.map(hxMonth),height:280,hideLegend:true,series,percentAxis:measure==='share',format:measure==='share'?v=>hxFmt.p(v,1):hxFmt.n}):h('p',{className:'hx-empty',children:'Escolha ao menos um grupo de modelos.'}),
    chosen.length>0&&jsxRuntime.jsxs('details',{className:'hx-table-wrap am-geo-tables',children:[jsxRuntime.jsx('summary',{children:'Tabela · modelos'}),h('table',{className:'hx-table',children:[h('thead',{children:h('tr',{children:['Grupo','Marca','Segmento','12 meses','vs 12 anteriores','Part. no segmento','Venda direta','Eletrificado'].map(c=>h('th',{children:c},c))})}),h('tbody',{children:chosen.map(n=>{const g=s12.groups.get(n),p=p12.groups.get(n),seg=g?s12.segTotals.get(g.segment)?.reduce((a,b)=>a+b,0):0;return hs('tr',{children:[h('th',{children:n}),h('td',{children:g?.brand??'—'}),h('td',{children:g?.segment??'—'}),h('td',{children:hxFmt.n(g?.total)}),h('td',{children:p?.total?hxFmt.s(g.total/p.total-1):'—'}),h('td',{children:g&&seg?hxFmt.p(g.total/seg,1):'—'}),h('td',{children:g?.total?hxFmt.p(g.vd/g.total,0):'—'}),h('td',{children:g?.total?hxFmt.p(g.elec/g.total,0):'—'})]},n);})})]})]})

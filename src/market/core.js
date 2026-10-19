@@ -717,7 +717,7 @@ function reviewedTooltipRows(rows,label,payload=[],seriesField='name'){
 function MarketSeriesTooltip({active,label,payload=[],rows,seriesField='name',shareField='marketShare',suffix='do mercado'}){
  if(!active||!payload.length)return null;
  const matches=reviewedTooltipRows(rows,label,payload,seriesField),date=matches[0]?.date;
- return jsxRuntime.jsx(dataApp.ChartTooltip, { active: true, label: date?monthLabel(date):String(label??''), details: matches.map(r=>({label:r[seriesField],value:`${number(r.count)} · ${percent(r[shareField])} ${suffix}`})),});
+ return jsxRuntime.jsx(dataApp.ChartTooltip, { active: true, label: date?monthLabel(date):String(label??''), details: matches.map(r=>({color:payload.find(p=>String(p.dataKey??p.name)===String(r[seriesField]))?.color,label:r[seriesField],value:`${number(r.count)} · ${percent(r[shareField])} ${suffix}`})),});
 }
 
 const definitions=[{id:'brands',label:'Marcas comparadas · até 20',field:'marca',multiple:true,searchable:true,allLabel:'Todas',queryIds:['filter_choices'],defaultValue:[]},{id:'models',label:'Modelos comparados · até 20',field:'modelo',multiple:true,searchable:true,allLabel:'Todos',queryIds:['filter_choices'],defaultValue:[]},{id:'bodies',label:'Carrocerias comparadas · até 20',field:'bd_carroceria',multiple:true,searchable:true,allLabel:'Todas',queryIds:['filter_choices'],defaultValue:[]}];

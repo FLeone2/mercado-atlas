@@ -85,7 +85,7 @@ export function ChartTooltip({ active, label, details = [] }) {
   return (
     <div className="ax-tooltip" role="tooltip">
       {label != null && <strong>{label}</strong>}
-      {details.map((d, i) => <div key={i} className="ax-tooltip-row"><span>{d.label}</span><b>{d.value}</b></div>)}
+      {details.map((d, i) => <div key={i} className="ax-tooltip-row"><span>{d.color && <i className="ax-tooltip-dot" style={{ background: d.color }} />}{d.label}</span><b>{d.value}</b></div>)}
     </div>
   );
 }
