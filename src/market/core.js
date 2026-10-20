@@ -4,6 +4,7 @@
 var jsxRuntime = require('react/jsx-runtime');
 var React = require('react');
 var dataApp = require('@openai/data-app');
+var ReactDOM = require('react-dom');
 
 // One selection contract for analytical filters, cache keys and saved criteria.
 // Within a categorical field values are OR-ed; distinct fields are AND-ed.
@@ -626,7 +627,27 @@ function MarketFilterBar({ definitions = [], queries = {}, values = {}, onChange
   const clear = id => change(id, singleSelection ? 'all' : []);
   const filterProps = { queries, values, onChange: change, showClear: false };
 
-  return jsxRuntime.jsxs('div', { className: "market-filter-bar", 'data-single-selection': singleSelection || undefined, children: [
+  const [open, setOpen] = React.useState(false);
+  const lensRef = React.useRef(null), panelId = extraId + '-lens';
+  React.useEffect(() => {
+    if (!open) return undefined;
+    const away = e => { if (!lensRef.current?.contains(e.target)) setOpen(false); };
+    const esc = e => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('pointerdown', away); document.addEventListener('keydown', esc);
+    return () => { document.removeEventListener('pointerdown', away); document.removeEventListener('keydown', esc); };
+  }, [open]);
+  const periodText = dataApp.rangeLabel(values.date ?? date?.defaultValue);
+  const lensParts = selected.slice(0, 3).map(selection => selection.compactText);
+  const lensMore = selected.length - lensParts.length;
+  return jsxRuntime.jsxs('div', { className: "market-filter-bar", ref: lensRef, 'data-open': open || undefined, 'data-single-selection': singleSelection || undefined, children: [
+    jsxRuntime.jsxs('button', { type: 'button', className: 'lens-pill', 'aria-expanded': open, 'aria-controls': panelId, onClick: () => setOpen(v => !v), children: [
+      jsxRuntime.jsx('span', { className: 'lens-eyebrow', children: 'Vendo' }),
+      jsxRuntime.jsx('strong', { children: periodText }),
+      jsxRuntime.jsx('span', { className: 'lens-sep', 'aria-hidden': true, children: '·' }),
+      jsxRuntime.jsx('span', { className: 'lens-scope', children: lensParts.length ? lensParts.join(' · ') + (lensMore > 0 ? ' +' + lensMore : '') : 'todo o mercado' }),
+      jsxRuntime.jsx('span', { className: 'lens-adjust', children: open ? 'Fechar' : 'Ajustar' })
+    ]}),
+    jsxRuntime.jsxs('div', { className: 'lens-panel', id: panelId, inert: !open || undefined, children: [
     jsxRuntime.jsxs('div', { className: "market-filter-structure", children: [
       jsxRuntime.jsx(dataApp.Filters, { ...filterProps, filters: [], ariaLabel: "Período do mercado"    , children:
         jsxRuntime.jsx(dataApp.DateRangePicker, { label: "Período", value: values.date ?? date?.defaultValue,
@@ -650,6 +671,7 @@ function MarketFilterBar({ definitions = [], queries = {}, values = {}, onChange
       ]}, selection.id))
       , jsxRuntime.jsx('button', { type: "button", className: "clear-filters", onClick: () => selected.forEach(selection => clear(selection.id)), children: "Limpar categorias" })
     ]})
+  ]})
   ]});
 }
 
@@ -1946,7 +1968,8 @@ function DashboardContent(){
  const metricItems=model?[['total',model.complete?'Emplacamentos':'Emplacamentos observados',number(model.total),`${titlePeriod} · soma dos registros elegíveis`,true],['previous','Variação no período',signed(model.changeRate),model.comparisonAvailable?`Base anterior: ${number(model.previous)} emplacamentos`:'Comparação indisponível para este período ou escopo'],['year','Variação em 12 meses',signed(model.yearChangeRate),model.yearAvailable?`Mesmo intervalo do ano anterior: ${number(model.year)}`:'Sem base anual comparável'],['brand','Marca líder',top('marca',1)[0]?.name??'—',top('marca',1)[0]?`${percent(top('marca',1)[0].marketShare)} do recorte · ${number(top('marca',1)[0].count)} registros`:'Sem marca no recorte']]:[];
  return jsxRuntime.jsx(getMarketFooterContext().Provider,{value:tab==='ranking'?null:(actionFooter??false),children:jsxRuntime.jsxs(PageNotesLayout, { notesScope:[tab,evolutionView,scenarioView].join('|'), className: 'am-app'+(tab==='ranking'?' am-ranking-active':tab==='dashboard'?' am-overview-active':''), children: [
   jsxRuntime.jsx(MarketHeader,navigationProps)
-  , jsxRuntime.jsx(MarketSubnavigation,navigationProps)
+  , jsxRuntime.jsx(MarketDock,navigationProps)
+  , jsxRuntime.jsx(AtlasReveal,{})
   , tab==='dashboard'&&jsxRuntime.jsx(AtlasHero,{model:pending?null:model,period:model?titlePeriod:null,base:getBase(snapshot),yearLabel:model?dataApp.rangeLabel((+model.range.start.slice(0,4)-1)+model.range.start.slice(4)+'..'+(+model.range.end.slice(0,4)-1)+model.range.end.slice(4)):'',onExplore:()=>document.querySelector('.mp-strip')?.scrollIntoView({behavior:'smooth',block:'start'}),onTerritory:inspectUF})
   , tab!=='quality'&&jsxRuntime.jsx(MarketFilterBar, { definitions: activeDefinitions, queries: liveQueries, values: effectiveFilters, onChange: changeFilter, periodDateChoices: liveChoices.map(r=>r.date).filter(Boolean), singleSelection: tab==='geography', mapWarning: tab==='geography'?jsxRuntime.jsxs('div', { className: "am-map-context-banner", children: [jsxRuntime.jsx('p', { children: 'Este mapa usa uma opção por filtro.' }), jsxRuntime.jsx('button', { className: "am-small-button", onClick: ()=>setMapContext(createMapContext(globalFilters)), children: "Usar filtros das outras abas"    })]}):null, children: jsxRuntime.jsx(PeriodShortcuts, { manifest: manifest, value: effectiveFilters.date, onChange: value=>{setFilter('date',value);if(tab==='dashboard'&&listMonths(rangeFrom(value,manifest)).length>2)setGrain('monthly');},})})
   , !['quality','models'].includes(tab)&&jsxRuntime.jsx(MarketPulse,{filters:effectiveFilters,shared:pulseShared})
