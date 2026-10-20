@@ -15,6 +15,7 @@ const CARROCERIA = {
 };
 export const PROPULSAO = { ICE: 'Combustão', MHEV: 'Microhíbrido', HEV: 'Híbrido', PHEV: 'Híbrido plug-in', BEV: 'Elétrico', FCEL: 'Célula de combustível' };
 const TIPO = { Auto: 'Automóveis', 'Comercial Leve': 'Comerciais leves', 'Caminhão': 'Caminhões', 'Ônibus': 'Ônibus' };
+const ORIGEM = { LOCAL: 'Nacional', IMP: 'Importado' };
 const CANAL = { VAREJO: 'Varejo', VD: 'Vendas diretas' };
 const NONE = /classific|correspond|informado|indeterm/i;
 
@@ -22,7 +23,7 @@ const NONE = /classific|correspond|informado|indeterm/i;
 export function groupLabel(dim, name) {
   const s = String(name);
   if (NONE.test(s)) return 'Não classificado';
-  const maps = { bd_segmento: PORTE, bd_carroceria: CARROCERIA, propulsao: PROPULSAO, segmento: TIPO, tipo_venda: CANAL };
+  const maps = { bd_segmento: PORTE, bd_carroceria: CARROCERIA, propulsao: PROPULSAO, segmento: TIPO, tipo_venda: CANAL, bd_origem: ORIGEM };
   const m = maps[dim]; if (m && m[s]) return m[s];
   if (dim === 'subsegmento') return titleCase(s.replace(/^(AU|CL) - /, ''));
   return s === s.toUpperCase() && /[A-Z]{3}/.test(s) ? titleCase(s) : s;
@@ -33,6 +34,7 @@ export const LENSES = [
   { id: 'porte', label: 'Porte', dim: 'bd_segmento', noun: 'porte', title: 'Por porte' },
   { id: 'propulsao', label: 'Propulsão', dim: 'propulsao', noun: 'tipo de propulsão', title: 'Por propulsão' },
   { id: 'carroceria', label: 'Carroceria', dim: 'bd_carroceria', noun: 'tipo de carroceria', title: 'Por carroceria' },
+  { id: 'origem', label: 'Origem', dim: 'bd_origem', noun: 'origem do veículo', title: 'Por origem' },
   { id: 'tipo', label: 'Tipo de veículo', dim: 'segmento', noun: 'tipo de veículo', title: 'Por tipo de veículo', plural: true },
 ];
 

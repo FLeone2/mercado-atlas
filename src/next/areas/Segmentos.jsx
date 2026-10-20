@@ -2,10 +2,12 @@ import { useMemo, useRef, useState } from 'react';
 import { engine } from 'virtual:market';
 import { useNext } from '../ctx.js';
 import { ShareArea } from '../charts.jsx';
-import { fmt, monthLabel, pct, pp, rangeText, signed } from '../format.js';
-import { Chapter } from '../ui.jsx';
+import { fmt, monthLabel, pct, pp, rangeText } from '../format.js';
+import { AreaHead, Block } from '../ui.jsx';
+import LegacyTab from '../LegacyTab.jsx';
 import { GroupBars, LENSES, LeaderCards, groupLabel, isUnclassified, prepGroups } from './segmentos-charts.jsx';
 import './segmentos.css';
+import './segmentos-skin.css';
 
 const GREYS = ['#3f3f46', '#a1a1aa', '#71717a', '#d4d4d8', '#8b8b94', '#e4e4e7'];
 const YEARS = ['um ano', 'dois anos', 'três anos', 'quatro anos', 'cinco anos', 'seis anos', 'sete anos', 'oito anos', 'nove anos', 'dez anos'];
@@ -13,9 +15,15 @@ const list = v => (v == null || v === 'all' ? [] : (Array.isArray(v) ? v : [v]).
 const brandName = n => engine.insightName(n);
 const avg = (arr, k) => arr.reduce((s, x) => s + (x.get(k) ?? 0), 0) / arr.length;
 
+const TABS = [['porte', 'Porte e pirâmide'], ['carroceria', 'Carroceria'], ['propulsao', 'Propulsão'], ['origem', 'Origem'], ['tipo', 'Tipo de veículo']];
+/* Peças do Atlas atual que já têm equivalente nativo e ficam escondidas (ids de <section>) */
+const HIDE = { propulsao: ['technology-mix-heading', 'technology-trajectories-heading'], origem: ['origin-overall-history-heading'] };
+const LEGACY = { porte: 'segments', propulsao: 'technology', origem: 'origin' };
+
 export default function Segmentos() {
   const { filters, setFilter, model, hist } = useNext();
-  const [lensId, setLensId] = useState('porte');
+  const [tab, setTab] = useState('porte');
+  const lensId = tab === 'tipo' ? 'tipo' : tab;
   const lens = LENSES.find(l => l.id === lensId), dim = lens.dim;
   const selected = list(filters[dim]);
 
@@ -93,69 +101,66 @@ export default function Segmentos() {
     return [...m].sort((a, b) => b[1] - a[1] || cards.findIndex(c => c.leader.name === a[0]) - cards.findIndex(c => c.leader.name === b[0]))[0];
   }, [cards]);
 
+
+  const pick = r => { if (r.other) return; const on = r.names.every(n => selected.includes(n)) && selected.length === r.names.length; setFilter(dim, on ? 'all' : r.names); };
   const ignored = engine.historyPlan(brandless).ignoredLabels;
   const noteIgnored = ignored.length ? `Esta série não aplica: ${ignored.join(', ')}.` : '';
-  const pick = r => { if (r.other) return; const on = r.names.every(n => selected.includes(n)) && selected.length === r.names.length; setFilter(dim, on ? 'all' : r.names); };
 
-  const lensBar = (
-    <div className="nxs-lensbar">
-      <div className="nx-wrap">
-        <div className="nxs-lensbar-in">
-          <span>Dividir por</span>
-          <div className="nxs-seg" role="group" aria-label="Lente de segmentação">
-            {LENSES.map(l => <button key={l.id} type="button" aria-pressed={l.id === lensId} onClick={() => setLensId(l.id)}>{l.label}</button>)}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  if (!base) return <>{lensBar}<Chapter id="seg-ranking" kicker={lens.title} title="Carregando…"><div className="nxs-skel" /></Chapter></>;
-  if (!rows.length) return <>{lensBar}<Chapter id="seg-ranking" kicker={lens.title} title="Nenhum emplacamento neste recorte."><p className="nx-lede">Os filtros atuais não deixam nada para dividir. Ajuste o período ou limpe filtros na barra do topo.</p></Chapter></>;
-
-  const change = top?.changeRate;
   const pl = Boolean(lens.plural), verb = (a, b) => (pl ? b : a);
-  const growth = change == null ? '' : Math.abs(change) < .0005 ? 'e ' + verb('fica', 'ficam') + ' estável' + (pl ? 's' : '') : change > 0 ? <>e <em className="up">{verb('cresce', 'crescem')} {pct(change)}</em></> : <>e <em className="down">{verb('cai', 'caem')} {pct(-change)}</em></>;
+  const change = top?.changeRate;
+  const growthText = change == null ? '' : Math.abs(change) < .0005 ? ` e ${verb('fica', 'ficam')} estável${pl ? 's' : ''}` : change > 0 ? ` e ${verb('cresce', 'crescem')} ${pct(change)}` : ` e ${verb('cai', 'caem')} ${pct(-change)}`;
+  const finding = base && top ? `${lens.title}: ${top.label} ${verb('concentra', 'concentram')} ${pct(top.share)} dos emplacamentos de ${rangeText(base.range)}${growthText}.${mover && mover !== top ? ` Quem mais ganha espaço: ${mover.label} (${pp(mover.shareChange)}).` : ''}` : 'Escolha um recorte para dividir o mercado.';
+  const head = <AreaHead title="Segmentos" finding={finding} tabs={TABS} tab={tab} onTab={setTab} />;
+
+  const legacy = LEGACY[tab] && <LegacyTab key={tab} tab={LEGACY[tab]} className="nxs-leg" hide={HIDE[tab] ?? []} />;
+  const cls = (span, extra = '') => `nx-c${span} ${extra}`;
+
+  if (!base) return <>{head}<div className="nx-wrap nxs-area"><div className="nx-grid nxs-grid"><div className="nx-card nx-c6"><div className="nxs-skel" /></div><div className="nx-card nx-c6"><div className="nxs-skel" /></div></div></div></>;
+  if (!rows.length) return <>{head}<div className="nx-wrap nxs-area"><Block className="nx-c12" title="Nenhum emplacamento neste recorte." caption="Os filtros atuais não deixam nada para dividir. Ajuste o período ou limpe filtros na barra do topo." /></div></>;
+
   const unclassified = rows.find(r => r.unclassified);
+  const small = rows.length <= 5;           // poucos grupos: ranking mais estreito, série temporal mais larga
+  const rankSpan = small ? 5 : 6, mixSpan = 12 - rankSpan;
+  const mixYears = mix ? YEARS[Math.max(0, Math.round((mix.n - 12) / 12) - 1)] : null;
+  const showMix = tab !== 'propulsao';       // na Propulsão quem cumpre esse papel é a "Eletrificação ao longo dos anos" do Atlas atual
 
   return (
-    <>
-      {lensBar}
-      {/* 1 — ranking */}
-      <Chapter id="seg-ranking" kicker={lens.title + ' · quem concentra'} title={top ? <><em>{top.label}</em> {verb('concentra', 'concentram')} <em>{pct(top.share)}</em> do mercado {growth}.</> : 'Sem grupos classificados neste recorte.'}
-        lede={`Participação de cada ${lens.noun} nos emplacamentos de ${rangeText(base.range)}. A seta compara o volume com o período anterior.${mover && mover !== top ? ` Quem mais ganha espaço: ${mover.label} (${pp(mover.shareChange)}).` : mover ? ` É também quem mais ganha espaço (${pp(mover.shareChange)}).` : ''} Clique num grupo para filtrar todo o painel.`}>
-        <div className="nx-card">
+    <div className="nx-wrap nxs-area">
+      <div className="nx-grid nxs-grid" data-tab={tab}>
+        {/* 1 — ranking */}
+        <Block className={cls(rankSpan, 'nxs-b-rank')}
+          title={top ? <><em>{top.label}</em> {verb('concentra', 'concentram')} <em>{pct(top.share)}</em> do mercado{change == null ? '' : Math.abs(change) < .0005 ? <>, {verb('estável', 'estáveis')}</> : change > 0 ? <>, <em className="up">{pct(change)} acima</em> do período anterior</> : <>, <em className="down">{pct(-change)} abaixo</em> do período anterior</>}.</> : 'Sem grupos classificados neste recorte.'}
+          caption={`${lens.title} · emplacamentos de ${rangeText(base.range)}. A seta compara o volume com o período anterior. Clique num grupo para filtrar todo o painel.`}>
           {selected.length > 0 && <div className="nxs-active"><span>Painel filtrado por <b>{[...new Set(selected.map(n => groupLabel(dim, n)))].join(', ')}</b>.</span><button type="button" onClick={() => setFilter(dim, 'all')}>Limpar</button></div>}
           <GroupBars rows={shown} highlight={selected} onPick={pick} />
-          <p className="nx-note">As participações somam o total de {fmt(base.total)} emplacamentos do período{unclassified ? `; ${pct(unclassified.share)} não têm classificação nesta lente` : ''}. {base.previous == null ? 'Não há período anterior para comparar.' : ''}</p>
-        </div>
-      </Chapter>
+          <p className="nx-note">Soma {fmt(base.total)} emplacamentos{unclassified ? `; ${pct(unclassified.share)} sem classificação nesta lente` : ''}.{base.previous == null ? ' Não há período anterior para comparar.' : ''}</p>
+        </Block>
 
-      {/* 2 — mix no tempo */}
-      {mix ? (
-        <Chapter id="seg-mix" kicker={lens.title + ' · ao longo do tempo'}
-          title={mix.focus ? <>{Math.abs(mix.focus.d) < .005 ? <>O mix mal mudou em {YEARS[Math.max(0, Math.round((mix.n - 12) / 12) - 1)] ?? 'anos'}.</> : <>Em {YEARS[Math.max(0, Math.round((mix.n - 12) / 12) - 1)] ?? 'alguns anos'}, <em>{mix.focus.label}</em> {verb('foi', 'foram')} de {pct(mix.focus.a)} para <em className={mix.focus.d > 0 ? 'up' : 'down'}>{pct(mix.focus.b)}</em> do mercado.</>}</> : 'O mix se manteve estável.'}
-          lede={`Cada faixa é a fatia de um ${lens.noun} nos emplacamentos de cada mês, de ${monthLabel(mix.first)} a ${monthLabel(mix.lastM)}.${mix.grown ? ` Também ganhou: ${mix.grown.label} (${pp(mix.grown.d)}).` : ''}${mix.lost ? ` Também perdeu: ${mix.lost.label} (${pp(mix.lost.d)}).` : ''}`}>
-          <div className="nx-card">
+        {/* 2 — mix no tempo */}
+        {showMix && (mix ? (
+          <Block className={cls(mixSpan, 'nxs-b-mix')}
+            title={mix.focus ? (Math.abs(mix.focus.d) < .005 ? <>O mix mal mudou em {mixYears ?? 'anos'}.</> : <>Em {mixYears ?? 'alguns anos'}, <em>{mix.focus.label}</em> {verb('foi', 'foram')} de {pct(mix.focus.a)} para <em className={mix.focus.d > 0 ? 'up' : 'down'}>{pct(mix.focus.b)}</em>.</>) : 'O mix se manteve estável.'}
+            caption={`Fatia de cada grupo nos emplacamentos de cada mês, de ${monthLabel(mix.first)} a ${monthLabel(mix.lastM)}.${mix.grown ? ` Também ganhou: ${mix.grown.label} (${pp(mix.grown.d)}).` : ''}${mix.lost ? ` Também perdeu: ${mix.lost.label} (${pp(mix.lost.d)}).` : ''}`}>
             <ShareArea months={mix.months} series={mix.series} max={mix.axis} />
-            <p className="nx-note">A comparação usa a média dos 12 primeiros contra os 12 últimos meses da janela, sem depender do período escolhido. {mix.dominant ? `A faixa de ${mix.dominant.label} (${pct(mix.dominant.now)} no último mês) fica de fora para as demais aparecerem; o espaço vazio acima é dela. ` : ''}Itens sem classificação não entram na conta. {noteIgnored}</p>
-          </div>
-        </Chapter>
-      ) : (
-        hist.data && <Chapter id="seg-mix" kicker={lens.title + ' · ao longo do tempo'} title="Sem histórico suficiente para esta lente."><p className="nx-lede">A série mensal não tem ao menos dois anos de dados para este recorte.</p></Chapter>
-      )}
+            <p className="nx-note">Compara a média dos 12 primeiros com a dos 12 últimos meses, sem depender do período escolhido. {mix.dominant ? `A faixa de ${mix.dominant.label} (${pct(mix.dominant.now)} no último mês) fica de fora para as demais aparecerem. ` : ''}Sem classificação não entra na conta. {noteIgnored}</p>
+          </Block>
+        ) : hist.data ? (
+          <Block className={cls(mixSpan)} title="Sem histórico suficiente para esta lente." caption="A série mensal não tem ao menos dois anos de dados para este recorte." />
+        ) : <div className={'nx-card ' + cls(mixSpan)}><div className="nxs-skel" /></div>)}
 
-      {/* 3 — líderes por grupo */}
-      {cards && cards.length > 0 && (
-        <Chapter id="seg-lideres" kicker={lens.title + ' · quem vence'}
-          title={wins && wins[1] >= 2 ? <><em>{brandName(wins[0])}</em> lidera em <em>{wins[1]}</em> dos {cards.length} maiores grupos.</> : <>Cada grupo tem o seu líder: <em>{cards.length}</em> grupos, <em>{new Set(cards.map(c => c.leader.name)).size}</em> marcas.</>}
-          lede={`A marca com mais emplacamentos dentro de cada ${lens.noun} em ${rangeText(base.range)}, considerando todas as marcas. Clique num cartão para filtrar o painel pelo grupo.`}>
-          <div className="nx-card">
+        {/* 3 — líderes por grupo */}
+        {cards && cards.length > 0 && (
+          <Block className={cls(tab === 'origem' ? 6 : 12, 'nxs-b-leaders')}
+            title={wins && wins[1] >= 2 ? <><em>{brandName(wins[0])}</em> lidera em <em>{wins[1]}</em> dos {cards.length} maiores grupos.</> : <>Cada grupo tem o seu líder: <em>{cards.length}</em> grupos, <em>{new Set(cards.map(c => c.leader.name)).size}</em> marcas.</>}
+            caption={`Marca com mais emplacamentos dentro de cada grupo em ${rangeText(base.range)}, entre todas as marcas. Clique num cartão para filtrar o painel.`}>
             <LeaderCards cards={cards} active={selected} onPick={pick} brandName={brandName} />
-            <p className="nx-note">Mostra os {cards.length} maiores grupos; abaixo de cada líder aparecem as duas seguintes e a fatia de cada uma dentro do grupo. {noteIgnored}</p>
-          </div>
-        </Chapter>
-      )}
-    </>
+            <p className="nx-note">Abaixo de cada líder, as duas seguintes e a fatia de cada uma no grupo. {noteIgnored}</p>
+          </Block>
+        )}
+
+        {/* peças do Atlas atual (posições definidas em segmentos-skin.css) */}
+        {legacy}
+      </div>
+    </div>
   );
 }

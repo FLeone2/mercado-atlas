@@ -1,0 +1,36 @@
+/* Segmentos — as peças do Atlas atual (segments, technology, origin) viram células da grade do painel.
+   A cadeia .nxl > .nxl-host > section > div usa display:contents para que cada seção participe da grade .nxs-grid. */
+.nx .nxs-leg,.nx .nxs-leg>.nxl-host,.nx .nxs-leg>.nxl-host>section,.nx .nxs-leg>.nxl-host>section>div{display:contents}
+.nx .nxs-leg .nxl-host>section>div>*{grid-column:1/-1;min-width:0;align-self:start}
+.nx .nxs-leg .ax-section{padding:0;margin:0}
+.nx .nxs-leg .ax-section-head{margin:0 0 10px}
+.nx .nxs-leg .ax-section-title{font:700 18px/1.25 var(--nx-font);letter-spacing:-.02em}
+.nx .nxs-leg .am-explore-hero{display:none}
+.nx .nxs-leg .am-period-line{order:99;font:500 12px var(--nx-font);color:var(--nx-soft);letter-spacing:0;text-transform:none;display:flex;gap:14px;flex-wrap:wrap;padding:4px 4px 0}
+
+/* o que o Atlas atual mostra em ranking já está no bloco nativo */
+.nx .nxs-leg .am-origin-view-metrics{display:none}
+
+/* notas e botões de informação: neutros */
+.nx .nxl .ax-info{color:var(--nx-soft);font:500 12.5px var(--nx-font)}
+.nx .nxl .ax-info em{font-style:normal;color:inherit}
+.nx .nxl .ax-info:hover{color:var(--nx-ink)}
+
+@media(min-width:1101px){
+  /* Porte e pirâmide */
+  .nx .nxs-grid[data-tab="porte"] .am-exploration{grid-column:span 7;order:3}
+  .nx .nxs-grid[data-tab="porte"] #competition-bd-heading{grid-column:span 5;order:4}
+  /* Propulsão */
+  .nx .nxs-grid[data-tab="propulsao"] #technology-heading{grid-column:span 6;order:2}
+  .nx .nxs-grid[data-tab="propulsao"] .hx-panel{order:3}
+  /* Origem */
+  .nx .nxs-grid[data-tab="origem"] #origin-vehicle-comparison-heading{grid-column:span 6;order:4}
+}
+.nx .nxs-grid[data-tab="porte"] .am-exploration{order:3}.nx .nxs-grid[data-tab="porte"] #competition-bd-heading{order:4}
+.nx .nxs-grid[data-tab="propulsao"] #technology-heading{order:2}.nx .nxs-grid[data-tab="propulsao"] .hx-panel{order:3}
+.nx .nxs-grid[data-tab="origem"] :is(#vehicle-origin-heading,.am-market-view-notice){order:3}
+.nx .nxs-grid[data-tab="origem"] #origin-vehicle-comparison-heading{order:4}
+.nx .nxs-grid[data-tab="origem"] .nxs-b-leaders{order:5}
+.nx .nxs-grid[data-tab="origem"] #origin-chinese-vehicle-heading{order:6}
+.nx .nxs-grid[data-tab="origem"] #brand-origin-heading{order:7}
+.nx .nxs-grid[data-tab="origem"] #origin-joint-audit-heading{order:8}

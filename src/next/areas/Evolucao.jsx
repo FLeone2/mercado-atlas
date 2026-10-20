@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
 import { engine } from 'virtual:market';
-import { Diverging, useTip } from '../charts.jsx';
+import { Diverging, YearLines, useTip } from '../charts.jsx';
 import { useNext } from '../ctx.js';
-import { fmt, monthLabel, pct, pp, signed, titleCase } from '../format.js';
-import { Chapter } from '../ui.jsx';
+import { fmt, monthEnd, monthLabel, pct, pp, shiftMonth, signed, titleCase } from '../format.js';
+import LegacyTab from '../LegacyTab.jsx';
+import { AreaHead, Block, Tile } from '../ui.jsx';
 import { Seg, TimeLines } from './evolucao-charts.jsx';
 import './evolucao.css';
+import './evolucao-skin.css';
 
 const FULL = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 const SHORT = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
@@ -15,9 +17,14 @@ const roll = (arr, k = 12) => arr.map((_, i) => (i < k - 1 ? null : arr.slice(i 
 const median = a => { const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 const GREYS = ['#7c7c82', '#98989e', '#b0b0b6', '#c6c6cb', '#8a8a90'];
 
+
+const TABS = [['geral', 'Visão geral'], ['sazonalidade', 'Sazonalidade'], ['marcas', 'Marcas'], ['composicao', 'Composição']];
+
 export default function Evolucao() {
-  const { filters, hist, setFilter } = useNext();
+  const { filters, hist, setFilter, manifest } = useNext();
   const data = hist?.data;
+  const [tab, setTab] = useState('geral');
+  const [view, setView] = useState('m12');
 
   /* ---------- série mensal (só meses completos) ---------- */
   const monthly = useMemo(() => {
@@ -39,54 +46,101 @@ export default function Evolucao() {
   const ignored = hist?.plan?.ignoredLabels ?? [];
   const ignoredBrand = useMemo(() => engine.historyPlan(noBrand).ignoredLabels, [noBrand]);
   const note = ign => (ign.length ? ` Esta série não aplica: ${ign.join(', ')}.` : '');
-
-  const [view, setView] = useState('m12');
   const brandSel = (Array.isArray(filters.marca) ? filters.marca : []).filter(x => x !== 'all');
 
-  if (hist?.error) return <Chapter id="erro" kicker="Evolução" title="Não foi possível carregar a série histórica."><p className="nx-lede">{hist.error}</p></Chapter>;
-  if (!monthly) return <Chapter id="carregando" kicker="Evolução" title="Carregando dez anos de emplacamentos…"><div className="nx-card"><div className="nxe-skel" /></div></Chapter>;
-  if (empty || monthly.length < 24) return <Chapter id="vazio" kicker="Evolução" title="Nenhum emplacamento neste recorte."><p className="nx-lede">A série histórica não encontrou registros com os filtros escolhidos. Tente retirar algum deles.{note(ignored)}</p></Chapter>;
+  const t = useMemo(() => (monthly && monthly.length >= 24 && !empty ? timeStats(monthly) : null), [monthly, empty]);
+  const finding = t ? <>Os últimos 12 meses somam {fmt(t.last)} emplacamentos{t.change != null ? <>, {signed(t.change)} sobre os 12 anteriores</> : ''}. {t.atPeak ? 'É o maior acumulado de 12 meses da série.' : `Ainda ${pct(Math.abs(t.vsPeak), 0)} ${t.vsPeak < 0 ? 'abaixo' : 'acima'} do melhor acumulado de 12 meses (${monthLabel(t.months[t.peak])}).`}</> : hist?.error ? 'Não foi possível carregar a série histórica.' : empty ? 'Nenhum emplacamento neste recorte.' : 'Carregando dez anos de emplacamentos…';
+
+  const state = hist?.error ? <Block title="Não foi possível carregar a série histórica."><p className="nx-note">{hist.error}</p></Block>
+    : !monthly ? <Block title="Carregando dez anos de emplacamentos…"><div className="nxe-skel" /></Block>
+    : empty || monthly.length < 24 ? <Block title="Nenhum emplacamento neste recorte."><p className="nx-note">A série histórica não encontrou registros com os filtros escolhidos. Tente retirar algum deles.{note(ignored)}</p></Block> : null;
 
   return (
-    <>
-      <Tempo monthly={monthly} view={view} setView={setView} ignored={ignored} note={note} />
-      <Sazonal monthly={monthly} ignored={ignored} note={note} />
-      {brandMonthly && <Marcas brandMonthly={brandMonthly} brandSel={brandSel} setFilter={setFilter} ignored={ignoredBrand} note={note} />}
-    </>
+    <div className="nxe">
+      <AreaHead title="Evolução" finding={finding} tabs={TABS} tab={tab} onTab={setTab} />
+      <div className="nx-wrap nxe-body">
+        {state}
+        {t && (
+          <div className="nx-grid">
+            {tab === 'geral' && <><Tempo t={t} view={view} setView={setView} ignored={ignored} note={note} /><Anos monthly={monthly} note={note} ignored={ignored} /></>}
+            {tab === 'sazonalidade' && <Sazonal monthly={monthly} ignored={ignored} note={note} />}
+            {tab === 'marcas' && brandMonthly && <Marcas brandMonthly={brandMonthly} brandSel={brandSel} setFilter={setFilter} ignored={ignoredBrand} note={note} />}
+          </div>
+        )}
+        {(t || state == null) && (
+          <>
+            {['marcas', 'composicao'].includes(tab) && t && <PeriodBar filters={filters} manifest={manifest} setFilter={setFilter} />}
+            <div className="nxe-leg" data-view={tab}><LegacyTab tab="history" className="nxe-legacy" /></div>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
 
+/* Os gráficos do Atlas atual abaixo seguem o período do filtro global; com um único mês eles ficam vazios. */
+function PeriodBar({ filters, manifest, setFilter }) {
+  const months = useMemo(() => (manifest?.months ?? []).filter(m => m.cubePath).map(m => m.month).sort(), [manifest]);
+  if (!months.length) return null;
+  const latest = months.at(-1), first = months[0], date = String(filters.date ?? '');
+  const [a, b] = date.split('..').map(s => s?.slice(0, 7));
+  const span = a && b ? (+b.slice(0, 4) - +a.slice(0, 4)) * 12 + (+b.slice(5, 7) - +a.slice(5, 7)) + 1 : 0;
+  const opts = [['12 meses', 12], ['24 meses', 24], ['5 anos', 60], ['Desde ' + first.slice(0, 4), months.length]];
+  const val = n => (n >= months.length ? first : shiftMonth(latest, -(n - 1))) + '-01..' + monthEnd(latest);
+  return (
+    <div className="nxe-period">
+      <span className="nxe-period-t">{span <= 6 ? <>Os gráficos detalhados abaixo seguem o período do filtro ({a && b ? (a === b ? monthLabel(a) : monthLabel(a) + ' a ' + monthLabel(b)) : 'atual'}), curto demais para mostrar uma trajetória.</> : <>Os gráficos detalhados abaixo seguem o período do filtro ({monthLabel(a)} a {monthLabel(b)}).</>}</span>
+      <span className="nxe-seg" role="group" aria-label="Período dos gráficos detalhados">{opts.map(([l, n]) => <button key={l} type="button" aria-pressed={date === val(n)} onClick={() => setFilter('date', val(n))}>{l}</button>)}</span>
+    </div>
+  );
+}
+
+function timeStats(monthly) {
+  const months = monthly.map(m => m.month), counts = monthly.map(m => m.count), r12 = roll(counts);
+  const n = counts.length, last = r12[n - 1], prev = r12[n - 13];
+  let peak = 11; r12.forEach((v, i) => { if (v != null && v > r12[peak]) peak = i; });
+  let best = 0, worst = -1; counts.forEach((v, i) => { if (v > counts[best]) best = i; if (v > 0 && (worst < 0 || v < counts[worst])) worst = i; });
+  const vsPeak = last / r12[peak] - 1;
+  return { months, counts, r12, n, last, prev, change: prev > 0 ? last / prev - 1 : null, peak, best, worst, vsPeak, atPeak: last >= r12[peak] * 0.995 };
+}
+
 /* ================= 1 — dez anos ================= */
-function Tempo({ monthly, view, setView, ignored, note }) {
-  const d = useMemo(() => {
-    const months = monthly.map(m => m.month), counts = monthly.map(m => m.count), r12 = roll(counts);
-    const n = counts.length, last = r12[n - 1], prev = r12[n - 13];
-    let peak = 11; r12.forEach((v, i) => { if (v != null && v > r12[peak]) peak = i; });
-    let best = 0, worst = -1; counts.forEach((v, i) => { if (v > counts[best]) best = i; if (v > 0 && (worst < 0 || v < counts[worst])) worst = i; });
-    return { months, counts, r12, n, last, prev, change: prev > 0 ? last / prev - 1 : null, peak, best, worst };
-  }, [monthly]);
+function Tempo({ t: d, view, setView, ignored, note }) {
   const ml = i => cap(FULL[+d.months[i].slice(5, 7) - 1]) + ' de ' + d.months[i].slice(0, 4);
-  const atPeak = d.last >= d.r12[d.peak] * 0.995;
-  const vsPeak = d.last / d.r12[d.peak] - 1;
   const monthSeries = view === 'mes';
   const values = monthSeries ? d.counts : d.r12;
-  const series = [{ name: monthSeries ? 'Por mês' : '12 meses', color: 'var(--nx-accent)', values, width: monthSeries ? 2.6 : 4 }];
+  const series = [{ name: monthSeries ? 'Por mês' : '12 meses', color: 'var(--nx-accent)', values, width: monthSeries ? 2.4 : 3.6 }];
   const lo = values.findIndex(v => v != null);
   let mx = lo, mn = lo; values.forEach((v, i) => { if (v == null) return; if (v > values[mx]) mx = i; if (v < values[mn]) mn = i; });
   const marks = [{ i: mx, v: values[mx], text: 'Máx. ' + monthLabel(d.months[mx]) + ' · ' + fmt(values[mx]), pos: 'up' }, { i: mn, v: values[mn], text: 'Mín. ' + monthLabel(d.months[mn]) + ' · ' + fmt(values[mn]), pos: 'down' }];
-  const from = monthLabel(d.months[d.n - 12]), to = monthLabel(d.months[d.n - 1]);
   return (
-    <Chapter id="dez-anos" kicker="Dez anos" title={<>Os últimos 12 meses somam <em>{fmt(d.last)}</em> emplacamentos{d.change != null ? <>, <em className={d.change >= 0 ? 'up' : 'down'}>{signed(d.change)}</em> sobre os 12 anteriores.</> : '.'}</>}
-      lede={`${from} a ${to}. ${atPeak ? 'É o maior acumulado de 12 meses da série.' : `Ainda ${pct(Math.abs(vsPeak), 0)} ${vsPeak < 0 ? 'abaixo' : 'acima'} do melhor acumulado de 12 meses, o que terminou em ${monthLabel(d.months[d.peak])}.`} O melhor mês foi ${ml(d.best).toLowerCase()} (${fmt(d.counts[d.best])}); o pior, ${ml(d.worst).toLowerCase()} (${fmt(d.counts[d.worst])}).`}>
-      <div className="nx-card">
-        <div className="nxe-head">
-          <Seg label="Tipo de série" value={view} onChange={setView} options={[{ value: 'm12', label: 'Acumulado em 12 meses' }, { value: 'mes', label: 'Mês a mês' }]} />
-        </div>
-        <TimeLines months={d.months} series={series} marks={marks} endLabels={false} label="Emplacamentos mensais desde 2016" replayKey={view}
-          tipExtra={i => (monthSeries ? null : <span>No mês <b>{fmt(d.counts[i])}</b></span>)} />
-        <p className="nx-note">{monthSeries ? 'Cada ponto é um mês.' : 'Cada ponto soma os 12 meses que terminam nele, o que tira a sazonalidade e deixa a tendência à vista.'} Passe o mouse para ler os valores.{note(ignored)}</p>
-      </div>
-    </Chapter>
+    <Block className="nx-c7" title={<>12 meses somam <em>{fmt(d.last)}</em>{d.change != null ? <>, <em className={d.change >= 0 ? 'up' : 'down'}>{signed(d.change)}</em> sobre os 12 anteriores</> : ''}</>}
+      caption={`${monthLabel(d.months[d.n - 12])} a ${monthLabel(d.months[d.n - 1])}. Melhor mês: ${ml(d.best).toLowerCase()} (${fmt(d.counts[d.best])}); pior: ${ml(d.worst).toLowerCase()} (${fmt(d.counts[d.worst])}).`}
+      actions={<Seg label="Tipo de série" value={view} onChange={setView} options={[{ value: 'm12', label: '12 meses' }, { value: 'mes', label: 'Mês a mês' }]} />}>
+      <TimeLines months={d.months} series={series} marks={marks} endLabels={false} height={320} label="Emplacamentos mensais desde 2016" replayKey={view}
+        tipExtra={i => (monthSeries ? null : <span>No mês <b>{fmt(d.counts[i])}</b></span>)} />
+      <p className="nx-note">{monthSeries ? 'Cada ponto é um mês.' : 'Cada ponto soma os 12 meses que terminam nele: tira a sazonalidade e deixa a tendência à vista.'}{note(ignored)}</p>
+    </Block>
+  );
+}
+
+/* ================= 1b — ano contra ano ================= */
+function Anos({ monthly, ignored, note }) {
+  const y = useMemo(() => {
+    const last = monthly.at(-1).month, L = +last.slice(5, 7), lastYear = +last.slice(0, 4), shades = ['#d1d1d6', '#a1a1aa', '#6e6e73'];
+    const years = []; for (let yr = lastYear - 3; yr <= lastYear; yr++) {
+      const values = new Array(12).fill(null);
+      for (const m of monthly) if (+m.month.slice(0, 4) === yr && m.count != null) values[+m.month.slice(5, 7) - 1] = m.count;
+      years.push({ year: yr, values, main: yr === lastYear, color: yr === lastYear ? 'var(--nx-accent)' : shades[yr - (lastYear - 3)] });
+    }
+    const sum = a => a.values.slice(0, L).reduce((s, v) => s + (v ?? 0), 0), cur = years.at(-1), prev = years.at(-2), a = sum(cur), b = sum(prev);
+    return { years, year: lastYear, prevYear: lastYear - 1, cur: a, change: b > 0 ? a / b - 1 : null, through: SHORT[L - 1] };
+  }, [monthly]);
+  return (
+    <Block className="nx-c5" title={<>{y.year} soma <em>{fmt(y.cur)}</em> até {y.through}{y.change != null ? <>, <em className={y.change >= 0 ? 'up' : 'down'}>{signed(y.change)}</em> sobre {y.prevYear}</> : ''}</>} caption="Um ano sobre o outro, de janeiro a dezembro: passe o mouse para comparar mês a mês.">
+      <YearLines years={y.years} />
+      <p className="nx-note">Meses completos.{note(ignored)}</p>
+    </Block>
   );
 }
 
@@ -115,9 +169,9 @@ function Sazonal({ monthly, ignored, note }) {
   };
   const txt = v => { if (v == null) return ''; const r = Math.round(Math.abs(v - 1) * 100); return r === 0 ? '0' : (v >= 1 ? '+' : '−') + r; };
   return (
-    <Chapter id="sazonalidade" kicker="Calendário" title={<>{cap(FULL[s.best])} é o mês mais forte: em mediana, <em className="up">{signed(s.med[s.best] - 1, 0)}</em> sobre a média mensal do ano.</>}
-      lede={`${cap(FULL[s.best])} liderou o ano em ${s.wins} de ${s.full.length} anos completos. O mais fraco é ${FULL[s.worst]}, com ${signed(s.med[s.worst] - 1, 0)}. Cada célula compara o mês com a média do próprio ano.`}>
-      <div className="nx-card">
+    <Block className="nx-c12" title={<>{cap(FULL[s.best])} é o mês mais forte: em mediana, <em className="up">{signed(s.med[s.best] - 1, 0)}</em> sobre a média mensal do ano</>}
+      caption={`${cap(FULL[s.best])} liderou o ano em ${s.wins} de ${s.full.length} anos completos. O mais fraco é ${FULL[s.worst]}, com ${signed(s.med[s.worst] - 1, 0)}. Cada célula compara o mês com a média do próprio ano.`}>
+      <div>
         <div className="nxe-heat" onPointerLeave={tip.hide}>
           <span />{SHORT.map(m => <span key={m} className="nxe-hcol">{m}</span>)}
           {s.rows.map(r => (
@@ -134,7 +188,7 @@ function Sazonal({ monthly, ignored, note }) {
         <p className="nx-note">Números nas células: diferença, em %, para a média mensal do ano. {s.rows.some(r => !r.full) ? '* Ano em andamento: comparado só com os meses já fechados e fora da mediana. ' : ''}A mediana evita que 2020 puxe a conta.{note(ignored)}</p>
       </div>
       {tip.node}
-    </Chapter>
+    </Block>
   );
 }
 const Row = ({ label, med, children }) => <><span className={'nxe-hrow' + (med ? ' med' : '')}>{label}</span>{children}</>;
@@ -185,7 +239,7 @@ function Marcas({ brandMonthly, brandSel, setFilter, ignored, note }) {
   return (
     <>
       {ri && fa && (
-        <Chapter id="participacao" kicker="Quem subiu, quem caiu" title={<>{name(ri.name)} {ri.then < .0005 ? 'saiu de quase zero' : <>foi de {pct(ri.then)}</>} para <em className="up">{pct(ri.now)}</em> em cinco anos; {name(fa.name)}, de {pct(fa.then)} para <em className="down">{pct(fa.now)}</em>.</>}
+        <Block className="nx-c7" title={<>{name(ri.name)} {ri.then < .0005 ? 'saiu de quase zero' : <>foi de {pct(ri.then)}</>} para <em className="up">{pct(ri.now)}</em> em cinco anos; {name(fa.name)}, de {pct(fa.then)} para <em className="down">{pct(fa.now)}</em>.</>}
           lede={`Participação no acumulado de 12 meses, de ${since} a ${from}. ${ri.delta > 0 ? name(ri.name) + ' ganhou ' + pp(ri.delta).replace('+', '') : ''}${fa.delta < 0 ? (ri.delta > 0 ? ' e ' : '') + name(fa.name) + ' perdeu ' + pp(fa.delta).replace('−', '') : ''}, as maiores variações entre marcas com ao menos 1% em algum dos dois momentos.`}>
           <div className="nx-card">
             <TimeLines months={b.months} series={lines} fmtY={yFmt} yMax={undefined} label="Participação das principais marcas ao longo do tempo" />

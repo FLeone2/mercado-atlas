@@ -1,0 +1,37 @@
+/* Concorrência: grade que mistura blocos nativos e peças do Atlas atual (.nxl[data-legacy-tab="competition"]).
+   O Atlas atual é hospedado com display:contents, então suas seções viram células da mesma grade de 12 colunas. */
+.nxc-body{padding-top:22px;padding-bottom:40px}
+.nxc-grid .nxl,.nxc-grid .nxl-host,.nxc-grid .nxl-host>section,.nxc-grid .nxl-host>section>div,.nxc-grid .am-competition-view{display:contents}
+.nxc-grid .am-period-line{display:none}
+.nxc-grid .nxl-host>section>div>:not(.am-competition-view):not(.am-period-line){grid-column:1/-1;order:0}
+.nxc-grid .am-competition-view>*{display:none;margin:0;min-width:0;grid-column:span 12}
+.nxc-o1{order:1}.nxc-o2{order:2}.nxc-o3{order:3}.nxc-o4{order:4}
+/* o que cada aba mostra: 1 leitura competitiva · 2 ranking · 3 ganhos e perdas · 4 decomposição · 5 modelo×modelo · 6 bump · 7 fluxo · 8 conexões */
+.nxc-grid[data-v="geral"] .am-competition-view>:nth-child(4){display:block;order:4;grid-column:span 6}
+.nxc-grid[data-v="geral"] .am-competition-view>:nth-child(1){display:block;order:5}
+.nxc-grid[data-v="comparar"] .am-competition-view>:nth-child(5){display:block;order:2}
+.nxc-grid[data-v="comparar"] .am-competition-view>:nth-child(3){display:block;order:3}
+.nxc-grid[data-v="ranking"] .am-competition-view>:nth-child(2){display:block;order:2}
+.nxc-grid[data-v="ranking"] .am-competition-view>:nth-child(6){display:block;order:3}
+.nxc-grid[data-v="ranking"][data-single="1"] .am-competition-view>:nth-child(6){display:none}
+.nxc-grid[data-v="conexoes"] .am-competition-view>:nth-child(7){display:block;order:1}
+.nxc-grid[data-v="conexoes"] .am-competition-view>:nth-child(8){display:block;order:2}
+@media(max-width:1100px){.nxc-grid[data-v="geral"] .am-competition-view>:nth-child(4){grid-column:span 12}}
+
+/* cabeçalhos dentro dos cartões nativos */
+.nxc-grid .nx-block-t em{font-style:normal;color:var(--nx-accent)}
+.nxc-ctl{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.nxc-grid .nxc-head{margin-bottom:14px}
+.nxc-sub{font:700 14px/1.2 var(--nx-font);letter-spacing:-.01em;margin:0 0 8px;color:var(--nx-ink)}
+.nxc-geo{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:20px;align-items:center}
+.nxc-geo .nx-uf{width:100%;max-height:420px}
+@media(max-width:700px){.nxc-geo{grid-template-columns:1fr}}
+.nxc-grid .nx-bar{grid-template-columns:minmax(84px,150px) 1fr 62px 54px;gap:10px;padding:5px 8px}
+.nxc-grid .nx-bar-name{font-size:14px}.nxc-grid .nx-bar-val{font-size:15px}.nxc-grid .nx-bar-track{height:20px}
+.nxc-grid .nx-bar-delta{font-size:12px}
+@media(max-width:560px){.nxc-grid .nx-bar{grid-template-columns:minmax(70px,110px) 1fr 54px 46px;gap:7px}}
+.nxc-grid .nxc-mixrow{grid-template-columns:minmax(80px,150px) 1fr 108px;gap:12px;padding:5px 0}
+.nxc-grid .nxc-mixname{font-size:14px}.nxc-grid .nxc-mixval b{font-size:15px}
+.nxc-grid .nx-card .nx-note{margin-top:12px;font-size:12.5px}
+.nxc-bump .nxc-bump-l{font:600 12.5px var(--nx-font)}.nxc-bump .nxc-bump-n{font:700 11px var(--nx-font)}
+.nxc-bump-row{transition:opacity .15s}

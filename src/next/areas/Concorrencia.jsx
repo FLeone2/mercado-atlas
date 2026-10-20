@@ -4,9 +4,12 @@ import ufGeometry from '../../market/geo/uf-geometry.json';
 import { BarList, useTip } from '../charts.jsx';
 import { useNext } from '../ctx.js';
 import { UF_NAMES, fmt, monthLabel, pct, pp, signed, titleCase } from '../format.js';
-import { Chapter } from '../ui.jsx';
+import { AreaHead, Block } from '../ui.jsx';
+import LegacyTab from '../LegacyTab.jsx';
 import { Seg, TimeLines } from './evolucao-charts.jsx';
+import { Bump } from './concorrencia-charts.jsx';
 import './concorrencia.css';
+import './concorrencia-skin.css';
 
 const brandName = n => { const s = engine.insightName(n); return s === n.charAt(0) + n.slice(1).toLowerCase() ? titleCase(n) : s; };
 const roll = (arr, k = 12) => arr.map((_, i) => (i < k - 1 ? null : arr.slice(i - k + 1, i + 1).reduce((s, v) => s + v, 0)));
@@ -44,15 +47,40 @@ export default function Concorrencia() {
   }, [brands, a, b]);
   const setA = v => { setPickA(v); if (v === b) setPickB(null); };
 
-  if (!model) return <Chapter id="carregando" kicker="Concorrência" title="Carregando o mercado…"><div className="nx-card"><div className="nxc-skel" /></div></Chapter>;
-  if (!(model.total > 0) || !brands.length) return <Chapter id="vazio" kicker="Concorrência" title="Nenhum emplacamento neste recorte."><p className="nx-lede">Não há registros com os filtros escolhidos. Tente retirar algum deles.</p></Chapter>;
+  const [view, setView] = useState('geral');
+  const single = !!model?.range && String(model.range.start).slice(0, 7) === String(model.range.end).slice(0, 7);
+  const total = model?.total > 0 && brands.length > 0;
+  const finding = useMemo(() => {
+    if (!total || !ranking) return null;
+    const T = ranking.total, top = brands[0], idx = brands.findIndex(r => r.name === focus);
+    const prevT = brands.reduce((s, r) => s + (r.previous ?? 0), 0), me = brands[idx];
+    let t = `${brandName(top.name)} lidera com ${pct(top.count / T)} dos emplacamentos`;
+    if (me && idx > 0) {
+      const d = prevT > 0 && me.previous > 0 ? me.count / T - me.previous / prevT : null;
+      t += `; ${brandName(me.name)} é a ${idx + 1}ª, com ${pct(me.count / T)}${d != null && Math.abs(d) >= .0005 ? ` (${pp(d)} sobre o período anterior)` : ''}`;
+    }
+    return t + '.';
+  }, [total, ranking, brands, focus]);
+  const TABS = [['geral', 'Visão geral'], ['comparar', 'Comparar'], ['ranking', 'Ranking'], ['conexoes', 'Conexões']];
+  const head = <AreaHead title="Concorrência" finding={finding ?? (model ? 'Nenhum emplacamento neste recorte: retire algum filtro.' : 'Carregando o mercado…')} tabs={TABS} tab={view} onTab={setView} />;
+  if (!model) return <>{head}<div className="nx-wrap nxc-body"><div className="nx-card"><div className="nxc-skel" /></div></div></>;
+  if (!total) return <>{head}<div className="nx-wrap nxc-body"><div className="nx-card"><p className="nx-note">Não há registros com os filtros escolhidos. Tente retirar algum deles.</p></div></div></>;
 
   return (
     <>
-      <Duelo a={a} b={b} options={options} setA={setA} setB={setPickB} hist={hist} filters={filters} />
-      <Modelos model={model} filters={filters} setFilter={setFilter} hasBrand={hasBrand} />
-      <Estados a={a} brandAll={brandAll} marketAll={marketAll} setFilter={setFilter} filters={filters} hasGeo={hasGeo} />
-      <Mix a={a} brandGeo={hasGeo ? brandGeo : brandAll} marketGeo={market ?? model} hasGeo={hasGeo} />
+      {head}
+      <div className="nx-wrap nxc-body">
+        <div className="nx-grid nxc-grid" data-v={view} data-single={single ? '1' : '0'}>
+          {view === 'geral' && <>
+            <Modelos model={model} filters={filters} setFilter={setFilter} hasBrand={hasBrand} />
+            <Estados a={a} brandAll={brandAll} marketAll={marketAll} setFilter={setFilter} filters={filters} hasGeo={hasGeo} />
+            <Mix a={a} brandGeo={hasGeo ? brandGeo : brandAll} marketGeo={market ?? model} hasGeo={hasGeo} />
+          </>}
+          {view === 'comparar' && <Duelo a={a} b={b} options={options} setA={setA} setB={setPickB} hist={hist} filters={filters} />}
+          {view === 'ranking' && <BumpNativo hist={hist} filters={filters} focus={focus} setFilter={setFilter} single={single} />}
+          <LegacyTab tab="competition" />
+        </div>
+      </div>
     </>
   );
 }
@@ -123,15 +151,15 @@ function Duelo({ a, b, options, setA, setB, hist, filters }) {
     );
   }
   return (
-    <Chapter id="duelo" kicker="O duelo" title={title} lede={lede}>
-      <div className="nx-card">
+    <Block className="nx-c12 nxc-o1" title={title} caption={lede}>
+      <>
         <div className="nxc-head">
           <div className="nxc-vs"><Pick tone="a" value={a} options={options} onChange={setA} /><span>contra</span><Pick tone="b" value={b} options={options} onChange={setB} /></div>
           <Seg label="Medida" value={v} onChange={setView} options={[{ value: 'share', label: 'Participação' }, { value: 'index', label: 'Ritmo (base 100)' }, { value: 'volume', label: 'Volume mensal' }]} />
         </div>
         {empty}{chart}
-      </div>
-    </Chapter>
+      </>
+    </Block>
   );
 }
 
@@ -146,13 +174,13 @@ function Modelos({ model, filters, setFilter, hasBrand }) {
   const label = n => titleCase(n);
   const bars = rows.map((r, i) => ({ key: r.name, name: r.name, label: label(r.name), value: r.count, rank: i + 1, delta: r.changeRate, deltaText: Number.isFinite(r.changeRate) && r.previous > 0 ? signed(r.changeRate) : '', title: pct(r.count / total, 1) + ' do mercado' }));
   return (
-    <Chapter id="modelos" kicker="Os modelos" title={<>{label(top.name)} é o mais emplacado: <em>{fmt(top.count)}</em> unidades, {pct(top.count / total)} {hasBrand ? 'do recorte' : 'do mercado'}.</>}
-      lede={`${second ? `${label(second.name)} vem a seguir, ${fmt(top.count - second.count)} unidades atrás. ` : ''}${grow && grow.changeRate > 0 ? `Entre os 12 primeiros, quem mais cresce sobre o período anterior é ${label(grow.name)} (${signed(grow.changeRate, 0)}). ` : ''}Clique num modelo para filtrar todo o painel.`}>
-      <div className="nx-card">
+    <Block className="nx-c5 nxc-o1" title={<>{label(top.name)} é o mais emplacado: <em>{fmt(top.count)}</em> unidades, {pct(top.count / total)} {hasBrand ? 'do recorte' : 'do mercado'}.</>}
+      caption={`${second ? `${label(second.name)} vem a seguir, ${fmt(top.count - second.count)} unidades atrás. ` : ''}${grow && grow.changeRate > 0 ? `Quem mais cresce entre eles: ${label(grow.name)} (${signed(grow.changeRate, 0)}). ` : ''}Clique num modelo para filtrar todo o painel.`}>
+      <>
         <BarList rows={bars} focus={sel} onPick={r => setFilter(dim, sel === r.name ? 'all' : [r.name])} />
         <p className="nx-note">Os {rows.length} modelos com mais emplacamentos {hasBrand ? 'dentro dos filtros' : 'no período'}. A variação compara com o período anterior de mesma duração; modelos agrupam todas as versões.</p>
-      </div>
-    </Chapter>
+      </>
+    </Block>
   );
 }
 
@@ -171,9 +199,9 @@ function Estados({ a, brandAll, marketAll, setFilter, filters, hasGeo }) {
   const name = brandName(a);
   if (!s || !brandAll || !(brandAll.total > 0) || s.big.length < 4) {
     return (
-      <Chapter id="estados" kicker="No território" title={brandAll && brandAll.total === 0 ? <>{name} não emplacou neste período.</> : <>Onde {name} é mais forte</>}>
-        <div className="nx-card">{!brandAll || !marketAll ? <div className="nxc-skel" /> : <p className="nx-note">Sem volume suficiente para comparar estados neste recorte.</p>}</div>
-      </Chapter>
+      <Block className="nx-c7 nxc-o2" title={brandAll && brandAll.total === 0 ? <>{name} não emplacou neste período.</> : <>Onde {name} é mais forte</>}>
+        {!brandAll || !marketAll ? <div className="nxc-skel" /> : <p className="nx-note">Sem volume suficiente para comparar estados neste recorte.</p>}
+      </Block>
     );
   }
   const best = s.big[0], worst = s.big.at(-1), idx = best.share / s.nat;
@@ -181,9 +209,9 @@ function Estados({ a, brandAll, marketAll, setFilter, filters, hasGeo }) {
   const toRow = (r, i, rank) => ({ key: r.uf, name: r.uf, label: UF_NAMES[r.uf], value: r.share, rank, valueText: pct(r.share, 1), deltaText: (r.share / s.nat).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '×', title: fmt(r.count) + ' de ' + fmt(r.all) + ' emplacamentos' });
   const bars = [...strong.map((r, i) => toRow(r, i, i + 1)), ...(weak.length ? [{ key: 'gap', name: 'gap', label: '', value: 0, gap: true, valueText: '···', deltaText: '' }] : []), ...weak.map((r, i) => toRow(r, i, s.big.length - weak.length + i + 1))];
   return (
-    <Chapter id="estados" kicker="No território" title={<>{name} é mais forte {inUF(best.uf)}: <em>{pct(best.share)}</em> dos emplacamentos{idx >= 1.15 ? <>, {idx.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}× a média do país</> : ''}.</>}
-      lede={`No Brasil, ${name} tem ${pct(s.nat)} do mercado do período. O ponto mais fraco entre os estados com ao menos 1% do mercado é ${UF_NAMES[worst.uf]}, com ${pct(worst.share)}.${hasGeo ? ' O mapa ignora o filtro de território para mostrar o país inteiro.' : ''}`}>
-      <div className="nx-card nx-geo">
+    <Block className="nx-c7 nxc-o2" title={<>{name} é mais forte {inUF(best.uf)}: <em>{pct(best.share)}</em> dos emplacamentos{idx >= 1.15 ? <>, {idx.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}× a média do país</> : ''}.</>}
+      caption={`No Brasil, ${name} tem ${pct(s.nat)} do mercado do período. O ponto mais fraco entre os estados com ao menos 1% do mercado é ${UF_NAMES[worst.uf]}, com ${pct(worst.share)}.${hasGeo ? ' O mapa ignora o filtro de território para mostrar o país inteiro.' : ''}`}>
+      <div className="nxc-geo">
         <svg className="nx-uf" viewBox="0 0 630 565" role="img" aria-label={`Participação de ${name} em cada estado`} onPointerLeave={tip.hide}>
           {ufGeometry.features.map(f => {
             const r = s.byUf.get(f.uf);
@@ -192,13 +220,13 @@ function Estados({ a, brandAll, marketAll, setFilter, filters, hasGeo }) {
           })}
         </svg>
         <div>
-          <h3 className="nx-h3">Participação de {name} por estado</h3>
+          <h4 className="nxc-sub">Participação de {name} por estado</h4>
           <BarList rows={bars} max={s.max} focus={sel[0]} onPick={r => r.name !== 'gap' && setFilter('uf', sel.length === 1 && sel[0] === r.name ? 'all' : [r.name])} />
           <p className="nx-note">A cor do mapa e o tamanho da barra mostram a fatia da marca nos emplacamentos do estado; o número à direita é quanto isso vale frente à média do país ({pct(s.nat)}). Estados com menos de 1% do mercado ficam de fora do ranking. Clique para filtrar.</p>
         </div>
       </div>
       {tip.node}
-    </Chapter>
+    </Block>
   );
 }
 
@@ -217,7 +245,7 @@ function Mix({ a, brandGeo, marketGeo, hasGeo }) {
   }, [brandGeo, marketGeo]);
   const [pick, setPick] = useState(null);
   if (!mixes || !mixes.length) {
-    return <Chapter id="mix" kicker="O que vende" title={brandGeo && brandGeo.total === 0 ? <>{name} não emplacou neste recorte.</> : <>O que {name} vende</>}><div className="nx-card">{brandGeo && marketGeo ? <p className="nx-note">Sem dados para montar o perfil de vendas.</p> : <div className="nxc-skel" />}</div></Chapter>;
+    return <Block className="nx-c6 nxc-o3" title={brandGeo && brandGeo.total === 0 ? <>{name} não emplacou neste recorte.</> : <>O que {name} vende</>}>{brandGeo && marketGeo ? <p className="nx-note">Sem dados para montar o perfil de vendas.</p> : <div className="nxc-skel" />}</Block>;
   }
   /* o destaque: a categoria em que a marca mais se distancia do mercado, entre as que pesam ao menos 8% das suas vendas */
   let hl = null;
@@ -227,9 +255,9 @@ function Mix({ a, brandGeo, marketGeo, hasGeo }) {
   const top = cur.rows.slice(0, 7), max = Math.max(...top.flatMap(r => [r.brand, r.market]), .01);
   const diff = hl.r.brand - hl.r.market;
   return (
-    <Chapter id="mix" kicker="O que vende" title={<>Entre as vendas de {name}, <em>{hl.r.label}</em> fica com {pct(hl.r.brand, 0)}{Math.abs(diff) >= .01 ? <>, contra {pct(hl.r.market, 0)} do mercado.</> : '.'}</>}
-      lede={`Perfil de vendas de ${name}${hasGeo ? ' no território filtrado' : ''}, lado a lado com o do mercado. O destaque é a categoria em que a marca mais se afasta da média: ${diff >= 0 ? 'acima' : 'abaixo'} do mercado em ${pp(Math.abs(diff)).replace('+', '')}`}>
-      <div className="nx-card">
+    <Block className="nx-c6 nxc-o3" title={<>Entre as vendas de {name}, <em>{hl.r.label}</em> fica com {pct(hl.r.brand, 0)}{Math.abs(diff) >= .01 ? <>, contra {pct(hl.r.market, 0)} do mercado.</> : '.'}</>}
+      caption={`Perfil de vendas de ${name}${hasGeo ? ' no território filtrado' : ''} ao lado do mercado. Maior distância da média: ${diff >= 0 ? 'acima' : 'abaixo'} em ${pp(Math.abs(diff)).replace('+', '')}.`}>
+      <>
         <div className="nxc-head"><Seg label="Dimensão" value={cur.id} onChange={setPick} options={mixes.map(m => ({ value: m.id, label: m.label }))} /></div>
         <div className="nxc-mix" key={cur.id}>
           {top.map((r, i) => (
@@ -245,7 +273,57 @@ function Mix({ a, brandGeo, marketGeo, hasGeo }) {
         </div>
         <div className="nx-legend"><span><i style={{ background: 'var(--nx-accent)' }} />{name}</span><span><i style={{ background: '#c6c6cb' }} />Mercado</span></div>
         <p className="nx-note">Participação de cada categoria nas vendas da marca e nas do mercado, no período escolhido. Mostra as sete maiores categorias da marca.</p>
-      </div>
-    </Chapter>
+      </>
+    </Block>
+  );
+}
+
+/* ================= Ranking mês a mês (nativo, sobre a série histórica) ================= */
+function BumpNativo({ hist, filters, focus, setFilter, single }) {
+  const duelFilters = useMemo(() => ({ ...filters, marca: 'all', modelo: 'all', grupo_modelo: 'all' }), [filters]);
+  const [mode, setMode] = useState('mes'), [topN, setTopN] = useState(10);
+  const monthly = useMemo(() => {
+    if (!hist?.data || !hist.data.dimensions.includes('marca')) return null;
+    const all = engine.historyMonthly(hist.data, duelFilters, 'marca');
+    while (all.length && !all.at(-1).complete) all.pop();
+    return all.length >= 36 ? all : null;
+  }, [hist?.data, duelFilters]);
+  const ignored = useMemo(() => engine.historyPlan(duelFilters).ignoredLabels, [duelFilters]);
+  const sel = list(filters.marca)[0];
+  const d = useMemo(() => {
+    if (!monthly) return null;
+    const n = monthly.length, K = 24, s0 = n - K, names = new Set();
+    monthly.slice(s0 - 12).forEach(m => m.groups.forEach((c, k) => { if (c > 0) names.add(k); }));
+    const val = new Map();
+    names.forEach(nm => { const cnt = monthly.map(m => m.groups.get(nm) ?? 0); val.set(nm, mode === 'mes' ? cnt : roll(cnt)); });
+    const rankAt = i => { const arr = [...names].map(nm => [nm, val.get(nm)[i]]).filter(([, v]) => v != null && v > 0).sort((x, y) => y[1] - x[1]); return new Map(arr.map(([nm], k) => [nm, k + 1])); };
+    const R = Array.from({ length: K }, (_, k) => rankAt(s0 + k));
+    const last = R[K - 1];
+    const pick = [...last.entries()].filter(([, r]) => r <= topN).map(([nm]) => nm);
+    const extra = [focus, sel].filter(nm => nm && last.has(nm) && last.get(nm) <= 20 && !pick.includes(nm));
+    const chosen = [...pick, ...extra];
+    const rows = chosen.map(nm => ({ name: nm, label: brandName(nm), focus: nm === focus, ranks: R.map(m => m.get(nm) ?? null), values: val.get(nm).slice(s0).map(v => (v == null ? null : v)) }));
+    const maxRank = Math.max(topN, ...rows.flatMap(r => r.ranks.filter(Boolean)));
+    const climb = rows.filter(r => r.ranks[0] != null && r.ranks[K - 1] != null).map(r => ({ r, up: r.ranks[0] - r.ranks[K - 1] })).sort((x, y) => y.up - x.up)[0];
+    const fall = rows.filter(r => r.ranks[0] != null && r.ranks[K - 1] != null).map(r => ({ r, up: r.ranks[0] - r.ranks[K - 1] })).sort((x, y) => x.up - y.up)[0];
+    return { months: monthly.slice(s0).map(m => m.month), rows, maxRank, climb, fall, last };
+  }, [monthly, mode, topN, focus, sel]);
+  let title = 'Ranking mês a mês', body;
+  if (!hist?.data && !hist?.error) body = <div className="nxc-skel" />;
+  else if (!d) body = <p className="nx-note">{hist?.error ?? 'Não há série histórica suficiente para montar o ranking no recorte escolhido.'}</p>;
+  else {
+    if (d.climb && d.climb.up >= 2) title = <>{brandName(d.climb.r.name)} é quem mais subiu: do <em>{d.climb.r.ranks[0]}º ao {d.climb.r.ranks.at(-1)}º</em> lugar em 24 meses.</>;
+    else title = 'As posições do ranking quase não mudaram em 24 meses.';
+    body = <Bump months={d.months} rows={d.rows} maxRank={d.maxRank} picked={sel} onPick={r => setFilter('marca', sel === r.name ? 'all' : [r.name])} measure={mode === 'mes' ? 'Emplacamentos no mês' : 'Acumulado de 12 meses'} label="Posição de cada marca no ranking, mês a mês, nos últimos 24 meses" />;
+  }
+  return (
+    <Block className="nx-c12 nxc-o1" title={title}
+      caption={`Posição de cada marca nos últimos 24 meses${mode === 'mes' ? ', mês a mês' : ', pelo acumulado de 12 meses (mais estável)'}.${d?.fall && d.fall.up <= -2 ? ` Quem mais caiu: ${brandName(d.fall.r.name)} (${d.fall.r.ranks[0]}º → ${d.fall.r.ranks.at(-1)}º).` : ''} Passe o mouse para destacar uma marca; clique para filtrar o painel.`}
+      actions={<div className="nxc-ctl"><Seg label="Medida" value={mode} onChange={setMode} options={[{ value: 'mes', label: 'Mês a mês' }, { value: '12m', label: 'Acumulado 12 meses' }]} /><Seg label="Quantas marcas" value={topN} onChange={setTopN} options={[{ value: 8, label: 'Top 8' }, { value: 10, label: 'Top 10' }, { value: 15, label: 'Top 15' }]} /></div>}>
+      <>
+        {body}
+        <p className="nx-note">{ignored.length ? `Esta série ignora: ${ignored.join(', ')}. ` : ''}Mostra as marcas do topo no último mês, mais a marca em foco. O ranking do painel, com outras dimensões (modelo, estado) e o período escolhido, vem logo abaixo{single ? ' e aparece quando o período tem dois meses ou mais' : ''}.</p>
+      </>
+    </Block>
   );
 }
