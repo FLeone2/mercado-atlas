@@ -100,3 +100,4 @@
 .nxo-legacy{margin-top:8px}.nxo-legacy .nxl{margin-top:8px}
 @media(max-width:1100px){.nxo-grid>.nx-c8,.nxo-grid>.nx-c7,.nxo-grid>.nx-c6,.nxo-grid>.nx-c5,.nxo-grid>.nx-c4{grid-column:span 12}}
 .nx-areahead .nxo-basefix{margin-bottom:14px}
+.nxo-grid>.nxo-metawrap{grid-column:1/-1}.nxo-panel .nxo-seg{flex-wrap:wrap;border-radius:20px;overflow:visible}

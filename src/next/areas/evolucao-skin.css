@@ -46,3 +46,4 @@
 .nxe-leg .nxl .ev-interactive :is(.ev-loading,.am-note-info){border-radius:14px}
 .nxe-leg .nxl .ev-interactive label{font:500 13.5px var(--nx-font)}
 .nxe-leg .nxl .ev-interactive :is(p,.am-muted){color:var(--nx-soft);font:500 13.5px var(--nx-font)}
+.nxe-period .nxe-seg{flex-wrap:wrap;max-width:100%}.nxe-period .nxe-seg button{padding:7px 11px}

@@ -70,11 +70,11 @@ function Panel({ id, kicker, title, lede, span = '12', bare, children }) {
 
 const LEG_KEY = 'models:scenarios-workspace';
 /* Hospeda uma das visões do Atlas atual (a escolha vive em sectionViews). `hide`: ids de cartões que o painel nativo já mostra. */
-function LegacyModels({ view, hide = [], heading }) {
+function LegacyModels({ view, hide = [], heading, dedupe }) {
   const shell = useDataApp(), cur = shell.sectionViews?.[LEG_KEY]?.tab;
   useEffect(() => { if (cur !== view) shell.setSectionView?.(LEG_KEY, { ...(shell.sectionViews?.[LEG_KEY] ?? {}), tab: view }); }, [cur, view]);
   if (cur !== view) return <Skeleton h={320} />;
-  return <div className="nxo-legacy">{heading}<LegacyTab tab="models" hide={hide} /></div>;
+  return <div className="nxo-legacy">{heading}<LegacyTab tab="models" hide={hide} className={dedupe ? 'nxo-dedupe' : ''} /></div>;
 }
 
 const headline = (ss, ready) => (bad(...ss) ? 'Dados indisponíveis no momento.' : waiting(...ss) ? 'Carregando dados verificados…' : ready);
@@ -83,7 +83,7 @@ function Meta() {
   const m = useScenario('manifest.json').data;
   if (!m) return null;
   return (
-    <div>
+    <div className="nxo-metawrap">
       <p className="nx-note nxo-meta">
         Cobertura do acervo: {monthLabel(m.coverageStart)} a {monthLabel(m.coverageEnd)} · dados processados em {dateBR(String(m.sourceAsOf).slice(0, 10))} · autos e comerciais leves.
         Unidade: registros de origem, com duplicidades mantidas; não são veículos únicos. Os filtros do topo não recalculam estes arquivos.
@@ -497,11 +497,11 @@ export default function Economia() {
         {view === 'contexto' && <><Contexto /><Meta /></>}
         {view === 'projecoes' && <>
           <Projecoes />
-          <LegacyModels view="forecasts" hide={LEG_HIDE_FORECAST} heading={<h3 className="nxo-sec">Reconciliação hierárquica, validação e tabelas completas</h3>} />
+          <LegacyModels view="forecasts" dedupe hide={LEG_HIDE_FORECAST} heading={<h3 className="nxo-sec">Reconciliação hierárquica, validação e tabelas completas</h3>} />
         </>}
         {view === 'regional' && <>
           <Regional />
-          <LegacyModels view="regional" heading={<h3 className="nxo-sec">Modelo regional, dependência espacial (Moran) e tabelas</h3>} />
+          <LegacyModels view="regional" dedupe heading={<h3 className="nxo-sec">Modelo regional, dependência espacial (Moran) e tabelas</h3>} />
         </>}
         {view === 'economia' && <LegacyModels view="economy" heading={<h3 className="nxo-sec">Defasagens, crédito real, IPCA e PNAD</h3>} />}
         {view === 'simulacoes' && <LegacyModels view="simulations" heading={<h3 className="nxo-sec">Superfície de resposta de dois fatores</h3>} />}
