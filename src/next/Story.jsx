@@ -3,41 +3,11 @@ import { engine } from 'virtual:market';
 import ufGeometry from '../market/geo/uf-geometry.json';
 import { BarList, Diverging, ShareArea, YearLines, useTip } from './charts.jsx';
 import { UF_NAMES, fmt, monthLabel, pct, pp, signed, MONTHS } from './format.js';
+import { Chapter, CountUp, Tile } from './ui.jsx';
 
 const name = n => engine.insightName(n);
 const TECH = { ICE: ['Combustão', '#d4d4d8'], MHEV: ['Microhíbrido', '#a1a1aa'], HEV: ['Híbrido', '#71717a'], PHEV: ['Híbrido plug-in', '#3f3f46'], BEV: ['Elétrico', 'var(--nx-accent)'], FCEL: ['Célula de combustível', '#c4b5fd'] };
 const ELECTRIFIED = ['MHEV', 'HEV', 'PHEV', 'BEV', 'FCEL'];
-
-function Chapter({ id, kicker, title, lede, children, wide }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const el = ref.current; if (!el) return undefined;
-    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { el.setAttribute('data-in', ''); io.disconnect(); } }), { threshold: .12 });
-    io.observe(el); return () => io.disconnect();
-  }, []);
-  return (
-    <section className="nx-chapter" id={id} ref={ref} data-chapter>
-      <div className="nx-wrap">
-        <div className="nx-kicker">{kicker}</div>
-        <h2>{title}</h2>
-        {lede && <p className="nx-lede">{lede}</p>}
-        <div className={'nx-body' + (wide ? ' wide' : '')}>{children}</div>
-      </div>
-    </section>
-  );
-}
-
-function CountUp({ value }) {
-  const [v, setV] = useState(0), ref = useRef(null);
-  useEffect(() => {
-    const el = ref.current; let raf = 0;
-    const io = new IntersectionObserver(es => { if (!es[0].isIntersecting) return; io.disconnect(); const t0 = performance.now(), from = 0; const run = t => { const k = Math.min(1, (t - t0) / 1200); setV(from + (value - from) * (1 - Math.pow(1 - k, 4))); if (k < 1) raf = requestAnimationFrame(run); }; raf = requestAnimationFrame(run); });
-    io.observe(el); return () => { io.disconnect(); cancelAnimationFrame(raf); };
-  }, [value]);
-  return <span ref={ref}>{fmt(v)}</span>;
-}
-
-const Tile = ({ k, children, sub, dark, red, small }) => <div className={'nx-tile' + (dark ? ' dark' : '')}><div className="nx-tile-k">{k}</div><div><div className={'nx-tile-n' + (red ? ' red' : '') + (small ? ' sm' : '')}>{children}</div>{sub && <div className="nx-tile-s">{sub}</div>}</div></div>;
 
 export default function Story({ model, market, geoMarket, hist, filters, setFilter, insights, focus, cityName }) {
   const ranking = market ?? model, geoModel = geoMarket ?? model;

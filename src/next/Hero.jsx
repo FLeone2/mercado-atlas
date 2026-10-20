@@ -88,7 +88,7 @@ export default function Hero({ model, points, ufFilter, insights, onTip, scrollR
   }, [dots, max, ufFilter]);
 
   return (
-    <section className="nx-hero" ref={wrap} id="topo">
+    <section className="nx-hero" ref={wrap} id="topo" data-chapter data-title="Início">
       <div className="nx-stick">
         <canvas ref={cv} aria-label="Mapa do Brasil com os emplacamentos por município" role="img" />
         <div className="nx-hero-copy">
