@@ -40,3 +40,7 @@
 .nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .am-loading{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:22px 26px}
 .nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .am-loading strong{font:700 17px var(--nx-font)}
 .nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .catalog-extras>p[role="status"]{font:500 14px var(--nx-font);color:var(--nx-soft);padding:22px 26px;background:var(--nx-card);border-radius:22px}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"],[data-legacy-tab="models"]) .ax-popover input{border:1px solid var(--nx-line);border-radius:10px;outline:none;background:var(--nx-card);font:500 13.5px var(--nx-font)}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"],[data-legacy-tab="models"]) .ax-popover input:focus{border-color:var(--nx-ink)}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) :is(.cm-catalog,.anm-maps){border:0;background:none;padding:0;box-shadow:none;border-radius:0}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .cm-catalog :is(select,input){border-radius:999px}
