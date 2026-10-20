@@ -5,9 +5,11 @@ import { useDataApp } from '../kit/index.js';
 import FilterSheet from './FilterSheet.jsx';
 import { AREAS } from './areas/index.js';
 import { NextCtx } from './ctx.js';
+import LegacyTab from './LegacyTab.jsx';
 import { useTip } from './charts.jsx';
 import { UF_NAMES, rangeText } from './format.js';
 import './next.css';
+import './legacy-skin.css';
 
 const BRAND_KEYS = ['marca', 'modelo', 'grupo_modelo'], GEO_KEYS = ['uf', 'regiao', 'municipio'];
 const active = v => v != null && v !== 'all' && !(Array.isArray(v) && (v.length === 0 || v.includes('all')));
@@ -113,7 +115,7 @@ export default function NextApp() {
         </nav>
         <FilterSheet open={sheet} filters={filters} setFilter={setFilter} manifest={manifest} model={model} onReset={reset} changed={changed} palette={palette} setPalette={setPalette} />
         <main ref={main} className={pending ? 'nx-pending' : ''}>
-          <View />
+          {new URLSearchParams(location.search).get('legacy') ? <div className="nx-wrap" style={{ paddingTop: 100 }}><LegacyTab tab={new URLSearchParams(location.search).get('legacy')} /></div> : <View />}
           <footer className="nx-foot">
             <div className="nx-wrap">
               <div className="nx-kicker">Continue explorando</div>

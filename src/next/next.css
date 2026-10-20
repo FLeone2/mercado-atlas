@@ -104,3 +104,26 @@ html[data-nx-dir="back"]::view-transition-old(root){animation-name:nx-leave-back
   .nx-dock a{padding:9px 13px;border-radius:999px;font:500 13px/1 var(--nx-font);white-space:nowrap;opacity:.7}.nx-dock a[aria-current]{opacity:1;background:#1d1d1f;color:#fff}
   .nx-callout{font-size:11.5px}.nx-foot{padding-bottom:170px}.nx-hint{bottom:84px}.nx-chapter{padding-top:84px}
 }
+
+/* ---- template compacto: menos revista, mais painel ---- */
+.nx-wrap{max-width:1360px}
+.nx-chapter{padding:60px 0 6px}
+.nx-chapter h2{font:700 clamp(24px,2.5vw,36px)/1.12 var(--nx-font);letter-spacing:-.035em;margin:10px 0 0;max-width:none;text-wrap:balance}
+.nx-kicker{font-size:12px;letter-spacing:.12em}
+.nx .nx-lede{font:500 15px/1.5 var(--nx-font);margin:10px 0 0;max-width:78ch}
+.nx-body{margin-top:22px}
+.nx-card{border-radius:28px;padding:clamp(18px,2.2vw,30px)}
+.nx-hero{height:150vh}.nx-hero h1{font-size:clamp(44px,6.6vw,104px)}
+.nx-foot{padding:90px 0 130px}.nx-foot h2{font-size:clamp(26px,3vw,40px)}
+/* grade de cartões: 12 colunas, duas por linha no desktop */
+.nx-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px;align-items:start}
+.nx-grid>*{min-width:0;margin:0}.nx-c12{grid-column:span 12}.nx-c8{grid-column:span 8}.nx-c7{grid-column:span 7}.nx-c6{grid-column:span 6}.nx-c5{grid-column:span 5}.nx-c4{grid-column:span 4}
+@media(max-width:1100px){.nx-c8,.nx-c7,.nx-c6,.nx-c5,.nx-c4{grid-column:span 12}}
+/* título de bloco dentro de um cartão: uma linha de conclusão + legenda curta */
+.nx-block-t{font:700 18px/1.25 var(--nx-font);letter-spacing:-.02em;margin:0}.nx-block-s{font:500 13.5px/1.45 var(--nx-font);color:var(--nx-soft);margin:4px 0 16px}
+/* cabeçalho compacto de uma área */
+.nx-areahead{padding:92px 0 4px}.nx-areahead h1{font:800 clamp(30px,3.4vw,48px)/1.05 var(--nx-font);letter-spacing:-.045em;margin:0}
+.nx-areahead p{font:500 15.5px/1.5 var(--nx-font);color:var(--nx-soft);margin:8px 0 0;max-width:80ch}
+.nx-tabs{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:color-mix(in srgb,var(--nx-ink) 7%,transparent);margin-top:18px;flex-wrap:wrap}
+.nx .nx-tabs button{padding:8px 16px;border-radius:999px;font:600 13.5px/1 var(--nx-font);color:var(--nx-soft);transition:background .2s,color .2s,box-shadow .2s}
+.nx .nx-tabs button[aria-pressed="true"]{background:var(--nx-card);color:var(--nx-ink);box-shadow:0 1px 3px rgba(0,0,0,.16)}

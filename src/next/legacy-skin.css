@@ -1,0 +1,47 @@
+/* Pele do novo visual sobre as telas do Atlas atual hospedadas em .nxl.
+   1) as variáveis de cor/tipografia que o Atlas atual lê passam a apontar para a paleta nova (dentro de .nx apenas);
+   2) cartões, títulos, controles e tabelas ganham a forma nova. O comportamento dos gráficos não muda. */
+.nx{
+  --paper:var(--nx-bg);--paper-deep:color-mix(in srgb,var(--nx-ink) 6%,var(--nx-bg));--paper-raised:var(--nx-card);--surface-raised:var(--nx-card);
+  --ink:var(--nx-ink);--ink-soft:var(--nx-soft);--brass:var(--nx-accent);--brass-light:var(--nx-accent);--line:var(--nx-line);--line-soft:var(--nx-line);
+  --green:var(--nx-up);--sage:#a1a1aa;--copper:var(--nx-down);--accent:var(--nx-accent);--positive:var(--nx-up);--negative:var(--nx-down);--mitsubishi-color:var(--nx-accent);
+  --background:var(--nx-bg);--surface:var(--nx-card);--muted:color-mix(in srgb,var(--nx-ink) 6%,transparent);--text:var(--nx-ink);--text-primary:var(--nx-ink);--secondary:var(--nx-soft);--text-secondary:var(--nx-soft);--muted-foreground:var(--nx-soft);--muted-text:var(--nx-soft);
+  --border:var(--nx-line);--border-strong:var(--nx-line);--border-color:var(--nx-line);--control-hover:color-mix(in srgb,var(--nx-ink) 6%,transparent);--interaction-hover:color-mix(in srgb,var(--nx-accent) 9%,transparent);
+  --serif:var(--nx-font);--sans:var(--nx-font);--font-sans:var(--nx-font);--card-radius:28px;--control-radius:999px;
+  --chart-1:#2f6fed;--chart-2:#e8a317;--chart-3:#0f9d8a;--chart-4:#8e5cf0;--chart-5:#d9558f;--chart-6:#5b6770;--chart-7:#84a98c;--chart-8:#c9b79c;
+  --tbm-other:#d4d4d8;--pm-land:color-mix(in srgb,var(--nx-ink) 9%,var(--nx-bg));--anm-map-land:color-mix(in srgb,var(--nx-ink) 9%,var(--nx-bg));
+}
+.nxl-host{display:block;padding:0;margin:0;max-width:none;font-family:var(--nx-font);color:var(--nx-ink)}
+.nxl-host::before,.nxl-host::after{display:none}
+.nxl{margin-top:24px}
+/* títulos */
+.nx .nxl h1,.nx .nxl h2,.nx .nxl h3,.nx .nxl h4{font-family:var(--nx-font);color:var(--nx-ink);letter-spacing:-.025em}
+.nx .nxl .ax-section-title,.nx .nxl .am-ranking-heading h2{font:700 clamp(24px,2.4vw,34px)/1.1 var(--nx-font);letter-spacing:-.035em}
+.nx .nxl .ax-card-title{font:700 19px/1.25 var(--nx-font);letter-spacing:-.02em}
+.nx .nxl .ax-section-lede,.nx .nxl .ax-card-note,.nx .nxl p{font-family:var(--nx-font)}
+.nx .nxl .ax-section{padding:36px 0 0;border-top:0}.nx .nxl .ax-section-head{margin-bottom:18px}
+/* cartões */
+.nx .nxl :is(.ax-card,.am-glass,.hx-panel,.cr-card,.catalog-panel,.lm-card,.tbm-card,.pm-primary,.cc-chart,.ctx-card,.ctx-panel,.am-operational-card){
+  background:var(--nx-card);border:0;border-radius:28px;box-shadow:none;padding:26px 28px;margin:0 0 16px;backdrop-filter:none;-webkit-backdrop-filter:none}
+.nx .nxl :is(.ax-card,.am-glass,.hx-panel,.cr-card,.catalog-panel,.lm-card,.tbm-card,.pm-primary,.cc-chart,.ctx-card,.ctx-panel) :is(.ax-card,.am-glass,.hx-panel,.cr-card,.catalog-panel,.lm-card,.tbm-card,.pm-primary,.cc-chart,.ctx-card,.ctx-panel){
+  background:none;border-radius:0;padding:0;margin:0}
+/* controles */
+.nx .nxl :is(.ax-field-trigger,.ax-select,select){appearance:none;padding:8px 14px;border:1px solid var(--nx-line);border-radius:999px;background:var(--nx-card);font:500 13.5px var(--nx-font);color:var(--nx-ink);transition:border-color .16s,transform .12s}
+.nx .nxl select{padding-right:30px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1.5l5 5 5-5' fill='none' stroke='%236e6e73' stroke-width='1.8' stroke-linecap='round'/></svg>");background-repeat:no-repeat;background-position:right 12px center}
+.nx .nxl :is(.ax-field-trigger,.ax-select,select):hover{border-color:var(--nx-ink)}
+.nx .nxl input[type="search"],.nx .nxl input[type="text"],.nx .nxl input[type="number"]{padding:8px 14px;border:1px solid var(--nx-line);border-radius:999px;background:var(--nx-card);font:500 13.5px var(--nx-font);color:var(--nx-ink)}
+.nx .nxl .ax-field-label{font:500 11.5px var(--nx-font);color:var(--nx-soft);padding-left:14px}
+.nx .nxl :is(.ax-button,.am-small-button){border-radius:999px;border:1px solid var(--nx-line);background:var(--nx-card);padding:8px 16px;font:600 13px var(--nx-font);color:var(--nx-ink);transition:border-color .16s,transform .12s}
+.nx .nxl :is(.ax-button,.am-small-button):hover{border-color:var(--nx-ink)}.nx .nxl :is(.ax-button,.am-small-button):active{transform:scale(.97)}
+.nx .nxl :is(.ax-button-primary,.am-small-button.am-primary){background:var(--nx-ink);color:var(--nx-card);border-color:var(--nx-ink)}
+.nx .nxl .ax-segmented{border:0;border-radius:999px;padding:3px;gap:2px;background:color-mix(in srgb,var(--nx-ink) 7%,transparent)}
+.nx .nxl .ax-segmented button{border-radius:999px;border:0;padding:6px 13px;font:500 12.5px var(--nx-font);color:var(--nx-soft)}
+.nx .nxl .ax-segmented button+button{border-left:0}
+.nx .nxl .ax-segmented button[aria-pressed="true"]{background:var(--nx-card);color:var(--nx-ink);box-shadow:0 1px 3px rgba(0,0,0,.16)}
+.nx .nxl .ax-popover{border-radius:16px;border:0;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 24px 60px -16px rgba(0,0,0,.35)}
+.nx .nxl .ax-tooltip,.nx .nxl .ax-tooltip-host>*{border-radius:12px;border:0;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+/* tabelas e textos pequenos */
+.nx .nxl .ax-table th{font:600 11px var(--nx-font);letter-spacing:.06em;color:var(--nx-soft)}.nx .nxl .ax-table td{font-variant-numeric:tabular-nums}
+.nx .nxl details>summary{font:500 13px var(--nx-font);color:var(--nx-soft)}
+.nx .nxl a{color:var(--nx-accent)}
+@media(max-width:720px){.nx .nxl :is(.ax-card,.am-glass,.hx-panel,.cr-card,.catalog-panel,.lm-card,.tbm-card,.pm-primary,.cc-chart){padding:20px 16px;border-radius:22px}}

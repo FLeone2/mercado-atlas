@@ -33,3 +33,27 @@ export function CountUp({ value }) {
 
 export const Tile = ({ k, children, sub, dark, red, small }) => <div className={'nx-tile' + (dark ? ' dark' : '')}><div className="nx-tile-k">{k}</div><div><div className={'nx-tile-n' + (red ? ' red' : '') + (small ? ' sm' : '')}>{children}</div>{sub && <div className="nx-tile-s">{sub}</div>}</div></div>;
 
+
+/* Compact header of an area: title, one-line finding, optional tabs (sub-areas). tabs = [[key,label],…] */
+export function AreaHead({ title, finding, tabs, tab, onTab, children }) {
+  return (
+    <header className="nx-areahead">
+      <div className="nx-wrap">
+        <h1>{title}</h1>
+        {finding && <p>{finding}</p>}
+        {tabs && <div className="nx-tabs" role="tablist" aria-label="Seções">{tabs.map(([k, l]) => <button key={k} type="button" role="tab" aria-selected={tab === k} aria-pressed={tab === k} onClick={() => onTab(k)}>{l}</button>)}</div>}
+        {children}
+      </div>
+    </header>
+  );
+}
+
+/* A card with a one-line conclusion and a short caption; put charts inside. */
+export function Block({ title, caption, children, className = '', actions }) {
+  return (
+    <div className={'nx-card ' + className}>
+      {(title || actions) && <div className="nx-block-head" style={{ display: 'flex', gap: 12, justifyContent: 'space-between', alignItems: 'flex-start' }}><div>{title && <h3 className="nx-block-t">{title}</h3>}{caption && <p className="nx-block-s">{caption}</p>}</div>{actions}</div>}
+      {children}
+    </div>
+  );
+}
