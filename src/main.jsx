@@ -9,6 +9,9 @@ import './styles/liquid-aurora.css';
 import { DataAppProvider } from './kit/index.js';
 import { ErrorBoundary } from './kit/boundary.jsx';
 import { DashboardContent } from 'virtual:market';
+import NextApp from './next/NextApp.jsx';
+
+const novo = new URLSearchParams(location.search).get('ui') === 'novo';
 
 const root = createRoot(document.getElementById('root'));
 fetch('/data/snapshot.json')
@@ -16,7 +19,7 @@ fetch('/data/snapshot.json')
   .then(snapshot => root.render(
     <DataAppProvider snapshot={snapshot}>
       <ErrorBoundary>
-        <DashboardContent />
+        {novo ? <NextApp /> : <DashboardContent />}
       </ErrorBoundary>
     </DataAppProvider>,
   ))
