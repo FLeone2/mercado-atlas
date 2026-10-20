@@ -1,0 +1,106 @@
+
+/* Atlas · camada aconchegante. Papel mais quente, cantos suaves, controles em pílula, sombras baixas de papel,
+   movimento curto. Nada de brilho, gradiente ou ícone decorativo: o calor vem de tom, raio e respiro. */
+:root:not([data-visual-theme="liquid-aurora"]) {
+  --paper: #f3eee1; --paper-deep: #e9e3d3; --paper-raised: #fbf8ef; --surface-raised: #fffcf5;
+  --line: #d3d0bf; --line-soft: #e2dfd0; --ink-soft: #66726a;
+  --cz-r-sm: 8px; --cz-r: 12px; --cz-r-lg: 18px;
+  --cz-shadow: 0 1px 2px rgba(74, 58, 28, .06), 0 8px 24px -14px rgba(74, 58, 28, .22);
+  --cz-shadow-lift: 0 2px 4px rgba(74, 58, 28, .08), 0 14px 30px -14px rgba(74, 58, 28, .28);
+  --cz-out: cubic-bezier(.23, 1, .32, 1);
+  --card-radius: var(--cz-r); --control-radius: 999px;
+}
+:root[data-theme="dark"]:not([data-visual-theme="liquid-aurora"]) {
+  --paper: #10241e; --paper-raised: #153028; --surface-raised: #1a3830;
+  --cz-shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 26px -14px rgba(0, 0, 0, .55);
+  --cz-shadow-lift: 0 2px 4px rgba(0, 0, 0, .35), 0 16px 32px -14px rgba(0, 0, 0, .6);
+}
+:root:not([data-visual-theme="liquid-aurora"]) body { background: var(--paper); }
+:root:not([data-visual-theme="liquid-aurora"]) h1, :root:not([data-visual-theme="liquid-aurora"]) h2, :root:not([data-visual-theme="liquid-aurora"]) h3 { text-wrap: balance; }
+:root:not([data-visual-theme="liquid-aurora"]) p { text-wrap: pretty; }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-metric, :root:not([data-visual-theme="liquid-aurora"]) .am-kpi, :root:not([data-visual-theme="liquid-aurora"]) .ax-table td, :root:not([data-visual-theme="liquid-aurora"]) .ax-tooltip-row, :root:not([data-visual-theme="liquid-aurora"]) .at-hero-figures strong { font-variant-numeric: tabular-nums lining-nums; }
+
+/* Navegação: sublinhado que cresce, sem salto de peso */
+:root:not([data-visual-theme="liquid-aurora"]) .at-nav .am-nav-link { transition: color 160ms var(--cz-out), border-color 160ms var(--cz-out); }
+:root:not([data-visual-theme="liquid-aurora"]) .at-nav .am-nav-link[aria-current="page"] { font-weight: 600; }
+:root:not([data-visual-theme="liquid-aurora"]) .at-masthead, :root:not([data-visual-theme="liquid-aurora"]) .am-subnavigation { border-bottom-color: var(--line-soft); }
+
+/* Barra de filtros: faixa de papel que acompanha a rolagem, campos em pílula */
+:root:not([data-visual-theme="liquid-aurora"]) .market-filter-bar {
+  margin: 12px 0 0; padding: 14px 18px; border: 1px solid var(--line-soft); border-radius: var(--cz-r-lg);
+  background: color-mix(in srgb, var(--paper-raised) 92%, transparent); box-shadow: var(--cz-shadow); top: 10px;
+}
+:root:not([data-visual-theme="liquid-aurora"]) .market-filter-extra { border-top: 1px solid var(--line-soft); padding-top: 12px; }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-field-label { font-size: 10.5px; letter-spacing: .05em; padding-left: 12px; }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-field-trigger, :root:not([data-visual-theme="liquid-aurora"]) .ax-select {
+  padding: 6px 12px; border: 1px solid var(--line-soft); border-bottom-color: var(--line-soft); border-radius: 999px;
+  background: var(--surface-raised); transition: border-color 160ms var(--cz-out), background-color 160ms var(--cz-out), transform 120ms var(--cz-out);
+}
+:root:not([data-visual-theme="liquid-aurora"]) .ax-field-trigger:hover, :root:not([data-visual-theme="liquid-aurora"]) .ax-field[data-open] .ax-field-trigger { border-color: var(--brass-light); background: var(--paper-raised); }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-field-trigger:active { transform: scale(.98); }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-period .ax-field-trigger { min-width: 180px; }
+:root:not([data-visual-theme="liquid-aurora"]) .am-period-chip { border-radius: var(--cz-r); background: var(--surface-raised); transition: border-color 160ms var(--cz-out), background-color 160ms var(--cz-out), transform 120ms var(--cz-out); }
+:root:not([data-visual-theme="liquid-aurora"]) .am-period-chip:active { transform: scale(.98); }
+:root:not([data-visual-theme="liquid-aurora"]) .am-period-chip[aria-pressed="true"] { box-shadow: var(--cz-shadow); }
+:root:not([data-visual-theme="liquid-aurora"]) .market-filter-selection { background: var(--surface-raised); border-color: var(--line-soft); transition: border-color 160ms var(--cz-out); }
+
+/* Menus e dicas: papel solto com sombra suave, entram de onde saíram */
+:root:not([data-visual-theme="liquid-aurora"]) .ax-popover { border-radius: var(--cz-r); border-color: var(--line-soft); box-shadow: var(--cz-shadow-lift); padding: 6px; animation: cz-pop 160ms var(--cz-out); transform-origin: top left; }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-card-tools .ax-popover { transform-origin: top right; }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-options-list [role="option"], :root:not([data-visual-theme="liquid-aurora"]) .ax-menu [role="menuitem"], :root:not([data-visual-theme="liquid-aurora"]) .ax-period-presets button { border-radius: var(--cz-r-sm); }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-period-popover { overflow: hidden; }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-tooltip, :root:not([data-visual-theme="liquid-aurora"]) .ax-tooltip-host > * { border-radius: var(--cz-r-sm); border-color: var(--line-soft); box-shadow: var(--cz-shadow-lift); }
+@keyframes cz-pop { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+
+/* Botões: pílulas calmas, resposta ao toque */
+:root:not([data-visual-theme="liquid-aurora"]) .ax-button, :root:not([data-visual-theme="liquid-aurora"]) .am-small-button {
+  border-radius: 999px; padding: 7px 16px; border-color: var(--line); background: var(--surface-raised);
+  transition: border-color 160ms var(--cz-out), background-color 160ms var(--cz-out), transform 120ms var(--cz-out), box-shadow 160ms var(--cz-out);
+}
+:root:not([data-visual-theme="liquid-aurora"]) .ax-button:hover, :root:not([data-visual-theme="liquid-aurora"]) .am-small-button:hover { background: var(--paper-raised); box-shadow: var(--cz-shadow); }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-button:active, :root:not([data-visual-theme="liquid-aurora"]) .am-small-button:active, :root:not([data-visual-theme="liquid-aurora"]) .ax-segmented button:active, :root:not([data-visual-theme="liquid-aurora"]) .at-theme:active { transform: scale(.97); }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-button-primary, :root:not([data-visual-theme="liquid-aurora"]) .am-small-button.am-primary { background: var(--ink); }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-button-primary:hover, :root:not([data-visual-theme="liquid-aurora"]) .am-small-button.am-primary:hover { background: color-mix(in srgb, var(--ink) 92%, var(--brass)); }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-segmented { border-radius: 999px; padding: 3px; gap: 2px; border-color: var(--line-soft); background: var(--paper-deep); }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-segmented button { border-radius: 999px; transition: background-color 160ms var(--cz-out), color 160ms var(--cz-out); }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-segmented button + button { border-left: 0; }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-segmented button[aria-pressed="true"] { background: var(--ink); box-shadow: var(--cz-shadow); }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-icon-button, :root:not([data-visual-theme="liquid-aurora"]) .at-theme, :root:not([data-visual-theme="liquid-aurora"]) .at-menu-toggle { transition: background-color 160ms var(--cz-out), transform 120ms var(--cz-out); }
+
+/* Superfícies: cartões e faixa de números viram papel com borda suave */
+:root:not([data-visual-theme="liquid-aurora"]) .ax-card, :root:not([data-visual-theme="liquid-aurora"]) .cr-card, :root:not([data-visual-theme="liquid-aurora"]) .hx-panel, :root:not([data-visual-theme="liquid-aurora"]) .catalog-panel, :root:not([data-visual-theme="liquid-aurora"]) .lm-card, :root:not([data-visual-theme="liquid-aurora"]) .tbm-card, :root:not([data-visual-theme="liquid-aurora"]) .pm-primary, :root:not([data-visual-theme="liquid-aurora"]) .ctx-card, :root:not([data-visual-theme="liquid-aurora"]) .ctx-panel, :root:not([data-visual-theme="liquid-aurora"]) .cc-chart {
+  padding: 22px 24px 20px; border: 1px solid var(--line-soft); border-radius: var(--cz-r-lg); background: var(--paper-raised); box-shadow: var(--cz-shadow);
+}
+
+:root:not([data-visual-theme="liquid-aurora"]) .ax-section { border-top-color: transparent; padding-top: 48px; }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-section-body { gap: 28px; }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-metric-row { border: 1px solid var(--line-soft); border-radius: var(--cz-r-lg); background: var(--paper-raised); box-shadow: var(--cz-shadow); overflow: hidden; }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-metric { padding: 22px 24px; }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-metric-cell + .ax-metric-cell { border-left-color: var(--line-soft); }
+:root:not([data-visual-theme="liquid-aurora"]) .mp-tile { border-radius: var(--cz-r); }
+
+/* Tabelas: linha que acende ao passar */
+:root:not([data-visual-theme="liquid-aurora"]) .ax-table tbody tr { transition: background-color 120ms var(--cz-out); }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-table tbody tr:hover { background: var(--interaction-hover); }
+
+/* Entrada suave da página, uma vez por troca de aba */
+:root:not([data-visual-theme="liquid-aurora"]) .ax-section { animation: cz-rise 260ms var(--cz-out) both; }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-section:nth-of-type(2) { animation-delay: 40ms; }
+:root:not([data-visual-theme="liquid-aurora"]) .ax-section:nth-of-type(3) { animation-delay: 80ms; }
+@keyframes cz-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 720px) {
+  :root:not([data-visual-theme="liquid-aurora"]) .market-filter-bar { padding: 12px 14px; border-radius: var(--cz-r); }
+  :root:not([data-visual-theme="liquid-aurora"]) .ax-card { padding: 18px 16px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-visual-theme="liquid-aurora"]) *, :root:not([data-visual-theme="liquid-aurora"]) *::before, :root:not([data-visual-theme="liquid-aurora"]) *::after { animation-duration: 1ms !important; animation-delay: 0ms !important; transition-duration: 1ms !important; }
+}
+
+/* Cartão dentro de cartão não ganha segunda caixa */
+:root:not([data-visual-theme="liquid-aurora"]) :is(.ax-card, .cr-card, .hx-panel, .catalog-panel, .lm-card, .tbm-card, .pm-primary, .ctx-card, .ctx-panel, .cc-chart) :is(.ax-card, .cr-card, .hx-panel, .catalog-panel, .lm-card, .tbm-card, .pm-primary, .ctx-card, .ctx-panel, .cc-chart) { padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
+:root:not([data-visual-theme="liquid-aurora"]) .mp-strip { border: 1px solid var(--line-soft); border-radius: var(--cz-r-lg); background: var(--paper-raised); box-shadow: var(--cz-shadow); overflow: hidden; margin-top: 24px; }
+:root:not([data-visual-theme="liquid-aurora"]) .mp-tile { border-radius: 0; }
+:root:not([data-visual-theme="liquid-aurora"]) .am-period-chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); }
+:root:not([data-visual-theme="liquid-aurora"]) .market-filter-bar { margin-bottom: 8px; }
+:root:not([data-visual-theme="liquid-aurora"]) .mp-tile { padding: 20px 24px; }
