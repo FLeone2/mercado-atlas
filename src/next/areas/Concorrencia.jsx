@@ -142,7 +142,7 @@ function Duelo({ a, b, options, setA, setB, hist, filters }) {
     const fmtTip = v === 'share' ? q => q.toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + '%' : v === 'index' ? q => Math.round(q).toString() : fmt;
     chart = (
       <>
-        <TimeLines months={d.months} series={series} fmtY={fmtY} fmtTip={fmtTip} replayKey={v + a + b} label={`${brandName(a)} e ${brandName(b)} nos últimos 36 meses`} />
+        <div className="nxc-scroll"><TimeLines months={d.months} series={series} fmtY={fmtY} fmtTip={fmtTip} replayKey={v + a + b} label={`${brandName(a)} e ${brandName(b)} nos últimos 36 meses`} /></div>
         <p className="nx-note">
           {v === 'share' ? 'Participação de cada marca no acumulado de 12 meses do mercado do recorte.' : v === 'volume' ? 'Emplacamentos de cada marca em cada mês; o mês tem sazonalidade, então compare picos com picos.' : 'Acumulado de 12 meses de cada marca, com o primeiro ponto igual a 100: mostra quem cresceu mais, mesmo quando uma é muito menor que a outra.'}
           {ignored.length ? ` Esta série não aplica: ${ignored.join(', ')}.` : ''}
@@ -314,7 +314,7 @@ function BumpNativo({ hist, filters, focus, setFilter, single }) {
   else {
     if (d.climb && d.climb.up >= 2) title = <>{brandName(d.climb.r.name)} é quem mais subiu: do <em>{d.climb.r.ranks[0]}º ao {d.climb.r.ranks.at(-1)}º</em> lugar em 24 meses.</>;
     else title = 'As posições do ranking quase não mudaram em 24 meses.';
-    body = <Bump months={d.months} rows={d.rows} maxRank={d.maxRank} picked={sel} onPick={r => setFilter('marca', sel === r.name ? 'all' : [r.name])} measure={mode === 'mes' ? 'Emplacamentos no mês' : 'Acumulado de 12 meses'} label="Posição de cada marca no ranking, mês a mês, nos últimos 24 meses" />;
+    body = <div className="nxc-scroll"><Bump months={d.months} rows={d.rows} maxRank={d.maxRank} picked={sel} onPick={r => setFilter('marca', sel === r.name ? 'all' : [r.name])} measure={mode === 'mes' ? 'Emplacamentos no mês' : 'Acumulado de 12 meses'} label="Posição de cada marca no ranking, mês a mês, nos últimos 24 meses" /></div>;
   }
   return (
     <Block className="nx-c12 nxc-o1" title={title}

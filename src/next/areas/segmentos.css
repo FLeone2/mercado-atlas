@@ -22,7 +22,7 @@
 .nxs-card-next{display:flex;flex-wrap:wrap;gap:4px 14px;font:500 13px var(--nx-font);color:var(--nx-soft)}.nxs-card-next b{color:var(--nx-ink)}
 .nxs-empty{padding:40px 0;text-align:center;color:var(--nx-soft);font:500 16px var(--nx-font)}
 .nxs-skel{height:240px;border-radius:20px;background:linear-gradient(90deg,rgba(0,0,0,.04),rgba(0,0,0,.08),rgba(0,0,0,.04));background-size:200% 100%;animation:nxs-sh 1.4s linear infinite}@keyframes nxs-sh{to{background-position:-200% 0}}
-@media(max-width:760px){.nxs-row{grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:'name share delta' 'track track track';gap:6px 12px;padding:9px 8px}.nxs-name{grid-area:name}.nxs-track{grid-area:track;height:14px}.nxs-share{grid-area:share}.nxs-delta{grid-area:delta;min-width:62px}.nxs-count{display:none}}
+@media(max-width:760px){.nx .nxs-row{grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:'name share delta' 'track track track';gap:6px 12px;padding:9px 8px}.nx .nxs-name{grid-area:name}.nx .nxs-track{grid-area:track;height:14px}.nx .nxs-share{grid-area:share}.nx .nxs-delta{grid-area:delta;min-width:62px}.nx .nxs-count{display:none}}
 @media(prefers-reduced-motion:reduce){.nxs-card,.nxs-skel{animation:none}}
 
 /* títulos dentro dos cartões novos */

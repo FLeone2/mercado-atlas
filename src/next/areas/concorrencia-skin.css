@@ -114,3 +114,8 @@
 .nxc-grid .cc-chord-copy>*{border-top:0!important;border-bottom:0!important}
 .nxc-grid .cc-chord-lede{font:500 14px/1.5 var(--nx-font);color:var(--nx-soft);margin:0 0 10px}
 .nxc-grid #connections-chord-heading .ax-section-head{margin-bottom:10px}
+.nxc-grid .nxe-seg{flex-wrap:wrap;max-width:100%;border-radius:22px}
+@media(max-width:700px){.nxc-grid .nxe-seg button{padding:7px 11px}.nxc-grid .cc-chord{padding:20px 16px}.nxc-grid .am-ranking-volume input{width:92px}}
+.nxc-grid .nx-block-head{flex-wrap:wrap}.nxc-grid .nx-block-head>div:first-child{flex:1 1 340px;min-width:0}
+.nxc-scroll{overflow-x:auto;overflow-y:hidden}
+@media(max-width:700px){.nxc-scroll>svg{min-width:700px}}
