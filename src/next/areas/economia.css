@@ -1,0 +1,80 @@
+/* Área Economia · tudo com prefixo nxo- */
+.nxo-top{padding:96px 0 0}
+.nxo-bar{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px;margin-top:18px}
+.nxo-seg{display:inline-flex;padding:4px;border-radius:999px;background:rgba(0,0,0,.07);max-width:100%;overflow-x:auto;scrollbar-width:none}
+.nx .nxo-seg button{padding:10px 20px;border-radius:999px;font:600 14.5px/1 var(--nx-font);color:var(--nx-soft);white-space:nowrap;transition:background .25s var(--out),color .2s,box-shadow .25s,transform .12s var(--out)}
+.nx .nxo-seg button:hover{color:var(--nx-ink)}.nx .nxo-seg button:active{transform:scale(.97)}
+.nx .nxo-seg button[aria-pressed="true"]{background:var(--nx-card);color:var(--nx-ink);box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.nxo-seg.sm button{padding:8px 14px;font-size:13.5px}
+.nxo-basefix{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font:500 13.5px/1.4 var(--nx-font);color:var(--nx-soft)}
+.nxo-basefix b{color:var(--nx-ink);font-weight:600}
+.nxo-kind{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:999px;background:rgba(0,0,0,.06);font:600 12px/1 var(--nx-font);color:var(--nx-ink);letter-spacing:.01em;cursor:help}
+.nxo-kind::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--nx-up)}
+.nxo-kind.model::before{background:var(--nx-accent)}
+.nxo-view>.nx-chapter:first-of-type{padding-top:56px}
+.nxo-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.nxo-chip{display:inline-flex;gap:6px;align-items:center;padding:5px 11px;border-radius:999px;background:rgba(0,0,0,.05);font:500 12px/1.2 var(--nx-font);color:var(--nx-soft)}
+.nxo-chip b{color:var(--nx-ink);font-weight:600}
+.nxo-chip.warn{background:rgba(196,38,46,.1);color:var(--nx-down)}.nxo-chip.warn b{color:var(--nx-down)}
+.nxo-state{padding:28px;border-radius:22px;background:rgba(0,0,0,.04);color:var(--nx-soft);font:500 15px/1.4 var(--nx-font)}
+.nxo-skel{height:300px;border-radius:24px;background:linear-gradient(100deg,rgba(0,0,0,.04) 30%,rgba(0,0,0,.08) 50%,rgba(0,0,0,.04) 70%) 0 0/200% 100%;animation:nxoskel 1.4s linear infinite}
+@keyframes nxoskel{to{background-position:-200% 0}}
+.nxo-meta{margin-top:80px;padding-top:18px;border-top:1px solid var(--nx-line)}
+/* KPIs */
+.nxo-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.nxo-kpi{background:var(--nx-card);border-radius:28px;padding:24px 24px 22px;display:flex;flex-direction:column;gap:14px;min-height:226px}
+.nxo-kpi-k{font:600 13.5px/1.25 var(--nx-font);color:var(--nx-soft);min-height:2.5em}
+.nxo-kpi-row{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:auto}
+.nxo-kpi-n{font:800 clamp(30px,3vw,44px)/1 var(--nx-font);letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.nxo-kpi-n small{display:block;margin-top:6px;font:500 12.5px/1.2 var(--nx-font);letter-spacing:0;color:var(--nx-soft)}
+.nxo-kpi-d{font:600 13px/1.3 var(--nx-font);color:var(--nx-ink)}.nxo-kpi-d span{color:var(--nx-soft);font-weight:500}
+.nxo-kpi .nxo-chip{align-self:flex-start;font-size:11.5px;padding:4px 9px}
+.nxo-spark{flex:none;overflow:visible}.nxo-spark path{fill:none;stroke:var(--nx-ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:300;stroke-dashoffset:300;animation:nxdraw 1.4s var(--spring) .2s forwards}.nxo-spark circle{fill:var(--nx-accent)}
+/* gráficos */
+.nxo-plot{width:100%;min-height:200px}.nxo-svg{display:block;overflow:visible;touch-action:pan-y;max-width:100%}
+.nxo-base{stroke:var(--nx-ink);stroke-opacity:.35;stroke-width:1}
+.nxo-endpts text{font:700 13px var(--nx-font)}
+.nxo-fade{opacity:0;animation:nxfade2 .8s var(--out) .35s forwards}
+.nxo-dash{fill:none;stroke:var(--nx-accent);stroke-width:2.8;stroke-dasharray:7 6;stroke-linecap:round}
+.nxo-band95{fill:var(--nx-accent);fill-opacity:.12}.nxo-band80{fill:var(--nx-accent);fill-opacity:.2}
+.nxo-today{stroke:var(--nx-soft);stroke-dasharray:3 4;opacity:.7}.nxo-todaylabel{font:600 11.5px var(--nx-font);fill:var(--nx-soft);letter-spacing:.02em}
+.nxo-sw-dash{width:18px!important;height:0!important;border-top:3px dashed var(--nx-accent);border-radius:0!important;vertical-align:middle;margin-bottom:2px}
+.nxo-sw-line{width:16px!important;height:0!important;border-top:2px solid var(--nx-ink);opacity:.4;border-radius:0!important;vertical-align:middle;margin-bottom:2px}
+.nxo-curve{fill:none;stroke:var(--nx-ink);stroke-opacity:.4;stroke-width:2;stroke-dasharray:2 5}
+.nxo-dot{cursor:pointer;opacity:0;animation:nxfade2 .6s var(--out) forwards}.nxo-dot circle{transition:r .2s var(--out)}.nxo-dot:hover circle{r:9}
+.nxo-dot text{font:700 11.5px var(--nx-font);fill:var(--nx-ink);pointer-events:none}
+.nxo-sub{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin-bottom:20px}
+.nxo-sub .nxo-seg{flex:none}
+.nxo-select{appearance:none;padding:10px 38px 10px 16px;border-radius:999px;border:0;background:rgba(0,0,0,.07) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%236e6e73' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") right 15px center no-repeat;font:600 14px var(--nx-font);color:var(--nx-ink);cursor:pointer}
+.nxo-pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:clamp(20px,4vw,56px);align-items:start}
+.nx .nxo-more{margin-top:14px;font:600 14px var(--nx-font);color:var(--nx-accent)}
+/* mapa */
+.nxo-ramp{display:flex;align-items:center;gap:10px;margin-top:10px;font:500 12px var(--nx-font);color:var(--nx-soft)}.nxo-ramp i{flex:1;max-width:160px;height:8px;border-radius:99px;background:linear-gradient(90deg,rgba(29,29,31,.12),rgba(29,29,31,1))}
+/* calor das defasagens */
+.nxo-heatwrap{overflow-x:auto;margin:0 -4px;padding:0 4px}
+.nxo-heat{border-collapse:separate;border-spacing:3px;width:100%;min-width:640px;font:600 11.5px var(--nx-font);font-variant-numeric:tabular-nums}
+.nxo-heat thead th{font:600 12px var(--nx-font);color:var(--nx-soft);padding:2px 0 6px;text-align:center}
+.nxo-heat tbody th{position:sticky;left:0;z-index:1;background:var(--nx-card);text-align:left;font:600 14px/1.25 var(--nx-font);padding-right:14px;min-width:150px;white-space:nowrap}
+.nxo-heat td{height:40px;text-align:center;border-radius:9px;cursor:default;transition:transform .15s var(--out)}.nxo-heat td:hover{transform:scale(1.08)}
+.nxo-heat td.best{box-shadow:0 0 0 2px var(--nx-ink)}.nxo-na{color:var(--nx-soft);background:rgba(0,0,0,.04)}
+.nxo-axis-note{margin:10px 0 0;font:500 12px var(--nx-font);color:var(--nx-soft);text-align:right}
+.nxo-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+/* municípios */
+.nxo-gaps{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,56px)}
+.nxo-gap{display:grid;gap:2px}.nxo-gap-row{display:grid;grid-template-columns:minmax(110px,170px) 1fr minmax(120px,150px);gap:14px;align-items:center;padding:8px 0}
+.nxo-gap-name{font:600 15px/1.2 var(--nx-font);display:flex;flex-direction:column;gap:2px}.nxo-gap-name small,.nxo-gap-val small{font:500 12px/1.25 var(--nx-font);color:var(--nx-soft)}
+.nxo-gap-track{position:relative;height:22px}.nxo-gap-track::before{content:'';position:absolute;left:50%;top:-6px;bottom:-6px;width:1px;background:var(--nx-line)}
+.nxo-gap-fill{position:absolute;top:2px;bottom:2px;border-radius:6px;animation:nxgrow .9s var(--spring) both}.nxo-gap-fill.pos{background:var(--nx-up);transform-origin:left}.nxo-gap-fill.neg{background:var(--nx-down);transform-origin:right}
+.nxo-gap-val{font:700 15px/1.2 var(--nx-font);text-align:right;display:flex;flex-direction:column;gap:2px;font-variant-numeric:tabular-nums}.nxo-gap-val.up{color:var(--nx-up)}.nxo-gap-val.down{color:var(--nx-down)}
+.nxo-gap-val small{font-weight:500}
+@media(max-width:980px){
+  .nxo-kpis{grid-template-columns:1fr 1fr}.nxo-pair,.nxo-gaps{grid-template-columns:1fr}
+  .nxo-top{padding-top:84px}
+}
+@media(max-width:560px){
+  .nxo-kpis{grid-template-columns:1fr}.nxo-kpi{min-height:0}.nxo-kpi-k{min-height:0}
+  .nxo-seg{width:100%;flex-wrap:wrap;border-radius:22px}.nx .nxo-seg button{flex:1;padding:10px 8px;font-size:13.5px}
+  .nxo-gap-row{grid-template-columns:minmax(0,1fr) minmax(88px,112px);row-gap:6px}.nxo-gap-track{grid-column:1 / -1;order:3}
+  .nxo-sub{align-items:stretch}.nxo-sub .nxo-seg{width:100%}
+}
+@media(prefers-reduced-motion:reduce){.nxo-fade,.nxo-dot{opacity:1;animation:none}.nxo-spark path{stroke-dashoffset:0;animation:none}.nxo-skel{animation:none}}

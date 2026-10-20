@@ -36,8 +36,11 @@ export default function Hero({ model, points, ufFilter, insights, onTip, scrollR
       }
       return { k: Math.min(W * .62 / VW, H * .86 / VH), cx: VW / 2, cy: VH / 2 };
     };
+    const narrow = () => W < 720;
     const geo = () => {
-      const v = s.view, p = s.p, k = v.k * (1 + p * .26), anchor = W * (.66 - p * .16);
+      const v = s.view, p = s.p;
+      if (narrow()) { const kk = v.k * (W * .98 / (W * .62)) * Math.min(1, (H * .5 / VH) / (W * .98 / VW)) * (1 + p * .2); return { k: kk, ox: W * .5 - v.cx * kk, oy: H * .7 - v.cy * kk }; }
+      const k = v.k * (1 + p * .26), anchor = W * (.66 - p * .16);
       return { k, ox: anchor - v.cx * k, oy: H * .5 - v.cy * k + p * 10 };
     };
     // Pixel radius: area follows volume; when zoomed in, points grow with the square root of the zoom so they never swallow the map.
@@ -62,7 +65,7 @@ export default function Hero({ model, points, ufFilter, insights, onTip, scrollR
       }
       ctx.globalCompositeOperation = 'source-over';
       if (s.hover) { const d = s.hover, r = radius(d.v, g) + 4; ctx.strokeStyle = accent; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(g.ox + d.x * g.k, g.oy + d.y * g.k, r, 0, 6.283); ctx.stroke(); }
-      wrap.current.querySelectorAll('.nx-callout').forEach((el, i) => { const d = tops[i]; if (!d) { el.style.opacity = 0; return; } el.style.transform = `translate(${g.ox + d.x * g.k + 16}px, ${g.oy + d.y * g.k - 30}px)`; el.style.opacity = ease > .9 && s.p < .6 ? 1 : 0; });
+      wrap.current.querySelectorAll('.nx-callout').forEach((el, i) => { const d = tops[i]; if (!d) { el.style.opacity = 0; return; } el.style.transform = `translate(${g.ox + d.x * g.k + 16}px, ${g.oy + d.y * g.k - 30}px)`; el.style.opacity = ease > .9 && s.p < .6 && (!narrow() || i === 0) ? 1 : 0; });
       if (ease < 1 || moving) raf = requestAnimationFrame(() => draw());
     }
     const kick = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => draw()); };

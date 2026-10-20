@@ -104,10 +104,13 @@ export default function NextApp() {
             {AREAS.map(a => <a key={a.slug} href={'?ui=novo&a=' + a.slug} aria-current={a.slug === area ? 'page' : undefined} onClick={e => { e.preventDefault(); go(a.slug); }}>{a.label}</a>)}
           </nav>
           <button type="button" className="nx-lens" aria-expanded={sheet} aria-controls="nx-sheet" onClick={() => setSheet(s => !s)}>
-            <i className={'dot' + (changed ? ' on' : '')} />{summary}
+            <i className={'dot' + (changed ? ' on' : '')} /><span>{summary}</span>
             <svg viewBox="0 0 12 8" aria-hidden><path d="M1 1.5l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
           </button>
         </header>
+        <nav className="nx-dock" aria-label="Áreas (celular)">
+          {AREAS.map(a => <a key={a.slug} href={'?ui=novo&a=' + a.slug} aria-current={a.slug === area ? 'page' : undefined} onClick={e => { e.preventDefault(); go(a.slug); }}>{a.label}</a>)}
+        </nav>
         <FilterSheet open={sheet} filters={filters} setFilter={setFilter} manifest={manifest} model={model} onReset={reset} changed={changed} palette={palette} setPalette={setPalette} />
         <main ref={main} className={pending ? 'nx-pending' : ''}>
           <View />

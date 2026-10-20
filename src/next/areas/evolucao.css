@@ -1,0 +1,26 @@
+/* Evolução (nxe-) e peças compartilhadas com Concorrência */
+.nxe-chart{touch-action:pan-y}
+.nxe-band{fill:rgba(0,0,0,.03)}.nxe-band.warn{fill:rgba(0,0,0,.06)}
+.nxe-bandlabel{font:600 11.5px var(--nx-font);letter-spacing:.04em;text-transform:uppercase;fill:var(--nx-soft);opacity:.8}
+.nxe-mark text{font:700 12.5px var(--nx-font);fill:var(--nx-ink);paint-order:stroke;stroke:var(--nx-card);stroke-width:4px;stroke-linejoin:round}
+.nxe-head{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;margin-bottom:20px}
+.nxe-seg{display:inline-flex;padding:3px;border-radius:12px;background:rgba(0,0,0,.06)}
+.nx .nxe-seg button{padding:8px 14px;border-radius:9px;font:500 13.5px/1 var(--nx-font);color:var(--nx-soft);transition:background .25s var(--out),box-shadow .25s,color .2s}
+.nx .nxe-seg button[aria-pressed="true"]{background:var(--nx-card);color:var(--nx-ink);box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.nxe-stats{display:flex;flex-wrap:wrap;gap:8px 32px;font:500 14px var(--nx-font);color:var(--nx-soft)}
+.nxe-stats b{display:block;font:800 26px/1.1 var(--nx-font);letter-spacing:-.04em;color:var(--nx-ink);font-variant-numeric:tabular-nums}
+.nxe-stats b.up{color:var(--nx-up)}.nxe-stats b.down{color:var(--nx-down)}
+.nxe-skel{height:320px;border-radius:24px;background:linear-gradient(100deg,rgba(0,0,0,.04) 30%,rgba(0,0,0,.08) 50%,rgba(0,0,0,.04) 70%);background-size:200% 100%;animation:nxeshine 1.4s linear infinite}
+@keyframes nxeshine{to{background-position:-200% 0}}
+/* mapa de calor */
+.nxe-heat{display:grid;grid-template-columns:48px repeat(12,minmax(0,1fr));gap:4px;font-variant-numeric:tabular-nums}
+.nxe-hcol,.nxe-hrow{font:500 12px var(--nx-font);color:var(--nx-soft);display:flex;align-items:center}
+.nxe-hcol{justify-content:center;padding-bottom:4px}.nxe-hrow{justify-content:flex-start}
+.nxe-cell{height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font:600 11.5px var(--nx-font);color:var(--nx-ink);transition:transform .15s var(--out);animation:nxefade .6s var(--out) both}
+.nxe-cell.hi{color:#fff}.nxe-cell:hover{transform:scale(1.08);position:relative;z-index:1}.nxe-cell.empty{background:transparent}
+.nxe-cell.med{height:44px;font:800 13px var(--nx-font);box-shadow:inset 0 0 0 1.5px var(--nx-ink)}
+.nxe-hrow.med{font-weight:700;color:var(--nx-ink)}.nxe-sep{grid-column:1/-1;height:6px}
+@keyframes nxefade{from{opacity:0;transform:scale(.92)}}
+.nxe-key{display:flex;align-items:center;gap:10px;margin-top:18px;font:500 12.5px var(--nx-font);color:var(--nx-soft)}
+.nxe-key i{display:block;width:140px;height:8px;border-radius:4px;background:linear-gradient(90deg,rgba(110,110,115,.6),rgba(110,110,115,.05) 45%,color-mix(in srgb,var(--nx-accent) 10%,transparent) 55%,var(--nx-accent))}
+@media(max-width:640px){.nxe-heat{grid-template-columns:34px repeat(12,minmax(0,1fr));gap:2px}.nxe-cell{height:30px;font-size:0;border-radius:5px}.nxe-cell.med{font-size:0}.nxe-hcol{font-size:10px}.nxe-hrow{font-size:10.5px}.nxe-stats b{font-size:22px}}
