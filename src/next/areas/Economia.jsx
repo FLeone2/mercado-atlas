@@ -504,7 +504,7 @@ export default function Economia() {
           <LegacyModels view="regional" dedupe heading={<h3 className="nxo-sec">Modelo regional, dependência espacial (Moran) e tabelas</h3>} />
         </>}
         {view === 'economia' && <LegacyModels view="economy" heading={<h3 className="nxo-sec">Defasagens, crédito real, IPCA e PNAD</h3>} />}
-        {view === 'simulacoes' && <LegacyModels view="simulations" heading={<h3 className="nxo-sec">Superfície de resposta de dois fatores</h3>} />}
+        {view === 'simulacoes' && <LegacyModels view="simulations" />}
         {view === 'tecnicas' && <LegacyModels view="diagnostic" heading={<h3 className="nxo-sec">Diagnóstico do acervo, cobertura e comprovantes</h3>} />}
       </div>
     </>

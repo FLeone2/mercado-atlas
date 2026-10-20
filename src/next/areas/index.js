@@ -9,7 +9,7 @@ import Animacoes from './Animacoes.jsx';
 
 // slug is what goes in the URL (?a=slug); tone is the navigation bar colour at the top of the page.
 export const AREAS = [
-  { slug: 'panorama', label: 'Panorama', Component: Panorama, tone: 'dark' },
+  { slug: 'panorama', label: 'Panorama', Component: Panorama, tone: 'light' },
   { slug: 'evolucao', label: 'Evolução', Component: Evolucao, tone: 'light' },
   { slug: 'concorrencia', label: 'Concorrência', Component: Concorrencia, tone: 'light' },
   { slug: 'segmentos', label: 'Segmentos', Component: Segmentos, tone: 'light' },
