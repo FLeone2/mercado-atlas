@@ -3,10 +3,12 @@ import { engine } from 'virtual:market';
 import { useNext } from '../ctx.js';
 import { Diverging } from '../charts.jsx';
 import { UF_NAMES, fmt, monthLabel, pct, pp, rangeText, signed } from '../format.js';
-import { Chapter } from '../ui.jsx';
-import { BarRows, MonthLine, Pareto } from './explorar-charts.jsx';
+import { AreaHead, Block } from '../ui.jsx';
+import LegacyTab from '../LegacyTab.jsx';
+import { BarRows, MonthLine, MultiLine, Pareto } from './explorar-charts.jsx';
 import { arrow, groupLabel } from './segmentos-charts.jsx';
 import './explorar.css';
+import './explorar-skin.css';
 
 /* art: artigo do plural ("os"/"as"); f: feminino */
 const DIMS = [
@@ -37,10 +39,11 @@ const tone = x => (x == null || !Number.isFinite(x) || Math.abs(x) < .0005 ? '' 
 const csvNum = (x, d = 2) => (x == null || !Number.isFinite(x) ? '' : String(+x.toFixed(d)).replace('.', ','));
 const csvText = s => (/[;"\n\r]/.test(s) ? '"' + String(s).replace(/"/g, '""') + '"' : String(s));
 
-export default function Explorar() {
+function Perguntas() {
   const { filters, setFilter, model, market, geoless, hist, base, cityName } = useNext();
   const [measure, setMeasure] = useState('volume'), [dimId, setDimId] = useState('marca'), [topN, setTopN] = useState(10), [q, setQ] = useState('');
   const [view, setView] = useState('bars'), [sel, setSel] = useState(null), [dir, setDir] = useState('up');
+  const [mode, setMode] = useState('detail'), [cmp, setCmp] = useState([]), [cmpMeasure, setCmpMeasure] = useState('abs');
   const dim = DIMS.find(d => d.id === dimId);
   const src = BRAND.includes(dimId) ? market ?? model : GEO.includes(dimId) ? geoless ?? model : model;
   const dimFiltered = list(filters[dimId]);
@@ -78,8 +81,9 @@ export default function Explorar() {
     return { ...r, bar: r.count, value: fmt(r.count), sub: r.changeRate == null ? '' : arrow(r.changeRate), subTone: tone(r.changeRate), title: pct(r.share, 2) + ' do mercado' };
   }), [shown, measure]);
 
-  const pick = r => setSel(s => (s === r.name ? null : r.name));
-  const changeDim = id => { setDimId(id); setSel(null); setQ(''); };
+  const pick = r => (mode === 'compare' ? setCmp(c => (c.includes(r.name) ? c.filter(x => x !== r.name) : c.length >= 5 ? c : [...c, r.name])) : setSel(s => (s === r.name ? null : r.name)));
+  const changeDim = id => { setDimId(id); setSel(null); setCmp([]); setQ(''); };
+  const changeMode = m => { setMode(m); if (m === 'compare' && sel && !cmp.length) setCmp([sel]); };
   const selRow = sel ? byCount.find(r => r.name === sel) : null;
 
   /* ---------- história mensal do item escolhido ---------- */
@@ -87,10 +91,11 @@ export default function Explorar() {
   const hsrc = dimId === 'uf' ? ufHist : hist;
   const histFilters = useMemo(() => ({ ...filters, [dimId]: 'all' }), [filters, dimId]);
   const histOk = HIST_DIMS.includes(dimId);
-  const series = useMemo(() => {
-    if (!sel || !histOk || !hsrc?.data || !hsrc.data.dimensions.includes(dimId)) return null;
-    return engine.historyMonthly(hsrc.data, histFilters, dimId).filter(m => m.complete).map(m => ({ month: m.month, value: m.groups.get(sel) ?? 0 }));
-  }, [sel, histOk, hsrc?.data, histFilters, dimId]);
+  const monthly = useMemo(() => (histOk && hsrc?.data && hsrc.data.dimensions.includes(dimId) ? engine.historyMonthly(hsrc.data, histFilters, dimId).filter(m => m.complete) : null), [histOk, hsrc?.data, histFilters, dimId]);
+  const series = useMemo(() => (sel && monthly ? monthly.map(m => ({ month: m.month, value: m.groups.get(sel) ?? 0 })) : null), [sel, monthly]);
+  const COLORS = ['#2f6fed', '#e8a317', '#0f9d8a', '#8e5cf0', '#d9558f'];
+  const cmpRows = useMemo(() => cmp.map((n, i) => ({ ...byCount.find(r => r.name === n), name: n, color: COLORS[i] })).filter(r => r.label), [cmp, byCount]);
+  const cmpSeries = useMemo(() => (monthly ? cmpRows.map(r => ({ name: r.name, label: r.label, color: r.color, points: monthly.map(m => { const v = m.groups.get(r.name) ?? 0; return { month: m.month, value: cmpMeasure === 'share' ? (m.count > 0 ? v / m.count : 0) : v }; }) })) : null), [monthly, cmpRows, cmpMeasure]);
   const peak = series?.reduce((a, p) => (p.value > (a?.value ?? -1) ? p : a), null);
   const ignored = engine.historyPlan(dimId === 'uf' ? { ...histFilters, uf: ['XX'] } : histFilters).ignoredLabels;
 
@@ -137,14 +142,14 @@ export default function Explorar() {
     const losses = [...pool].sort((a, b) => a.shareChange - b.shareChange).slice(0, 5).filter(r => r.shareChange < -.0003);
     return { gains, losses, rows: [...gains, ...[...losses].reverse()].map(r => ({ name: r.name, label: r.label, value: r.shareChange, text: pp(r.shareChange) })) };
   }, [byCount]);
-  const jump = r => { setSel(r.name); setMeasure('volume'); document.getElementById('exp-ranking')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); };
+  const jump = r => { setMode('detail'); setSel(r.name); setMeasure('volume'); document.querySelector('.nxx-main')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); };
 
   const filtered = sel != null && dimFiltered.includes(sel);
   const gender = dim.f ? 'a' : 'o';
 
   return (
-    <>
-      <Chapter id="exp-ranking" kicker="Explorar · pergunte o que quiser" title={title} lede={src ? lede : undefined}>
+    <div className="nxx-view nx-grid">
+      <Block className="nx-c12 nxx-main" title={title} caption={src ? lede : undefined}>
         <div className="nxx-sentence" role="group" aria-label="Pergunta">
           <span>Mostrar</span>
           <label className="nxx-pill">{MEASURES.find(m => m[0] === measure)[1]}{CHEV}<select value={measure} onChange={e => setMeasure(e.target.value)} aria-label="Medida">{MEASURES.map(([id, t]) => <option key={id} value={id}>{t}</option>)}</select></label>
@@ -156,15 +161,16 @@ export default function Explorar() {
           {measure === 'change' && <div className="nxx-seg" role="group" aria-label="Sentido da variação"><button type="button" aria-pressed={dir === 'up'} onClick={() => setDir('up')}>Crescem mais</button><button type="button" aria-pressed={dir === 'down'} onClick={() => setDir('down')}>Caem mais</button></div>}
           <div className="nxx-search"><input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder={`Buscar entre ${fmt(ranked.length)} ${dim.plural}`} aria-label={'Buscar ' + dim.sing} /></div>
           <div className="nxx-seg grow" role="group" aria-label="Formato"><button type="button" aria-pressed={view === 'bars'} onClick={() => setView('bars')}>Barras</button><button type="button" aria-pressed={view === 'table'} onClick={() => setView('table')}>Tabela</button></div>
+          <div className="nxx-seg" role="group" aria-label="Modo de seleção"><button type="button" aria-pressed={mode === 'detail'} onClick={() => changeMode('detail')}>Detalhar um</button><button type="button" aria-pressed={mode === 'compare'} onClick={() => changeMode('compare')}>Comparar até 5</button></div>
           <button type="button" className="nxx-btn ghost" onClick={exportCsv} disabled={!shown.length}>Baixar CSV</button>
         </div>
-        <div className="nx-card">
+        <div className="nxx-body">
           {!src ? <div className="nxx-skel" /> : (
             <div className={'nxx-split' + (view === 'table' ? ' stack' : '')}>
               <div>
                 {dimFiltered.length > 0 && <p className="nx-note" style={{ marginTop: 0, marginBottom: 14 }}>Há filtro de {dim.sing} ativo ({dimFiltered.slice(0, 3).map(labelOf).join(', ')}{dimFiltered.length > 3 ? '…' : ''}): a lista mostra só o recorte.</p>}
                 {!shown.length ? <div className="nxx-empty">{q ? `Nenhum resultado para “${q}”.` : measure === 'change' ? 'Sem itens com período anterior para comparar.' : 'Nenhum item neste recorte.'}</div>
-                  : view === 'bars' ? <BarRows rows={rows} selected={sel} onPick={pick} tone={measure} max={scaleMax} />
+                  : view === 'bars' ? <BarRows rows={rows} selected={mode === 'compare' ? cmp : sel} colors={mode === 'compare' ? Object.fromEntries(cmpRows.map(r => [r.name, r.color])) : null} onPick={pick} tone={measure} max={scaleMax} />
                     : (
                       <div className="nxx-tablewrap"><table className="nxx-table">
                         <thead><tr><th>#</th><th>{dim.label[0].toUpperCase() + dim.label.slice(1)}</th><th>Emplacamentos</th><th>Participação</th><th>Período anterior</th><th>Variação</th><th>Δ participação</th></tr></thead>
@@ -173,47 +179,96 @@ export default function Explorar() {
                     )}
                 {shown.length > 0 && <p className="nxx-more">{q ? `${fmt(matches.length)} resultado${matches.length === 1 ? '' : 's'} para “${q}”. ` : ''}Mostrando {fmt(shown.length)} de {fmt(q ? matches.length : ranked.length)}. O CSV leva exatamente estas linhas.</p>}
               </div>
-              <aside className={'nxx-detail' + (selRow ? '' : ' idle')} aria-live="polite">
-                {!selRow ? <div className="nxx-empty">Clique em {dim.f ? 'uma' : 'um'} {dim.sing} para ver {dim.f ? 'a história dela' : 'a história dele'} mês a mês e filtrar o painel.</div> : (
-                  <>
-                    <div className="k">{dim.label}</div>
-                    <h3>{selRow.label}</h3>
-                    <div className="nxx-stats">
-                      <div><small>Emplacamentos</small><b>{fmt(selRow.count)}</b></div>
-                      <div><small>Participação</small><b>{pct(selRow.share, 2)}</b></div>
-                      <div><small>Variação</small><b className={tone(selRow.changeRate)}>{selRow.changeRate == null ? '—' : signed(selRow.changeRate)}</b></div>
-                    </div>
-                    {!histOk ? <p className="nx-note">A série mensal de dez anos não existe para {dim.sing}: o histórico cobre marca, estado, grupo de modelos, combustível, propulsão, carroceria, porte, tipo de veículo e canal.</p>
-                      : !series ? <p className="nx-note">{hsrc?.error ? hsrc.error : !hsrc?.data ? 'Carregando a série mensal…' : `A série mensal não traz ${dim.sing} quando há um estado ou região filtrado.`}</p>
-                        : series.every(p => p.value === 0) ? <p className="nx-note">Sem emplacamentos mensais deste item no histórico.</p>
-                          : <><MonthLine key={dimId + sel} points={series} label={selRow.label} />{peak && <p className="nx-note">Maior mês: {monthLabel(peak.month)}, com {fmt(peak.value)} emplacamentos. {ignored.length ? `Esta série não aplica: ${ignored.join(', ')}.` : ''}</p>}</>}
-                    <div className="nxx-actions">
-                      <button type="button" className="nxx-btn" onClick={() => setFilter(dimId, filtered ? 'all' : [sel])}>{filtered ? 'Remover filtro do painel' : 'Filtrar o painel por ' + (dim.f ? 'esta ' : 'este ') + dim.sing}</button>
-                      <button type="button" className="nxx-btn ghost" onClick={() => setSel(null)}>Fechar</button>
-                    </div>
-                  </>
-                )}
-              </aside>
+              {mode === 'compare' ? (
+                <aside className="nxx-detail" aria-live="polite">
+                  <div className="k">Comparar {dim.plural}</div>
+                  {!cmpRows.length ? <div className="nxx-empty">Clique em até 5 {dim.plural} na lista para colocá-{dim.f ? 'las' : 'los'} lado a lado.</div> : (
+                    <>
+                      <div className="nxx-seg" role="group" aria-label="Medida da comparação" style={{ marginBottom: 10 }}>
+                        <button type="button" aria-pressed={cmpMeasure === 'abs'} onClick={() => setCmpMeasure('abs')}>Volume mensal</button>
+                        <button type="button" aria-pressed={cmpMeasure === 'share'} onClick={() => setCmpMeasure('share')}>Participação</button>
+                      </div>
+                      {!histOk ? <p className="nx-note">A série mensal de dez anos não existe para {dim.sing}; abaixo, a comparação do período.</p>
+                        : !cmpSeries ? <p className="nx-note">{hsrc?.error ? hsrc.error : !hsrc?.data ? 'Carregando as séries mensais…' : `A série mensal não traz ${dim.sing} quando há um estado ou região filtrado.`}</p>
+                          : <MultiLine series={cmpSeries} share={cmpMeasure === 'share'} />}
+                      <div className="nxx-legend">{cmpRows.map(r => <button key={r.name} type="button" onClick={() => setCmp(c => c.filter(x => x !== r.name))} title="Remover da comparação"><i style={{ background: r.color }} />{r.label} ×</button>)}</div>
+                      <div className="nxx-tablewrap sm"><table className="nxx-table">
+                        <thead><tr><th>{dim.label[0].toUpperCase() + dim.label.slice(1)}</th><th>Emplac.</th><th>Part.</th><th>Var.</th><th>Δ part.</th></tr></thead>
+                        <tbody>{cmpRows.map(r => <tr key={r.name}><td><i className="nxx-dot" style={{ background: r.color }} />{r.label}</td><td>{fmt(r.count)}</td><td>{pct(r.share, 2)}</td><td className={tone(r.changeRate)}>{r.changeRate == null ? '—' : signed(r.changeRate)}</td><td className={tone(r.shareChange)}>{r.shareChange == null ? '—' : pp(r.shareChange, 2)}</td></tr>)}</tbody>
+                      </table></div>
+                      <div className="nxx-actions"><button type="button" className="nxx-btn ghost" onClick={() => setCmp([])}>Limpar comparação</button></div>
+                    </>
+                  )}
+                </aside>
+              ) : (
+                <aside className={'nxx-detail' + (selRow ? '' : ' idle')} aria-live="polite">
+                  {!selRow ? <div className="nxx-empty">Clique em {dim.f ? 'uma' : 'um'} {dim.sing} para ver {dim.f ? 'a história dela' : 'a história dele'} mês a mês e filtrar o painel.</div> : (
+                    <>
+                      <div className="k">{dim.label}</div>
+                      <h3>{selRow.label}</h3>
+                      <div className="nxx-stats">
+                        <div><small>Emplacamentos</small><b>{fmt(selRow.count)}</b></div>
+                        <div><small>Participação</small><b>{pct(selRow.share, 2)}</b></div>
+                        <div><small>Variação</small><b className={tone(selRow.changeRate)}>{selRow.changeRate == null ? '—' : signed(selRow.changeRate)}</b></div>
+                      </div>
+                      {!histOk ? <p className="nx-note">A série mensal de dez anos não existe para {dim.sing}: o histórico cobre marca, estado, grupo de modelos, combustível, propulsão, carroceria, porte, tipo de veículo e canal.</p>
+                        : !series ? <p className="nx-note">{hsrc?.error ? hsrc.error : !hsrc?.data ? 'Carregando a série mensal…' : `A série mensal não traz ${dim.sing} quando há um estado ou região filtrado.`}</p>
+                          : series.every(p => p.value === 0) ? <p className="nx-note">Sem emplacamentos mensais deste item no histórico.</p>
+                            : <><MonthLine key={dimId + sel} points={series} label={selRow.label} />{peak && <p className="nx-note">Maior mês: {monthLabel(peak.month)}, com {fmt(peak.value)} emplacamentos. {ignored.length ? `Esta série não aplica: ${ignored.join(', ')}.` : ''}</p>}</>}
+                      <div className="nxx-actions">
+                        <button type="button" className="nxx-btn" onClick={() => setFilter(dimId, filtered ? 'all' : [sel])}>{filtered ? 'Remover filtro do painel' : 'Filtrar o painel por ' + (dim.f ? 'esta ' : 'este ') + dim.sing}</button>
+                        <button type="button" className="nxx-btn ghost" onClick={() => setSel(null)}>Fechar</button>
+                      </div>
+                    </>
+                  )}
+                </aside>
+              )}
             </div>
           )}
         </div>
-      </Chapter>
+      </Block>
 
       {src && N >= 6 && (
-        <Chapter id="exp-concentracao" kicker={'Concentração · ' + dim.plural}
-          title={k50 === 1 ? <><em>{byCount[0].label}</em> sozinh{gender} tem metade dos emplacamentos.</> : <><em>{k50}</em> de {fmt(N)} {dim.plural} somam metade dos emplacamentos.</>}
-          lede={`Para chegar a 80% são necessári${dim.f ? 'as' : 'os'} ${fmt(k80)} (${pct(k80 / N, k80 / N < .1 ? 1 : 0)} da lista). A curva acumula do maior para o menor; a escala horizontal é logarítmica, porque quase tudo acontece no começo.`}>
-          <div className="nx-card"><Pareto items={pareto} label={dim.plural} /><p className="nx-note">Considera os {fmt(N)} {dim.plural} com emplacamentos em {rangeText(src.range)}, e não apenas os que aparecem na lista acima.</p></div>
-        </Chapter>
+        <Block className="nx-c6" title={k50 === 1 ? <><em>{byCount[0].label}</em> sozinh{gender} tem metade dos emplacamentos.</> : <><em>{k50}</em> de {fmt(N)} {dim.plural} somam metade dos emplacamentos.</>}
+          caption={`Para chegar a 80% são necessári${dim.f ? 'as' : 'os'} ${fmt(k80)} (${pct(k80 / N, k80 / N < .1 ? 1 : 0)} da lista). Curva acumulada do maior ao menor; escala horizontal logarítmica.`}>
+          <Pareto items={pareto} label={dim.plural} />
+          <p className="nx-note">Considera os {fmt(N)} {dim.plural} com emplacamentos em {rangeText(src.range)}, e não apenas os da lista.</p>
+        </Block>
       )}
 
       {src && moves.rows.length > 1 && (
-        <Chapter id="exp-movimentos" kicker={'Quem está mudando · ' + dim.plural}
-          title={<>{moves.gains[0] ? <>{moves.gains[0].label} ganhou mais espaço (<em className="up">{pp(moves.gains[0].shareChange)}</em>)</> : 'Sem ganhos relevantes'}{moves.losses[0] ? <>; {moves.losses[0].label} perdeu mais (<em className="down">{pp(moves.losses[0].shareChange)}</em>)</> : ''}.</>}
-          lede={`Variação da participação sobre o período anterior, entre ${dim.art} ${dim.plural} com peso suficiente no total. Clique para abrir o item no explorador.`}>
-          <div className="nx-card"><Diverging rows={moves.rows} onPick={jump} /></div>
-        </Chapter>
+        <Block className="nx-c6" title={<>{moves.gains[0] ? <>{moves.gains[0].label} ganhou mais espaço (<em className="up">{pp(moves.gains[0].shareChange)}</em>)</> : 'Sem ganhos relevantes'}{moves.losses[0] ? <>; {moves.losses[0].label} perdeu mais (<em className="down">{pp(moves.losses[0].shareChange)}</em>)</> : ''}.</>}
+          caption={`Variação da participação sobre o período anterior, entre ${dim.art} ${dim.plural} com peso suficiente. Clique para abrir no explorador.`}>
+          <Diverging rows={moves.rows} onPick={jump} />
+        </Block>
       )}
+    </div>
+  );
+}
+
+const TABS = [['perguntas', 'Perguntas rápidas'], ['construtor', 'Construtor de gráficos'], ['catalogo', 'Catálogo de formatos'], ['estrutura', 'Estrutura do mercado']];
+const readTab = () => { try { const v = new URLSearchParams(location.search).get('x'); return TABS.some(t => t[0] === v) ? v : 'perguntas'; } catch { return 'perguntas'; } };
+
+export default function Explorar() {
+  const { model, market, geoless } = useNext();
+  const [tab, setTab] = useState(readTab);
+  const change = v => {
+    setTab(v);
+    try { const p = new URLSearchParams(location.search); p.set('x', v); history.replaceState(history.state, '', location.pathname + '?' + p.toString()); } catch { /* the address bar is optional */ }
+  };
+  const src = market ?? model, groups = src?.groups?.marca ?? [];
+  const sorted = useMemo(() => [...groups].filter(g => g.count > 0).sort((a, b) => b.count - a.count), [groups]);
+  const top5 = sorted.slice(0, 5).reduce((s, g) => s + g.count, 0) / (src?.total || 1);
+  const finding = src && sorted.length > 5 ? `${fmt(src.total)} emplacamentos em ${rangeText(src.range)}; as 5 maiores marcas somam ${pct(top5, 0)} entre ${fmt(sorted.length)}. Pergunte, compare itens lado a lado, monte gráficos ou abra o catálogo.` : 'Pergunte, compare itens lado a lado, monte gráficos e abra o catálogo de formatos.';
+  return (
+    <>
+      <AreaHead title="Explorar" finding={finding} tabs={TABS} tab={tab} onTab={change} />
+      <div className="nx-wrap nxx-area">
+        {tab === 'perguntas' && <Perguntas />}
+        {tab === 'construtor' && <LegacyTab tab="explore" className="nxx-leg-builder" />}
+        {tab === 'catalogo' && <LegacyTab tab="explore" className="nxx-leg-catalog" />}
+        {tab === 'estrutura' && <LegacyTab tab="structure" />}
+      </div>
     </>
   );
 }

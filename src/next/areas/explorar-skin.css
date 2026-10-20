@@ -1,0 +1,38 @@
+/* Explorar · pele das telas do Atlas atual hospedadas aqui (construtor, catálogo, estrutura).
+   Escopo: .nxl[data-legacy-tab="explore"] e ="structure". */
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]){margin-top:0}
+/* qual metade da tela do Atlas atual cada sub-aba mostra */
+.nx .nxl.nxx-leg-builder .catalog-extras{display:none}
+.nx .nxl.nxx-leg-catalog .am-exploration{display:none}
+/* títulos repetidos: a sub-aba já diz o que é */
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) :is(.am-explore-hero h2,.catalog-extras-head){display:none}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .am-explore-hero{margin:0 0 4px;min-height:0}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .am-explore-hero .ax-segmented:not(:has(button:nth-child(2))){display:none}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .am-explore-hero:not(:has(.ax-segmented button:nth-child(2))){display:none}
+/* o cartão do catálogo já é o cartão: sem moldura dupla */
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .catalog-extras{border:0;background:none;padding:0;margin:0;box-shadow:none}
+/* caixas de hairline viram faixas suaves */
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) :is(.catalog-controls,.catalog-scope,.catalog-data,.catalog-notes,.am-explore-builder,.am-explore-local-controls,.am-explore-cell-details,.am-explore-members,.am-ranking-highlights,.am-scope-alert,.am-explore-presets .am-footnote){
+  border:0;border-radius:18px;background:color-mix(in srgb,var(--nx-ink) 4%,transparent);padding:14px 16px;margin-left:0;margin-right:0}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .catalog-notes{background:none;padding:0}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .am-explore-presets .am-footnote{background:none;padding:0}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) :is(.am-explore-builder,.catalog-controls){display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) :is(.am-explore-builder,.catalog-controls)>*{flex:1 1 180px;min-width:0}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .catalog-controls label{display:flex;flex-direction:column;gap:5px;font:500 11.5px var(--nx-font);color:var(--nx-soft)}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .catalog-controls :is(select,input){width:100%;box-sizing:border-box}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .catalog-search{flex:2 1 260px}
+/* “Nota”, “Como ler”: botões de informação neutros */
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"],[data-legacy-tab="models"]) .ax-info{color:var(--nx-soft);font:500 12px/1 var(--nx-font);letter-spacing:0;text-transform:none}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"],[data-legacy-tab="models"]) .ax-info:is(:hover,[aria-expanded="true"]){color:var(--nx-ink)}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"],[data-legacy-tab="models"]) .ax-info>span{font:600 11px/1 var(--nx-font);font-style:normal;border-color:currentColor}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"],[data-legacy-tab="models"]) .am-note-info{margin:0 0 8px}
+/* resumo, presets e detalhes */
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .am-explore-presets{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .am-explore-summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin:14px 0 10px}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .am-explore-summary strong{font:800 clamp(24px,2.4vw,32px)/1 var(--nx-font);letter-spacing:-.04em}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) details>summary{cursor:pointer;list-style:none}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"],[data-legacy-tab="models"]) details>summary::-webkit-details-marker{display:none}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .catalog-data>summary::before{color:var(--nx-soft)}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .catalog-period,.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .am-footnote{font:500 12.5px/1.45 var(--nx-font);color:var(--nx-soft)}
+.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .am-loading,.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) .am-empty{border:0;border-radius:22px;background:var(--nx-card)}
+@media(max-width:720px){.nx .nxl:is([data-legacy-tab="explore"],[data-legacy-tab="structure"]) :is(.am-explore-builder,.catalog-controls)>*{flex-basis:100%}}

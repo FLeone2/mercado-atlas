@@ -239,30 +239,30 @@ function Marcas({ brandMonthly, brandSel, setFilter, ignored, note }) {
   return (
     <>
       {ri && fa && (
-        <Block className="nx-c7" title={<>{name(ri.name)} {ri.then < .0005 ? 'saiu de quase zero' : <>foi de {pct(ri.then)}</>} para <em className="up">{pct(ri.now)}</em> em cinco anos; {name(fa.name)}, de {pct(fa.then)} para <em className="down">{pct(fa.now)}</em>.</>}
-          lede={`Participação no acumulado de 12 meses, de ${since} a ${from}. ${ri.delta > 0 ? name(ri.name) + ' ganhou ' + pp(ri.delta).replace('+', '') : ''}${fa.delta < 0 ? (ri.delta > 0 ? ' e ' : '') + name(fa.name) + ' perdeu ' + pp(fa.delta).replace('−', '') : ''}, as maiores variações entre marcas com ao menos 1% em algum dos dois momentos.`}>
-          <div className="nx-card">
-            <TimeLines months={b.months} series={lines} fmtY={yFmt} yMax={undefined} label="Participação das principais marcas ao longo do tempo" />
-            <p className="nx-note">Acumulado de 12 meses de cada marca dividido pelo mercado do recorte (todas as marcas){sel ? '; a marca filtrada aparece em destaque' : ''}. A linha mais forte é quem mais ganhou; a escura, quem mais perdeu.{note(ignored)}</p>
-          </div>
-          {div.length > 1 && (
-            <div className="nx-card" style={{ marginTop: 16 }}>
-              <h3 className="nx-h3">Variação da participação em cinco anos</h3>
-              <Diverging rows={div} onPick={r => setFilter('marca', brandSel.length === 1 && brandSel[0] === r.name ? 'all' : [r.name])} />
-              <p className="nx-note">Pontos percentuais entre {since} e {from}, acumulado de 12 meses. Clique numa marca para filtrar o painel.</p>
-            </div>
-          )}
-        </Chapter>
+        <Block className="nx-c7" title={<>{name(ri.name)} {ri.then < .0005 ? 'saiu de quase zero' : <>foi de {pct(ri.then)}</>} para <em className="up">{pct(ri.now)}</em> em cinco anos; {name(fa.name)}, de {pct(fa.then)} para <em className="down">{pct(fa.now)}</em></>}
+          caption={`Participação no acumulado de 12 meses, de ${since} a ${from}. Linha forte: quem mais ganhou; escura: quem mais perdeu.`}>
+          <TimeLines months={b.months} series={lines} fmtY={yFmt} height={320} label="Participação das principais marcas ao longo do tempo" />
+          <p className="nx-note">Acumulado de 12 meses de cada marca dividido pelo mercado do recorte (todas as marcas){sel ? '; a marca filtrada aparece em destaque' : ''}.{note(ignored)}</p>
+        </Block>
+      )}
+      {div.length > 1 && (
+        <Block className="nx-c5" title="Variação da participação em cinco anos" caption={`Pontos percentuais entre ${since} e ${from}. Clique numa marca para filtrar o painel.`}>
+          <Diverging rows={div} onPick={r => setFilter('marca', brandSel.length === 1 && brandSel[0] === r.name ? 'all' : [r.name])} />
+        </Block>
       )}
       {hNow != null && hThen != null && (
-        <Chapter id="concentracao" kicker="Concentração" title={<>HHI de <em>{fmt(hNow)}</em>: mercado {level(hNow)}{Math.abs(hDelta) < 25 ? ', estável' : <>, <em className={hDelta < 0 ? 'up' : 'down'}>{hDelta < 0 ? 'menos' : 'mais'} concentrado</em></>} que há cinco anos.</>}
-          lede={`Há cinco anos o índice era ${fmt(hThen)}. Equivale hoje a cerca de ${Math.round(eq)} marcas de mesmo tamanho dividindo o mercado. O índice soma o quadrado da participação de cada marca: abaixo de 1.500 é pouco concentrado; de 1.500 a 2.500, moderado; acima disso, muito concentrado.`}>
-          <div className="nx-card">
-            <TimeLines months={b.months} series={[{ name: 'HHI', color: 'var(--nx-accent)', values: hVals, width: 4 }]} endLabels={false} yMax={Math.max(1500, Math.ceil(Math.max(...hVals.filter(v => v != null)) * 1.15 / 250) * 250)}
+        <>
+          <Block className="nx-c7" title={<>HHI de <em>{fmt(hNow)}</em>: mercado {level(hNow)}{Math.abs(hDelta) < 25 ? ', estável' : <>, <em className={hDelta < 0 ? 'up' : 'down'}>{hDelta < 0 ? 'menos' : 'mais'} concentrado</em></>} que há cinco anos</>}
+            caption="Índice Herfindahl-Hirschman: soma do quadrado da participação de cada marca. Abaixo de 1.500 é pouco concentrado; de 1.500 a 2.500, moderado; acima, muito concentrado.">
+            <TimeLines months={b.months} series={[{ name: 'HHI', color: 'var(--nx-accent)', values: hVals, width: 3.6 }]} endLabels={false} height={300} yMax={Math.max(1500, Math.ceil(Math.max(...hVals.filter(v => v != null)) * 1.15 / 250) * 250)}
               bands={[{ from: 0, to: 1500, label: 'Pouco concentrado' }, { from: 1500, to: 2500, label: 'Moderado', tone: 'warn' }]} marks={hhiMarks} label="Índice de concentração de mercado ao longo do tempo" />
-            <p className="nx-note">Índice Herfindahl-Hirschman calculado com a participação de todas as marcas no acumulado de 12 meses. Menor é mais disputado.{note(ignored)}</p>
+            <p className="nx-note">Calculado com todas as marcas no acumulado de 12 meses. Menor é mais disputado.{note(ignored)}</p>
+          </Block>
+          <div className="nx-c5 nxe-tiles">
+            <Tile k="HHI hoje" sub={`Há cinco anos: ${fmt(hThen)}`}>{fmt(hNow)}</Tile>
+            <Tile k="Equivale a" sub="marcas de mesmo tamanho dividindo o mercado">{Math.round(eq)}</Tile>
           </div>
-        </Chapter>
+        </>
       )}
     </>
   );

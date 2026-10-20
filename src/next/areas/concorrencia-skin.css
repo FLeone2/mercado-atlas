@@ -8,7 +8,7 @@
 .nxc-o1{order:1}.nxc-o2{order:2}.nxc-o3{order:3}.nxc-o4{order:4}
 /* o que cada aba mostra: 1 leitura competitiva · 2 ranking · 3 ganhos e perdas · 4 decomposição · 5 modelo×modelo · 6 bump · 7 fluxo · 8 conexões */
 .nxc-grid[data-v="geral"] .am-competition-view>:nth-child(4){display:block;order:4;grid-column:span 6}
-.nxc-grid[data-v="geral"] .am-competition-view>:nth-child(1){display:block;order:5}
+.nxc-grid[data-v="geral"] .am-competition-view>:nth-child(1){display:contents}
 .nxc-grid[data-v="comparar"] .am-competition-view>:nth-child(5){display:block;order:2}
 .nxc-grid[data-v="comparar"] .am-competition-view>:nth-child(3){display:block;order:3}
 .nxc-grid[data-v="ranking"] .am-competition-view>:nth-child(2){display:block;order:2}
@@ -35,3 +35,82 @@
 .nxc-grid .nx-card .nx-note{margin-top:12px;font-size:12.5px}
 .nxc-bump .nxc-bump-l{font:600 12.5px var(--nx-font)}.nxc-bump .nxc-bump-n{font:700 11px var(--nx-font)}
 .nxc-bump-row{transition:opacity .15s}
+
+/* leitura competitiva: cabeçalho + cartões viram células da grade */
+.nxc-grid .cr-head{grid-column:1/-1;order:5;margin:8px 0 -4px;align-items:center}
+.nxc-grid .cr-head h2{font:700 18px/1.25 var(--nx-font);letter-spacing:-.02em}
+.nxc-grid .cr-head p{font:500 13.5px var(--nx-font);color:var(--nx-soft);margin:2px 0 0}
+.nxc-grid .cr-grid2{display:contents}
+.nxc-grid .cr .cr-card{grid-column:span 6;order:6;margin:0;min-width:0;gap:6px}
+.nxc-grid .cr>.cr-card{grid-column:1/-1;order:7}
+.nxc-grid .cr-card h3{font:700 18px/1.25 var(--nx-font);letter-spacing:-.02em}
+.nxc-grid .cr-sub{font:500 13.5px/1.45 var(--nx-font);color:var(--nx-soft)}
+@media(max-width:1100px){.nxc-grid .cr .cr-card{grid-column:1/-1}}
+/* pílulas do Atlas atual (.tbm-seg) com a forma nova */
+.nxc-grid .tbm-seg{display:inline-flex;flex-wrap:wrap;gap:2px;padding:3px;border:0;border-radius:999px;background:color-mix(in srgb,var(--nx-ink) 7%,transparent)}
+.nxc-grid .tbm-seg button{border:0;border-radius:999px;padding:7px 14px;font:500 13px var(--nx-font);color:var(--nx-soft);background:transparent;cursor:pointer}
+.nxc-grid .tbm-seg button[aria-pressed="true"]{background:var(--nx-card);color:var(--nx-ink);box-shadow:0 1px 3px rgba(0,0,0,.16)}
+.nxc-grid .hx-seg{display:inline-flex;flex-wrap:wrap;gap:2px;padding:3px;border:0;border-radius:999px;background:color-mix(in srgb,var(--nx-ink) 7%,transparent)}
+.nxc-grid .hx-seg button{border:0;border-radius:999px;padding:7px 14px;font:500 13px var(--nx-font);color:var(--nx-soft);background:transparent;cursor:pointer}
+.nxc-grid .hx-seg button[aria-pressed="true"]{background:var(--nx-card);color:var(--nx-ink);box-shadow:0 1px 3px rgba(0,0,0,.16)}
+.nxc-grid .am-competition-view>:nth-child(3) .ax-section-head{display:none}
+.nxc-grid .am-competition-view>.ax-section{padding:0}
+.nxc-grid .ax-section-head{margin-bottom:10px}
+.nx .nxc-grid .nxl .ax-section-title{font:700 18px/1.25 var(--nx-font);letter-spacing:-.02em}
+
+/* ranking (lista · conectado · pirâmide): controles numa linha, sem caixas de contorno */
+.nxc-grid[data-v="ranking"] .am-ranking-list{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.nxc-grid .am-ranking-list>*{margin:0}
+.nxc-grid .am-ranking-list>nav,.nxc-grid .am-ranking-list>.am-ranking-compact-heading,.nxc-grid .am-ranking-list>article,.nxc-grid .am-ranking-list>footer,.nxc-grid .am-ranking-list>.am-ranking-chart,.nxc-grid .am-ranking-list>:not(label):not(details):not(.am-ranking-volume):not(.am-highlight-legend):not(nav):not(.am-ranking-compact-heading){flex:1 1 100%}
+.nxc-grid .am-ranking-compact-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.nxc-grid .am-ranking-compact-heading h2{font:700 18px/1.25 var(--nx-font);letter-spacing:-.02em;margin:0}
+.nxc-grid .am-ranking-compact-heading p{font:500 13.5px var(--nx-font);color:var(--nx-soft);margin:2px 0 0}
+.nxc-grid :is(.am-ranking-volume,.am-ranking-highlights,.am-ranking-footer,.am-ranking-methodology,.catalog-controls,.catalog-notes){border:0;background:none;box-shadow:none;border-radius:0}
+.nxc-grid .am-ranking-volume{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 12px;padding:0}
+.nxc-grid .am-ranking-volume>span{font:600 13px var(--nx-font);color:var(--nx-soft);align-self:center}
+.nxc-grid .am-ranking-volume input{width:110px}
+.nxc-grid .am-ranking-search{display:inline-flex;align-items:center;gap:8px;font:500 12.5px var(--nx-font);color:var(--nx-soft)}
+.nxc-grid .am-ranking-highlights{padding:0}
+.nxc-grid .am-ranking-highlights>summary{display:inline-flex;align-items:center;padding:8px 14px;border:1px solid var(--nx-line);border-radius:999px;background:var(--nx-card);cursor:pointer;list-style:none;font:500 13.5px var(--nx-font);color:var(--nx-ink)}
+.nxc-grid .am-ranking-highlights>summary::-webkit-details-marker{display:none}
+.nxc-grid .am-ranking-highlights[open]{flex:1 1 100%;padding:14px 18px;background:var(--nx-card);border-radius:20px}
+.nxc-grid .am-ranking-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 4px}
+.nxc-grid .am-brand-marker{border:0;background:color-mix(in srgb,var(--nx-ink) 7%,transparent);border-radius:999px;padding:4px 10px}
+.nxc-grid .am-highlight-legend{display:inline-flex;align-items:center;gap:8px;font:500 12.5px var(--nx-font);color:var(--nx-soft)}
+/* tabelas: sem contorno duplo dentro do cartão */
+.nxc-grid .am-ranking-full-scroll,.nxc-grid .am-ranking-full-table{border:0}
+.nxc-grid .am-ranking-full-scroll{max-height:620px;overflow:auto}
+/* controles do bump do painel e de Modelo contra modelo */
+.nxc-grid .catalog-controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end;padding:0 0 12px}
+.nxc-grid .catalog-panel .ax-info,.nxc-grid .ax-info{border:0;background:none;color:var(--nx-soft)}
+.nxc-grid .ax-info em,.nxc-grid .ax-info span{color:var(--nx-soft)}
+.nxc-ctl{flex-wrap:nowrap}
+@media(max-width:900px){.nxc-ctl{flex-wrap:wrap}}
+.nxc-grid .am-ranking-list{gap:12px 16px}
+.nxc-grid .am-ranking-compact-heading{margin-bottom:4px}
+.nxc-grid .am-ranking-search{white-space:nowrap}
+.nxc-grid details.catalog-data{border:0;background:none;padding:0;margin-top:10px}
+.nxc-grid details.catalog-data>summary{display:inline-flex;align-items:center;padding:8px 14px;border:1px solid var(--nx-line);border-radius:999px;cursor:pointer;list-style:none;font:500 13px var(--nx-font);color:var(--nx-soft)}
+.nxc-grid details.catalog-data>summary::-webkit-details-marker{display:none}
+.nxc-grid details.catalog-data[open]>summary{margin-bottom:12px}
+.nxc-grid .catalog-panel{padding:26px 28px}
+.nxc-grid .catalog-period{font:500 12.5px var(--nx-font);color:var(--nx-soft)}
+.nxc-grid .export-image-button{border:0;background:none;color:var(--nx-soft);font:500 12.5px var(--nx-font)}
+
+/* Sankey e conexões: uma única nota "Como ler", fontes e linhas no padrão novo */
+.nxc-grid .fs>.am-note-info{display:none}
+.nxc-grid .hx-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.nxc-grid .hx-head h2{font:700 18px/1.25 var(--nx-font);letter-spacing:-.02em;margin:0}
+.nxc-grid .am-note-info,.nxc-grid .hx-method{border:0;padding:0;margin:0;background:none}
+.nxc-grid .hx-insight{font:500 14px/1.45 var(--nx-font);color:var(--nx-soft);margin:0 0 10px}
+.nxc-grid .hx-cap{font:600 13px var(--nx-font);color:var(--nx-soft)}
+.nxc-grid details.hx-table-wrap{border:0;padding:0;margin-top:8px}
+.nxc-grid details.hx-table-wrap>summary{display:inline-flex;padding:8px 14px;border:1px solid var(--nx-line);border-radius:999px;cursor:pointer;list-style:none;font:500 13px var(--nx-font);color:var(--nx-soft)}
+.nxc-grid details.hx-table-wrap>summary::-webkit-details-marker{display:none}
+.nxc-grid .cc-chord,.nxc-grid .cc-chord *{font-family:var(--nx-font)}
+.nxc-grid .cc-chord{background:var(--nx-card);border-radius:28px;padding:26px 28px;align-items:center}
+.nxc-grid .cc-chord h3,.nxc-grid .cc-chord-focus strong,.nxc-grid .cc-chord-focus h3{font:700 22px/1.2 var(--nx-font);letter-spacing:-.02em}
+.nxc-grid .cc-chord-copy{border:0}
+.nxc-grid .cc-chord-copy>*{border-top:0!important;border-bottom:0!important}
+.nxc-grid .cc-chord-lede{font:500 14px/1.5 var(--nx-font);color:var(--nx-soft);margin:0 0 10px}
+.nxc-grid #connections-chord-heading .ax-section-head{margin-bottom:10px}

@@ -6,7 +6,7 @@ import { fmt, monthLabel } from '../format.js';
    rows = [{ name, label, ranks:[posição|null por mês], values:[volume por mês], focus }]. Passar o mouse destaca a marca; clicar filtra o painel. */
 export function Bump({ months, rows, maxRank, onPick, picked, label, measure = 'Emplacamentos' }) {
   const [hov, setHov] = useState(null), tip = useTip();
-  const n = months.length, W = 1000, rowH = 30, pad = { l: 128, r: 128, t: 34, b: 12 }, H = pad.t + pad.b + (maxRank - 1) * rowH + 18;
+  const n = months.length, W = 1000, rowH = 27, pad = { l: 128, r: 128, t: 34, b: 12 }, H = pad.t + pad.b + (maxRank - 1) * rowH + 18;
   const X = i => pad.l + (i / Math.max(1, n - 1)) * (W - pad.l - pad.r), Y = r => pad.t + (r - 1) * rowH;
   const path = ranks => {
     let d = '', prev = null;

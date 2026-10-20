@@ -1,15 +1,12 @@
 /* Segmentos — as peças do Atlas atual (segments, technology, origin) viram células da grade do painel.
    A cadeia .nxl > .nxl-host > section > div usa display:contents para que cada seção participe da grade .nxs-grid. */
-.nx .nxs-leg,.nx .nxs-leg>.nxl-host,.nx .nxs-leg>.nxl-host>section,.nx .nxs-leg>.nxl-host>section>div{display:contents}
-.nx .nxs-leg .nxl-host>section>div>*{grid-column:1/-1;min-width:0;align-self:start}
-.nx .nxs-leg .ax-section{padding:0;margin:0}
-.nx .nxs-leg .ax-section-head{margin:0 0 10px}
-.nx .nxs-leg .ax-section-title{font:700 18px/1.25 var(--nx-font);letter-spacing:-.02em}
-.nx .nxs-leg .am-explore-hero{display:none}
-.nx .nxs-leg .am-period-line{order:99;font:500 12px var(--nx-font);color:var(--nx-soft);letter-spacing:0;text-transform:none;display:flex;gap:14px;flex-wrap:wrap;padding:4px 4px 0}
-
-/* o que o Atlas atual mostra em ranking já está no bloco nativo */
-.nx .nxs-leg .am-origin-view-metrics{display:none}
+.nx .nxl.nxs-leg,.nx .nxl.nxs-leg>.nxl-host,.nx .nxl.nxs-leg>.nxl-host>section,.nx .nxl.nxs-leg>.nxl-host>section>div{display:contents}
+.nx :where(.nxl.nxs-leg .nxl-host>section>div>*){grid-column:1/-1;min-width:0;align-self:start}
+.nx .nxl.nxs-leg .ax-section{padding:0;margin:0}
+.nx .nxl.nxs-leg .ax-section-head{margin:0 0 10px}
+.nx .nxl.nxs-leg .ax-section-title{font:700 18px/1.25 var(--nx-font);letter-spacing:-.02em}
+.nx .nxl.nxs-leg .am-explore-hero{display:none}
+.nx .nxl.nxs-leg .am-period-line{order:99;font:500 12px var(--nx-font);color:var(--nx-soft);letter-spacing:0;text-transform:none;display:flex;gap:14px;flex-wrap:wrap;padding:4px 4px 0}
 
 /* notas e botões de informação: neutros */
 .nx .nxl .ax-info{color:var(--nx-soft);font:500 12.5px var(--nx-font)}
@@ -18,19 +15,35 @@
 
 @media(min-width:1101px){
   /* Porte e pirâmide */
-  .nx .nxs-grid[data-tab="porte"] .am-exploration{grid-column:span 7;order:3}
+  .nx .nxs-grid[data-tab="porte"] .am-exploration{grid-column:span 7;grid-row:span 2;order:3}
   .nx .nxs-grid[data-tab="porte"] #competition-bd-heading{grid-column:span 5;order:4}
   /* Propulsão */
   .nx .nxs-grid[data-tab="propulsao"] #technology-heading{grid-column:span 6;order:2}
   .nx .nxs-grid[data-tab="propulsao"] .hx-panel{order:3}
   /* Origem */
-  .nx .nxs-grid[data-tab="origem"] #origin-vehicle-comparison-heading{grid-column:span 6;order:4}
+  .nx .nxs-grid[data-tab="origem"] :is(#origin-vehicle-comparison-heading,#origin-overall-history-heading){grid-column:span 6}
 }
 .nx .nxs-grid[data-tab="porte"] .am-exploration{order:3}.nx .nxs-grid[data-tab="porte"] #competition-bd-heading{order:4}
 .nx .nxs-grid[data-tab="propulsao"] #technology-heading{order:2}.nx .nxs-grid[data-tab="propulsao"] .hx-panel{order:3}
-.nx .nxs-grid[data-tab="origem"] :is(#vehicle-origin-heading,.am-market-view-notice){order:3}
-.nx .nxs-grid[data-tab="origem"] #origin-vehicle-comparison-heading{order:4}
-.nx .nxs-grid[data-tab="origem"] .nxs-b-leaders{order:5}
-.nx .nxs-grid[data-tab="origem"] #origin-chinese-vehicle-heading{order:6}
-.nx .nxs-grid[data-tab="origem"] #brand-origin-heading{order:7}
-.nx .nxs-grid[data-tab="origem"] #origin-joint-audit-heading{order:8}
+.nx .nxs-grid[data-tab="origem"] #vehicle-origin-heading{order:1}.nx .nxs-grid[data-tab="origem"] .am-market-view-notice{order:2}
+.nx .nxs-grid[data-tab="origem"] #origin-vehicle-comparison-heading{order:3}.nx .nxs-grid[data-tab="origem"] #origin-overall-history-heading{order:4}
+.nx .nxs-grid[data-tab="origem"] #origin-chinese-vehicle-heading{order:5}.nx .nxs-grid[data-tab="origem"] #brand-origin-heading{order:6}
+.nx .nxs-grid[data-tab="origem"] #origin-joint-audit-heading{order:7}
+/* títulos de seção repetem o título do cartão que vem logo abaixo */
+.nx .nxl.nxs-leg :is(#explore-segment-structure-heading,#competition-bd-heading)>.ax-section-head{display:none}
+.nx .nxl.nxs-leg .am-note-info{display:inline-flex;margin:0 14px 6px 0}
+.nx .nxl.nxs-leg .am-note-info.hx-method{border:0}
+.nx .nxl.nxs-leg .am-explore-presets{margin:0 0 6px}
+.nx .nxs-grid[data-tab="porte"] .nxs-b-leaders{order:5}
+/* controles e tabelas do histórico de eletrificação */
+.nx .nxl.nxs-leg .hx-panel .hx-head h2{font:700 18px/1.25 var(--nx-font);letter-spacing:-.02em}
+.nx .nxl.nxs-leg .hx-seg{display:inline-flex;padding:3px;border-radius:999px;background:color-mix(in srgb,var(--nx-ink) 7%,transparent);gap:2px;border:0}
+.nx .nxl.nxs-leg .hx-seg button{border:0;border-radius:999px;padding:6px 13px;font:500 12.5px var(--nx-font);color:var(--nx-soft);background:none}
+.nx .nxl.nxs-leg .hx-seg button[aria-pressed="true"],.nx .nxl.nxs-leg .hx-seg button.on{background:var(--nx-card);color:var(--nx-ink);box-shadow:0 1px 3px rgba(0,0,0,.16)}
+.nx .nxl.nxs-leg .hx-insight{font:500 14px/1.45 var(--nx-font);color:var(--nx-ink)}
+.nx .nxl.nxs-leg .hx-table-wrap summary{color:var(--nx-soft);font:500 13px var(--nx-font)}
+.nx .nxl.nxs-leg .hx-table-wrap summary::marker,.nx .nxl.nxs-leg .hx-table-wrap summary *{color:inherit}
+.nx .nxl.nxs-leg .hx-table th{font:600 11px var(--nx-font);color:var(--nx-soft);text-align:left}
+.nx .nxl.nxs-leg .am-market-view-notice{border:0;border-radius:18px;background:color-mix(in srgb,var(--nx-ink) 5%,transparent);color:var(--nx-soft);padding:14px 18px;font:500 13px/1.45 var(--nx-font)}
+.nx .nxl.nxs-leg :is(.am-market-view-note,.am-footnote,.am-baseline-callout){border-radius:14px;border-left:0;background:color-mix(in srgb,var(--nx-ink) 5%,transparent);font:500 12.5px/1.45 var(--nx-font)}
+.nx .nxl.nxs-leg details>summary{cursor:pointer}

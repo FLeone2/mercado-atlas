@@ -3,9 +3,12 @@ import ufGeometry from '../../market/geo/uf-geometry.json';
 import { BarList, useTip } from '../charts.jsx';
 import { useNext } from '../ctx.js';
 import { UF_NAMES, fmt, monthLabel, pct, signed } from '../format.js';
-import { Chapter } from '../ui.jsx';
+import { AreaHead } from '../ui.jsx';
+import LegacyTab from '../LegacyTab.jsx';
+import { useDataApp } from '../../kit/index.js';
 import { ForecastChart, GapRows, IndexedLines, LagHeat, Spark, UfScatter } from './economia-charts.jsx';
 import './economia.css';
+import './economia-skin.css';
 
 /* ---------- dados: arquivos de data/scenarios, cada um buscado uma só vez ---------- */
 const cache = new Map();
@@ -38,12 +41,10 @@ const cls = v => (v >= 0 ? 'up' : 'down');
 const dateBR = iso => (iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4) : '');
 const shiftYear = (m, n) => String(+m.slice(0, 4) + n) + m.slice(4);
 
-const VIEWS = [['contexto', 'Contexto'], ['projecoes', 'Projeções'], ['regional', 'Potencial regional']];
 const KINDS = {
   official: ['Dado oficial + análise', 'Séries oficiais com cálculos descritivos (correlações, índices, participações).'],
   model: ['Projeção / modelo', 'Resultado de modelo estatístico: não é dado observado.'],
 };
-const readView = () => { try { const v = new URLSearchParams(location.search).get('e'); return VIEWS.some(x => x[0] === v) ? v : 'contexto'; } catch { return 'contexto'; } };
 
 /* ---------- peças pequenas ---------- */
 const Seg = ({ options, value, onChange, label, small }) => (
@@ -55,13 +56,34 @@ const Chip = ({ children, warn, title }) => <span className={'nxo-chip' + (warn 
 const Source = ({ children }) => <span className="nxo-chip">{children}</span>;
 function Unavailable({ s }) { return <p className="nxo-state" role="status">Não foi possível carregar estes dados agora{s?.error?.message ? ' (' + s.error.message + ')' : ''}. Nada foi estimado no lugar.</p>; }
 function Skeleton({ h = 300 }) { return <div className="nxo-skel" style={{ height: h }} aria-busy aria-label="Carregando" />; }
+/* Cartão do painel: faixa de uma conclusão (título), legenda curta e o conteúdo. `bare`: sem fundo (os próprios filhos são cartões). */
+function Panel({ id, kicker, title, lede, span = '12', bare, children }) {
+  return (
+    <section id={id} className={'nxo-panel nx-c' + span + (bare ? ' bare' : ' nx-card')}>
+      {kicker && <div className="nxo-eyebrow">{kicker}</div>}
+      <h3 className="nx-block-t">{title}</h3>
+      {lede && <p className="nx-block-s">{lede}</p>}
+      <div className="nxo-body">{children}</div>
+    </section>
+  );
+}
+
+const LEG_KEY = 'models:scenarios-workspace';
+/* Hospeda uma das visões do Atlas atual (a escolha vive em sectionViews). `hide`: ids de cartões que o painel nativo já mostra. */
+function LegacyModels({ view, hide = [], heading }) {
+  const shell = useDataApp(), cur = shell.sectionViews?.[LEG_KEY]?.tab;
+  useEffect(() => { if (cur !== view) shell.setSectionView?.(LEG_KEY, { ...(shell.sectionViews?.[LEG_KEY] ?? {}), tab: view }); }, [cur, view]);
+  if (cur !== view) return <Skeleton h={320} />;
+  return <div className="nxo-legacy">{heading}<LegacyTab tab="models" hide={hide} /></div>;
+}
+
 const headline = (ss, ready) => (bad(...ss) ? 'Dados indisponíveis no momento.' : waiting(...ss) ? 'Carregando dados verificados…' : ready);
 
 function Meta() {
   const m = useScenario('manifest.json').data;
   if (!m) return null;
   return (
-    <div className="nx-wrap">
+    <div>
       <p className="nx-note nxo-meta">
         Cobertura do acervo: {monthLabel(m.coverageStart)} a {monthLabel(m.coverageEnd)} · dados processados em {dateBR(String(m.sourceAsOf).slice(0, 10))} · autos e comerciais leves.
         Unidade: registros de origem, com duplicidades mantidas; não são veículos únicos. Os filtros do topo não recalculam estes arquivos.
@@ -127,8 +149,8 @@ function Contexto() {
 
   const idx = rows?.at(-1);
   return (
-    <div className="nxo-view">
-      <Chapter id="e-resumo" kicker="Juros, crédito e câmbio"
+    <div className="nxo-view nxo-grid">
+      <Panel id="e-resumo" span="12" bare="1" kicker="Juros, crédito e câmbio"
         title={headline([src], selic ? <>Selic em <em>{nf(selic.last.value, 2)}%</em> ao ano{selic.diff == null ? '.' : selic.diff === 0 ? ', igual à de um ano atrás.' : <>, {nf(Math.abs(selic.diff), 2)} p.p. {selic.diff < 0 ? 'abaixo' : 'acima'} de um ano atrás.</>}</> : 'Séries indisponíveis.')}
         lede={credit && rate ? `Em ${monthLabel(credit.last.month)}, o crédito para veículos somou R$ ${credit.value} bi${credit.prev ? ', ' + signed(credit.last.value / credit.prev.value - 1) + ' sobre um ano antes' : ''}; as novas operações de financiamento custaram ${rate.value}% ao mês.` : undefined}>
         {src.error ? <Unavailable s={src} /> : !src.data ? <Skeleton h={226} /> : (
@@ -149,9 +171,9 @@ function Contexto() {
           </div>
         )}
         <p className="nx-note">Cada indicador mostra o último mês publicado pela fonte; meses ausentes não são preenchidos. A linha pequena cobre os últimos 24 meses. Selic é a meta definida pelo Copom, não a taxa efetiva do mês. Base fixa: os filtros do topo não se aplicam.</p>
-      </Chapter>
+      </Panel>
 
-      <Chapter id="e-credito" kicker="Crédito e emplacamentos"
+      <Panel id="e-credito" span="5" kicker="Crédito e emplacamentos"
         title={headline([src, mon], yoy ? <>Emplacamentos <em className={cls(yoy.reg)}>{signed(yoy.reg)}</em> e crédito para veículos <em className={cls(yoy.credit)}>{signed(yoy.credit)}</em> em 12 meses.</> : 'Séries insuficientes para comparar.')}
         lede={idx ? `Duas séries na mesma escala: índice 100 em ${monthLabel(rows[0].month)}. Em ${monthLabel(idx.month)}, os emplacamentos estão em ${nf(idx.a)} e o crédito em ${nf(idx.b)}. Variações de 12 meses até ${monthLabel(yoy.month)}, último mês com as duas séries.` : undefined}>
         {bad(src, mon) ? <Unavailable s={bad(src, mon)} /> : waiting(src, mon) ? <Skeleton /> : !rows ? <p className="nxo-state">Não há meses suficientes em comum entre as duas séries.</p> : (
@@ -165,9 +187,9 @@ function Contexto() {
             <p className="nx-note">Crédito: concessões livres a pessoas físicas para comprar veículo, em valores correntes (fluxo mensal, não estoque; sem correção pela inflação). Emplacamentos: autos e comerciais leves, registros de origem, não veículos únicos. As duas séries só se comparam até o último mês que ambas têm.</p>
           </div>
         )}
-      </Chapter>
+      </Panel>
 
-      <Chapter id="e-lag" kicker="O que anda junto"
+      <Panel id="e-lag" span="7" kicker="O que anda junto"
         title={headline([mac], lag ? <>{LAG_SUBJECT[lag.best.key]} é o que mais acompanha os emplacamentos: correlação de <em>{nf(lag.best.r, 2)}</em> {lag.best.lag === 0 ? 'no mesmo mês' : `com ${lag.best.lag} ${lag.best.lag === 1 ? 'mês' : 'meses'} de antecedência`}.</> : 'Correlações indisponíveis.')}
         lede="Cada célula compara a variação em 12 meses do indicador com a dos emplacamentos. Verde: andam no mesmo sentido; vermelho: em sentido oposto. As colunas dizem com quantos meses de antecedência o indicador se move.">
         {mac.error ? <Unavailable s={mac} /> : !mac.data ? <Skeleton h={260} /> : !lag ? <p className="nxo-state">Sem correlações publicadas.</p> : (
@@ -179,7 +201,7 @@ function Contexto() {
             <div className="nxo-chips"><Source>Dado oficial + análise · BCB e Fenabrave</Source></div>
           </div>
         )}
-      </Chapter>
+      </Panel>
     </div>
   );
 }
@@ -250,8 +272,8 @@ function Projecoes() {
   const barRows = cmp?.list.map((x, i) => ({ key: x.m, name: x.m, label: MODEL[x.m] ?? x.m, rank: i + 1, value: x.s.mae, valueText: maeText(x.s.mae), deltaText: 'MASE ' + nf(x.s.mase, 2) }));
 
   return (
-    <div className="nxo-view">
-      <Chapter id="e-projecao" kicker="Para onde pode ir" title={title} lede={lede}>
+    <div className="nxo-view nxo-grid">
+      <Panel id="e-projecao" span="8" kicker="Para onde pode ir" title={title} lede={lede}>
         {bad(mod, mon) ? <Unavailable s={bad(mod, mon)} /> : waiting(mod, mon) ? <Skeleton h={380} /> : !ready ? <p className="nxo-state">Nenhum horizonte válido foi publicado para esta série.</p> : (
           <div className="nx-card">
             <div className="nxo-sub">
@@ -270,9 +292,9 @@ function Projecoes() {
             <p className="nx-note">Teste retrospectivo com {nOrig ?? '—'} origens{testRange ? ` (alvos de ${monthLabel(testRange[0])} a ${monthLabel(testRange[1])})` : ''}, usando a versão atual dos dados: as mesmas datas já foram examinadas antes e não há reconstrução do que se sabia na época. Faixas empíricas aproximadas, sem garantia de cobertura futura. {share ? 'A participação publicada é a razão entre os volumes reconciliados de Mitsubishi e do mercado.' : 'Os volumes de Mitsubishi e das demais marcas são reconciliados para somar o mercado.'} Base fixa: os filtros do topo não se aplicam.</p>
           </div>
         )}
-      </Chapter>
+      </Panel>
 
-      <Chapter id="e-modelos" kicker="Entre os modelos" title={title2}
+      <Panel id="e-modelos" span="4" kicker="Entre os modelos" title={title2}
         lede={cmp ? `Erro absoluto médio dos meses 1 a ${h}, nas mesmas ${nOrig ?? ''} origens do teste reservado; menor é melhor. O modelo publicado é escolhido só pelo menor erro na validação, sem olhar o teste.` : undefined}>
         {bad(mod) ? <Unavailable s={mod} /> : !mod.data ? <Skeleton h={260} /> : !cmp ? <p className="nxo-state">Sem métricas de teste para esta série.</p> : (
           <div className="nx-card">
@@ -284,7 +306,7 @@ function Projecoes() {
             <p className="nx-note">Barra em destaque: modelo publicado. MASE compara o erro com o de uma previsão sazonal ingênua calculada no treino (abaixo de 1: erra menos que ela). {share ? 'Erros da participação em pontos percentuais.' : 'Erros em registros por mês.'} Os erros de meses vizinhos se sobrepõem e não são independentes; com poucas origens, diferenças pequenas entre modelos não são conclusivas.</p>
           </div>
         )}
-      </Chapter>
+      </Panel>
 
       <PorEstado h={h} setH={setH} horizons={horizons} />
       <Meta />
@@ -317,7 +339,7 @@ function PorEstado({ h, setH, horizons }) {
   return (
     <>
       <div ref={sentinel} aria-hidden />
-      <Chapter id="e-estados" kicker="Por estado" title={title} lede={ready ? 'Experimento hierárquico: as projeções dos estados somam o Brasil. Diferente do quadro nacional, não há faixa de incerteza publicada para estados.' : undefined}>
+      <Panel id="e-estados" span="12" kicker="Por estado" title={title} lede={ready ? 'Experimento hierárquico: as projeções dos estados somam o Brasil. Diferente do quadro nacional, não há faixa de incerteza publicada para estados.' : undefined}>
         {hier.error ? <Unavailable s={hier} /> : !d ? <Skeleton h={380} /> : (
           <div className="nx-card">
             <div className="nxo-sub">
@@ -333,7 +355,7 @@ function PorEstado({ h, setH, horizons }) {
             <p className="nx-note">Os estados são contabilizados com uma categoria à parte para registros sem UF identificada, que não é tratada como estado. Teste retrospectivo na versão atual dos dados; não há validação em tempo real. Base fixa: os filtros do topo não se aplicam.</p>
           </div>
         )}
-      </Chapter>
+      </Panel>
     </>
   );
 }
@@ -386,8 +408,8 @@ function Regional() {
 
   const stateReady = uf && !bad(reg, soc);
   return (
-    <div className="nxo-view">
-      <Chapter id="e-uf" kicker="Onde se emplaca mais por habitante"
+    <div className="nxo-view nxo-grid">
+      <Panel id="e-uf" span="12" kicker="Onde se emplaca mais por habitante"
         title={headline([reg, soc], stateReady ? <>{top.name} emplaca <em>{nf(top.per, 1)}</em> por mil habitantes; {bottom.name}, só <em>{nf(bottom.per, 1)}</em>.</> : 'Ranking indisponível.')}
         lede={stateReady ? `Emplacamentos de ${period} (autos e comerciais leves, sem anualizar) por mil habitantes. Média do Brasil: ${nf(uf.national, 1)}. O endereço do registro pode refletir sede e frota de empresas, não só a demanda de quem mora ali.` : undefined}>
         {bad(reg, soc) ? <Unavailable s={bad(reg, soc)} /> : !stateReady ? <Skeleton h={420} /> : (
@@ -411,9 +433,9 @@ function Regional() {
         {tip.node}
         {stateReady && <div className="nxo-chips"><Source>População {uf.popYear} · IBGE</Source><Source>Emplacamentos · Fenabrave</Source></div>}
         <p className="nx-note">A coluna da direita mostra quantas vezes cada estado supera (×) a média do Brasil. Estados somam os municípios com registro; {unmatchedRows ? `${fmt(unmatchedRows)} registros sem município identificado ficam fora, ` : ''}o que não altera o ranking. Base fixa: os filtros do topo não se aplicam.</p>
-      </Chapter>
+      </Panel>
 
-      <Chapter id="e-renda" kicker="Renda e emplacamentos"
+      <Panel id="e-renda" span="12" kicker="Renda e emplacamentos"
         title={headline([reg, soc], stateReady ? <>O PIB por habitante explica <em>{nf(uf.fit.r2 * 100)}%</em> das diferenças entre estados; {low.name} fica <em className="down">{nf((1 - low.ratio) * 100)}%</em> abaixo da curva.</> : 'Relação indisponível.')}
         lede="Cada ponto é um estado. A linha pontilhada é a relação média entre PIB por habitante e emplacamentos por mil habitantes; os pontos vermelhos emplacam menos do que ela sugere, os escuros mais. Clique num ponto para destacá-lo no mapa.">
         {bad(reg, soc) ? <Unavailable s={bad(reg, soc)} /> : !stateReady ? <Skeleton h={440} /> : (
@@ -423,9 +445,9 @@ function Regional() {
             <p className="nx-note">Distância da curva descreve, não mede potencial de vendas nem demanda reprimida: sedes de locadoras, frotas e incentivos locais deslocam o registro de onde as pessoas vivem. PIB por habitante é produção local, não renda das famílias; aqui é a média dos municípios ponderada pela população. Curva ajustada por mínimos quadrados em escala logarítmica entre {uf.rows.length} estados (anos de referência diferentes: PIB {uf.gdpYear}, população {uf.popYear}).</p>
           </div>
         )}
-      </Chapter>
+      </Panel>
 
-      <Chapter id="e-municipios" kicker="Dentro dos estados"
+      <Panel id="e-municipios" span="12" kicker="Dentro dos estados"
         title={headline([mod], mu ? <>{mu.down[0].name} ({mu.down[0].uf}) emplaca <em className="down">{nf((1 - mu.down[0].observed / mu.down[0].expected) * 100)}% abaixo</em> do esperado para o seu perfil: {mil(mu.down[0].observed)} contra {mil(mu.down[0].expected)}.</> : 'Comparação municipal indisponível.')}
         lede={mu ? `Entre os ${mu.n} municípios com mais de ${nf(MIN_POP / 1000)} mil habitantes, comparamos os emplacamentos de ${period} com o que um modelo estatístico esperaria dado o estado${covText.length ? ', ' + covText.join(', ') : ''}. Como o modelo já considera o estado, ele descreve diferenças dentro de cada UF.` : undefined}>
         {bad(mod, reg) ? <Unavailable s={bad(mod, reg)} /> : !mod.data ? <Skeleton h={360} /> : !mu ? <p className="nxo-state">O modelo regional não publicou linhas municipais.</p> : (
@@ -439,7 +461,7 @@ function Regional() {
             <p className="nx-note">Cobertura: {reg.data?.municipalities ? fmt(reg.data.municipalities.length) + ' municípios com registro; ' : ''}{join ? `${fmt(join.unmatchedKeys)} sem código IBGE (${fmt(unmatchedRows)} registros, ${nf((1 - join.registrationCoverage) * 100, 3)}% do total) ficaram fora; ` : ''}o modelo usa {fmt(diag?.n)} municípios{diag?.excluded ? ` e exclui ${fmt(diag.excluded.missingConditionalCovariate)} sem todas as variáveis` : ''}; {diag ? `${fmt(diag.absentMunicipalitiesNotAssumedZero)} municípios ausentes da base de registros não são tratados como zero. ` : ''}Vintages diferentes: PIB {uf?.gdpYear ?? '2023'}, população {uf?.popYear ?? '2026'}, renda, densidade e urbanização de 2022.</p>
           </div>
         )}
-      </Chapter>
+      </Panel>
       <Meta />
     </div>
   );
@@ -448,30 +470,43 @@ function Regional() {
 /* =====================================================================================
    ÁREA
    ===================================================================================== */
+const TABS = [['contexto', 'Contexto'], ['projecoes', 'Projeções'], ['regional', 'Potencial regional'], ['economia', 'Economia e mercado'], ['simulacoes', 'Simulações'], ['tecnicas', 'Análises técnicas']];
+const kindOf = v => (v === 'projecoes' || v === 'simulacoes' ? 'model' : 'official');
+const readTab = () => { try { const v = new URLSearchParams(location.search).get('e'); return TABS.some(x => x[0] === v) ? v : 'contexto'; } catch { return 'contexto'; } };
+const LEG_HIDE_FORECAST = ['scenarios-phase3-projection-registrations-published', 'scenarios-phase3-benchmark-registrations'];
+
 export default function Economia() {
-  const [view, setView] = useState(readView);
+  const [view, setView] = useState(readTab);
+  const src = useScenario('external_sources.json').data;
   const change = v => {
     setView(v);
     try { const p = new URLSearchParams(location.search); p.set('e', v); history.replaceState(history.state, '', location.pathname + '?' + p.toString()); } catch { /* the address bar is optional */ }
   };
-  const kind = view === 'projecoes' ? 'model' : 'official';
+  const kind = KINDS[kindOf(view)];
+  const selic = src ? cardOf(seriesOf(src, 'selic_target'), IND[0]) : null, rate = src ? cardOf(seriesOf(src, 'vehicle_financing_rate'), IND[1]) : null;
+  const finding = selic ? `Selic em ${nf(selic.last.value, 2)}% ao ano${rate ? ` e financiamento de veículos a ${rate.value}% ao mês` : ''} (${monthLabel(selic.last.month)}). Dados oficiais e modelos ao lado dos emplacamentos; os filtros do topo não se aplicam.` : 'Juros, crédito e câmbio ao lado dos emplacamentos; projeções e potencial regional. Os filtros do topo não se aplicam.';
   return (
     <>
-      <div className="nxo-top">
-        <div className="nx-wrap">
-          <div className="nx-kicker">Economia · o dinheiro por trás das placas</div>
-          <div className="nxo-bar">
-            <Seg label="Visão da área" value={view} onChange={change} options={VIEWS.map(([v, l]) => [v, l])} />
-            <div className="nxo-basefix">
-              <span className={'nxo-kind' + (kind === 'model' ? ' model' : '')} title={KINDS[kind === 'model' ? 'model' : 'official'][1]}>{KINDS[kind === 'model' ? 'model' : 'official'][0]}</span>
-              <span><b>Base fixa:</b> os filtros do topo não se aplicam.</span>
-            </div>
-          </div>
+      <AreaHead title="Economia" finding={finding} tabs={TABS} tab={view} onTab={change}>
+        <div className="nxo-basefix">
+          <span className={'nxo-kind' + (kindOf(view) === 'model' ? ' model' : '')} title={kind[1]}>{kind[0]}</span>
+          <span><b>Base fixa:</b> os filtros do topo não se aplicam a esta área.</span>
         </div>
+      </AreaHead>
+      <div className="nx-wrap nxo-main">
+        {view === 'contexto' && <><Contexto /><Meta /></>}
+        {view === 'projecoes' && <>
+          <Projecoes />
+          <LegacyModels view="forecasts" hide={LEG_HIDE_FORECAST} heading={<h3 className="nxo-sec">Reconciliação hierárquica, validação e tabelas completas</h3>} />
+        </>}
+        {view === 'regional' && <>
+          <Regional />
+          <LegacyModels view="regional" heading={<h3 className="nxo-sec">Modelo regional, dependência espacial (Moran) e tabelas</h3>} />
+        </>}
+        {view === 'economia' && <LegacyModels view="economy" heading={<h3 className="nxo-sec">Defasagens, crédito real, IPCA e PNAD</h3>} />}
+        {view === 'simulacoes' && <LegacyModels view="simulations" heading={<h3 className="nxo-sec">Superfície de resposta de dois fatores</h3>} />}
+        {view === 'tecnicas' && <LegacyModels view="diagnostic" heading={<h3 className="nxo-sec">Diagnóstico do acervo, cobertura e comprovantes</h3>} />}
       </div>
-      {view === 'contexto' && <><Contexto /><Meta /></>}
-      {view === 'projecoes' && <Projecoes />}
-      {view === 'regional' && <Regional />}
     </>
   );
 }

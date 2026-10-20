@@ -48,3 +48,16 @@
 @media(max-width:980px){.nxx-split{grid-template-columns:minmax(0,1fr)}.nxx-detail{position:static}.nxx-detail.idle{display:none}}
 @media(max-width:760px){.nxx-row{grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:'name val sub' 'track track track';gap:6px 12px;padding:9px 8px}.nxx-name{grid-area:name}.nxx-track{grid-area:track;height:14px}.nxx-val{grid-area:val}.nxx-sub{grid-area:sub;min-width:58px}.nxx-search{max-width:none;flex-basis:100%}.nxx-tools .grow{margin-left:0}.nxx-stats b{font-size:16px}}
 @media(prefers-reduced-motion:reduce){.nxx-skel{animation:none}.nxx-fill{transition:none}}
+/* ---- painel denso ---- */
+.nxx-area{padding-top:20px;padding-bottom:40px}
+.nxx-view{margin:0}
+.nxx-main .nxx-body{margin-top:2px}
+.nxx-sentence{font-size:clamp(16px,1.5vw,20px);margin-bottom:14px}
+.nxx-main.nx-card{padding:clamp(18px,2vw,28px)}
+.nxx-legend{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.nx .nxx-legend button{display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:999px;background:rgba(0,0,0,.05);font:600 12.5px/1 var(--nx-font);color:var(--nx-ink)}
+.nxx-legend button:hover{background:rgba(0,0,0,.1)}
+.nxx-legend i,.nxx-dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex:none}.nxx-dot{margin-right:8px}
+.nxx-tablewrap.sm{max-height:260px}.nxx-tablewrap.sm .nxx-table{font-size:13px}.nxx-tablewrap.sm th,.nxx-tablewrap.sm td{padding:8px 9px}
+.nxx-tablewrap.sm .nxx-table td:first-child{width:auto;color:inherit;white-space:normal}
+.nxx-view{align-items:stretch}.nxx-main .nx-block-s{margin-bottom:16px}
