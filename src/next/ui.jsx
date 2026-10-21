@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Children, isValidElement, useEffect, useRef, useState } from 'react';
 import { fmt } from './format.js';
 
 /* Building blocks every area shares: a chapter (one question, one finding, one chart), a count-up number and a figure tile. */
@@ -34,13 +34,13 @@ export function CountUp({ value }) {
 export const Tile = ({ k, children, sub, dark, red, small }) => <div className={'nx-tile' + (dark ? ' dark' : '')}><div className="nx-tile-k">{k}</div><div><div className={'nx-tile-n' + (red ? ' red' : '') + (small ? ' sm' : '')}>{children}</div>{sub && <div className="nx-tile-s">{sub}</div>}</div></div>;
 
 
-/* Compact header of an area: title, one-line finding, optional tabs (sub-areas). tabs = [[key,label],…] */
-export function AreaHead({ title, finding, tabs, tab, onTab, children }) {
+/* Compact header of an area: just the title and, when the area has sub-areas, pill tabs. tabs = [[key,label],…]
+   (`finding` is accepted for compatibility but no longer shown: the user asked for less text.) */
+export function AreaHead({ title, tabs, tab, onTab, children }) {
   return (
     <header className="nx-areahead">
       <div className="nx-wrap">
         <h1>{title}</h1>
-        {finding && <p>{finding}</p>}
         {tabs && <div className="nx-tabs" role="tablist" aria-label="Seções">{tabs.map(([k, l]) => <button key={k} type="button" role="tab" aria-selected={tab === k} aria-pressed={tab === k} onClick={() => onTab(k)}>{l}</button>)}</div>}
         {children}
       </div>
@@ -48,12 +48,39 @@ export function AreaHead({ title, finding, tabs, tab, onTab, children }) {
   );
 }
 
-/* A card with a one-line conclusion and a short caption; put charts inside. */
-export function Block({ title, caption, children, className = '', actions }) {
+/* ⓘ that opens a short explanation on hover, focus or tap. */
+export function InfoTip({ children, label = 'O que este gráfico mostra' }) {
+  const [open, setOpen] = useState(false);
+  if (children == null || children === '' || children === false) return null;
   return (
-    <div className={'nx-card ' + className}>
-      {(title || actions) && <div className="nx-block-head" style={{ display: 'flex', gap: 12, justifyContent: 'space-between', alignItems: 'flex-start' }}><div>{title && <h3 className="nx-block-t">{title}</h3>}{caption && <p className="nx-block-s">{caption}</p>}</div>{actions}</div>}
-      {children}
+    <span className="nx-info" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+      <button type="button" aria-label={label} aria-expanded={open} onClick={() => setOpen(o => !o)} onBlur={() => setOpen(false)}>i</button>
+      {open && <span className="nx-info-pop" role="note">{children}</span>}
+    </span>
+  );
+}
+
+/* One chart = one card: a short title, a one-line subtitle (the key fact) and an ⓘ with the explanation.
+   title: short label ("Marcas"); sub: one line ("Fiat lidera com 19,9%"); info: what the chart means and how to read it.
+   `caption` (older blocks) goes into the ⓘ. */
+export function Block({ title, sub, info, caption, children, className = '', actions }) {
+  // Footnotes written as <p className="nx-note"> directly inside the card join the ⓘ instead of showing as text.
+  const notes = [], body = [];
+  Children.toArray(children).forEach(c => (isValidElement(c) && c.type === 'p' && String(c.props.className ?? '').includes('nx-note') ? notes : body).push(c));
+  const base = info ?? caption;
+  const tip = notes.length ? <>{base && <span style={{ display: 'block', marginBottom: 6 }}>{base}</span>}{notes.map((n, i) => <span key={i} style={{ display: 'block' }}>{n.props.children}</span>)}</> : base;
+  return (
+    <div className={'nx-card nx-block ' + className}>
+      {(title || actions) && (
+        <div className="nx-block-head">
+          <div className="nx-block-titles">
+            {title && <h3 className="nx-block-t">{title}<InfoTip>{tip}</InfoTip></h3>}
+            {sub && <p className="nx-block-sub">{sub}</p>}
+          </div>
+          {actions && <div className="nx-block-actions">{actions}</div>}
+        </div>
+      )}
+      <div className="nx-block-body">{body}</div>
     </div>
   );
 }

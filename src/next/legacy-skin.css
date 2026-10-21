@@ -21,9 +21,9 @@
 .nx .nxl .ax-section-lede,.nx .nxl .ax-card-note,.nx .nxl p{font-family:var(--nx-font)}
 .nx .nxl .ax-section{padding:36px 0 0;border-top:0}.nx .nxl .ax-section-head{margin-bottom:18px}
 /* cartões */
-.nx .nxl :is(.ax-card,.am-glass,.hx-panel,.cr-card,.catalog-panel,.lm-card,.tbm-card,.pm-primary,.cc-chart,.ctx-card,.ctx-panel,.am-operational-card){
+.nx .nxl :is(.ax-card,.am-glass,.hx-panel,.cr-card,.catalog-panel,.lm-card,.tbm-card,.pm-primary,.cc-chart,.ctx-card,.ctx-panel,.am-operational-card,.am-exploration){
   background:var(--nx-card);border:0;border-radius:28px;box-shadow:none;padding:26px 28px;margin:0 0 16px;backdrop-filter:none;-webkit-backdrop-filter:none}
-.nx .nxl :is(.ax-card,.am-glass,.hx-panel,.cr-card,.catalog-panel,.lm-card,.tbm-card,.pm-primary,.cc-chart,.ctx-card,.ctx-panel) :is(.ax-card,.am-glass,.hx-panel,.cr-card,.catalog-panel,.lm-card,.tbm-card,.pm-primary,.cc-chart,.ctx-card,.ctx-panel){
+.nx .nxl :is(.ax-card,.am-glass,.hx-panel,.cr-card,.catalog-panel,.lm-card,.tbm-card,.pm-primary,.cc-chart,.ctx-card,.ctx-panel,.am-exploration) :is(.ax-card,.am-glass,.hx-panel,.cr-card,.catalog-panel,.lm-card,.tbm-card,.pm-primary,.cc-chart,.ctx-card,.ctx-panel){
   background:none;border-radius:0;padding:0;margin:0}
 /* controles */
 .nx .nxl :is(.ax-field-trigger,.ax-select,select){appearance:none;padding:8px 14px;border:1px solid var(--nx-line);border-radius:999px;background:var(--nx-card);font:500 13.5px var(--nx-font);color:var(--nx-ink);transition:border-color .16s,transform .12s}
@@ -53,3 +53,16 @@
 @media print{.nx .nxl .nxl-actions{display:none}}
 .nx .nxl .nxl-actions{order:999;grid-column:1/-1;width:100%;flex-basis:100%}
 .nx .nxl .nxl-actions .am-muted{white-space:nowrap}
+/* ⓘ do Atlas atual (Nota, Como ler) no mesmo formato do ⓘ novo: só o ícone, o texto fica no balão */
+.nx .nxl .ax-info-wrap{display:inline-flex;vertical-align:middle;margin-left:6px}
+.nx .nxl .ax-info{width:20px;height:20px;min-width:20px;padding:0;border:0;border-radius:50%;display:inline-grid;place-items:center;background:color-mix(in srgb,var(--nx-ink) 8%,transparent);color:var(--nx-soft);cursor:help}
+.nx .nxl .ax-info>span{font:italic 700 11px/1 var(--nx-font);color:inherit}
+.nx .nxl .ax-info em{display:none}
+.nx .nxl .ax-info:hover,.nx .nxl .ax-info[aria-expanded="true"]{background:var(--nx-ink);color:var(--nx-card)}
+.nx .nxl .ax-info-pop{max-width:min(340px,80vw);padding:11px 13px;border-radius:12px;background:#1d1d1f;color:#f5f5f7;font:500 12.5px/1.5 var(--nx-font);border:0}
+.nx .nxl .ax-info-pop *{color:inherit}
+.nx .nxl .am-note-info,.nx .nxl .ax-card-note{display:inline-flex;margin:4px 0 0}
+
+/* cartões do Panorama lado a lado com a mesma altura */
+.nx .nxl .am-overview-visuals{align-items:stretch}
+.nx .nxl .am-overview-visuals>*>.ax-card,.nx .nxl .am-overview-visuals>*>article{height:100%}

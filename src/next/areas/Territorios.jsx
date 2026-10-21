@@ -99,7 +99,7 @@ export default function Territorios() {
     : 'Sem emplacamentos para este recorte.';
 
   const estados = (
-    <Block title={useRate ? (top && bottom && top !== bottom ? `${UF_NAMES[top.name]} emplaca ${dec(top.per1000, 1)} por mil habitantes, ${dec(top.per1000 / bottom.per1000, 1)}x a taxa de ${UF_NAMES[bottom.name]}` : 'Emplacamentos por mil habitantes') : (top ? `${UF_NAMES[top.name]} concentra ${pct(top.count / total, top.count / total < .1 ? 1 : 0)} dos emplacamentos` : 'Estados')}
+    <Block title="Estados" sub={useRate ? (top && bottom && top !== bottom ? `${UF_NAMES[top.name]} emplaca ${dec(top.per1000, 1)} por mil habitantes, ${dec(top.per1000 / bottom.per1000, 1)}x a taxa de ${UF_NAMES[bottom.name]}` : 'Emplacamentos por mil habitantes') : (top ? `${UF_NAMES[top.name]} concentra ${pct(top.count / total, top.count / total < .1 ? 1 : 0)} dos emplacamentos` : 'Estados')}
       caption="Ranking dos estados; clique para filtrar o painel inteiro."
       actions={<Seg label="Medida" value={useRate ? 'pc' : 'vol'} onChange={setMetric} options={[['vol', 'Volume'], ['pc', 'Por mil hab.']]} />}>
       {metric === 'pc' && !canRate && <p className="nxt-warn">{pop.error ? 'População indisponível.' : geo?.complete === false ? 'Taxa indisponível: o período está incompleto.' : 'Carregando população…'}</p>}
@@ -112,7 +112,7 @@ export default function Territorios() {
   );
 
   const municipios = (
-    <Block title={cities.length ? `${cityName(cities[0].raw)} responde por ${pct(cities[0].v / cityTotal, cities[0].v / cityTotal < .1 ? 1 : 0)} dos emplacamentos ${scopeName}; ${kTop === 5 ? 'as cinco' : 'as dez'} maiores cidades, ${pct(topShare, 0)}` : 'Sem municípios neste recorte'}
+    <Block title="Municípios" sub={cities.length ? `${cityName(cities[0].raw)} responde por ${pct(cities[0].v / cityTotal, cities[0].v / cityTotal < .1 ? 1 : 0)} dos emplacamentos ${scopeName}; ${kTop === 5 ? 'as cinco' : 'as dez'} maiores cidades, ${pct(topShare, 0)}` : 'Sem municípios neste recorte'}
       caption={cities.length ? `${half} ${half === 1 ? 'município reúne' : 'municípios reúnem'} metade do mercado${selected.length ? '' : ' do país'}.` : 'Ajuste os filtros para ver os municípios.'}>
       <div className="nxt-chips" role="group" aria-label="Estado">
         <button type="button" className="nxt-chip" aria-pressed={selected.length === 0} onClick={() => setFilter('uf', 'all')}>Brasil</button>
@@ -140,7 +140,7 @@ export default function Territorios() {
   );
 
   const regioes = regions.length > 0 && regTop && regTop.count > 0 && (
-    <Block title={`${regTop.name} reúne ${pct(regTop.share, 0)} dos emplacamentos${regTop.popShare != null ? ` e ${pct(regTop.popShare, 0)} dos habitantes` : ''}`}
+    <Block title="Regiões" sub={`${regTop.name} reúne ${pct(regTop.share, 0)} dos emplacamentos${regTop.popShare != null ? ` e ${pct(regTop.popShare, 0)} dos habitantes` : ''}`}
       caption={regGrow ? `${regGrow.name} é a região que mais cresce sobre o período anterior (${signed(regGrow.change)}). Clique numa região para filtrar.` : 'Clique numa região para filtrar o painel.'}>
       <div className="nxt-stack" role="img" aria-label="Participação de cada região nos emplacamentos">
         {regions.map(r => <span key={r.name} style={{ flexGrow: r.count }} title={r.name + ' ' + pct(r.share)}><b>{r.share > .07 ? r.name : ''}</b></span>)}

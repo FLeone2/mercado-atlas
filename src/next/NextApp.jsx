@@ -83,6 +83,23 @@ export default function NextApp() {
     const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) setChapter(e.target.id); }), { rootMargin: '-45% 0px -50% 0px' });
     els.forEach(el => io.observe(el)); return () => io.disconnect();
   }, [chapters]);
+  /* ---- less text: long notes and descriptions (ours and the current Atlas') collapse into an ⓘ whose balloon shows the text ---- */
+  useEffect(() => {
+    const root = main.current; let t = 0;
+    const SKIP = '.nx-block-head,.nx-areahead,.nx-tip,.nx-info,.ax-popover,.ax-tooltip,table,[role="status"],[role="alert"],.am-loading,.am-empty,.nx-foot,.nx-tile,.nxl-actions,.nx-callouts,.am-map-pending,.nx-tiles,.nxp-hero';
+    const scan = () => {
+      for (const el of root.querySelectorAll('p, .ax-section-lede, .ax-card-note')) {
+        if (el.closest(SKIP) || el.querySelector('a,button,input,select,label,svg,canvas,img')) continue;
+        const text = el.textContent.replace(/\s+/g, ' ').trim();
+        const always = el.matches('.nx-note, .nx-lede, .ax-section-lede, .ax-card-note');
+        if (!text || (!always && text.length <= 110)) { if (el.hasAttribute('data-nxnote') && !text) el.removeAttribute('data-nxnote'); continue; }
+        if (el.getAttribute('data-nxnote') !== text) { el.setAttribute('data-nxnote', text); el.setAttribute('tabindex', '0'); el.setAttribute('role', 'note'); el.setAttribute('aria-label', 'Nota: ' + text); }
+      }
+    };
+    const mo = new MutationObserver(() => { clearTimeout(t); t = setTimeout(scan, 150); });
+    mo.observe(root, { childList: true, subtree: true, characterData: true }); scan();
+    return () => { mo.disconnect(); clearTimeout(t); };
+  }, [area]);
   const scrollToChapter = id => document.getElementById(id)?.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: id === 'topo' ? 'start' : 'center' });
 
   const summary = useMemo(() => {
@@ -118,7 +135,7 @@ export default function NextApp() {
           {new URLSearchParams(location.search).get('legacy') ? <div className="nx-wrap" style={{ paddingTop: 100 }}><LegacyTab tab={new URLSearchParams(location.search).get('legacy')} /></div> : <View />}
           <footer className="nx-foot">
             <div className="nx-wrap">
-              <div className="nx-kicker">Continue explorando</div>
+              <div className="nx-kicker">Outras áreas</div>
               <h2>Há mais de onde isso veio.</h2>
               <div className="nx-more">{AREAS.filter(a => a.slug !== area).map(a => <a key={a.slug} href={'?ui=novo&a=' + a.slug} onClick={e => { e.preventDefault(); go(a.slug); }}>{a.label}<span aria-hidden>→</span></a>)}</div>
               <p className="nx-note"><a href={legacyQuality()}>Dados e metodologia ↗</a> · <a href={legacyHome()}>Voltar ao Atlas atual ↗</a> · Fonte: emplacamentos mensais, cubos do Atlas.</p>

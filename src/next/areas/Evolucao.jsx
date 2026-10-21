@@ -114,7 +114,7 @@ function Tempo({ t: d, view, setView, ignored, note }) {
   let mx = lo, mn = lo; values.forEach((v, i) => { if (v == null) return; if (v > values[mx]) mx = i; if (v < values[mn]) mn = i; });
   const marks = [{ i: mx, v: values[mx], text: 'Máx. ' + monthLabel(d.months[mx]) + ' · ' + fmt(values[mx]), pos: 'up' }, { i: mn, v: values[mn], text: 'Mín. ' + monthLabel(d.months[mn]) + ' · ' + fmt(values[mn]), pos: 'down' }];
   return (
-    <Block className="nx-c7" title={<>12 meses somam <em>{fmt(d.last)}</em>{d.change != null ? <>, <em className={d.change >= 0 ? 'up' : 'down'}>{signed(d.change)}</em> sobre os 12 anteriores</> : ''}</>}
+    <Block className="nx-c7" title="12 meses" sub={<>12 meses somam <em>{fmt(d.last)}</em>{d.change != null ? <>, <em className={d.change >= 0 ? 'up' : 'down'}>{signed(d.change)}</em> sobre os 12 anteriores</> : ''}</>}
       caption={`${monthLabel(d.months[d.n - 12])} a ${monthLabel(d.months[d.n - 1])}. Melhor mês: ${ml(d.best).toLowerCase()} (${fmt(d.counts[d.best])}); pior: ${ml(d.worst).toLowerCase()} (${fmt(d.counts[d.worst])}).`}
       actions={<Seg label="Tipo de série" value={view} onChange={setView} options={[{ value: 'm12', label: '12 meses' }, { value: 'mes', label: 'Mês a mês' }]} />}>
       <TimeLines months={d.months} series={series} marks={marks} endLabels={false} height={320} label="Emplacamentos mensais desde 2016" replayKey={view}
@@ -137,7 +137,7 @@ function Anos({ monthly, ignored, note }) {
     return { years, year: lastYear, prevYear: lastYear - 1, cur: a, change: b > 0 ? a / b - 1 : null, through: SHORT[L - 1] };
   }, [monthly]);
   return (
-    <Block className="nx-c5" title={<>{y.year} soma <em>{fmt(y.cur)}</em> até {y.through}{y.change != null ? <>, <em className={y.change >= 0 ? 'up' : 'down'}>{signed(y.change)}</em> sobre {y.prevYear}</> : ''}</>} caption="Um ano sobre o outro, de janeiro a dezembro: passe o mouse para comparar mês a mês.">
+    <Block className="nx-c5" title="Ano contra ano" sub={<>{y.year} soma <em>{fmt(y.cur)}</em> até {y.through}{y.change != null ? <>, <em className={y.change >= 0 ? 'up' : 'down'}>{signed(y.change)}</em> sobre {y.prevYear}</> : ''}</>} caption="Um ano sobre o outro, de janeiro a dezembro: passe o mouse para comparar mês a mês.">
       <YearLines years={y.years} />
       <p className="nx-note">Meses completos.{note(ignored)}</p>
     </Block>
@@ -169,7 +169,7 @@ function Sazonal({ monthly, ignored, note }) {
   };
   const txt = v => { if (v == null) return ''; const r = Math.round(Math.abs(v - 1) * 100); return r === 0 ? '0' : (v >= 1 ? '+' : '−') + r; };
   return (
-    <Block className="nx-c12" title={<>{cap(FULL[s.best])} é o mês mais forte: em mediana, <em className="up">{signed(s.med[s.best] - 1, 0)}</em> sobre a média mensal do ano</>}
+    <Block className="nx-c12" title="Sazonalidade" sub={<>{cap(FULL[s.best])} é o mês mais forte: em mediana, <em className="up">{signed(s.med[s.best] - 1, 0)}</em> sobre a média mensal do ano</>}
       caption={`${cap(FULL[s.best])} liderou o ano em ${s.wins} de ${s.full.length} anos completos. O mais fraco é ${FULL[s.worst]}, com ${signed(s.med[s.worst] - 1, 0)}. Cada célula compara o mês com a média do próprio ano.`}>
       <div>
         <div className="nxe-heat" onPointerLeave={tip.hide}>
@@ -239,20 +239,20 @@ function Marcas({ brandMonthly, brandSel, setFilter, ignored, note }) {
   return (
     <>
       {ri && fa && (
-        <Block className="nx-c7" title={<>{name(ri.name)} {ri.then < .0005 ? 'saiu de quase zero' : <>foi de {pct(ri.then)}</>} para <em className="up">{pct(ri.now)}</em> em cinco anos; {name(fa.name)}, de {pct(fa.then)} para <em className="down">{pct(fa.now)}</em></>}
+        <Block className="nx-c7" title="Participação das marcas" sub={<>{name(ri.name)} {ri.then < .0005 ? 'saiu de quase zero' : <>foi de {pct(ri.then)}</>} para <em className="up">{pct(ri.now)}</em> em cinco anos; {name(fa.name)}, de {pct(fa.then)} para <em className="down">{pct(fa.now)}</em></>}
           caption={`Participação no acumulado de 12 meses, de ${since} a ${from}. Linha forte: quem mais ganhou; escura: quem mais perdeu.`}>
           <TimeLines months={b.months} series={lines} fmtY={yFmt} height={320} label="Participação das principais marcas ao longo do tempo" />
           <p className="nx-note">Acumulado de 12 meses de cada marca dividido pelo mercado do recorte (todas as marcas){sel ? '; a marca filtrada aparece em destaque' : ''}.{note(ignored)}</p>
         </Block>
       )}
       {div.length > 1 && (
-        <Block className="nx-c5" title="Variação da participação em cinco anos" caption={`Pontos percentuais entre ${since} e ${from}. Clique numa marca para filtrar o painel.`}>
+        <Block className="nx-c5" title="Quem subiu e quem caiu" caption={`Pontos percentuais entre ${since} e ${from}. Clique numa marca para filtrar o painel.`}>
           <Diverging rows={div} onPick={r => setFilter('marca', brandSel.length === 1 && brandSel[0] === r.name ? 'all' : [r.name])} />
         </Block>
       )}
       {hNow != null && hThen != null && (
         <>
-          <Block className="nx-c7" title={<>HHI de <em>{fmt(hNow)}</em>: mercado {level(hNow)}{Math.abs(hDelta) < 25 ? ', estável' : <>, <em className={hDelta < 0 ? 'up' : 'down'}>{hDelta < 0 ? 'menos' : 'mais'} concentrado</em></>} que há cinco anos</>}
+          <Block className="nx-c7" title="Concentração do mercado" sub={<>HHI de <em>{fmt(hNow)}</em>: mercado {level(hNow)}{Math.abs(hDelta) < 25 ? ', estável' : <>, <em className={hDelta < 0 ? 'up' : 'down'}>{hDelta < 0 ? 'menos' : 'mais'} concentrado</em></>} que há cinco anos</>}
             caption="Índice Herfindahl-Hirschman: soma do quadrado da participação de cada marca. Abaixo de 1.500 é pouco concentrado; de 1.500 a 2.500, moderado; acima, muito concentrado.">
             <TimeLines months={b.months} series={[{ name: 'HHI', color: 'var(--nx-accent)', values: hVals, width: 3.6 }]} endLabels={false} height={300} yMax={Math.max(1500, Math.ceil(Math.max(...hVals.filter(v => v != null)) * 1.15 / 250) * 250)}
               bands={[{ from: 0, to: 1500, label: 'Pouco concentrado' }, { from: 1500, to: 2500, label: 'Moderado', tone: 'warn' }]} marks={hhiMarks} label="Índice de concentração de mercado ao longo do tempo" />

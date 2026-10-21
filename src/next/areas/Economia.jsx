@@ -3,7 +3,7 @@ import ufGeometry from '../../market/geo/uf-geometry.json';
 import { BarList, useTip } from '../charts.jsx';
 import { useNext } from '../ctx.js';
 import { UF_NAMES, fmt, monthLabel, pct, signed } from '../format.js';
-import { AreaHead } from '../ui.jsx';
+import { AreaHead, InfoTip } from '../ui.jsx';
 import LegacyTab from '../LegacyTab.jsx';
 import { useDataApp } from '../../kit/index.js';
 import { ForecastChart, GapRows, IndexedLines, LagHeat, Spark, UfScatter } from './economia-charts.jsx';
@@ -60,9 +60,10 @@ function Skeleton({ h = 300 }) { return <div className="nxo-skel" style={{ heigh
 function Panel({ id, kicker, title, lede, span = '12', bare, children }) {
   return (
     <section id={id} className={'nxo-panel nx-c' + span + (bare ? ' bare' : ' nx-card')}>
-      {kicker && <div className="nxo-eyebrow">{kicker}</div>}
-      <h3 className="nx-block-t">{title}</h3>
-      {lede && <p className="nx-block-s">{lede}</p>}
+      <div className="nx-block-head"><div className="nx-block-titles">
+        <h3 className="nx-block-t">{kicker ?? title}<InfoTip>{lede}</InfoTip></h3>
+        {kicker && title && <p className="nx-block-sub">{title}</p>}
+      </div></div>
       <div className="nxo-body">{children}</div>
     </section>
   );

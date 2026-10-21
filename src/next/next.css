@@ -127,3 +127,34 @@ html[data-nx-dir="back"]::view-transition-old(root){animation-name:nx-leave-back
 .nx-tabs{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:color-mix(in srgb,var(--nx-ink) 7%,transparent);margin-top:18px;flex-wrap:wrap}
 .nx .nx-tabs button{padding:8px 16px;border-radius:999px;font:600 13.5px/1 var(--nx-font);color:var(--nx-soft);transition:background .2s,color .2s,box-shadow .2s}
 .nx .nx-tabs button[aria-pressed="true"]{background:var(--nx-card);color:var(--nx-ink);box-shadow:0 1px 3px rgba(0,0,0,.16)}
+
+/* ---- um gráfico = título curto, subtítulo de uma linha e ⓘ ---- */
+.nx-grid{align-items:stretch}
+.nx-grid>.nx-card,.nx-grid>.nx-block{height:100%}
+.nx-block{display:flex;flex-direction:column;min-width:0}
+.nx-block-head{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;margin-bottom:14px;min-width:0}
+.nx-block-titles{min-width:0}
+.nx .nx-block-t{display:flex;align-items:center;gap:8px;font:700 17px/1.25 var(--nx-font);letter-spacing:-.02em;margin:0}
+.nx .nx-block-sub{font:500 13.5px/1.4 var(--nx-font);color:var(--nx-soft);margin:3px 0 0;overflow-wrap:anywhere}
+.nx-block-sub em{font-style:normal;color:var(--nx-accent);font-weight:600}.nx-block-sub em.up{color:var(--nx-up)}.nx-block-sub em.down{color:var(--nx-down)}
+.nx-block-actions{flex:none;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.nx-block-body{flex:1;min-width:0}
+.nx-block-body svg{max-width:100%}
+.nx-info{position:relative;display:inline-flex;flex:none}
+.nx .nx-info>button{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font:700 11px/1 var(--nx-font);font-style:italic;color:var(--nx-soft);background:color-mix(in srgb,var(--nx-ink) 8%,transparent);text-align:center;cursor:help;transition:background .15s,color .15s}
+.nx .nx-info>button:hover,.nx .nx-info>button[aria-expanded="true"]{background:var(--nx-ink);color:var(--nx-card)}
+.nx-info-pop{position:absolute;z-index:70;left:50%;top:calc(100% + 8px);transform:translateX(-50%);width:max-content;max-width:min(320px,80vw);padding:11px 13px;border-radius:12px;background:#1d1d1f;color:#f5f5f7;font:500 12.5px/1.5 var(--nx-font);letter-spacing:0;box-shadow:0 12px 30px rgba(0,0,0,.3);white-space:normal;text-align:left;animation:nxfade .12s both}
+/* notas longas (nossas e do Atlas atual) viram um ⓘ: o texto vai para o balão */
+.nx [data-nxnote]{position:relative;display:inline-block!important;width:20px!important;min-width:20px;height:20px!important;max-width:none!important;margin:6px 6px 0 0;border-radius:50%;background:color-mix(in srgb,var(--nx-ink) 8%,transparent);font-size:0!important;line-height:0;color:transparent!important;cursor:help;vertical-align:middle;overflow:visible;padding:0!important;border:0!important;flex:none}
+.nx [data-nxnote]>*{display:none!important}
+.nx [data-nxnote]::before{content:'i';position:absolute;inset:0;display:grid;place-items:center;font:italic 700 11px/20px var(--nx-font);color:var(--nx-soft);text-align:center}
+.nx [data-nxnote]:hover,.nx [data-nxnote]:focus{background:var(--nx-ink);outline:none}
+.nx [data-nxnote]:hover::before,.nx [data-nxnote]:focus::before{color:var(--nx-card)}
+.nx [data-nxnote]:hover::after,.nx [data-nxnote]:focus::after{content:attr(data-nxnote);position:absolute;z-index:70;left:0;top:calc(100% + 8px);width:max-content;max-width:min(340px,80vw);padding:11px 13px;border-radius:12px;background:#1d1d1f;color:#f5f5f7;font:500 12.5px/1.5 var(--nx-font);white-space:normal;text-align:left;box-shadow:0 12px 30px rgba(0,0,0,.3)}
+.nx .nx-areahead{padding:88px 0 0}.nx .nx-areahead h1{font-size:clamp(28px,3vw,42px)}
+
+/* eixos legíveis nos gráficos SVG que encolhem em meia coluna */
+.nx-chart .nx-axis text{font-size:19px}
+.nx-chart .nx-endlabel{font-size:19px}
+/* rodapé enxuto: só os atalhos para as outras áreas */
+.nx .nx-foot{padding:56px 0 120px}.nx .nx-foot h2{display:none}

@@ -176,7 +176,7 @@ function Overtakes({ m, topN, setTopN, setYear, onJump, hint }) {
   );
   if (!m.race) return <Block title="Quem passou quem" actions={actions}><p className="nxa-skel">{m.loading ? 'Lendo o histórico…' : 'Sem emplacamentos neste recorte.'}</p></Block>;
   return (
-    <Block title={events.length ? <>O top {N} troca de ordem {events.length} {events.length === 1 ? 'vez' : 'vezes'} em {year}</> : <>O top {N} não troca de ordem em {year}</>}
+    <Block title="Ultrapassagens" sub={events.length ? <>O top {N} troca de ordem {events.length} {events.length === 1 ? 'vez' : 'vezes'} em {year}</> : <>O top {N} não troca de ordem em {year}</>}
       caption={events.length ? hint : 'No acumulado, quem sai na frente tende a ficar na frente.'} actions={actions}>
       {events.length > 0 ? (
         <>
@@ -218,7 +218,7 @@ function Pace({ m, pace }) {
   if (!pace || pace.years.length < 2 || pace.cur == null) return <Block title="O ritmo do ano"><p className="nxa-skel">{m.loading ? 'Lendo o histórico…' : 'Sem anos anteriores para comparar neste recorte.'}</p></Block>;
   const ch = pace.prev > 0 ? pace.cur / pace.prev - 1 : null;
   return (
-    <Block title={<>{m.year} soma {fmt(pace.cur)} até {mname(m, m.M - 1)}{ch != null ? <>, <em className={'nxa-ch ' + (ch >= 0 ? 'up' : 'down')}>{signed(ch)}</em> sobre {pace.prevYear}</> : ''}</>}
+    <Block title="Ritmo do ano" sub={<>{m.year} soma {fmt(pace.cur)} até {mname(m, m.M - 1)}{ch != null ? <>, <em className={'nxa-ch ' + (ch >= 0 ? 'up' : 'down')}>{signed(ch)}</em> sobre {pace.prevYear}</> : ''}</>}
       caption="Acumulado do mercado inteiro, mês a mês, contra os três anos anteriores: a linha só sobe e o que importa é a inclinação.">
       <YearLines years={pace.years} />
       <p className="nx-note">Soma desde janeiro, com os filtros do painel{m.ignored.length ? `; não aplica ${m.ignored.join(', ')}` : ''}.</p>
@@ -284,7 +284,7 @@ export default function Animacoes() {
           {tab === 'estados' && (
             <>
               <div className="nx-c12">
-                <Block title={ufTitle} caption="Cada barra soma os emplacamentos do estado desde janeiro; a ordem muda conforme as somas crescem, mês após mês. O Atlas atual só corre estados pelo volume da Mitsubishi.">
+                <Block title="Corrida de estados" sub={ufTitle} caption="Cada barra soma os emplacamentos do estado desde janeiro; a ordem muda conforme as somas crescem, mês após mês. O Atlas atual só corre estados pelo volume da Mitsubishi.">
                   <RaceCard m={uf} topN={ufTop} setTopN={setUfTop} setYear={setUfYear} frame={frame} setFrame={setFrame} tip={tip} anchorRef={raceRef} />
                   <p className="nx-note">Histórico mensal por estado, com os filtros de marca, segmento e propulsão{u.ignored.length ? `, exceto ${u.ignored.join(', ')}` : ''}.{u.race && !u.race.complete ? ' O último mês ainda está incompleto.' : ''}{u.focusKey ? ` Em destaque: ${u.label(u.focusKey)}.` : ''}</p>
                 </Block>

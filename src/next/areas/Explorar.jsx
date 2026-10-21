@@ -149,7 +149,7 @@ function Perguntas() {
 
   return (
     <div className="nxx-view nx-grid">
-      <Block className="nx-c12 nxx-main" title={title} caption={src ? lede : undefined}>
+      <Block className="nx-c12 nxx-main" title="Ranking" sub={title} caption={src ? lede : undefined}>
         <div className="nxx-sentence" role="group" aria-label="Pergunta">
           <span>Mostrar</span>
           <label className="nxx-pill">{MEASURES.find(m => m[0] === measure)[1]}{CHEV}<select value={measure} onChange={e => setMeasure(e.target.value)} aria-label="Medida">{MEASURES.map(([id, t]) => <option key={id} value={id}>{t}</option>)}</select></label>
@@ -229,7 +229,7 @@ function Perguntas() {
       </Block>
 
       {src && N >= 6 && (
-        <Block className="nx-c6" title={k50 === 1 ? <><em>{byCount[0].label}</em> sozinh{gender} tem metade dos emplacamentos.</> : <><em>{k50}</em> de {fmt(N)} {dim.plural} somam metade dos emplacamentos.</>}
+        <Block className="nx-c6" title="Concentração" sub={k50 === 1 ? <><em>{byCount[0].label}</em> sozinh{gender} tem metade dos emplacamentos.</> : <><em>{k50}</em> de {fmt(N)} {dim.plural} somam metade dos emplacamentos.</>}
           caption={`Para chegar a 80% são necessári${dim.f ? 'as' : 'os'} ${fmt(k80)} (${pct(k80 / N, k80 / N < .1 ? 1 : 0)} da lista). Curva acumulada do maior ao menor; escala horizontal logarítmica.`}>
           <Pareto items={pareto} label={dim.plural} />
           <p className="nx-note">Considera os {fmt(N)} {dim.plural} com emplacamentos em {rangeText(src.range)}, e não apenas os da lista.</p>
@@ -237,7 +237,7 @@ function Perguntas() {
       )}
 
       {src && moves.rows.length > 1 && (
-        <Block className="nx-c6" title={<>{moves.gains[0] ? <>{moves.gains[0].label} ganhou mais espaço (<em className="up">{pp(moves.gains[0].shareChange)}</em>)</> : 'Sem ganhos relevantes'}{moves.losses[0] ? <>; {moves.losses[0].label} perdeu mais (<em className="down">{pp(moves.losses[0].shareChange)}</em>)</> : ''}.</>}
+        <Block className="nx-c6" title="Ganhos e perdas" sub={<>{moves.gains[0] ? <>{moves.gains[0].label} ganhou mais espaço (<em className="up">{pp(moves.gains[0].shareChange)}</em>)</> : 'Sem ganhos relevantes'}{moves.losses[0] ? <>; {moves.losses[0].label} perdeu mais (<em className="down">{pp(moves.losses[0].shareChange)}</em>)</> : ''}.</>}
           caption={`Variação da participação sobre o período anterior, entre ${dim.art} ${dim.plural} com peso suficiente. Clique para abrir no explorador.`}>
           <Diverging rows={moves.rows} onPick={jump} />
         </Block>

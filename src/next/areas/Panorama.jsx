@@ -95,7 +95,7 @@ export default function Panorama() {
 
   return (
     <div className="nxp">
-      <AreaHead title="Panorama" finding={finding} />
+      <AreaHead title="Panorama" />
       <div className="nx-wrap">
         <div className="nxp-heroframe">
           <PanoramaHero model={model} points={points} ufFilter={ufFilter} insights={insights} onTip={onTip} />
@@ -118,29 +118,27 @@ export default function Panorama() {
 
         <div className="nx-grid nxp-grid">
           {years && ytd && (
-            <Block className="nx-c7" title={<>{ytd.year} soma <em>{fmt(ytd.cur)}</em> até {ytd.through}{ytd.change != null ? <>, <em className={ytd.change >= 0 ? 'up' : 'down'}>{signed(ytd.change)}</em> sobre {ytd.prevYear}</> : ''}</>} caption="Cada linha é um ano, de janeiro a dezembro; passe o mouse para comparar mês a mês.">
+            <Block className="nx-c7" title="Ano contra ano" sub={<>{ytd.year}: <em>{fmt(ytd.cur)}</em> até {ytd.through}{ytd.change != null ? <> · <em className={ytd.change >= 0 ? 'up' : 'down'}>{signed(ytd.change)}</em> sobre {ytd.prevYear}</> : ''}</>} info={'Cada linha é um ano, de janeiro a dezembro; passe o mouse para comparar mês a mês. Série mensal completa, sem depender do período escolhido.' + noteIgnored}>
               <YearLines years={years} />
-              <p className="nx-note">Série mensal completa, sem depender do período escolhido.{noteIgnored}</p>
             </Block>
           )}
           {lead && (
-            <Block className="nx-c5" title={<>{name(lead.name)} lidera com <em>{pct(lead.count / total)}</em>{focusIndex > 0 ? <>; {name(focus)} é a {focusIndex + 1}ª</> : ''}</>} caption="Top 10 do período; a seta é a variação da participação sobre o período anterior. Clique para filtrar.">
+            <Block className="nx-c5" title="Marcas" sub={<>{name(lead.name)} lidera com <em>{pct(lead.count / total)}</em>{focusIndex > 0 ? <> · {name(focus)} é a {focusIndex + 1}ª</> : ''}</>} info="Top 10 do período; a seta é a variação da participação sobre o período anterior. Clique numa marca para filtrar o painel.">
               <BarList rows={rankRows} focus={brandFilter[0] ?? focus} onPick={pickBrand} />
             </Block>
           )}
           {diverging.length > 1 && (
-            <Block className="nx-c6" title={<>{gains[0] ? <>{name(gains[0].name)} ganhou mais (<em className="up">{pp(gains[0].shareChange)}</em>)</> : 'Sem ganhos relevantes'}{losses.length ? <>; {name(losses[losses.length - 1].name)} perdeu mais (<em className="down">{pp(losses[losses.length - 1].shareChange)}</em>)</> : ''}</>} caption="Variação da participação sobre o período anterior, entre marcas com ao menos 0,5% do mercado.">
+            <Block className="nx-c6" title="Ganhos e perdas" sub={<>{gains[0] ? <>{name(gains[0].name)} <em className="up">{pp(gains[0].shareChange)}</em></> : 'Sem ganhos relevantes'}{losses.length ? <> · {name(losses[losses.length - 1].name)} <em className="down">{pp(losses[losses.length - 1].shareChange)}</em></> : ''}</>} info="Variação da participação de mercado sobre o período anterior, entre marcas com ao menos 0,5% do mercado. Clique para filtrar.">
               <Diverging rows={diverging} onPick={r => pickBrand({ name: r.name })} />
             </Block>
           )}
           {techData && (
-            <Block className="nx-c6" title={<>Eletrificados já são <em>{pct(techData.now)}</em> do mercado{techData.before != null ? <>, contra {pct(techData.before)} um ano antes</> : ''}</>} caption="Fatia que já não é só combustão, mês a mês, nos últimos cinco anos; o elétrico em destaque.">
+            <Block className="nx-c6" title="Eletrificados" sub={<><em>{pct(techData.now)}</em> do mercado{techData.before != null ? <> · {pct(techData.before)} um ano antes</> : ''}</>} info={'Fatia do mercado que não é só combustão, mês a mês, nos últimos cinco anos: microhíbridos, híbridos, plug-in, elétricos e célula de combustível; o elétrico em destaque.' + noteIgnored}>
               <ShareArea months={techData.months} series={techData.series} max={techData.axis} />
-              <p className="nx-note">Microhíbridos, híbridos, plug-in, elétricos e célula de combustível.{noteIgnored}</p>
             </Block>
           )}
           {ufs.length > 0 && (
-            <Block className="nx-c7" title={<>{UF_NAMES[ufs[0].name]}{ufs[1] ? <> e {UF_NAMES[ufs[1].name]}</> : ''} reúnem <em>{pct((ufs[0].count + (ufs[1]?.count ?? 0)) / ufTotal, 0)}</em> dos emplacamentos</>} caption="Cada estado é colorido pelo volume. Clique num estado para filtrar o painel; o mapa do topo se aproxima.">
+            <Block className="nx-c7" title="Estados" sub={<>{UF_NAMES[ufs[0].name]}{ufs[1] ? <> e {UF_NAMES[ufs[1].name]}</> : ''}: <em>{pct((ufs[0].count + (ufs[1]?.count ?? 0)) / ufTotal, 0)}</em> do total</>} info="Cada estado é colorido pelo volume de emplacamentos. Clique num estado para filtrar o painel; o mapa do topo se aproxima dele.">
               <div className="nxp-uf">
                 <svg className="nx-uf" viewBox="0 0 630 565" role="img" aria-label="Mapa dos estados por volume de emplacamentos" onPointerLeave={tip.hide}>
                   {ufGeometry.features.map(f => { const r = ufMap.get(f.uf), a = r ? .12 + Math.sqrt(r.count / ufMax) * .88 : .05, on = selectedUF.includes(f.uf); return <path key={f.uf} d={f.path} className={'nx-ufp' + (on ? ' on' : '')} style={{ fillOpacity: a }} onClick={() => pickUF(f.uf)} onPointerMove={e => tip.show(e, <><strong>{UF_NAMES[f.uf]}</strong><span>{fmt(r?.count ?? 0)} emplacamentos{r ? ' · ' + pct(r.count / ufTotal) : ''}</span></>)} />; })}
@@ -151,7 +149,7 @@ export default function Panorama() {
             </Block>
           )}
           {cities.length > 0 && (
-            <Block className="nx-c5" title={<>{cityName(cities[0].name)} é o município que mais emplaca</>} caption="Dez maiores municípios no recorte e a variação sobre o período anterior.">
+            <Block className="nx-c5" title="Municípios" sub={<>{cityName(cities[0].name)} lidera com {fmt(cities[0].count)}</>} info="Dez maiores municípios do recorte e a variação sobre o período anterior. Emplacamentos de frotas aparecem na cidade da sede da empresa.">
               <BarList rows={cities.map(cityRow)} max={cities[0]?.count} />
             </Block>
           )}

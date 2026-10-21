@@ -130,7 +130,7 @@ export default function Segmentos() {
       <div className="nx-grid nxs-grid" data-tab={tab}>
         {/* 1 — ranking */}
         <Block className={cls(rankSpan, 'nxs-b-rank')}
-          title={top ? <><em>{top.label}</em> {verb('concentra', 'concentram')} <em>{pct(top.share)}</em> do mercado{change == null ? '' : Math.abs(change) < .0005 ? <>, {verb('estável', 'estáveis')}</> : change > 0 ? <>, <em className="up">{pct(change)} acima</em> do período anterior</> : <>, <em className="down">{pct(-change)} abaixo</em> do período anterior</>}.</> : 'Sem grupos classificados neste recorte.'}
+          title="Ranking" sub={top ? <><em>{top.label}</em> {verb('concentra', 'concentram')} <em>{pct(top.share)}</em> do mercado{change == null ? '' : Math.abs(change) < .0005 ? <>, {verb('estável', 'estáveis')}</> : change > 0 ? <>, <em className="up">{pct(change)} acima</em> do período anterior</> : <>, <em className="down">{pct(-change)} abaixo</em> do período anterior</>}.</> : 'Sem grupos classificados neste recorte.'}
           caption={`${lens.title} · emplacamentos de ${rangeText(base.range)}. A seta compara o volume com o período anterior. Clique num grupo para filtrar todo o painel.`}>
           {selected.length > 0 && <div className="nxs-active"><span>Painel filtrado por <b>{[...new Set(selected.map(n => groupLabel(dim, n)))].join(', ')}</b>.</span><button type="button" onClick={() => setFilter(dim, 'all')}>Limpar</button></div>}
           <GroupBars rows={shown} highlight={selected} onPick={pick} />
@@ -140,7 +140,7 @@ export default function Segmentos() {
         {/* 2 — mix no tempo */}
         {showMix && (mix ? (
           <Block className={cls(mixSpan, 'nxs-b-mix')}
-            title={mix.focus ? (Math.abs(mix.focus.d) < .005 ? <>O mix mal mudou em {mixYears ?? 'anos'}.</> : <>Em {mixYears ?? 'alguns anos'}, <em>{mix.focus.label}</em> {verb('foi', 'foram')} de {pct(mix.focus.a)} para <em className={mix.focus.d > 0 ? 'up' : 'down'}>{pct(mix.focus.b)}</em>.</>) : 'O mix se manteve estável.'}
+            title="Mix ao longo do tempo" sub={mix.focus ? (Math.abs(mix.focus.d) < .005 ? <>O mix mal mudou em {mixYears ?? 'anos'}.</> : <>Em {mixYears ?? 'alguns anos'}, <em>{mix.focus.label}</em> {verb('foi', 'foram')} de {pct(mix.focus.a)} para <em className={mix.focus.d > 0 ? 'up' : 'down'}>{pct(mix.focus.b)}</em>.</>) : 'O mix se manteve estável.'}
             caption={`Fatia de cada grupo nos emplacamentos de cada mês, de ${monthLabel(mix.first)} a ${monthLabel(mix.lastM)}.${mix.grown ? ` Também ganhou: ${mix.grown.label} (${pp(mix.grown.d)}).` : ''}${mix.lost ? ` Também perdeu: ${mix.lost.label} (${pp(mix.lost.d)}).` : ''}`}>
             <ShareArea months={mix.months} series={mix.series} max={mix.axis} />
             <p className="nx-note">Compara a média dos 12 primeiros com a dos 12 últimos meses, sem depender do período escolhido. {mix.dominant ? `A faixa de ${mix.dominant.label} (${pct(mix.dominant.now)} no último mês) fica de fora para as demais aparecerem. ` : ''}Sem classificação não entra na conta. {noteIgnored}</p>
@@ -152,7 +152,7 @@ export default function Segmentos() {
         {/* 3 — líderes por grupo */}
         {cards && cards.length > 0 && (
           <Block className={cls(tab === 'porte' ? 5 : 12, 'nxs-b-leaders')}
-            title={wins && wins[1] >= 2 ? <><em>{brandName(wins[0])}</em> lidera em <em>{wins[1]}</em> dos {cards.length} maiores grupos.</> : <>Cada grupo tem o seu líder: <em>{cards.length}</em> grupos, <em>{new Set(cards.map(c => c.leader.name)).size}</em> marcas.</>}
+            title="Líder de cada grupo" sub={wins && wins[1] >= 2 ? <><em>{brandName(wins[0])}</em> lidera em <em>{wins[1]}</em> dos {cards.length} maiores grupos.</> : <>Cada grupo tem o seu líder: <em>{cards.length}</em> grupos, <em>{new Set(cards.map(c => c.leader.name)).size}</em> marcas.</>}
             caption={`Marca com mais emplacamentos dentro de cada grupo em ${rangeText(base.range)}, entre todas as marcas. Clique num cartão para filtrar o painel.`}>
             <LeaderCards cards={cards} active={selected} onPick={pick} brandName={brandName} />
             <p className="nx-note">Abaixo de cada líder, as duas seguintes e a fatia de cada uma no grupo. {noteIgnored}</p>
