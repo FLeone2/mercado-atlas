@@ -3,10 +3,21 @@ import { engine } from 'virtual:market';
 import { UF_NAMES, monthEnd, monthLabel, shiftMonth, titleCase } from './format.js';
 
 const REGIOES = ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'];
-const CANAIS = [['VAREJO', 'Varejo'], ['VD', 'Vendas diretas']];
-const SEGMENTOS = [['Auto', 'Automóveis'], ['Comercial Leve', 'Comerciais leves']];
+const UNIVERSO = [['light', 'Automóveis + comerciais leves'], ['all_content', 'Todos os veículos']];
+const NICE = { 'Álcool / Gasolina': 'Flex (álcool / gasolina)', VAREJO: 'Varejo', VD: 'Vendas diretas', Auto: 'Automóveis', 'Comercial Leve': 'Comerciais leves', LOCAL: 'Nacional', IMP: 'Importado' };
+// Filtros que ficam recolhidos em "Mais filtros" (mesma lista do Atlas antigo, fora os principais)
+const EXTRA = ['combustivel', 'subsegmento', 'bd_segmento', 'bd_carroceria', 'bd_classe', 'bd_macro', 'bd_combustivel', 'bd_origem', 'nacionalidade', 'ano_fabricacao', 'potencia', 'capacidade_carga', 'capacidade_passageiros'];
+// grupo_modelo é o modelo (STRADA, ONIX); modelo é a versão (FIAT/STRADA ENDURAN CS13)
+const LABEL = { ...engine.filterLabels, grupo_modelo: 'Modelo', modelo: 'Versão', uf: 'Estado', tipo_venda: 'Canal', nacionalidade: 'Código de nacionalidade', bd_segmento: 'Porte', bd_carroceria: 'Carroceria' };
 const list = v => (v == null || v === 'all' ? [] : (Array.isArray(v) ? v : [v]).filter(x => x !== 'all'));
-const brandName = n => engine.insightName(n);
+const fold = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+const display = id => {
+  if (id === 'uf') return u => UF_NAMES[u] ?? u;
+  if (id === 'marca') return n => engine.insightName(n);
+  if (id === 'municipio') return n => titleCase(n);
+  return v => NICE[v] ?? engine.filterChoiceLabel(id, v);
+};
 
 function Chips({ value, options, onChange, label }) {
   const sel = list(value);
@@ -18,20 +29,28 @@ function Chips({ value, options, onChange, label }) {
   );
 }
 
-function Search({ value, choices, quick, onChange, placeholder, display }) {
-  const [q, setQ] = useState(''), sel = list(value);
-  const fold = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-  const found = useMemo(() => (q.trim() ? choices.filter(c => fold(display(c)).includes(fold(q)) && !sel.includes(c)).slice(0, 7) : []), [q, choices, sel]);
+// Busca com sugestões: as opções com mais emplacamentos no recorte atual aparecem primeiro.
+function Search({ id, value, choices, rank, onChange, quickCount = 5 }) {
+  const [q, setQ] = useState(''), sel = list(value), show = display(id);
+  const ordered = useMemo(() => [...choices].sort((a, b) => (rank.get(b) ?? -1) - (rank.get(a) ?? -1)), [choices, rank]);
+  const found = useMemo(() => {
+    const t = fold(q.trim());
+    return t ? ordered.filter(c => !sel.includes(c) && (fold(show(c)).includes(t) || fold(c).includes(t))).slice(0, 8) : [];
+  }, [q, ordered, sel]);
+  const quick = ordered.filter(c => (rank.get(c) ?? 0) > 0 && !sel.includes(c)).slice(0, quickCount);
   const add = k => { onChange([...sel, k]); setQ(''); };
   const remove = k => onChange(sel.filter(x => x !== k));
   return (
     <div className="nx-search">
       <div className="nx-chips">
-        {sel.map(k => <button key={k} type="button" className="nx-chip on" onClick={() => remove(k)} aria-label={'Remover ' + display(k)}>{display(k)} <span aria-hidden>×</span></button>)}
-        {quick.filter(k => !sel.includes(k)).map(k => <button key={k} type="button" className="nx-chip" onClick={() => add(k)}>{display(k)}</button>)}
+        {sel.map(k => <button key={k} type="button" className="nx-chip on" onClick={() => remove(k)} aria-label={'Remover ' + show(k)}>{show(k)} <span aria-hidden>×</span></button>)}
+        {quick.map(k => <button key={k} type="button" className="nx-chip" onClick={() => add(k)}>{show(k)}</button>)}
       </div>
-      <input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder={placeholder} aria-label={placeholder} />
-      {found.length > 0 && <ul className="nx-found">{found.map(c => <li key={c}><button type="button" onClick={() => add(c)}>{display(c)}</button></li>)}</ul>}
+      <input type="search" value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && found[0]) add(found[0]); }}
+        placeholder={'Buscar ' + LABEL[id].toLowerCase()} aria-label={'Buscar ' + LABEL[id].toLowerCase()} />
+      {q.trim() && (found.length > 0
+        ? <ul className="nx-found">{found.map(c => <li key={c}><button type="button" onClick={() => add(c)}>{show(c)}{rank.get(c) > 0 && <small>{rank.get(c).toLocaleString('pt-BR')}</small>}</button></li>)}</ul>
+        : <p className="nx-none">Nada encontrado</p>)}
     </div>
   );
 }
@@ -47,10 +66,20 @@ export default function FilterSheet({ open, filters, setFilter, manifest, model,
   const date = String(filters.date ?? '');
   const [a, b] = date.split('..').map(s => s?.slice(0, 7));
   const choices = manifest?.dimensionChoices ?? {};
-  const topBrands = (model?.groups?.marca ?? []).slice(0, 6).map(r => r.name);
-  const props = (model?.groups?.propulsao ?? []).filter(r => r.count > 0).map(r => [r.name, r.name]);
+  // contagem de cada opção no recorte atual, por filtro
+  const ranks = useMemo(() => Object.fromEntries(Object.entries(model?.groups ?? {}).map(([k, rows]) => [k, new Map(rows.map(r => [r.name, r.count]))])), [model]);
+  const rank = id => ranks[id] ?? new Map();
   const set = id => v => setFilter(id, v.length ? v : 'all');
   const setRange = (from, to) => { if (from > to) to = from; setFilter('date', from + '-01..' + monthEnd(to)); };
+  // chips: opções com volume no recorte + as já escolhidas
+  const chipOptions = (id, base) => {
+    const sel = list(filters[id]), r = rank(id);
+    return (base ?? choices[id] ?? []).filter(k => sel.includes(k) || !model || (r.get(k) ?? 0) > 0).map(k => [k, display(id)(k)]);
+  };
+  const search = (id, extra) => <section key={id}><h4>{LABEL[id]}</h4><Search id={id} value={filters[id]} choices={id === 'uf' ? (choices.uf ?? []).filter(u => UF_NAMES[u]) : choices[id] ?? []} rank={rank(id)} onChange={set(id)} {...extra} /></section>;
+  const extraOn = EXTRA.filter(id => list(filters[id]).length).length;
+  const props = chipOptions('propulsao', (model?.groups?.propulsao ?? []).map(r => r.name));
+  const population = filters.population ?? 'light';
   return (
     <div className={'nx-sheet' + (open ? ' open' : '')} id="nx-sheet" role="dialog" aria-label="Filtros" inert={!open || undefined}>
       <section>
@@ -65,14 +94,27 @@ export default function FilterSheet({ open, filters, setFilter, manifest, model,
           </div>
         )}
       </section>
+      <section>
+        <h4>Universo</h4>
+        <div className="nx-seg" role="group" aria-label="Universo">
+          {UNIVERSO.map(([k, l]) => <button key={k} type="button" aria-pressed={population === k} onClick={() => setFilter('population', k)}>{l}</button>)}
+        </div>
+      </section>
       <section><h4>Região</h4><Chips label="Região" value={filters.regiao} options={REGIOES.map(r => [r, r])} onChange={set('regiao')} /></section>
-      <section><h4>Estado</h4><Search value={filters.uf} choices={(choices.uf ?? []).filter(u => UF_NAMES[u])} quick={['SP', 'MG', 'PR', 'RS']} onChange={set('uf')} placeholder="Buscar estado" display={u => UF_NAMES[u] ?? u} /></section>
-      <section><h4>Marca</h4><Search value={filters.marca} choices={choices.marca ?? []} quick={topBrands} onChange={set('marca')} placeholder="Buscar entre as marcas" display={brandName} /></section>
+      {search('uf', { quickCount: 4 })}
+      {search('municipio')}
+      {search('marca', { quickCount: 6 })}
+      {search('grupo_modelo', { quickCount: 6 })}
+      {search('modelo')}
       {props.length > 0 && <section><h4>Propulsão</h4><Chips label="Propulsão" value={filters.propulsao} options={props} onChange={set('propulsao')} /></section>}
       <section className="nx-two">
-        <div><h4>Segmento</h4><Chips label="Segmento" value={filters.segmento} options={SEGMENTOS} onChange={set('segmento')} /></div>
-        <div><h4>Canal</h4><Chips label="Canal" value={filters.tipo_venda} options={CANAIS} onChange={set('tipo_venda')} /></div>
+        <div><h4>Segmento</h4><Chips label="Segmento" value={filters.segmento} options={chipOptions('segmento')} onChange={set('segmento')} /></div>
+        <div><h4>Canal</h4><Chips label="Canal" value={filters.tipo_venda} options={chipOptions('tipo_venda')} onChange={set('tipo_venda')} /></div>
       </section>
+      <details className="nx-more-filters" open={extraOn > 0 || undefined}>
+        <summary>Mais filtros{extraOn > 0 && <span className="nx-count">{extraOn}</span>}</summary>
+        {EXTRA.map(id => search(id))}
+      </details>
       <div className="nx-sheet-foot">
         {changed ? <button type="button" className="nx-reset" onClick={onReset}>Limpar filtros</button> : <span>Sem filtros ativos</span>}
         <div className="nx-pal" role="group" aria-label="Paleta">

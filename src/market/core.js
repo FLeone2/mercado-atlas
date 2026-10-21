@@ -2014,5 +2014,7 @@ if(typeof module!=="undefined")module.exports = exports;
 exports.DashboardContent = DashboardContent;
 exports.ReportContent = ReportContent;
 // The engine the new interface (src/next) reads: same queries, filters and insight sentences as the current one.
-exports.engine = {useMarketData,useHistory,historyMonthly,historyPlan,overviewInsights,geoKey,getBase,useTbmPoints,marketFocusBrand,canonicalFilterKey,insightName,marketNavigation,marketTabs};
+exports.engine = {useMarketData,useHistory,historyMonthly,historyPlan,overviewInsights,geoKey,getBase,useTbmPoints,marketFocusBrand,canonicalFilterKey,insightName,marketNavigation,marketTabs,filterLabels:LABELS$1,
+ // rótulo legível de uma opção de filtro (porte e carroceria do BD têm nomes próprios)
+ filterChoiceLabel:(id,value)=>id==='bd_carroceria'?bodyTypeLabel(value):id==='bd_segmento'?structureDisplayLabel(value,'bd_segmento'):String(value)};
 

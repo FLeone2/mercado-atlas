@@ -31,7 +31,9 @@ export default function NextApp() {
   const geoless = engine.useMarketData(without(filters, GEO_KEYS), hasGeo, 'dashboard', false).result;
   const hist = engine.useHistory(filters, base, true);
   const points = engine.useTbmPoints(base).data;
-  const focus = engine.marketFocusBrand(filters);
+  // com só modelo/versão escolhidos, a marca em foco é a dona do modelo (e não a marca padrão)
+  const modelOnly = !active(filters.marca) && (active(filters.grupo_modelo) || active(filters.modelo));
+  const focus = (modelOnly && model?.groups?.marca?.[0]?.name) || engine.marketFocusBrand(filters);
   const names = useMemo(() => { const m = new Map(); for (const [, n, u] of points?.rows ?? []) m.set(engine.geoKey(n, u) + '|' + u, n); return m; }, [points]);
   const cityName = useCallback(raw => { const i = raw.lastIndexOf(' · '), u = raw.slice(i + 3), n = raw.slice(0, i); return names.get(engine.geoKey(n, u) + '|' + u) ?? n.toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase()); }, [names]);
   const insights = useMemo(() => engine.overviewInsights(hasBrand ? market ?? model : model), [model, market, hasBrand]);
@@ -42,8 +44,8 @@ export default function NextApp() {
   const setPalette = p => { setPaletteState(p); try { localStorage.setItem('nx-palette', p); } catch { /* storage may be blocked */ } };
   const setFilter = useCallback((id, value) => shell.setFilter(id, value), [shell]);
   const dateDefault = shell.snapshot.filters.find(f => f.id === 'date')?.defaultValue;
-  const changed = Object.entries(filters).some(([k, v]) => !['date', 'population'].includes(k) && active(v)) || Boolean(filters.date && dateDefault && filters.date !== dateDefault);
-  const reset = () => { for (const [k, v] of Object.entries(filters)) if (!['date', 'population'].includes(k) && active(v)) shell.setFilter(k, 'all'); if (dateDefault) shell.setFilter('date', dateDefault); };
+  const changed = filters.population === 'all_content' || Object.entries(filters).some(([k, v]) => !['date', 'population'].includes(k) && active(v)) || Boolean(filters.date && dateDefault && filters.date !== dateDefault);
+  const reset = () => { for (const [k, v] of Object.entries(filters)) if (!['date', 'population'].includes(k) && active(v)) shell.setFilter(k, 'all'); if (dateDefault) shell.setFilter('date', dateDefault); if (filters.population === 'all_content') shell.setFilter('population', 'light'); };
   const current = AREAS.find(a => a.slug === area) ?? AREAS[0];
 
   /* ---- navigation between areas: the URL carries ?a=, the page slides in the direction of travel ---- */
@@ -103,9 +105,11 @@ export default function NextApp() {
   const scrollToChapter = id => document.getElementById(id)?.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: id === 'topo' ? 'start' : 'center' });
 
   const summary = useMemo(() => {
-    const ufs = list(filters.uf).map(u => UF_NAMES[u] ?? u), regs = list(filters.regiao), brands = list(filters.marca).map(engine.insightName);
-    const more = ['propulsao', 'segmento', 'tipo_venda'].filter(k => active(filters[k])).length;
-    return [model ? rangeText(model.range) : '…', ufs.length ? ufs.join(', ') : regs.length ? regs.join(', ') : 'Brasil', brands.length ? brands.join(', ') : 'Todas as marcas'].join(' · ') + (more ? ' +' + more : '');
+    const ufs = list(filters.uf).map(u => UF_NAMES[u] ?? u), regs = list(filters.regiao), brands = list(filters.marca).map(engine.insightName), models = [...list(filters.grupo_modelo), ...list(filters.modelo)];
+    const shown = ['date', 'population', 'uf', 'regiao', 'marca', 'grupo_modelo', 'modelo'];
+    const more = Object.keys(filters).filter(k => !shown.includes(k) && active(filters[k])).length + (filters.population === 'all_content' ? 1 : 0);
+    const what = models.length ? models.join(', ') : brands.length ? brands.join(', ') : 'Todas as marcas';
+    return [model ? rangeText(model.range) : '…', ufs.length ? ufs.join(', ') : regs.length ? regs.join(', ') : 'Brasil', what].join(' · ') + (more ? ' +' + more : '');
   }, [filters, model]);
 
   const ctx = useMemo(() => ({
