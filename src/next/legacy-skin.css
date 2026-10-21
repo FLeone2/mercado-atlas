@@ -79,4 +79,17 @@
 .nx .nx-grid .nxl section.ax-section>.ax-section-body:only-child{height:100%}
 .nx .nx-grid .nxl section.ax-section>.ax-section-body:only-child>article.ax-card:only-child{min-height:100%}
 .nx .nxl .am-overview-visuals .ax-card{display:flex;flex-direction:column}.nx .nxl .am-overview-visuals .ax-card-body{flex:1;display:flex;flex-direction:column;justify-content:center}
-.nx .nx-grid .nxl :is(section.ax-section,.hx-panel,.cr-card,.am-exploration,.tbm-card,.lm-card,.catalog-panel,article.ax-card){align-self:stretch!important}
+.nx .nx-grid .nxl :is(section.ax-section,.hx-panel,.cr-card,.am-exploration,.tbm-card,.lm-card,.catalog-panel,article.ax-card){align-self:stretch!important;margin-bottom:0!important}
+/* seções do Atlas atual na grade: o cartão preenche a altura da linha (via :where para não vencer as regras que escondem abas) */
+:where(.nx .nx-grid .nxl section.ax-section){display:flex;flex-direction:column}
+.nx .nx-grid .nxl section.ax-section>.ax-section-body{flex:1}
+/* espaçamento entre cartões dentro de uma seção = espaçamento da grade */
+.nx .nxl .ax-section-body{gap:16px}
+/* seção com um só cartão + nota: a nota vira um ⓘ no canto do cartão, e o cartão ocupa a altura toda */
+.nx .nx-grid .nxl .ax-section-body:has(>article.ax-card:only-of-type)>article.ax-card{flex:1 1 100%;align-self:stretch}
+.nx .nx-grid .nxl .ax-section-body:has(>article.ax-card:only-of-type){position:relative;flex-wrap:nowrap;flex-direction:column}
+.nx .nx-grid .nxl .ax-section-body:has(>article.ax-card:only-of-type)>.am-note-info{position:absolute;right:22px;bottom:18px;margin:0;z-index:2}
+.nx .nxl .cc-chord{border-radius:24px}
+/* Economia: caixas internas do Atlas atual no mesmo acabamento dos cartões */
+.nx .nxl .am-scenario-unavailable{border:0!important;border-radius:24px!important;background:var(--nx-card)!important;padding:26px 28px!important}
+.nx .nxl :is(.am-scenario-provenance,.am-scenario-quantiles,.am-scenario-source-card){border:0!important;border-radius:16px!important;background:color-mix(in srgb,var(--nx-ink) 4%,var(--nx-card))!important}

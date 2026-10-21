@@ -17,7 +17,7 @@ const out = path.join(__dirname, 'output'); fs.mkdirSync(out, { recursive: true 
       const errors = [];
       const onError = e => errors.push(e.message);
       page.on('pageerror', onError);
-      await page.goto(base + '?tab=' + tab, { waitUntil: 'domcontentloaded' });
+      await page.goto(base + '?ui=antigo&tab=' + tab, { waitUntil: 'domcontentloaded' });
       await page.waitForSelector('.at-masthead', { timeout: 30000 });
       await page.waitForTimeout(6000);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
@@ -33,7 +33,7 @@ const out = path.join(__dirname, 'output'); fs.mkdirSync(out, { recursive: true 
   const dpage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   for (const tab of dialogTabs) {
     const errors = []; const onError = e => errors.push(e.message); dpage.on('pageerror', onError);
-    await dpage.goto(base + '?tab=' + tab, { waitUntil: 'domcontentloaded' });
+    await dpage.goto(base + '?ui=antigo&tab=' + tab, { waitUntil: 'domcontentloaded' });
     await dpage.waitForSelector('.at-masthead', { timeout: 30000 });
     await dpage.waitForTimeout(6000);
     const button = dpage.getByRole('button', { name: /Exportar recorte/ }).first();

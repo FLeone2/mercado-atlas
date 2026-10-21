@@ -16,8 +16,8 @@ const active = v => v != null && v !== 'all' && !(Array.isArray(v) && (v.length 
 const without = (filters, keys) => { const f = { ...filters }; for (const k of keys) f[k] = 'all'; return f; };
 const list = v => (active(v) ? (Array.isArray(v) ? v : [v]).filter(x => x !== 'all') : []);
 const readArea = () => { const s = new URLSearchParams(location.search).get('a'); return AREAS.some(a => a.slug === s) ? s : 'panorama'; };
-const legacyQuality = () => { const p = new URLSearchParams(location.search); p.delete('ui'); p.delete('a'); p.set('tab', 'quality'); return location.pathname + '?' + p.toString(); };
-const legacyHome = () => { const p = new URLSearchParams(location.search); p.delete('ui'); p.delete('a'); return location.pathname + '?' + p.toString(); };
+const legacyQuality = () => { const p = new URLSearchParams(location.search); p.set('ui', 'antigo'); p.delete('a'); p.set('tab', 'quality'); return location.pathname + '?' + p.toString(); };
+const legacyHome = () => { const p = new URLSearchParams(location.search); p.set('ui', 'antigo'); p.delete('a'); return location.pathname + '?' + p.toString(); };
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export default function NextApp() {
@@ -118,9 +118,9 @@ export default function NextApp() {
     <NextCtx.Provider value={ctx}>
       <div className="nx" data-pal={palette} data-area={area}>
         <header className="nx-nav" data-tone={tone}>
-          <a className="nx-brand" href="?ui=novo" onClick={e => { e.preventDefault(); go('panorama'); }}>Atlas</a>
+          <a className="nx-brand" href="?" onClick={e => { e.preventDefault(); go('panorama'); }}>Atlas</a>
           <nav className="nx-links" aria-label="Áreas">
-            {AREAS.map(a => <a key={a.slug} href={'?ui=novo&a=' + a.slug} aria-current={a.slug === area ? 'page' : undefined} onClick={e => { e.preventDefault(); go(a.slug); }}>{a.label}</a>)}
+            {AREAS.map(a => <a key={a.slug} href={'?a=' + a.slug} aria-current={a.slug === area ? 'page' : undefined} onClick={e => { e.preventDefault(); go(a.slug); }}>{a.label}</a>)}
           </nav>
           <button type="button" className="nx-lens" aria-expanded={sheet} aria-controls="nx-sheet" onClick={() => setSheet(s => !s)}>
             <i className={'dot' + (changed ? ' on' : '')} /><span>{summary}</span>
@@ -128,7 +128,7 @@ export default function NextApp() {
           </button>
         </header>
         <nav className="nx-dock" aria-label="Áreas (celular)">
-          {AREAS.map(a => <a key={a.slug} href={'?ui=novo&a=' + a.slug} aria-current={a.slug === area ? 'page' : undefined} onClick={e => { e.preventDefault(); go(a.slug); }}>{a.label}</a>)}
+          {AREAS.map(a => <a key={a.slug} href={'?a=' + a.slug} aria-current={a.slug === area ? 'page' : undefined} onClick={e => { e.preventDefault(); go(a.slug); }}>{a.label}</a>)}
         </nav>
         <FilterSheet open={sheet} filters={filters} setFilter={setFilter} manifest={manifest} model={model} onReset={reset} changed={changed} palette={palette} setPalette={setPalette} />
         <main ref={main} className={pending ? 'nx-pending' : ''}>
@@ -137,8 +137,8 @@ export default function NextApp() {
             <div className="nx-wrap">
               <div className="nx-kicker">Outras áreas</div>
               <h2>Há mais de onde isso veio.</h2>
-              <div className="nx-more">{AREAS.filter(a => a.slug !== area).map(a => <a key={a.slug} href={'?ui=novo&a=' + a.slug} onClick={e => { e.preventDefault(); go(a.slug); }}>{a.label}<span aria-hidden>→</span></a>)}</div>
-              <p className="nx-note"><a href={legacyQuality()}>Dados e metodologia ↗</a> · <a href={legacyHome()}>Voltar ao Atlas atual ↗</a> · Fonte: emplacamentos mensais, cubos do Atlas.</p>
+              <div className="nx-more">{AREAS.filter(a => a.slug !== area).map(a => <a key={a.slug} href={'?a=' + a.slug} onClick={e => { e.preventDefault(); go(a.slug); }}>{a.label}<span aria-hidden>→</span></a>)}</div>
+              <p className="nx-note"><a href={legacyQuality()}>Dados e metodologia ↗</a> · <a href={legacyHome()}>Versão antiga ↗</a> · Fonte: emplacamentos mensais, cubos do Atlas.</p>
             </div>
           </footer>
         </main>
