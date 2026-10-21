@@ -158,3 +158,10 @@ html[data-nx-dir="back"]::view-transition-old(root){animation-name:nx-leave-back
 .nx-chart .nx-endlabel{font-size:19px}
 /* rodapé enxuto: só os atalhos para as outras áreas */
 .nx .nx-foot{padding:56px 0 120px}.nx .nx-foot h2{display:none}
+
+/* ---- proporção e alinhamento: só duas larguras de cartão (metade ou inteira), o mesmo raio e o mesmo respiro ---- */
+.nx .nx-grid>:is(.nx-c4,.nx-c5,.nx-c7,.nx-c8),.nx .nxo-grid>:is(.nx-c4,.nx-c5,.nx-c7,.nx-c8){grid-column:span 6}
+@media(max-width:1100px){.nx .nx-grid>:is(.nx-c4,.nx-c5,.nx-c6,.nx-c7,.nx-c8),.nx .nxo-grid>:is(.nx-c4,.nx-c5,.nx-c6,.nx-c7,.nx-c8){grid-column:span 12}}
+.nx .nx-card{border-radius:24px;padding:26px 28px}
+@media(max-width:720px){.nx .nx-card{padding:20px 18px;border-radius:20px}}
+.nx-block-body{display:flex;flex-direction:column;justify-content:center;gap:8px}

@@ -66,3 +66,17 @@
 /* cartões do Panorama lado a lado com a mesma altura */
 .nx .nxl .am-overview-visuals{align-items:stretch}
 .nx .nxl .am-overview-visuals>*>.ax-card,.nx .nxl .am-overview-visuals>*>article{height:100%}
+/* cartões do Atlas atual com o mesmo raio, respiro e títulos dos novos */
+.nx .nxl :is(.ax-card,.am-glass,.hx-panel,.cr-card,.catalog-panel,.lm-card,.tbm-card,.pm-primary,.cc-chart,.ctx-card,.ctx-panel,.am-operational-card,.am-exploration){border-radius:24px;padding:26px 28px}
+.nx .nxl .ax-card-title{font:700 17px/1.25 var(--nx-font);letter-spacing:-.02em}
+.nx .nxl .ax-section-title,.nx .nxl .am-ranking-heading h2{font:700 20px/1.2 var(--nx-font);letter-spacing:-.025em}
+.nx .nxl .ax-card-head{margin-bottom:14px}
+@media(max-width:720px){.nx .nxl :is(.ax-card,.am-glass,.hx-panel,.cr-card,.catalog-panel,.lm-card,.tbm-card,.pm-primary,.cc-chart,.am-exploration){padding:20px 18px;border-radius:20px}}
+/* Panorama: evolução e combustíveis em duas metades iguais, como o resto da grade */
+.nx .nxl .am-overview-visuals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media(max-width:1100px){.nx .nxl .am-overview-visuals{grid-template-columns:1fr}}
+/* seções do Atlas atual encaixadas na grade esticam até a altura do vizinho */
+.nx .nx-grid .nxl section.ax-section>.ax-section-body:only-child{height:100%}
+.nx .nx-grid .nxl section.ax-section>.ax-section-body:only-child>article.ax-card:only-child{min-height:100%}
+.nx .nxl .am-overview-visuals .ax-card{display:flex;flex-direction:column}.nx .nxl .am-overview-visuals .ax-card-body{flex:1;display:flex;flex-direction:column;justify-content:center}
+.nx .nx-grid .nxl :is(section.ax-section,.hx-panel,.cr-card,.am-exploration,.tbm-card,.lm-card,.catalog-panel,article.ax-card){align-self:stretch!important}

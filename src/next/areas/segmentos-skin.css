@@ -15,8 +15,8 @@
 
 @media(min-width:1101px){
   /* Porte e pirâmide */
-  .nx .nxs-grid[data-tab="porte"] .am-exploration{grid-column:span 7;grid-row:span 2;order:3}
-  .nx .nxs-grid[data-tab="porte"] #competition-bd-heading{grid-column:span 5;order:4}
+  .nx .nxs-grid[data-tab="porte"] .am-exploration{grid-column:1/-1;grid-row:auto;order:6}
+  .nx .nxs-grid[data-tab="porte"] #competition-bd-heading{grid-column:span 6;order:4}
   /* Propulsão */
   .nx .nxs-grid[data-tab="propulsao"] #technology-heading{grid-column:span 6;order:2}
   .nx .nxs-grid[data-tab="propulsao"] .hx-panel{order:3}

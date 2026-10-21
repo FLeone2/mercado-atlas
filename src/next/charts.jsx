@@ -12,7 +12,7 @@ export function useTip() {
 
 /* Years laid over each other, Jan to Dec: the current year in the accent colour, earlier years in greys. */
 export function YearLines({ years, labels = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'] }) {
-  const W = 1000, H = 360, pad = { l: 58, r: 16, t: 14, b: 34 };
+  const W = 1000, H = 460, pad = { l: 58, r: 16, t: 14, b: 34 };
   const ref = useRef(null), tip = useTip(), [hover, setHover] = useState(null);
   const max = Math.max(1, ...years.flatMap(y => y.values.filter(v => v != null))) * 1.08;
   const X = i => pad.l + (i / 11) * (W - pad.l - pad.r), Y = v => pad.t + (1 - v / max) * (H - pad.t - pad.b);
@@ -79,7 +79,7 @@ export function Diverging({ rows, onPick }) {
 
 /* Shares over time, stacked to 100%. */
 export function ShareArea({ months, series, max = 1 }) {
-  const W = 1000, H = 320, pad = { l: 44, r: 16, t: 10, b: 30 }, ref = useRef(null), tip = useTip(), [hover, setHover] = useState(null);
+  const W = 1000, H = 440, pad = { l: 44, r: 16, t: 10, b: 30 }, ref = useRef(null), tip = useTip(), [hover, setHover] = useState(null);
   const n = months.length;
   const X = i => pad.l + (i / Math.max(1, n - 1)) * (W - pad.l - pad.r), Y = v => pad.t + (1 - v / max) * (H - pad.t - pad.b);
   const stacks = useMemo(() => {
