@@ -45,3 +45,11 @@
 .nx .nxl details>summary{font:500 13px var(--nx-font);color:var(--nx-soft)}
 .nx .nxl a{color:var(--nx-accent)}
 @media(max-width:720px){.nx .nxl :is(.ax-card,.am-glass,.hx-panel,.cr-card,.catalog-panel,.lm-card,.tbm-card,.pm-primary,.cc-chart){padding:20px 16px;border-radius:22px}}
+
+/* ações do recorte (favoritos, relatório, exportar) no rodapé de cada tela hospedada: uma barra discreta */
+.nx .nxl .nxl-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:18px 0 0;padding:14px 18px;border:0;border-radius:20px;background:color-mix(in srgb,var(--nx-ink) 5%,transparent)}
+.nx .nxl .nxl-actions .am-muted{font:500 12.5px var(--nx-font);color:var(--nx-soft)}
+.nx .nxl .nxl-actions .am-context-actions{display:flex;gap:8px;flex-wrap:wrap}
+@media print{.nx .nxl .nxl-actions{display:none}}
+.nx .nxl .nxl-actions{order:999;grid-column:1/-1;width:100%;flex-basis:100%}
+.nx .nxl .nxl-actions .am-muted{white-space:nowrap}
