@@ -25,12 +25,17 @@ async function historyFetch(file,base){
  return historyCache.get(url);
 }
 // Rows that pass the filters, as {month index, row}. `keep` lists dims to keep for grouping.
+// population=light keeps only Auto and Comercial Leve, the same rule as the market worker.
+// An impossible intersection (UF outside the chosen region, segment outside the universe)
+// matches nothing; it never falls back to the whole country.
+const HISTORY_LIGHT=['Auto','Comercial Leve'];
 function historyRows(data,filters={}){
  const cols=data.columns,dims=data.dimensions,allowed=[];
  for(const [i,dim] of dims.entries()){
-  let wanted=historySelection(filters[dim]);
-  if(dim==='uf'){const regions=historySelection(filters.regiao).flatMap(r=>HISTORY_REGIONS[r]??[]);if(regions.length)wanted=wanted.length?wanted.filter(u=>regions.includes(u)):regions;}
-  if(!wanted.length)continue;
+  let wanted=historySelection(filters[dim]),constrained=wanted.length>0;
+  if(dim==='uf'&&historySelection(filters.regiao).length){const regions=historySelection(filters.regiao).flatMap(r=>HISTORY_REGIONS[r]??[]);wanted=constrained?wanted.filter(u=>regions.includes(u)):regions;constrained=true;}
+  if(dim==='segmento'&&(filters.population??'light')==='light'){wanted=constrained?wanted.filter(v=>HISTORY_LIGHT.includes(v)):HISTORY_LIGHT;constrained=true;}
+  if(!constrained)continue;
   const set=new Set(wanted),dict=data.dictionaries[dim];allowed.push([i+1,new Uint8Array(dict.length).map((_,code)=>set.has(dict[code])?1:0)]);
  }
  const out=[];for(const row of data.rows){let ok=true;for(const [c,mask] of allowed)if(!mask[row[c]]){ok=false;break;}if(ok)out.push(row);}
@@ -39,7 +44,10 @@ function historyRows(data,filters={}){
 // Monthly totals (filtered) next to the market total of the same month.
 function historyMonthly(data,filters={},groupBy=null){
  const {rows,countIndex}=historyRows(data,filters),gi=groupBy?data.dimensions.indexOf(groupBy)+1:0,dict=groupBy?data.dictionaries[groupBy]:null;
- const months=data.months.map(m=>({month:m.month,count:0,market:m.total,complete:m.complete,groups:groupBy?new Map():null}));
+ // market of reference = same universe (light or all content), no other filter
+ const universe=historyRows(data,{population:filters.population??'light'}),market=new Float64Array(data.months.length);
+ for(const row of universe.rows)market[row[0]]+=row[universe.countIndex];
+ const months=data.months.map((m,i)=>({month:m.month,count:0,market:market[i],complete:m.complete,groups:groupBy?new Map():null}));
  for(const row of rows){const m=months[row[0]],n=row[countIndex];m.count+=n;if(gi){const name=dict[row[gi]];m.groups.set(name,(m.groups.get(name)??0)+n);}}
  return months;
 }
@@ -63,8 +71,10 @@ function useHistory(filters,base,enabled=true){
  React.useEffect(()=>{if(!enabled)return;let alive=true;historyFetch(plan.file,base).then(data=>{if(alive)setState({data,error:null,file:plan.file});}).catch(error=>{if(alive)setState({data:null,error:error.message,file:plan.file});});return ()=>{alive=false;};},[plan.file,base,enabled]);
  return {...state,pending:enabled&&state.file!==plan.file,plan};
 }
+// Always rendered when there is anything to declare: filters the history cannot apply and the
+// panel's own intentional exception (`extra`), which holds even with no filter ignored.
 function HistoryScopeNote({plan,extra}){
- if(!plan.ignored.length)return null;
- return jsxRuntime.jsx('p',{className:'hx-scope',children:'Histórico mensal pré-calculado (2016 em diante), com os filtros globais'+(plan.ignored.length?' exceto '+plan.ignoredLabels.join(', ')+', que este painel não consegue aplicar':'')+'.'+(extra?' '+extra:'')});
+ if(!plan.ignored.length&&!extra)return null;
+ return jsxRuntime.jsx('p',{className:'hx-scope',children:(plan.ignored.length?'Histórico mensal pré-calculado (2016 em diante), com os filtros globais exceto '+plan.ignoredLabels.join(', ')+', que este painel não consegue aplicar.':'')+(extra?(plan.ignored.length?' ':'')+extra:'')});
 }
 if(typeof module!=='undefined'&&module.exports)module.exports={HISTORY_FILES,HISTORY_REGIONS,historyPlan,historyRows,historyMonthly,historyEaster,historyHolidays,historyWorkingDays,historyEndMonth,historySelection};

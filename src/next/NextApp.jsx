@@ -1,7 +1,7 @@
 import { flushSync } from 'react-dom';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { engine } from 'virtual:market';
-import { useDataApp } from '../kit/index.js';
+import { useDataApp, normalizePeriod } from '../kit/index.js';
 import FilterSheet from './FilterSheet.jsx';
 import { AREAS } from './areas/index.js';
 import { NextCtx } from './ctx.js';
@@ -22,11 +22,20 @@ const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export default function NextApp() {
   const shell = useDataApp(), base = engine.getBase(shell.snapshot);
-  const filters = useMemo(() => ({ ...Object.fromEntries((shell.snapshot.filters ?? []).map(f => [f.id, f.defaultValue ?? 'all'])), ...shell.filters }), [shell.snapshot, shell.filters]);
+  const filters = useMemo(() => {
+    const f = { ...Object.fromEntries((shell.snapshot.filters ?? []).map(f => [f.id, f.defaultValue ?? 'all'])), ...shell.filters };
+    // f.date=2026-09 or f.date=2026-09-15 from a link: one explicit start..end for every panel and label
+    // f.marca=MITSUBISHI from a link behaves exactly like f.marca=["MITSUBISHI"] (toggles, chips, summary)
+    for (const k of Object.keys(f)) if (!['date', 'population'].includes(k) && typeof f[k] === 'string' && f[k] !== 'all') f[k] = [f[k]];
+    if (f.date && f.date !== 'all' && /^\d{4}-\d{2}(-\d{2})?(\.\.\d{4}-\d{2}(-\d{2})?)?$/.test(String(f.date))) f.date = normalizePeriod(f.date);
+    return f;
+  }, [shell.snapshot, shell.filters]);
   const hasBrand = BRAND_KEYS.some(k => active(filters[k])), hasGeo = GEO_KEYS.some(k => active(filters[k]));
-  const { manifest, result: fresh, pending } = engine.useMarketData(filters, true, 'dashboard', false);
-  // Keep showing the last numbers while a new filter loads, so the page never blanks out.
-  const lastModel = useRef(null); if (fresh) lastModel.current = fresh; const model = fresh ?? lastModel.current;
+  const { manifest, result: fresh, pending, error, manifestError } = engine.useMarketData(filters, true, 'dashboard', false);
+  // While a new filter loads, the previous numbers stay on screen dimmed and locked under an
+  // "Atualizando" notice; if the query fails they are dropped, never shown under the new filters.
+  const lastModel = useRef(null); if (fresh) lastModel.current = fresh; if (error) lastModel.current = null;
+  const model = error ? null : fresh ?? lastModel.current, stale = pending && !fresh && Boolean(model);
   const market = engine.useMarketData(without(filters, BRAND_KEYS), hasBrand, 'dashboard', false).result;
   const geoless = engine.useMarketData(without(filters, GEO_KEYS), hasGeo, 'dashboard', false).result;
   const hist = engine.useHistory(filters, base, true);
@@ -88,7 +97,7 @@ export default function NextApp() {
   /* ---- less text: long notes and descriptions (ours and the current Atlas') collapse into an ⓘ whose balloon shows the text ---- */
   useEffect(() => {
     const root = main.current; let t = 0;
-    const SKIP = '.nx-block-head,.nx-areahead,.nx-tip,.nx-info,.ax-popover,.ax-tooltip,table,[role="status"],[role="alert"],.am-loading,.am-empty,.nx-foot,.nx-tile,.nxl-actions,.nx-callouts,.am-map-pending,.nx-tiles,.nxp-hero';
+    const SKIP = '.nx-scope,.hx-scope,.tbm-warn,.am-frozen-base,[role="note"],.nx-block-head,.nx-areahead,.nx-tip,.nx-info,.ax-popover,.ax-tooltip,table,[role="status"],[role="alert"],.am-loading,.am-empty,.nx-foot,.nx-tile,.nxl-actions,.nx-callouts,.am-map-pending,.nx-tiles,.nxp-hero';
     const scan = () => {
       for (const el of root.querySelectorAll('p, .ax-section-lede, .ax-card-note')) {
         if (el.closest(SKIP) || el.querySelector('a,button,input,select,label,svg,canvas,img')) continue;
@@ -109,7 +118,7 @@ export default function NextApp() {
     const shown = ['date', 'population', 'uf', 'regiao', 'marca', 'grupo_modelo', 'modelo'];
     const more = Object.keys(filters).filter(k => !shown.includes(k) && active(filters[k])).length + (filters.population === 'all_content' ? 1 : 0);
     const what = models.length ? models.join(', ') : brands.length ? brands.join(', ') : 'Todas as marcas';
-    return [model ? rangeText(model.range) : '…', ufs.length ? ufs.join(', ') : regs.length ? regs.join(', ') : 'Brasil', what].join(' · ') + (more ? ' +' + more : '');
+    return [model ? rangeText(model.range) : '…', ufs.length && regs.length ? ufs.join(', ') + ' ∩ ' + regs.join(', ') : ufs.length ? ufs.join(', ') : regs.length ? regs.join(', ') : 'Brasil', what].join(' · ') + (more ? ' +' + more : '');
   }, [filters, model]);
 
   const ctx = useMemo(() => ({
@@ -135,7 +144,10 @@ export default function NextApp() {
           {AREAS.map(a => <a key={a.slug} href={'?a=' + a.slug} aria-current={a.slug === area ? 'page' : undefined} onClick={e => { e.preventDefault(); go(a.slug); }}>{a.label}</a>)}
         </nav>
         <FilterSheet open={sheet} filters={filters} setFilter={setFilter} manifest={manifest} model={model} onReset={reset} changed={changed} palette={palette} setPalette={setPalette} />
-        <main ref={main} className={pending ? 'nx-pending' : ''}>
+        {stale && <div className="nx-status" role="status">Atualizando para os novos filtros… os números abaixo ainda são do recorte anterior.</div>}
+        {error && <div className="nx-status err" role="alert">Não foi possível calcular este recorte ({error}). Os números anteriores foram retirados; ajuste os filtros ou recarregue a página.</div>}
+        {!error && manifestError && <div className="nx-status warn" role="status">A lista de meses publicada não carregou; usando a cópia embutida no site ({manifestError}).</div>}
+        <main ref={main} className={(pending ? 'nx-pending' : '') + (stale ? ' nx-stale' : '')}>
           {new URLSearchParams(location.search).get('legacy') ? <div className="nx-wrap" style={{ paddingTop: 100 }}><LegacyTab tab={new URLSearchParams(location.search).get('legacy')} /></div> : <View />}
           <footer className="nx-foot">
             <div className="nx-wrap">

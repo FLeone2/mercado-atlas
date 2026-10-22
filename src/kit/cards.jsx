@@ -3,7 +3,7 @@
 import { Children, useRef, useState } from 'react';
 import { Icon, Info } from './controls.jsx';
 import { downloadCsv } from './format.js';
-import { exportLegend, exportSvgToPng } from './export.js';
+import { exportLegend, exportVisualsToPng, exportContextSlug } from './export.js';
 
 export function Section({ id, title, children, columns, spacing, filters, description, actions }) {
   return (
@@ -25,11 +25,12 @@ export const ReportSection = Section;
 function ToolMenu({ id, title, rows }) {
   const [open, setOpen] = useState(false), [busy, setBusy] = useState(false), ref = useRef(null);
   const png = async () => {
-    const root = ref.current?.closest('[data-export-root]'), svg = root?.querySelector('.ax-card-body svg:not(.ax-icon)');
+    const root = ref.current?.closest('[data-export-root]');
+    const nodes = [...(root?.querySelectorAll('.ax-card-body svg:not(.ax-icon), .ax-card-body canvas') ?? [])].filter(n => !n.parentElement?.closest('svg') && n.getBoundingClientRect().width >= 120);
     setOpen(false);
-    if (!svg) return;
+    if (!nodes.length) { globalThis.alert?.('Este cartão não tem um gráfico exportável como imagem.'); return; }
     setBusy(true);
-    try { await exportSvgToPng(svg, { filename: id || 'grafico', title, legend: exportLegend(root) }); }
+    try { await exportVisualsToPng(nodes, { filename: (id || 'grafico') + '_' + exportContextSlug(), title, legend: exportLegend(root) }); }
     catch (error) { globalThis.alert?.(error.message); }
     finally { setBusy(false); }
   };
@@ -41,7 +42,7 @@ function ToolMenu({ id, title, rows }) {
       </button>
       {open && (
         <div className="ax-popover ax-menu" role="menu">
-          {hasRows && <button type="button" role="menuitem" onClick={() => { downloadCsv(id || 'dados', rows); setOpen(false); }}><Icon name="download" size={14} />Baixar dados (CSV)</button>}
+          {hasRows && <button type="button" role="menuitem" title="Todas as linhas do cartão, sem a busca ou a ordenação da tabela; o nome do arquivo leva o período e os filtros" onClick={() => { downloadCsv((id || 'dados') + '_' + exportContextSlug(), rows); setOpen(false); }}><Icon name="download" size={14} />Baixar todas as linhas (CSV)</button>}
           <button type="button" role="menuitem" onClick={png}><Icon name="image" size={14} />Baixar imagem (PNG)</button>
         </div>
       )}

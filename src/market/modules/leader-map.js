@@ -18,13 +18,19 @@ function lmAggregate(rows){
  for(const m of byName.values()){m.brands.sort((a,b)=>b.count-a.count||String(a.brand).localeCompare(String(b.brand)));const [first,second]=m.brands;m.lead=first;m.tie=Boolean(second&&second.count===first.count);m.leadShare=first.count/m.total;}
  return byName;
 }
-// Attach each outline to its municipality. Returns the joined list and how much of the volume found an outline.
-function lmJoin(features,byName,focus){
- const index=new Map();for(const m of byName.values())for(const k of lmKeys(m.name))if(!index.has(k))index.set(k,m);
- const used=new Set(),items=features.map(f=>{let m=null;for(const k of lmKeys(f.name)){m=index.get(k);if(m)break;}m=m??null;if(m&&used.has(m.name))m=null;if(m)used.add(m.name);
+// Attach each outline to its municipality with the same canonical key the other maps use
+// (geoKey with the UF aliases), merging historical spellings of one municipality first so
+// none of them is lost. Volume that finds no outline is reported apart, never as zero.
+function lmMerge(a,b){const brands=new Map();for(const x of [...a.brands,...b.brands])brands.set(x.brand,(brands.get(x.brand)??0)+x.count);const m={name:a.name,total:a.total+b.total,brands:[...brands].map(([brand,count])=>({brand,count})).sort((x,y)=>y.count-x.count||String(x.brand).localeCompare(String(y.brand)))};const [first,second]=m.brands;m.lead=first;m.tie=Boolean(second&&second.count===first.count);m.leadShare=first.count/m.total;return m;}
+function lmJoin(features,byName,focus,uf){
+ const key=name=>typeof geoKey==='function'?geoKey(name,uf):lmKeys(name)[0];
+ const merged=new Map();for(const m of byName.values()){const k=key(m.name),prev=merged.get(k);merged.set(k,prev?lmMerge(prev,m):m);}
+ const index=new Map();for(const [k,m] of merged){index.set(k,m);for(const alt of lmKeys(m.name))if(!index.has(alt))index.set(alt,m);}
+ const used=new Set(),items=features.map(f=>{let m=index.get(key(f.name))??null;if(!m)for(const k of lmKeys(f.name)){m=index.get(k);if(m)break;}m=m??null;if(m&&used.has(m))m=null;if(m)used.add(m);
   const rank=m&&focus?(m.brands.findIndex(b=>b.brand===focus)+1)||null:null;return {feature:f,m,rank};});
- const total=[...byName.values()].reduce((s,m)=>s+m.total,0),matched=[...used].reduce((s,n)=>s+byName.get(n).total,0);
- return {items,total,matched,coverage:total>0?matched/total:null};
+ const total=[...merged.values()].reduce((s,m)=>s+m.total,0),matched=[...used].reduce((s,m)=>s+m.total,0);
+ const unmatched=[...merged.values()].filter(m=>!used.has(m)).sort((a,b)=>b.total-a.total);
+ return {items,total,matched,coverage:total>0?matched/total:null,unmatched};
 }
 function lmSummary(items,minimum){
  const led=new Map();let shown=0,small=0,ties=0,empty=0,ledVolume=0;
@@ -53,7 +59,7 @@ function LeaderMap({filters,base}){
  const query=useMarketData(local,true,'leaders',false);
  React.useEffect(()=>{let alive=true;setBox(null);lmGeometry(base,uf).then(data=>{if(!alive)return;const [x,y,w,hh]=data.viewBox.split(/\s+/).map(Number);setGeometry({uf,data,error:null});setBox({x,y,w,h:hh,full:{x,y,w,h:hh}});}).catch(error=>{if(alive)setGeometry({uf,data:null,error:error.message});});return ()=>{alive=false;};},[base,uf]);
  const byName=React.useMemo(()=>lmAggregate(query.result?.municipalBrands),[query.result]);
- const joined=React.useMemo(()=>geometry.data&&geometry.uf===uf?lmJoin(geometry.data.features,byName,focus):null,[geometry,byName,focus,uf]);
+ const joined=React.useMemo(()=>geometry.data&&geometry.uf===uf?lmJoin(geometry.data.features,byName,focus,uf):null,[geometry,byName,focus,uf]);
  const summary=React.useMemo(()=>joined?lmSummary(joined.items,minimum):null,[joined,minimum]);
  const centroids=React.useMemo(()=>geometry.data?geometry.data.features.map(f=>lmCentroid(f.path)):[],[geometry.data]);
  // Every brand that leads somewhere gets its own colour (identity colours first, free palette slots for the rest).
@@ -98,9 +104,9 @@ function LeaderMap({filters,base}){
       ...items.map((it,i)=>h('path',{d:it.feature.path,'data-i':i,className:'lm-muni'+(hover===i?' is-hover':''),fill:fillFor(it),fillOpacity:opacityFor(it),vectorEffect:'non-scaling-stroke'},it.feature.code)),
       ...labelled.map(({it,i})=>h('text',{x:centroids[i][0],y:centroids[i][1],className:'lm-label',style:{fontSize:Math.max(4,box.w/60)},children:it.feature.name},'l'+it.feature.code))]}),
      hs('div',{className:'hx-legend','data-export-legend':'',children:[...summary.leaders.slice(0,10).map(e=>hs('span',{children:[h('i',{style:{background:colorOf(e.brand)}}),lmName(e.brand)]},e.brand)),hs('span',{children:[h('i',{style:{background:'var(--muted)',border:'1px solid var(--border-strong)'}}),'Poucos emplacamentos / empate / sem dados']},'none')]}),
-     jsxRuntime.jsx(HxMethod,{children:'Cor = marca líder; quanto mais forte o tom, maior a parte da líder no município. Cinza: menos de '+minimum+' emplacamentos no período ('+lmFmtInt(summary.small)+' municípios), empate na liderança ('+lmFmtInt(summary.ties)+') ou sem registros ('+lmFmtInt(summary.empty)+'). Cruzamento por nome do município: '+lmFmtPct(joined.coverage)+' dos emplacamentos do estado encontraram o seu contorno.'})]}),
+     jsxRuntime.jsx(HxMethod,{children:'Cor = marca líder; quanto mais forte o tom, maior a parte da líder no município. Cinza: menos de '+minimum+' emplacamentos no período ('+lmFmtInt(summary.small)+' municípios), empate na liderança ('+lmFmtInt(summary.ties)+') ou sem registros ('+lmFmtInt(summary.empty)+'). Cruzamento por nome do município: '+lmFmtPct(joined.coverage)+' dos emplacamentos do estado encontraram o seu contorno.'+(joined.unmatched?.length?' Sem contorno (não contados como zero): '+joined.unmatched.slice(0,5).map(m=>m.name+' '+lmFmtInt(m.total)).join(', ')+(joined.unmatched.length>5?' e mais '+(joined.unmatched.length-5):'')+'.':'')})]}),
     hs('div',{className:'lm-side',children:[
-     hs('details',{className:'hx-table-wrap am-geo-tables',children:[h('summary',{children:'Tabela · Quem lidera mais municípios'}),h('table',{className:'hx-table',children:[h('thead',{children:h('tr',{children:['Marca','Municípios','Volume desses municípios'].map(c=>h('th',{children:c},c))})}),h('tbody',{children:summary.leaders.slice(0,10).map(e=>h('tr',{className:highlight===e.brand?'is-active':undefined,children:[h('th',{children:hs('button',{type:'button',className:'lm-brand','aria-pressed':highlight===e.brand,onClick:()=>setHighlight(highlight===e.brand?null:e.brand),title:'Destacar no mapa',children:[h('i',{style:{background:colorOf(e.brand)}}),lmName(e.brand)]})}),h('td',{children:lmFmtInt(e.municipalities)}),h('td',{children:stateTotal>0?lmFmtPct(e.volume/stateTotal):lmFmtInt(e.volume)})]},e.brand))})]})]}),
+     hs('details',{className:'hx-table-wrap am-geo-tables',children:[h('summary',{children:'Tabela · Quem lidera mais municípios'}),h('table',{className:'hx-table',children:[h('thead',{children:h('tr',{children:['Marca','Municípios','Parcela do volume do estado'].map(c=>h('th',{children:c},c))})}),h('tbody',{children:summary.leaders.slice(0,10).map(e=>h('tr',{className:highlight===e.brand?'is-active':undefined,children:[h('th',{children:hs('button',{type:'button',className:'lm-brand','aria-pressed':highlight===e.brand,onClick:()=>setHighlight(highlight===e.brand?null:e.brand),title:'Destacar no mapa',children:[h('i',{style:{background:colorOf(e.brand)}}),lmName(e.brand)]})}),h('td',{children:lmFmtInt(e.municipalities)}),h('td',{children:stateTotal>0?lmFmtPct(e.volume/stateTotal):lmFmtInt(e.volume)})]},e.brand))})]})]}),
      hs('details',{className:'hx-table-wrap am-geo-tables',children:[h('summary',{children:'Tabela · Maiores municípios e sua líder'}),h('table',{className:'hx-table',children:[h('thead',{children:h('tr',{children:['Município','Emplac.','Líder','Parte da líder',lmName(focus)].map(c=>h('th',{children:c},c))})}),h('tbody',{children:top.map(({it})=>hs('tr',{children:[h('th',{children:it.feature.name}),h('td',{children:lmFmtInt(it.m.total)}),h('td',{children:it.m.tie?'Empate':lmName(it.m.lead.brand)}),h('td',{children:lmFmtPct(it.m.leadShare)}),h('td',{children:it.rank?it.rank+'º':'—'})]},it.feature.code))})]})]})]})]})]}),
   tipItem&&tipItem.m&&hs('div',{className:'tbm-tip',style:{left:tip.x+14,top:tip.y+14},children:[h('strong',{children:tipItem.feature.name}),...tipItem.m.brands.slice(0,3).map((b,k)=>hs('div',{className:'tbm-tip-row',children:[hs('span',{children:[h('i',{style:{background:colorOf(b.brand)}}),(k+1)+'º '+lmName(b.brand)]}),h('span',{children:lmFmtInt(b.count)+' · '+lmFmtPct(b.count/tipItem.m.total)})]},b.brand)),hs('div',{className:'tbm-tip-row tbm-muted',children:[h('span',{children:'Total no município'}),h('span',{children:lmFmtInt(tipItem.m.total)})]}),tipItem.m.total<minimum&&h('div',{className:'tbm-muted',children:'Abaixo do mínimo para colorir'})]}),
   tipItem&&!tipItem.m&&hs('div',{className:'tbm-tip',style:{left:tip.x+14,top:tip.y+14},children:[h('strong',{children:tipItem.feature.name}),h('div',{className:'tbm-muted',children:'Sem emplacamentos neste recorte (ou nome não encontrado)'})]})

@@ -21,7 +21,7 @@ const HIDE = { propulsao: ['technology-mix-heading', 'technology-trajectories-he
 const LEGACY = { porte: 'segments', propulsao: 'technology', origem: 'origin' };
 
 export default function Segmentos() {
-  const { filters, setFilter, model, hist } = useNext();
+  const { filters, setFilter, model, hist, manifest, base: dataBase } = useNext();
   const [tab, setTab] = useState('porte');
   const lens = LENSES.find(l => l.id === tab) ?? LENSES[0], dim = lens.dim;   // a aba Origem não tem lente nativa (o modelo não traz bd_origem)
   const selected = list(filters[dim]);
@@ -75,25 +75,28 @@ export default function Segmentos() {
     };
   }, [hist.data, stripped, dim, end]);
 
-  /* ---------- quem vence em cada grupo (cruza o histórico com o recorte do período) ---------- */
-  const brandless = useMemo(() => ({ ...filters, marca: 'all', modelo: 'all', grupo_modelo: 'all' }), [filters]);
-  const period = model?.range ? [model.range.start.slice(0, 7), model.range.end.slice(0, 7)] : null;
+  /* ---------- quem vence em cada grupo: grupo × marca nos dias exatos do período global ---------- */
+  const brandless = useMemo(() => ({ ...filters, marca: 'all', modelo: 'all', grupo_modelo: 'all', [dim]: 'all' }), [filters, dim]);
+  const cross = engine.useExploration({ type: 'explore', filters: brandless, xDimension: dim, seriesDimension: 'marca', topN: 120, xTopN: 120, order: 'value_desc', includeOthers: true }, manifest, dataBase);
   const cards = useMemo(() => {
-    if (!hist.data || !period || !hist.data.dimensions.includes('marca') || !hist.data.dimensions.includes(dim)) return null;
+    const res = cross.result;
+    if (!res?.cells) return null;
+    const others = res.seriesOthersLabel, byX = new Map();
+    for (const c of res.cells) {
+      const e = byX.get(c.x) ?? { total: c.categoryDenominator ?? 0, brands: new Map() };
+      if (c.series !== others && c.observedCount > 0) e.brands.set(c.series, (e.brands.get(c.series) ?? 0) + c.observedCount);
+      byX.set(c.x, e);
+    }
     const out = [];
     for (const g of real.slice(0, 8)) {
-      const by = new Map();
-      for (const raw of g.names) for (const m of engine.historyMonthly(hist.data, { ...brandless, [dim]: [raw] }, 'marca')) {
-        if (m.month < period[0] || m.month > period[1]) continue;
-        for (const [b, n] of m.groups) by.set(b, (by.get(b) ?? 0) + n);
-      }
-      const total = [...by.values()].reduce((s, n) => s + n, 0);
-      if (!(total > 0)) continue;
+      const by = new Map(); let total = 0;
+      for (const raw of g.names) { const e = byX.get(raw); if (!e) continue; total += e.total; for (const [b, n] of e.brands) by.set(b, (by.get(b) ?? 0) + n); }
+      if (!(total > 0) || !by.size) continue;
       const sorted = [...by].map(([name, count]) => ({ name, count, share: count / total })).sort((a, b) => b.count - a.count);
       out.push({ label: g.label, names: g.names, groupShare: g.share, total, leader: sorted[0], next: sorted.slice(1, 3) });
     }
     return out;
-  }, [hist.data, brandless, dim, real, period?.[0], period?.[1]]);
+  }, [cross.result, real]);
   const wins = useMemo(() => {
     if (!cards?.length) return null;
     const m = new Map(); for (const c of cards) m.set(c.leader.name, (m.get(c.leader.name) ?? 0) + 1);
@@ -153,9 +156,9 @@ export default function Segmentos() {
         {cards && cards.length > 0 && (
           <Block className={cls(tab === 'porte' ? 5 : 12, 'nxs-b-leaders')}
             title="Líder de cada grupo" sub={wins && wins[1] >= 2 ? <><em>{brandName(wins[0])}</em> lidera em <em>{wins[1]}</em> dos {cards.length} maiores grupos.</> : <>Cada grupo tem o seu líder: <em>{cards.length}</em> grupos, <em>{new Set(cards.map(c => c.leader.name)).size}</em> marcas.</>}
-            caption={`Marca com mais emplacamentos dentro de cada grupo em ${rangeText(base.range)}, entre todas as marcas. Clique num cartão para filtrar o painel.`}>
+            caption={`Marca com mais emplacamentos dentro de cada grupo em ${rangeText(base.range)} (os mesmos dias do período escolhido), entre todas as marcas. Clique num cartão para filtrar o painel.`}>
             <LeaderCards cards={cards} active={selected} onPick={pick} brandName={brandName} />
-            <p className="nx-note">Abaixo de cada líder, as duas seguintes e a fatia de cada uma no grupo. {noteIgnored}</p>
+            <p className="nx-note">Abaixo de cada líder, as duas seguintes e a fatia de cada uma no grupo. Respeita todos os filtros do topo, exceto marca e modelo.</p>
           </Block>
         )}
 

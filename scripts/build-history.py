@@ -21,7 +21,7 @@ import collections, gzip, json
 root = Path(__file__).resolve().parents[1]
 manifest = json.loads((root / 'data/manifest.json').read_text())
 UNKNOWN = 'Não informado'
-ICE = {'GASOLINE', 'FFV', 'DIESEL', 'ETANOL', 'TETRAFUEL', 'GNV'}
+ICE = {'GASOLINE', 'FFV', 'DIESEL', 'ETANOL', 'ETHANOL', 'TETRAFUEL', 'GNV'}
 ELECTRIC = {'HEV', 'PHEV', 'BEV', 'MHEV', 'FCEL'}
 FILES = {
     'national': ['segmento', 'marca', 'grupo_modelo', 'bd_segmento', 'bd_carroceria', 'combustivel', 'propulsao', 'tipo_venda'],

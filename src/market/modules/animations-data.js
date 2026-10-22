@@ -26,7 +26,7 @@
     const complete=!partial&&Boolean(start&&end&&start<=month+'-01'&&end>=monthEnd(month));
     return {month,status:complete?'complete':'partial',complete,coverageStart:start,coverageEnd:end};
   }
-  function propulsion(value) { const v=String(value??'').trim().toUpperCase();return ['GASOLINE','FFV','DIESEL','ETANOL','TETRAFUEL','GNV'].includes(v)?'ICE':['HEV','PHEV','BEV','MHEV','FCEL'].includes(v)?v:'Não classificado'; }
+  function propulsion(value) { const v=String(value??'').trim().toUpperCase();return ['GASOLINE','FFV','DIESEL','ETANOL','ETHANOL','TETRAFUEL','GNV'].includes(v)?'ICE':['HEV','PHEV','BEV','MHEV','FCEL'].includes(v)?v:'Não classificado'; }
   function classifyBrandOrigin(name,year,mapping) {
     const rule=mapping?.brands?.[String(name??'').trim().toUpperCase()];
     // Classification must be traceable. bd_origem/nacionalidade never imply brand origin.

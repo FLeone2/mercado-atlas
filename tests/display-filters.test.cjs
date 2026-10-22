@@ -3,8 +3,10 @@ const input={total:100,groups:{bd_segmento:[{name:'SUV',count:60,marketShare:.6}
 const out=hideUnclassified(input);
 assert.equal(out.total,100,'totals untouched');assert.deepEqual(out.groups.bd_segmento.map(r=>r.name),['SUV','HATCH']);assert.equal(out.groups.bd_segmento[0].marketShare,.6,'shares keep the full denominator');
 assert.equal(out.groups.marca,input.groups.marca,'untouched branches are shared, not copied');
-assert.deepEqual(out.technologyByMonth.map(r=>r.name),['HEV']);assert.equal(out.joints.x.rows.length,0);
+// auditoria LEG-02: hiding must not change any calculation input outside the ranking lists
+assert.equal(out.technologyByMonth,input.technologyByMonth,'monthly composition stays complete');assert.equal(out.joints.x.rows.length,1,'joint rows that merely mention a hidden category stay');
 assert.equal(out.interactive,input.interactive,'Explorar período keeps the complete composition');
 assert.deepEqual(out.labels,['Não classificado'],'plain string lists are not data rows');
 assert.equal(input.groups.bd_segmento.length,3,'input never mutated');
-console.log('PASS display filters: unclassified rows hidden from category lists, totals and shares untouched.');
+assert.deepEqual(hideUnclassified({focus:{groups:{propulsao:[{name:'Não classificado',count:3},{name:'ICE',count:5}]}}}).focus.groups.propulsao.map(r=>r.name),['ICE'],'nested ranking lists also hide');
+console.log('PASS display filters: unclassified rows hidden only from ranking lists; every other structure keeps complete data.');

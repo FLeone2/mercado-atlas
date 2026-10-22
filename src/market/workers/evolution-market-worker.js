@@ -38,7 +38,7 @@
   const LABELS = {uf:'UF',municipio:'Município',marca:'Marca',modelo:'Modelo',grupo_modelo:'Grupo de modelos',combustivel:'Combustível',segmento:'Segmento',subsegmento:'Subsegmento',tipo_venda:'Canal de venda',regiao:'Região',nacionalidade:'Código de nacionalidade da fonte',ano_fabricacao:'Ano de fabricação',potencia:'Potência',capacidade_carga:'Capacidade de carga',capacidade_passageiros:'Capacidade de passageiros',bd_segmento:'Porte (SEGMENT)',bd_carroceria:'Carroceria (BODY TYPE)',bd_classe:'Classe BD',bd_macro:'Macrosegmento BD',bd_combustivel:'Tecnologia BD',bd_origem:'Origem do veículo · BD',propulsao:'Propulsão'};
   // Labels of the origin → channel → fuel → vehicle-type flow (Concorrência). Several source codes may share one label.
   const FLOW_SOURCE={fluxo_origem:'bd_origem',fluxo_canal:'tipo_venda',fluxo_combustivel:'bd_combustivel',fluxo_segmento:'bd_classe'};
-  const FLOW_FUEL={FFV:'Flex',GASOLINE:'Gasolina',ETANOL:'Etanol',DIESEL:'Diesel',MHEV:'Híbrido leve',HEV:'Híbrido',PHEV:'Híbrido plug-in',BEV:'Elétrico'};
+  const FLOW_FUEL={FFV:'Flex',GASOLINE:'Gasolina',ETANOL:'Etanol',ETHANOL:'Etanol',DIESEL:'Diesel',MHEV:'Híbrido leve',HEV:'Híbrido',PHEV:'Híbrido plug-in',BEV:'Elétrico'};
   const FLOW_PICKUP={'PICK-UP SMALL':'Picape pequena','PICK-UP COMPACT':'Picape compacta','PICK-UP MID':'Picape média','PICK-UP LARGE':'Picape grande'};
   const FLOW_BODY={SUV:'SUV',HATCH:'Hatch',SEDAN:'Sedan',MPV:'Minivan',WAGON:'Perua'};
   function flowSegment(value){
@@ -57,7 +57,7 @@
    if(dim==='fluxo_combustivel')return FLOW_FUEL[v.toUpperCase()]??'Não classificado';
    return flowSegment(v);
   }
-  function propulsionClass(value){const v=String(value??'').trim().toUpperCase();if(['GASOLINE','FFV','DIESEL','ETANOL','TETRAFUEL','GNV'].includes(v))return 'ICE';if(['HEV','PHEV','BEV','MHEV','FCEL'].includes(v))return v;return 'Não classificado';}
+  function propulsionClass(value){const v=String(value??'').trim().toUpperCase();if(['GASOLINE','FFV','DIESEL','ETANOL','ETHANOL','TETRAFUEL','GNV'].includes(v))return 'ICE';if(['HEV','PHEV','BEV','MHEV','FCEL'].includes(v))return v;return 'Não classificado';}
   const number = v => v == null ? '—' : new Intl.NumberFormat('pt-BR').format(v);
   const compact = v => v == null ? '—' : new Intl.NumberFormat('pt-BR',{notation:'compact',maximumFractionDigits:1}).format(v);
   const percent = v => v == null ? '—' : new Intl.NumberFormat('pt-BR',{style:'percent',minimumFractionDigits:1,maximumFractionDigits:1}).format(v);

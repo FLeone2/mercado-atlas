@@ -187,3 +187,12 @@ html[data-nx-dir="back"]::view-transition-old(root){animation-name:nx-leave-back
 .nx-more-filters[open]>summary{margin-bottom:16px}
 .nx-count{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--nx-accent,#e60f2d);color:#fff;font:700 11px/18px var(--nx-font);text-align:center}
 .nx-seg button{line-height:1.2}
+
+/* recorte em atualização ou com falha: números antigos ficam apagados e travados, nunca passam por atuais */
+.nx-status{position:fixed;z-index:48;left:50%;top:70px;transform:translateX(-50%);max-width:min(760px,calc(100vw - 32px));padding:10px 16px;border-radius:14px;background:#1d1d1f;color:#fff;font:500 13px/1.4 var(--nx-font);box-shadow:0 10px 30px -10px rgba(0,0,0,.4)}
+.nx-status.err{background:#b3261e}.nx-status.warn{background:#7a5a00}
+.nx main.nx-stale :is(.nx-card,.nx-tile,.nxl){opacity:.45;pointer-events:none;transition:opacity .2s}
+.nx-sheet-note{margin:8px 2px 0;font:500 12.5px/1.45 var(--nx-font);color:#6e6e73}
+/* controles no cabeçalho do cartão quebram linha no celular em vez de alargar a página */
+.nx-block-head{flex-wrap:wrap;row-gap:10px}
+.nx-block-actions{max-width:100%;min-width:0;flex-wrap:wrap}

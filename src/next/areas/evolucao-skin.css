@@ -20,7 +20,7 @@
 .nxe-leg[data-view="geral"] .nxl .ev-interactive{display:block}
 .nxe-leg[data-view="sazonalidade"] .nxl .hx-panel{display:block}
 .nxe-leg[data-view="marcas"] .nxl :is(.ev-toolbar,.ev-select,#evolution-executive,#evolution-growth){display:block}
-.nxe-leg[data-view="composicao"] .nxl :is(#evolution-composition,#history-competition-heading,#history-mix-heading){display:block}
+.nxe-leg[data-view="composicao"] .nxl :is(#evolution-composition,#history-competition-heading,#history-mix-heading,#history-channel-heading){display:block}
 .nxe-leg[data-view="marcas"] .nxl :is(.ev-toolbar,.ev-select){grid-column:1/-1}
 .nxe-leg[data-view="marcas"] .nxl :is(#evolution-executive,#evolution-growth),.nxe-leg[data-view="composicao"] .nxl #history-competition-heading{grid-column:1/-1}
 .nxe-leg .nxl .ev-interactive{margin:0 0 16px}

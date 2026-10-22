@@ -290,7 +290,8 @@ function HeatMap({spikes,states,channelLabel,brands=[]}){
 function TerritoryBrandMaps({filters,manifest,base,view='main'}){
  const h=jsxRuntime.jsx,hs=jsxRuntime.jsxs;
  const [channel,setChannel]=React.useState('VAREJO'),brands=[].concat(filters?.marca??[]).filter(v=>v&&v!=='all');
- const local=React.useMemo(()=>({...filters,uf:'all',municipio:'all',tipo_venda:channel}),[canonicalFilterKey(filters),channel]);
+ // National view: UF, region and municipality are all lifted, so "100 = Brasil" really is Brazil.
+ const local=React.useMemo(()=>({...filters,uf:'all',regiao:'all',municipio:'all',tipo_venda:channel}),[canonicalFilterKey(filters),channel]);
  const market=useMarketData(local,true,'primary-map',false),model=market.result;
  const explore=useExploration({type:'explore',filters:local,xDimension:'uf',seriesDimension:'marca',topN:20,xTopN:50,order:'value_desc',includeOthers:true,highlightBrands:['MITSUBISHI']},manifest,base);
  const points=useTbmPoints(base),population=useCatalogPopulation(base);
@@ -307,7 +308,7 @@ function TerritoryBrandMaps({filters,manifest,base,view='main'}){
  const loading=market.pending||explore.pending;
  return hs('section',{className:'tbm',id:'territory-brand-maps','aria-labelledby':'tbm-title',children:[
   hs('div',{className:'tbm-head',children:[
-   hs('div',{children:[h('h2',{id:'tbm-title',children:view==='3d'?'Em relevo':'Marcas no território'}),h('p',{children:'Visão nacional, com canal próprio.'})]}),
+   hs('div',{children:[h('h2',{id:'tbm-title',children:view==='3d'?'Em relevo':'Marcas no território'}),h('p',{children:'Visão nacional, com canal próprio: estes mapas ignoram UF, região, município e canal escolhidos no topo.'})]}),
    hs('div',{className:'tbm-channel',children:[h('span',{children:'Canal'}),h('div',{className:'tbm-seg',role:'group','aria-label':'Canal de venda',children:[['VAREJO','Varejo'],['all','Todos os canais']].map(([v,l])=>h('button',{type:'button','aria-pressed':channel===v,onClick:()=>setChannel(v),children:l},v))})]})]}),
   channel==='all'&&h('p',{className:'tbm-warn',children:'Todos os canais inclui locadoras e frotas, que emplacam na sede da empresa. Belo Horizonte e Curitiba aparecem muito maiores do que a demanda das lojas.'}),
   (market.error||explore.error||points.error)&&h('p',{role:'alert',className:'tbm-warn',children:market.error||explore.error||points.error}),

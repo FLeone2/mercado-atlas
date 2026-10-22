@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import { engine } from 'virtual:market';
+import { exportContextSlug } from '../../kit/index.js';
 import { useNext } from '../ctx.js';
 import { Diverging } from '../charts.jsx';
 import { UF_NAMES, fmt, monthLabel, pct, pp, rangeText, signed } from '../format.js';
-import { AreaHead, Block } from '../ui.jsx';
+import { AreaHead, Block, useUrlState, oneOf, jsonList } from '../ui.jsx';
 import LegacyTab from '../LegacyTab.jsx';
 import { BarRows, MonthLine, MultiLine, Pareto } from './explorar-charts.jsx';
 import { arrow, groupLabel } from './segmentos-charts.jsx';
@@ -31,6 +32,7 @@ const DIMS = [
 ];
 const MEASURES = [['volume', 'volume'], ['share', 'participação'], ['change', 'variação']];
 const BRAND = ['marca', 'modelo', 'grupo_modelo'], GEO = ['uf', 'regiao', 'municipio'];
+const FAMILY = { marca: 'marca', modelo: 'versão', grupo_modelo: 'modelo', uf: 'estado', regiao: 'região', municipio: 'município' };
 const HIST_DIMS = ['marca', 'uf', 'segmento', 'bd_segmento', 'bd_carroceria', 'combustivel', 'propulsao', 'tipo_venda', 'grupo_modelo'];
 const CHEV = <svg viewBox="0 0 12 8" aria-hidden><path d="M1 1.5l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>;
 const list = v => (v == null || v === 'all' ? [] : (Array.isArray(v) ? v : [v]).filter(x => x !== 'all'));
@@ -41,12 +43,19 @@ const csvText = s => (/[;"\n\r]/.test(s) ? '"' + String(s).replace(/"/g, '""') +
 
 function Perguntas() {
   const { filters, setFilter, model, market, geoless, hist, base, cityName } = useNext();
-  const [measure, setMeasure] = useState('volume'), [dimId, setDimId] = useState('marca'), [topN, setTopN] = useState(10), [q, setQ] = useState('');
-  const [view, setView] = useState('bars'), [sel, setSel] = useState(null), [dir, setDir] = useState('up');
-  const [mode, setMode] = useState('detail'), [cmp, setCmp] = useState([]), [cmpMeasure, setCmpMeasure] = useState('abs');
+  // every control lives in the link (q.*), so sharing or reloading restores the same question
+  const [measure, setMeasure] = useUrlState('q.m', 'volume', oneOf(MEASURES.map(m => m[0]))), [dimId, setDimId] = useUrlState('q.d', 'marca', oneOf(DIMS.map(d => d.id)));
+  const [topN, setTopN] = useUrlState('q.n', 10, v => ([10, 25, 50].includes(+v) ? +v : undefined)), [q, setQ] = useUrlState('q.q', '');
+  const [view, setView] = useUrlState('q.v', 'bars', oneOf(['bars', 'table'])), [sel, setSel] = useUrlState('q.s', null), [dir, setDir] = useUrlState('q.dir', 'up', oneOf(['up', 'down']));
+  const [mode, setMode] = useUrlState('q.mode', 'detail', oneOf(['detail', 'compare'])), [cmp, setCmp] = useUrlState('q.c', [], jsonList, v => JSON.stringify(v)), [cmpMeasure, setCmpMeasure] = useUrlState('q.cm', 'abs', oneOf(['abs', 'share']));
   const dim = DIMS.find(d => d.id === dimId);
+  // One filter contract for the ranking, the table and the monthly series: for a brand or a
+  // geography dimension the whole family of filters is lifted (to compare against the market);
+  // any other dimension keeps every filter.
+  const strip = BRAND.includes(dimId) ? BRAND : GEO.includes(dimId) ? GEO : [];
   const src = BRAND.includes(dimId) ? market ?? model : GEO.includes(dimId) ? geoless ?? model : model;
   const dimFiltered = list(filters[dimId]);
+  const lifted = strip.filter(k => list(filters[k]).length);
 
   const labelOf = useMemo(() => name => {
     if (dimId === 'uf') return UF_NAMES[name] ?? name;
@@ -89,7 +98,7 @@ function Perguntas() {
   /* ---------- história mensal do item escolhido ---------- */
   const ufHist = engine.useHistory({ uf: ['SP'] }, base, dimId === 'uf');
   const hsrc = dimId === 'uf' ? ufHist : hist;
-  const histFilters = useMemo(() => ({ ...filters, [dimId]: 'all' }), [filters, dimId]);
+  const histFilters = useMemo(() => ({ ...filters, ...Object.fromEntries(strip.map(k => [k, 'all'])) }), [filters, dimId]);
   const histOk = HIST_DIMS.includes(dimId);
   const monthly = useMemo(() => (histOk && hsrc?.data && hsrc.data.dimensions.includes(dimId) ? engine.historyMonthly(hsrc.data, histFilters, dimId).filter(m => m.complete) : null), [histOk, hsrc?.data, histFilters, dimId]);
   const series = useMemo(() => (sel && monthly ? monthly.map(m => ({ month: m.month, value: m.groups.get(sel) ?? 0 })) : null), [sel, monthly]);
@@ -105,7 +114,7 @@ function Perguntas() {
     const head = ['posicao', dim.sing.replace(/ /g, '_'), 'codigo_original', 'emplacamentos', 'participacao_pct', 'periodo_anterior', 'variacao_pct', 'variacao_participacao_pp'];
     const lines = [head.join(';'), ...shown.map(r => [r.rank, csvText(r.label), csvText(r.name), r.count, csvNum(r.share * 100, 3), r.previous ?? '', csvNum(r.changeRate == null ? null : r.changeRate * 100, 2), csvNum(r.shareChange == null ? null : r.shareChange * 100, 3)].join(';'))];
     const url = URL.createObjectURL(new Blob(['﻿' + lines.join('\r\n') + '\r\n'], { type: 'text/csv;charset=utf-8' }));
-    const a = document.createElement('a'); a.href = url; a.download = `atlas-${dimId}-${period}.csv`; document.body.appendChild(a); a.click(); a.remove();
+    const a = document.createElement('a'); a.href = url; a.download = `atlas-${dimId}-${period}_${exportContextSlug()}.csv`; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
@@ -168,7 +177,8 @@ function Perguntas() {
           {!src ? <div className="nxx-skel" /> : (
             <div className={'nxx-split' + (view === 'table' ? ' stack' : '')}>
               <div>
-                {dimFiltered.length > 0 && <p className="nx-note" style={{ marginTop: 0, marginBottom: 14 }}>Há filtro de {dim.sing} ativo ({dimFiltered.slice(0, 3).map(labelOf).join(', ')}{dimFiltered.length > 3 ? '…' : ''}): a lista mostra só o recorte.</p>}
+                {lifted.length > 0 ? <p className="nx-note nx-scope" style={{ marginTop: 0, marginBottom: 14 }}>Para comparar, esta lista e as séries retiram o filtro de {lifted.map(k => FAMILY[k]).join(', ')} e mostram todo o mercado com os demais filtros; o item filtrado aparece destacado entre os outros.</p>
+                  : dimFiltered.length > 0 && <p className="nx-note" style={{ marginTop: 0, marginBottom: 14 }}>Há filtro de {dim.sing} ativo ({dimFiltered.slice(0, 3).map(labelOf).join(', ')}{dimFiltered.length > 3 ? '…' : ''}): a lista mostra só o recorte.</p>}
                 {!shown.length ? <div className="nxx-empty">{q ? `Nenhum resultado para “${q}”.` : measure === 'change' ? 'Sem itens com período anterior para comparar.' : 'Nenhum item neste recorte.'}</div>
                   : view === 'bars' ? <BarRows rows={rows} selected={mode === 'compare' ? cmp : sel} colors={mode === 'compare' ? Object.fromEntries(cmpRows.map(r => [r.name, r.color])) : null} onPick={pick} tone={measure} max={scaleMax} />
                     : (
@@ -190,7 +200,7 @@ function Perguntas() {
                       </div>
                       {!histOk ? <p className="nx-note">A série mensal de dez anos não existe para {dim.sing}; abaixo, a comparação do período.</p>
                         : !cmpSeries ? <p className="nx-note">{hsrc?.error ? hsrc.error : !hsrc?.data ? 'Carregando as séries mensais…' : `A série mensal não traz ${dim.sing} quando há um estado ou região filtrado.`}</p>
-                          : <MultiLine series={cmpSeries} share={cmpMeasure === 'share'} />}
+                          : <><MultiLine series={cmpSeries} share={cmpMeasure === 'share'} />{ignored.length > 0 && <p className="nx-note nx-scope">A série mensal não aplica {ignored.join(', ')}; a tabela abaixo aplica. Por isso os números podem diferir.</p>}</>}
                       <div className="nxx-legend">{cmpRows.map(r => <button key={r.name} type="button" onClick={() => setCmp(c => c.filter(x => x !== r.name))} title="Remover da comparação"><i style={{ background: r.color }} />{r.label} ×</button>)}</div>
                       <div className="nxx-tablewrap sm"><table className="nxx-table">
                         <thead><tr><th>{dim.label[0].toUpperCase() + dim.label.slice(1)}</th><th>Emplac.</th><th>Part.</th><th>Var.</th><th>Δ part.</th></tr></thead>
@@ -214,7 +224,7 @@ function Perguntas() {
                       {!histOk ? <p className="nx-note">A série mensal de dez anos não existe para {dim.sing}: o histórico cobre marca, estado, grupo de modelos, combustível, propulsão, carroceria, porte, tipo de veículo e canal.</p>
                         : !series ? <p className="nx-note">{hsrc?.error ? hsrc.error : !hsrc?.data ? 'Carregando a série mensal…' : `A série mensal não traz ${dim.sing} quando há um estado ou região filtrado.`}</p>
                           : series.every(p => p.value === 0) ? <p className="nx-note">Sem emplacamentos mensais deste item no histórico.</p>
-                            : <><MonthLine key={dimId + sel} points={series} label={selRow.label} />{peak && <p className="nx-note">Maior mês: {monthLabel(peak.month)}, com {fmt(peak.value)} emplacamentos. {ignored.length ? `Esta série não aplica: ${ignored.join(', ')}.` : ''}</p>}</>}
+                            : <><MonthLine key={dimId + sel} points={series} label={selRow.label} />{peak && <p className="nx-note">Maior mês: {monthLabel(peak.month)}, com {fmt(peak.value)} emplacamentos.</p>}{ignored.length > 0 && <p className="nx-note nx-scope">A série mensal não aplica {ignored.join(', ')}; os números do período acima aplicam.</p>}</>}
                       <div className="nxx-actions">
                         <button type="button" className="nxx-btn" onClick={() => setFilter(dimId, filtered ? 'all' : [sel])}>{filtered ? 'Remover filtro do painel' : 'Filtrar o painel por ' + (dim.f ? 'esta ' : 'este ') + dim.sing}</button>
                         <button type="button" className="nxx-btn ghost" onClick={() => setSel(null)}>Fechar</button>

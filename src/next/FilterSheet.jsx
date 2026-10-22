@@ -3,7 +3,7 @@ import { engine } from 'virtual:market';
 import { UF_NAMES, monthEnd, monthLabel, shiftMonth, titleCase } from './format.js';
 
 const REGIOES = ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'];
-const UNIVERSO = [['light', 'Automóveis + comerciais leves'], ['all_content', 'Todos os veículos']];
+const UNIVERSO = [['light', 'Automóveis + comerciais leves'], ['all_content', 'Todo o conteúdo dos arquivos']];
 const NICE = { 'Álcool / Gasolina': 'Flex (álcool / gasolina)', VAREJO: 'Varejo', VD: 'Vendas diretas', Auto: 'Automóveis', 'Comercial Leve': 'Comerciais leves', LOCAL: 'Nacional', IMP: 'Importado' };
 // Filtros que ficam recolhidos em "Mais filtros" (mesma lista do Atlas antigo, fora os principais)
 const EXTRA = ['combustivel', 'subsegmento', 'bd_segmento', 'bd_carroceria', 'bd_classe', 'bd_macro', 'bd_combustivel', 'bd_origem', 'nacionalidade', 'ano_fabricacao', 'potencia', 'capacidade_carga', 'capacidade_passageiros'];
@@ -72,13 +72,12 @@ export default function FilterSheet({ open, filters, setFilter, manifest, model,
   const set = id => v => setFilter(id, v.length ? v : 'all');
   const setRange = (from, to) => { if (from > to) to = from; setFilter('date', from + '-01..' + monthEnd(to)); };
   // chips: opções com volume no recorte + as já escolhidas
-  const chipOptions = (id, base) => {
-    const sel = list(filters[id]), r = rank(id);
-    return (base ?? choices[id] ?? []).filter(k => sel.includes(k) || !model || (r.get(k) ?? 0) > 0).map(k => [k, display(id)(k)]);
-  };
+  // chips: todas as opções da base, sem depender do recorte (a própria seleção nunca some)
+  const chipOptions = id => (choices[id] ?? []).filter(k => list(filters[id]).includes(k) || (k !== 'Não informado' && (id !== 'segmento' || (filters.population ?? 'light') !== 'light' || ['Auto', 'Comercial Leve'].includes(k)))).map(k => [k, display(id)(k)]);
   const search = (id, extra) => <section key={id}><h4>{LABEL[id]}</h4><Search id={id} value={filters[id]} choices={id === 'uf' ? (choices.uf ?? []).filter(u => UF_NAMES[u]) : choices[id] ?? []} rank={rank(id)} onChange={set(id)} {...extra} /></section>;
   const extraOn = EXTRA.filter(id => list(filters[id]).length).length;
-  const props = chipOptions('propulsao', (model?.groups?.propulsao ?? []).map(r => r.name));
+  // opções da própria dimensão não dependem do resultado já filtrado por ela (permite OR e nunca esconde a seleção)
+  const props = ['ICE', 'MHEV', 'HEV', 'PHEV', 'BEV', 'FCEL'].map(k => [k, k]);
   const population = filters.population ?? 'light';
   return (
     <div className={'nx-sheet' + (open ? ' open' : '')} id="nx-sheet" role="dialog" aria-label="Filtros" inert={!open || undefined}>
@@ -99,6 +98,7 @@ export default function FilterSheet({ open, filters, setFilter, manifest, model,
         <div className="nx-seg" role="group" aria-label="Universo">
           {UNIVERSO.map(([k, l]) => <button key={k} type="button" aria-pressed={population === k} onClick={() => setFilter('population', k)}>{l}</button>)}
         </div>
+        {population === 'all_content' && <p className="nx-sheet-note">Caminhões e ônibus só existem nos arquivos de ago/2024; nos demais meses este universo é praticamente igual ao de leves. Não é uma série homogênea de todo o mercado.</p>}
       </section>
       <section><h4>Região</h4><Chips label="Região" value={filters.regiao} options={REGIOES.map(r => [r, r])} onChange={set('regiao')} /></section>
       {search('uf', { quickCount: 4 })}

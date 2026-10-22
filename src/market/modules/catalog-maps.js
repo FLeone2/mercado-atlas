@@ -53,7 +53,7 @@ function catalogMunicipalJoin(rows,geometry){
  return {matches,unmatched,collisions:catalogMunicipalCollisions(matches)};
 }
 // Two spellings can reach the same IBGE code (old and new names). Their rows are one municipality: sum them, never overwrite.
-const CATALOG_SUM_FIELDS=['count','marketCount','mitCount','observedCount','unclassifiedCount'];
+const CATALOG_SUM_FIELDS=['count','marketCount','mitCount','observedCount','unclassifiedCount','priorCount','denominator'];
 function catalogGroupByCode(matches){
  const groups=new Map();for(const row of matches){const key=String(row.ibgeCode);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(row);}
  return groups;
@@ -67,6 +67,12 @@ function catalogMergeByCode(matches){
   const sum=field=>list.every(r=>typeof r[field]==='number'&&Number.isFinite(r[field]))?list.reduce((t,r)=>t+r[field],0):(list.some(r=>r[field]!==undefined)?null:undefined);
   const out={...list[0],mergedFrom:list.map(r=>r.name),geographicMatch:'Nome normalizado + UF; grafias agregadas pelo código IBGE'};
   for(const f of CATALOG_SUM_FIELDS){const v=sum(f);if(v!==undefined)out[f]=v;}
+  // ratios are recomputed from the summed numerators and denominators, never kept from one spelling
+  const ok=f=>list.every(r=>r[f]!=null&&Number.isFinite(r[f]));
+  if('share' in out)out.share=ok('share')&&out.marketCount>0?out.count/out.marketCount:null;
+  if('mitShare' in out)out.mitShare=ok('mitShare')&&out.marketCount>0?out.mitCount/out.marketCount:null;
+  if('growth' in out)out.growth=ok('growth')&&out.priorCount>0?out.count/out.priorCount-1:null;
+  if('channelShare' in out)out.channelShare=ok('channelShare')&&out.denominator>0?out.count/out.denominator:null;
   return out;
  });
 }

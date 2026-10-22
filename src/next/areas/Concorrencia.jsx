@@ -205,9 +205,9 @@ function Estados({ a, brandAll, marketAll, setFilter, filters, hasGeo }) {
     );
   }
   const best = s.big[0], worst = s.big.at(-1), idx = best.share / s.nat;
-  const strong = s.big.slice(0, 5), weak = s.big.slice(-4).reverse().filter(r => !strong.includes(r));
+  const strong = s.big.slice(0, 5), weak = s.big.slice(-4).filter(r => !strong.includes(r));
   const toRow = (r, i, rank) => ({ key: r.uf, name: r.uf, label: UF_NAMES[r.uf], value: r.share, rank, valueText: pct(r.share, 1), deltaText: (r.share / s.nat).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '×', title: fmt(r.count) + ' de ' + fmt(r.all) + ' emplacamentos' });
-  const bars = [...strong.map((r, i) => toRow(r, i, i + 1)), ...(weak.length ? [{ key: 'gap', name: 'gap', label: '', value: 0, gap: true, valueText: '···', deltaText: '' }] : []), ...weak.map((r, i) => toRow(r, i, s.big.length - weak.length + i + 1))];
+  const bars = [...strong.map((r, i) => toRow(r, i, i + 1)), ...(weak.length ? [{ key: 'gap', name: 'gap', label: '', value: 0, gap: true, valueText: '···', deltaText: '' }] : []), ...weak.map((r, i) => toRow(r, i, s.big.indexOf(r) + 1))];
   return (
     <Block className="nx-c7 nxc-o2" title="Força por estado" sub={<>{name} é mais forte {inUF(best.uf)}: <em>{pct(best.share)}</em> dos emplacamentos{idx >= 1.15 ? <>, {idx.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}× a média do país</> : ''}.</>}
       caption={`No Brasil, ${name} tem ${pct(s.nat)} do mercado do período. O ponto mais fraco entre os estados com ao menos 1% do mercado é ${UF_NAMES[worst.uf]}, com ${pct(worst.share)}.${hasGeo ? ' O mapa ignora o filtro de território para mostrar o país inteiro.' : ''}`}>

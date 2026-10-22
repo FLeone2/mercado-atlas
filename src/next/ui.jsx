@@ -1,4 +1,4 @@
-import { Children, isValidElement, useEffect, useRef, useState } from 'react';
+import { Children, isValidElement, useCallback, useEffect, useRef, useState } from 'react';
 import { fmt } from './format.js';
 
 /* Building blocks every area shares: a chapter (one question, one finding, one chart), a count-up number and a figure tile. */
@@ -84,3 +84,24 @@ export function Block({ title, sub, info, caption, children, className = '', act
     </div>
   );
 }
+
+// Local view state kept in the address bar (?key=value), so a copied link or a reload restores
+// the same sub-tab, measure, dimension, selection or comparison. `parse` returns undefined for
+// anything invalid, which falls back to the default; the default itself is never written.
+export function useUrlState(key, initial, parse = v => v, format = v => String(v)) {
+  const [value, setValue] = useState(() => {
+    try { const raw = new URLSearchParams(location.search).get(key); const v = raw == null ? undefined : parse(raw); return v === undefined ? initial : v; } catch { return initial; }
+  });
+  const set = useCallback(next => setValue(prev => {
+    const v = typeof next === 'function' ? next(prev) : next;
+    try {
+      const url = new URL(location.href), text = v == null ? null : format(v);
+      if (text == null || text === format(initial)) url.searchParams.delete(key); else url.searchParams.set(key, text);
+      if (url.href !== location.href) history.replaceState(history.state, '', url);
+    } catch { /* address bar not writable: state still works locally */ }
+    return v;
+  }), [key]);
+  return [value, set];
+}
+export const oneOf = list => v => (list.includes(v) ? v : undefined);
+export const jsonList = v => { try { const a = JSON.parse(v); return Array.isArray(a) ? a.filter(x => typeof x === 'string').slice(0, 5) : undefined; } catch { return undefined; } };

@@ -517,7 +517,12 @@ function ScenarioTechnicalArchive({base,manifest}){
   item('legacy','Análises anteriores e cenários congelados',()=>jsxRuntime.jsx(Phase2View,{activeManifest:manifest,activeManifestVerified:Boolean(manifest),base}))]});
 }
 // Territórios · 3D: the municipal atlas (official IBGE mesh, extruded per UF), opened in 3D.
+// It is a frozen study base (period fixed in the file), so it says so permanently: the global
+// period, brand and channel filters do not reach it.
 function Territory3DAtlas({base}){
  const regional=useScenarioFile('phase2_regional.json',base),original=useScenarioFile('regional.json',base);
- return jsxRuntime.jsx('section',{className:'ax-section',children:jsxRuntime.jsx(ScenarioLoad,{state:regional,children:data=>jsxRuntime.jsx(ScenarioLoad,{state:original,children:prior=>jsxRuntime.jsx(ScenarioMunicipalMap,{data:{...prior,...data},base,initialMode:'3d'})})})});
+ const month=m=>{const [y,mm]=String(m??'').split('-');return mm?['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][+mm-1]+'/'+y:'—';};
+ return jsxRuntime.jsx('section',{className:'ax-section',children:jsxRuntime.jsx(ScenarioLoad,{state:regional,children:data=>jsxRuntime.jsx(ScenarioLoad,{state:original,children:prior=>jsxRuntime.jsxs(jsxRuntime.Fragment,{children:[
+  jsxRuntime.jsxs('p',{className:'am-frozen-base',role:'note',children:[jsxRuntime.jsx('strong',{children:'Base fixa · '+month(data.period?.[0])+' a '+month(data.period?.at(-1))+'. '}),'Este atlas municipal não acompanha os filtros do topo (período, marca, canal, segmento); os valores são sempre os do estudo regional publicado, todas as marcas.']}),
+  jsxRuntime.jsx(ScenarioMunicipalMap,{data:{...prior,...data},base,initialMode:'3d'})]})})})});
 }

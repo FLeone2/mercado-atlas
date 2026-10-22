@@ -39,7 +39,7 @@ function activeFilterEntries(filters = {}) {
 
 const DIMS = ['uf','municipio','marca','modelo','grupo_modelo','combustivel','segmento','subsegmento','tipo_venda','regiao','nacionalidade','ano_fabricacao','potencia','capacidade_carga','capacidade_passageiros','bd_segmento','bd_carroceria','bd_classe','bd_macro','bd_combustivel','bd_origem','propulsao'];
 const LABELS$1 = {uf:'UF',municipio:'Município',marca:'Marca',modelo:'Modelo',grupo_modelo:'Grupo de modelos',combustivel:'Combustível',segmento:'Segmento',subsegmento:'Subsegmento',tipo_venda:'Canal de venda',regiao:'Região',nacionalidade:'Código de nacionalidade da fonte',ano_fabricacao:'Ano de fabricação',potencia:'Potência',capacidade_carga:'Capacidade de carga',capacidade_passageiros:'Capacidade de passageiros',bd_segmento:'Porte (SEGMENT)',bd_carroceria:'Carroceria (BODY TYPE)',bd_classe:'Classe BD',bd_macro:'Macrosegmento BD',bd_combustivel:'Tecnologia BD',bd_origem:'Origem do veículo · BD',propulsao:'Propulsão'};
-function propulsionClass(value){const v=String(value??'').trim().toUpperCase();if(['GASOLINE','FFV','DIESEL','ETANOL','TETRAFUEL','GNV'].includes(v))return 'ICE';if(['HEV','PHEV','BEV','MHEV','FCEL'].includes(v))return v;return 'Não classificado';}
+function propulsionClass(value){const v=String(value??'').trim().toUpperCase();if(['GASOLINE','FFV','DIESEL','ETANOL','ETHANOL','TETRAFUEL','GNV'].includes(v))return 'ICE';if(['HEV','PHEV','BEV','MHEV','FCEL'].includes(v))return v;return 'Não classificado';}
 const number = v => v == null ? '—' : new Intl.NumberFormat('pt-BR').format(v);
 const compact = v => v == null ? '—' : new Intl.NumberFormat('pt-BR',{notation:'compact',maximumFractionDigits:1}).format(v);
 const percent = v => v == null ? '—' : new Intl.NumberFormat('pt-BR',{style:'percent',minimumFractionDigits:1,maximumFractionDigits:1}).format(v);
@@ -2014,7 +2014,7 @@ if(typeof module!=="undefined")module.exports = exports;
 exports.DashboardContent = DashboardContent;
 exports.ReportContent = ReportContent;
 // The engine the new interface (src/next) reads: same queries, filters and insight sentences as the current one.
-exports.engine = {useMarketData,useHistory,historyMonthly,historyPlan,overviewInsights,geoKey,getBase,useTbmPoints,marketFocusBrand,canonicalFilterKey,insightName,marketNavigation,marketTabs,filterLabels:LABELS$1,
+exports.engine = {useMarketData,useHistory,historyMonthly,historyPlan,overviewInsights,geoKey,getBase,useTbmPoints,marketFocusBrand,canonicalFilterKey,insightName,marketNavigation,marketTabs,useExploration,filterLabels:LABELS$1,
  // rótulo legível de uma opção de filtro (porte e carroceria do BD têm nomes próprios)
  filterChoiceLabel:(id,value)=>id==='bd_carroceria'?bodyTypeLabel(value):id==='bd_segmento'?structureDisplayLabel(value,'bd_segmento'):String(value)};
 

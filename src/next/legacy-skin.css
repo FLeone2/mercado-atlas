@@ -93,3 +93,5 @@
 /* Economia: caixas internas do Atlas atual no mesmo acabamento dos cartões */
 .nx .nxl .am-scenario-unavailable{border:0!important;border-radius:24px!important;background:var(--nx-card)!important;padding:26px 28px!important}
 .nx .nxl :is(.am-scenario-provenance,.am-scenario-quantiles,.am-scenario-source-card){border:0!important;border-radius:16px!important;background:color-mix(in srgb,var(--nx-ink) 4%,var(--nx-card))!important}
+/* aviso permanente de base fixa (não segue os filtros globais) */
+.nx .nxl .am-frozen-base,.am-frozen-base{margin:0 0 12px;padding:12px 16px;border-radius:14px;background:color-mix(in srgb,#ff9f0a 14%,var(--nx-card,#fff));color:var(--nx-ink,#1d1d1f);font:500 13.5px/1.45 var(--nx-font,inherit)}

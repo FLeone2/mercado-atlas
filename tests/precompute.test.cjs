@@ -32,3 +32,11 @@ const loader = { load: async m => worker.parse(zlib.gunzipSync(fs.readFileSync(p
   assert.deepEqual(stored, live, 'arquivo pré-calculado = cálculo ao vivo');
   console.log('PASS precomputed:', Object.keys(index.entries).length, 'pedidos; último mês total', stored.total, '· Mitsubishi', stored.focus.total);
 })().catch(e => { console.error(e); process.exit(1); });
+// Auditoria TST-02: a coverage/revision change that keeps paths and generatedAt still changes the identity.
+{
+  const changed = JSON.parse(JSON.stringify(manifest)), m = changed.months.find(x => x.cubePath);
+  m.coverageEndDate = (m.month ?? '2024-02') + '-15';
+  assert.notEqual(core.precomputedIdentity(changed), core.precomputedIdentity(manifest), 'mudança de cobertura deve invalidar o pré-cálculo');
+  const reordered = Object.fromEntries(Object.entries(manifest).reverse());
+  assert.equal(core.precomputedIdentity(reordered), core.precomputedIdentity(manifest), 'ordem das chaves não muda a identidade');
+}

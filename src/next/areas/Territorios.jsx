@@ -4,7 +4,7 @@ import { useNext } from '../ctx.js';
 import { BarList } from '../charts.jsx';
 import LegacyTab from '../LegacyTab.jsx';
 import { UF_NAMES, fmt, pct, rangeText, signed } from '../format.js';
-import { AreaHead, Block } from '../ui.jsx';
+import { AreaHead, Block, useUrlState, oneOf } from '../ui.jsx';
 import { REGIOES, dec, regionOf, usePopulation } from './territorios-charts.jsx';
 import './territorios.css';
 import './territorios-skin.css';
@@ -23,7 +23,7 @@ const Seg = ({ value, options, onChange, label }) => (
 
 export default function Territorios() {
   const { filters, setFilter, model, geoless, points, cityName, base } = useNext();
-  const [tab, setTab] = useState('mapa'), [metric, setMetric] = useState('vol'), [allUF, setAllUF] = useState(false), [more, setMore] = useState(false);
+  const [tab, setTab] = useUrlState('t.tab', 'mapa', oneOf(['mapa', 'marcas', 'habitante', '3d'])), [metric, setMetric] = useUrlState('t.m', 'vol', oneOf(['vol', 'pc'])), [allUF, setAllUF] = useState(false), [more, setMore] = useState(false);
   const geo = geoless ?? model;
   const pop = usePopulation(base);
   const selected = list(filters.uf);
@@ -53,10 +53,10 @@ export default function Territorios() {
     const rows = Object.keys(REGIOES).map(name => {
       const us = ufRows.filter(r => regionOf(r.name) === name), count = us.reduce((s, r) => s + r.count, 0), prev = us.reduce((s, r) => s + (Number.isFinite(r.previous) ? r.previous : 0), 0);
       const p = REGIOES[name].reduce((s, u) => s + (pop.uf.get(u) ?? 0), 0);
-      return { name, count, share: total > 0 ? count / total : 0, popShare: totalPop > 0 ? p / totalPop : null, change: prev > 0 ? count / prev - 1 : null, per1000: p > 0 ? count / p * 1000 : null };
+      return { name, count, share: total > 0 ? count / total : 0, popShare: totalPop > 0 ? p / totalPop : null, change: prev > 0 ? count / prev - 1 : null, per1000: p > 0 && canRate ? count / p * 1000 : null };
     });
     return rows.sort((a, b) => b.count - a.count);
-  }, [ufRows, pop, total]);
+  }, [ufRows, pop, total, canRate]);
   const regTop = regions[0], regGrow = [...regions].filter(r => r.change != null).sort((a, b) => b.change - a.change)[0];
   const regPick = name => { const on = list(filters.regiao); setFilter('regiao', on.length === 1 && on[0] === name ? 'all' : [name]); };
 
@@ -68,7 +68,8 @@ export default function Territorios() {
       if (!(r.count > 0)) continue;
       const i = r.name.lastIndexOf(' · '); if (i < 0) continue;
       const uf = r.name.slice(i + 3).trim(), pt = pointIdx.get(engine.geoKey(r.name.slice(0, i), uf) + '|' + uf), p = pt ? pop.city.get(pt.code) : null;
-      out.push({ raw: r.name, uf, v: r.count, change: r.changeRate, code: pt?.code ?? r.name, x: pt?.x, y: pt?.y, located: Boolean(pt), per1000: p > 0 ? r.count / p * 1000 : null });
+      // same policy as the states: no rate over a period with partial coverage
+      out.push({ raw: r.name, uf, v: r.count, change: r.changeRate, code: pt?.code ?? r.name, x: pt?.x, y: pt?.y, located: Boolean(pt), per1000: p > 0 && model?.complete !== false ? r.count / p * 1000 : null });
     }
     return out.sort((a, b) => b.v - a.v);
   }, [model, pointIdx, pop]);
@@ -135,6 +136,7 @@ export default function Territorios() {
           {cities.length > 10 && <button type="button" className="nxt-link" onClick={() => setMore(v => !v)}>{more ? 'Mostrar menos' : 'Mostrar 25 maiores'}</button>}
         </>
       ) : <p className="nxt-empty">Nenhum município com emplacamentos neste recorte.</p>}
+      {model?.complete === false && <p className="nx-note nx-scope">Período com cobertura parcial: as taxas por mil habitantes não são calculadas (—), como no ranking de estados.</p>}
       <p className="nx-note">Por mil habitantes usa a população estimada de {pop.year ?? 2026}; municípios com limite territorial em revisão ficam sem taxa. Frotas na sede podem inflar capitais e polos.</p>
     </Block>
   );

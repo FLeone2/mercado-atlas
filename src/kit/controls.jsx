@@ -151,12 +151,19 @@ export const NativeSelect = ({ label, value, options = [], onChange }) => (
 );
 
 // ---------- Period ----------
+// Same reading as the market worker: a lone day is that day; a lone month (or a month at either
+// end of a range) spans its first to last day. The picker label must declare the computed window.
+const monthLast = m => { const [y, mm] = m.split('-').map(Number); return m + '-' + String(new Date(Date.UTC(y, mm, 0)).getUTCDate()).padStart(2, '0'); };
+export function normalizePeriod(value) {
+  const [a, b = a] = String(value).split('..');
+  return (a.length === 7 ? a + '-01' : a) + '..' + (b.length === 7 ? monthLast(b) : b);
+}
 export function DateRangePicker({ label = 'Período', value, choices = [], onChange, allValue, disabled = false, className = '' }) {
   const days = useMemo(() => [...new Set(choices.filter(c => typeof c === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(c)))].sort(), [choices]);
   const first = days[0], last = days.at(-1);
   const [open, setOpen] = useState(false), ref = useRef(null);
   usePopover(open, setOpen, ref);
-  const current = !value || value === 'all' || value === allValue ? `${first}..${last}` : String(value).includes('..') ? String(value) : `${first}..${value}`;
+  const current = !value || value === 'all' || value === allValue ? `${first}..${last}` : normalizePeriod(value);
   const [start, end] = current.split('..');
   const [draft, setDraft] = useState({ start, end });
   useEffect(() => { if (open) setDraft({ start, end }); }, [open, start, end]);
