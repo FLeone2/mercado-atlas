@@ -50,8 +50,9 @@ const AREAS = ['panorama', 'evolucao', 'concorrencia', 'segmentos', 'territorios
   t = (await page.locator('.nxs-b-leaders').innerText()).replace(/\s+/g, ' ');
   expect('LEG-01', /Hatch .*?BYD .*?6\.442/.test(t), 'Hatch 1–15/set deveria ter BYD 6.442'); await page.close();
 
+  // decisão do dono: "Não classificado" é ruído e fica fora de mapas e gráficos
   page = await open('?a=concorrencia&f.marca=["IVECO"]'); await tab(page, 'Conexões'); t = await text(page);
-  expect('LEG-02', t.includes('874') && !t.includes(' 834 '), 'IVECO deveria somar 874 em Conexões'); await page.close();
+  expect('LEG-02', !/Não classificado|Sem correspondência/.test(t), '"Não classificado" apareceu em Conexões'); await page.close();
 
   page = await open('?a=explorar&f.grupo_modelo=["STRADA"]&q.d=marca&q.mode=compare&q.c=["FIAT","VW"]&q.cm=share', 1440, 12000); t = await text(page);
   expect('UI-03', /Fiat 53\.586 19,94%/.test(t) && t.includes('retiram o filtro de modelo'), 'tabela e série devem usar o mesmo universo, com aviso'); await page.close();
