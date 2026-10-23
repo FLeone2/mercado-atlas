@@ -48,3 +48,8 @@
 .nx .nxl.nxs-leg :is(.am-market-view-note,.am-footnote,.am-baseline-callout){border-radius:14px;border-left:0;background:color-mix(in srgb,var(--nx-ink) 5%,transparent);font:500 12.5px/1.45 var(--nx-font)}
 .nx .nxl.nxs-leg details>summary{cursor:pointer}
 .nx .nxl.nxs-leg .hx-table-wrap{overflow-x:auto}.nx .nxl.nxs-leg .hx-table{min-width:520px}
+
+/* seletor de marcas chinesas: antes da pirâmide (porte) e no topo (origem) */
+.nx .nxs-grid[data-tab="porte"] .nxs-b-chn{order:5}
+.nx .nxs-grid[data-tab="porte"] .am-exploration{order:6}
+.nx .nxs-grid[data-tab="origem"] .nxs-b-chn{order:0}

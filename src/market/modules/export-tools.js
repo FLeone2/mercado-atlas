@@ -5,13 +5,10 @@ const exportLegend=dataApp.exportLegend;
 const exportSvgToPng=dataApp.exportSvgToPng;
 // Place inside the chart container; it exports every visible chart (svg or canvas) of the
 // nearest [data-export-root], so canvas maps and multi-map views are exported whole.
-const exportVisualsToPng=dataApp.exportVisualsToPng;
-function exportTargets(root){
- return [...root.querySelectorAll('svg,canvas')].filter(n=>{if(n.closest('button,.export-image-button,.lm-zoom,.tbm-tip'))return false;if(n.tagName.toLowerCase()==='svg'&&n.parentElement?.closest('svg'))return false;const r=n.getBoundingClientRect();return r.width>=120&&r.height>=80&&getComputedStyle(n).visibility!=='hidden';});
-}
+const exportRootToPng=dataApp.exportRootToPng;
 function ExportImageButton({name='grafico',title=''}){
  const [busy,setBusy]=React.useState(false);
- const run=async e=>{const root=e.currentTarget.closest('[data-export-root]'),nodes=root?exportTargets(root):[];if(!nodes.length){globalThis.alert?.('Esta visualização não tem um gráfico exportável como imagem.');return;}setBusy(true);try{await exportVisualsToPng(nodes,{filename:name,title:title||root.getAttribute('data-export-title')||'',legend:exportLegend(root)});}catch(error){globalThis.alert?.(error.message);}finally{setBusy(false);}};
+ const run=async e=>{const root=e.currentTarget.closest('[data-export-root]');if(!root){globalThis.alert?.('Esta visualização não tem um gráfico exportável como imagem.');return;}setBusy(true);try{await exportRootToPng(root,{filename:name+'_'+dataApp.exportContextSlug(),title:title||root.getAttribute('data-export-title')||'',legend:exportLegend(root)});}catch(error){globalThis.alert?.(error.message);}finally{setBusy(false);}};
  return jsxRuntime.jsx('button',{type:'button',className:'export-image-button',onClick:run,disabled:busy,title:'Baixar este gráfico como imagem PNG','aria-label':'Baixar gráfico como imagem PNG',children:busy?'Gerando…':'Baixar PNG'});
 }
 // Print: the whole area with print styles, or a one-page summary of Panorama.

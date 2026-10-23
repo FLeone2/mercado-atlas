@@ -10,4 +10,4 @@ export {
 export { DataTable, Table } from './table.jsx';
 export { EvidenceChart, Chart, ChartRenderer, barChartSpec, chartModel, PALETTE } from './chart.jsx';
 export { compact, percentage, displayValue, label, shortDate, csvText, downloadCsv, formatNumber, formatPercent } from './format.js';
-export { exportSvgToPng, exportVisualsToPng, exportLegend, exportContextSlug, EXPORT_STYLE_PROPS } from './export.js';
+export { exportSvgToPng, exportVisualsToPng, exportCardToPng, exportRootToPng, exportLegend, exportContextSlug, EXPORT_STYLE_PROPS } from './export.js';

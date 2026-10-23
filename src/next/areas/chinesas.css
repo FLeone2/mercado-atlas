@@ -1,0 +1,11 @@
+.nxch .nx-block-body{gap:12px}
+.nxch-picker{display:grid;gap:12px}
+.nxch-add{position:relative;max-width:420px}
+.nxch-add input{width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--nx-line);background:var(--nx-card);font:500 14px var(--nx-font);color:var(--nx-ink)}
+.nxch-extras{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.nxch-reset{font:600 13px var(--nx-font);color:var(--nx-accent);padding:6px 4px}
+.nxch-empty{font:500 13.5px var(--nx-font);color:var(--nx-soft)}
+.nxch-ctl{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+.nxch-skel{height:340px;border-radius:16px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--nx-ink) 6%,transparent),transparent);background-size:200% 100%;animation:nxsk 1.4s infinite}
+@keyframes nxsk{to{background-position:-200% 0}}
+.nxch .nx-found{position:absolute;left:0;right:0;z-index:5;background:var(--nx-card);box-shadow:0 12px 30px -10px rgba(0,0,0,.3)}

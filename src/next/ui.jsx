@@ -1,5 +1,6 @@
 import { Children, isValidElement, useCallback, useEffect, useRef, useState } from 'react';
 import { fmt } from './format.js';
+import { exportRootToPng, exportContextSlug } from '../kit/index.js';
 
 /* Building blocks every area shares: a chapter (one question, one finding, one chart), a count-up number and a figure tile. */
 export function Chapter({ id, kicker, title, lede, children, wide }) {
@@ -69,12 +70,21 @@ export function Block({ title, sub, info, caption, children, className = '', act
   Children.toArray(children).forEach(c => (isValidElement(c) && c.type === 'p' && String(c.props.className ?? '').includes('nx-note') ? notes : body).push(c));
   const base = info ?? caption;
   const tip = notes.length ? <>{base && <span style={{ display: 'block', marginBottom: 6 }}>{base}</span>}{notes.map((n, i) => <span key={i} style={{ display: 'block' }}>{n.props.children}</span>)}</> : base;
+  const root = useRef(null), [busy, setBusy] = useState(false);
+  const download = async () => {
+    if (!root.current) return;
+    setBusy(true);
+    try {
+      const slug = String(typeof title === 'string' ? title : 'grafico').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      await exportRootToPng(root.current, { filename: 'atlas-' + slug + '_' + exportContextSlug(), title: typeof title === 'string' ? title : '' });
+    } catch (error) { globalThis.alert?.(error.message); } finally { setBusy(false); }
+  };
   return (
-    <div className={'nx-card nx-block ' + className}>
+    <div className={'nx-card nx-block ' + className} ref={root}>
       {(title || actions) && (
         <div className="nx-block-head">
           <div className="nx-block-titles">
-            {title && <h3 className="nx-block-t">{title}<InfoTip>{tip}</InfoTip></h3>}
+            {title && <h3 className="nx-block-t">{title}<InfoTip>{tip}</InfoTip><button type="button" className="nx-dl" onClick={download} disabled={busy} aria-label="Baixar imagem (PNG)" title="Baixar imagem (PNG)"><svg viewBox="0 0 16 16" aria-hidden><path d="M8 2v8m0 0L4.5 6.6M8 10l3.5-3.4M3 13h10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg></button></h3>}
             {sub && <p className="nx-block-sub">{sub}</p>}
           </div>
           {actions && <div className="nx-block-actions">{actions}</div>}

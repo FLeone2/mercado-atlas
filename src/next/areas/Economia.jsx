@@ -6,6 +6,7 @@ import { UF_NAMES, fmt, monthLabel, pct, signed } from '../format.js';
 import { AreaHead, InfoTip } from '../ui.jsx';
 import LegacyTab from '../LegacyTab.jsx';
 import { useDataApp } from '../../kit/index.js';
+import Chinesas from './chinesas.jsx';
 import { ForecastChart, GapRows, IndexedLines, LagHeat, Spark, UfScatter } from './economia-charts.jsx';
 import './economia.css';
 import './economia-skin.css';
@@ -471,7 +472,7 @@ function Regional() {
 /* =====================================================================================
    ÁREA
    ===================================================================================== */
-const TABS = [['contexto', 'Contexto'], ['projecoes', 'Projeções'], ['regional', 'Potencial regional'], ['economia', 'Economia e mercado'], ['simulacoes', 'Simulações'], ['tecnicas', 'Análises técnicas']];
+const TABS = [['contexto', 'Contexto'], ['projecoes', 'Projeções'], ['regional', 'Potencial regional'], ['economia', 'Economia e mercado'], ['chinesas', 'Marcas chinesas'], ['simulacoes', 'Simulações'], ['tecnicas', 'Análises técnicas']];
 const kindOf = v => (v === 'projecoes' || v === 'simulacoes' ? 'model' : 'official');
 const readTab = () => { try { const v = new URLSearchParams(location.search).get('e'); return TABS.some(x => x[0] === v) ? v : 'contexto'; } catch { return 'contexto'; } };
 const LEG_HIDE_FORECAST = ['scenarios-phase3-projection-registrations-published', 'scenarios-phase3-benchmark-registrations'];
@@ -505,6 +506,7 @@ export default function Economia() {
           <LegacyModels view="regional" dedupe heading={<h3 className="nxo-sec">Modelo regional, dependência espacial (Moran) e tabelas</h3>} />
         </>}
         {view === 'economia' && <LegacyModels view="economy" heading={<h3 className="nxo-sec">Defasagens, crédito real, IPCA e PNAD</h3>} />}
+        {view === 'chinesas' && <Chinesas />}
         {view === 'simulacoes' && <LegacyModels view="simulations" />}
         {view === 'tecnicas' && <LegacyModels view="diagnostic" heading={<h3 className="nxo-sec">Diagnóstico do acervo, cobertura e comprovantes</h3>} />}
       </div>

@@ -196,3 +196,9 @@ html[data-nx-dir="back"]::view-transition-old(root){animation-name:nx-leave-back
 /* controles no cabeçalho do cartão quebram linha no celular em vez de alargar a página */
 .nx-block-head{flex-wrap:wrap;row-gap:10px}
 .nx-block-actions{max-width:100%;min-width:0;flex-wrap:wrap}
+
+/* baixar imagem do cartão: ícone discreto ao lado do ⓘ, mais visível ao passar o mouse */
+.nx-dl{flex:none;display:inline-grid;place-items:center;width:20px;height:20px;margin:6px 0 0 4px;border-radius:50%;background:color-mix(in srgb,var(--nx-ink) 8%,transparent);color:var(--nx-soft);vertical-align:middle;opacity:.55;transition:opacity .15s,background .15s,color .15s}
+.nx-dl svg{width:11px;height:11px}
+.nx-block:hover .nx-dl,.nx-dl:focus-visible{opacity:1}.nx-dl:hover{background:var(--nx-ink);color:var(--nx-card)}.nx-dl:disabled{opacity:.4;cursor:progress}
+@media(hover:none){.nx-dl{opacity:1}}

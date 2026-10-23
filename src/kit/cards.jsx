@@ -3,7 +3,7 @@
 import { Children, useRef, useState } from 'react';
 import { Icon, Info } from './controls.jsx';
 import { downloadCsv } from './format.js';
-import { exportLegend, exportVisualsToPng, exportContextSlug } from './export.js';
+import { exportLegend, exportRootToPng, exportContextSlug } from './export.js';
 
 export function Section({ id, title, children, columns, spacing, filters, description, actions }) {
   return (
@@ -26,11 +26,10 @@ function ToolMenu({ id, title, rows }) {
   const [open, setOpen] = useState(false), [busy, setBusy] = useState(false), ref = useRef(null);
   const png = async () => {
     const root = ref.current?.closest('[data-export-root]');
-    const nodes = [...(root?.querySelectorAll('.ax-card-body svg:not(.ax-icon), .ax-card-body canvas') ?? [])].filter(n => !n.parentElement?.closest('svg') && n.getBoundingClientRect().width >= 120);
     setOpen(false);
-    if (!nodes.length) { globalThis.alert?.('Este cartão não tem um gráfico exportável como imagem.'); return; }
+    if (!root) return;
     setBusy(true);
-    try { await exportVisualsToPng(nodes, { filename: (id || 'grafico') + '_' + exportContextSlug(), title, legend: exportLegend(root) }); }
+    try { await exportRootToPng(root, { filename: (id || 'grafico') + '_' + exportContextSlug(), title, legend: exportLegend(root) }); }
     catch (error) { globalThis.alert?.(error.message); }
     finally { setBusy(false); }
   };

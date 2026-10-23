@@ -80,7 +80,22 @@ const AREAS = ['panorama', 'evolucao', 'concorrencia', 'segmentos', 'territorios
   const chips = await page.$$eval('#nx-sheet [aria-label="Propulsão"] button', b => b.map(x => x.textContent));
   expect('UI-02', chips.includes('BEV') && chips.includes('HEV'), 'propulsão deve manter BEV visível e permitir somar HEV'); await page.close();
 
+  // origem chinesa: números conferidos contra os cubos mensais (set/2026) e seleção de marcas
+  page = await open('?a=segmentos', 1440, 7000); await tab(page, 'Origem'); t = await text(page);
+  expect('ORIGEM-1', t.includes('48.984') && t.includes('9.224'), 'origem chinesa deveria somar 48.984 e parcerias 9.224 em set/2026');
+  expect('ORIGEM-2', !t.includes('Origem BD incompleta'), 'aviso de origem incompleta voltou (lacunas por ocultação)'); await page.close();
+
+  page = await open('?a=economia&e=chinesas', 1440, 12000); t = await text(page);
+  expect('CHN-1', /Marcas chinesas/.test(t) && t.includes('Mercado × marcas chinesas') && t.includes('Participação das chinesas no mercado'), 'aba Marcas chinesas sem os dois gráficos');
+  await page.locator('.nxch-extras .nx-chip', { hasText: 'Parcerias' }).click(); await page.waitForTimeout(1500);
+  expect('CHN-2', decodeURIComponent(page.url()).includes('CAOA CHERY') && /3[0-9]\.[0-9]{3} emplacamentos|[4-9][0-9]\.[0-9]{3} emplacamentos/.test(await text(page)), 'incluir CAOA deveria entrar no link e aumentar a soma'); await page.close();
+
+  page = await open('?a=segmentos&f.date=2026-01-01..2026-09-30', 1440, 12000);
+  const slices = await page.locator('g.am-pyramid-slice').all(); let compact = '';
+  for (const e of slices) { await e.hover({ force: true }).catch(() => {}); const d = (await page.locator('.am-rank-detail').first().innerText().catch(() => '')).replace(/\s+/g, ' '); if (/^Compact ·/.test(d)) compact = d; }
+  expect('PIRAMIDE', /24,2%/.test(compact) && compact.includes('27.080'), 'pirâmide Compact jan–set/2026 deveria ter 24,2% chinesa e 27.080 parceria (recálculo independente)'); await page.close();
+
   await browser.close();
   if (failures.length) { console.error('FAIL\n  ' + failures.join('\n  ')); process.exit(1); }
-  console.log(`PASS novo: ${views.n} vistas sem erro nem rolagem horizontal · 11 reproduções da auditoria com o resultado correto`);
+  console.log(`PASS novo: ${views.n} vistas sem erro nem rolagem horizontal · 16 conferências (auditoria, origem chinesa e pirâmide) com o resultado correto`);
 })();

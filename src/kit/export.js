@@ -1,6 +1,6 @@
 // "Baixar PNG": the chart SVG is redrawn on a canvas with its computed colours, the
 // Atlas fonts embedded, the legend under it, a title and the source line.
-export const EXPORT_STYLE_PROPS = ['fill', 'fill-opacity', 'stroke', 'stroke-width', 'stroke-opacity', 'stroke-dasharray', 'stroke-linecap', 'stroke-linejoin', 'opacity', 'font-size', 'font-weight', 'font-family', 'font-style', 'text-anchor', 'dominant-baseline', 'paint-order', 'visibility', 'display', 'letter-spacing'];
+export const EXPORT_STYLE_PROPS = ['stop-color', 'stop-opacity', 'paint-order', 'fill', 'fill-opacity', 'stroke', 'stroke-width', 'stroke-opacity', 'stroke-dasharray', 'stroke-linecap', 'stroke-linejoin', 'opacity', 'font-size', 'font-weight', 'font-family', 'font-style', 'text-anchor', 'dominant-baseline', 'paint-order', 'visibility', 'display', 'letter-spacing'];
 
 let fontPromise = null;
 function fontFaces() {
@@ -102,9 +102,9 @@ export async function exportVisualsToPng(nodes, { filename = 'grafico', title = 
   const cellW = Math.max(...parts.map(p => p.w)), rowsN = Math.ceil(parts.length / cols);
   const rowH = r => Math.max(...parts.slice(r * cols, r * cols + cols).map(p => p.h));
   const w = cols * cellW + (cols - 1) * gap, h = Array.from({ length: rowsN }, (_, r) => rowH(r)).reduce((a, b) => a + b, 0) + (rowsN - 1) * gap;
-  const paper = resolveColor('--paper', '#f4f1e8'), ink = resolveColor('--ink', '#173e35'), muted = resolveColor('--ink-soft', '#5b6b63');
+  const paper = '#f5f5f7', ink = '#1d1d1f', muted = '#6e6e73';
   const scale = 2, pad = 28, titleH = title ? 40 : 0, rows = [], probe = document.createElement('canvas').getContext('2d');
-  probe.font = '13px Inter, sans-serif';
+  probe.font = '13px "Inter Variable", Inter, system-ui, sans-serif';
   let row = [], x = 0;
   for (const item of legend) { const iw = 22 + probe.measureText(item.label).width + 18; if (x + iw > w && row.length) { rows.push(row); row = []; x = 0; } row.push({ ...item, x }); x += iw; }
   if (row.length) rows.push(row);
@@ -112,15 +112,15 @@ export async function exportVisualsToPng(nodes, { filename = 'grafico', title = 
   const canvas = document.createElement('canvas'); canvas.width = W * scale; canvas.height = H * scale;
   const ctx = canvas.getContext('2d'); ctx.scale(scale, scale);
   ctx.fillStyle = paper; ctx.fillRect(0, 0, W, H);
-  if (title) { ctx.fillStyle = ink; ctx.font = '24px "DM Serif Display", Georgia, serif'; ctx.fillText(title, pad, pad + 22); }
+  if (title) { ctx.fillStyle = ink; ctx.font = '700 24px "Inter Variable", Inter, -apple-system, system-ui, sans-serif'; ctx.fillText(title, pad, pad + 22); }
   let top = pad + titleH;
   for (let r = 0; r < rowsN; r++) {
     parts.slice(r * cols, r * cols + cols).forEach((p, c) => ctx.drawImage(p.img, pad + c * (cellW + gap), top, p.w, p.h));
     top += rowH(r) + gap;
   }
-  let y = pad + titleH + h + 10; ctx.font = '13px Inter, sans-serif';
+  let y = pad + titleH + h + 10; ctx.font = '13px "Inter Variable", Inter, system-ui, sans-serif';
   for (const r of rows) { for (const item of r) { ctx.fillStyle = item.color; ctx.beginPath(); ctx.arc(pad + item.x + 6, y + 9, 5.5, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = ink; ctx.fillText(item.label, pad + item.x + 18, y + 13); } y += 22; }
-  ctx.fillStyle = muted; ctx.font = '11px Inter, sans-serif';
+  ctx.fillStyle = muted; ctx.font = '11px "Inter Variable", Inter, system-ui, sans-serif';
   ctx.fillText(contextLine(), pad, H - pad - 10);
   ctx.fillText('Atlas · Mercado Automotivo · emplacamentos (registros) · gerado em ' + new Date().toLocaleDateString('pt-BR'), pad, H - pad + 4);
   const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
@@ -129,3 +129,135 @@ export async function exportVisualsToPng(nodes, { filename = 'grafico', title = 
 }
 
 export function exportSvgToPng(svg, options) { return exportVisualsToPng([svg], options); }
+
+/* ---------- snapshot of a whole card: what is on screen, with its context ---------- */
+// Controls and helpers that mean nothing in a picture.
+const EXPORT_SKIP = '.export-image-button,.ax-card-tools,.nx-info,.nx-dl,.nx-tip,.nx-info-pop,.ax-popover,.ax-tooltip,.nx-block-actions,.nx-seg,.nxe-seg,.nxx-seg,.tbm-seg,.ax-segmented,.lm-zoom,[data-nxnote],[data-export-skip],.nx-found,input,select,textarea,script,style';
+
+function roundPath(ctx, x, y, w, h, r) {
+  const [tl, tr, br, bl] = r.map(v => Math.max(0, Math.min(v, w / 2, h / 2)));
+  ctx.beginPath(); ctx.moveTo(x + tl, y); ctx.lineTo(x + w - tr, y); ctx.arcTo(x + w, y, x + w, y + tr, tr);
+  ctx.lineTo(x + w, y + h - br); ctx.arcTo(x + w, y + h, x + w - br, y + h, br); ctx.lineTo(x + bl, y + h); ctx.arcTo(x, y + h, x, y + h - bl, bl);
+  ctx.lineTo(x, y + tl); ctx.arcTo(x, y, x + tl, y, tl); ctx.closePath();
+}
+const clear = color => !color || color === 'transparent' || /rgba\(.*,\s*0\)$/.test(color);
+
+/* Paints the card on a canvas element by element (backgrounds, borders, words, SVG charts, canvas maps).
+   It does not go through an SVG foreignObject, which makes the canvas unexportable in Chrome and Safari. */
+async function paintCard(ctx, root, ox, oy) {
+  const box = root.getBoundingClientRect(), opacities = new Map();
+  const alphaOf = el => { let a = 1; for (let n = el; n && n !== root.parentElement; n = n.parentElement) { if (!opacities.has(n)) opacities.set(n, parseFloat(getComputedStyle(n).opacity)); a *= opacities.get(n); } return a; };
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      if (node.nodeType === 3) return node.data.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      if (node !== root && node.matches(EXPORT_SKIP)) return NodeFilter.FILTER_REJECT;
+      const cs = getComputedStyle(node);
+      if (cs.display === 'none' || cs.visibility === 'hidden' || cs.display === 'contents' && false) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    },
+  });
+  // What an ancestor with overflow hidden/auto/scroll cuts off on screen is cut off in the picture too.
+  const clips = new Map();
+  const clipOf = el => {
+    if (clips.has(el)) return clips.get(el);
+    let rect = null;
+    for (let n = el; n && n !== root.parentElement; n = n.parentElement) {
+      const cs = getComputedStyle(n);
+      if (n !== root && ['hidden', 'auto', 'scroll', 'clip'].some(v => cs.overflowX === v || cs.overflowY === v)) {
+        const r = n.getBoundingClientRect();
+        rect = rect ? { l: Math.max(rect.l, r.left), t: Math.max(rect.t, r.top), r: Math.min(rect.r, r.right), b: Math.min(rect.b, r.bottom) } : { l: r.left, t: r.top, r: r.right, b: r.bottom };
+      }
+    }
+    clips.set(el, rect); return rect;
+  };
+  const clipTo = (el) => {
+    const c = clipOf(el); if (!c) return true;
+    if (c.r <= c.l || c.b <= c.t) return false;
+    ctx.beginPath(); ctx.rect(c.l - box.left + ox, c.t - box.top + oy, c.r - c.l, c.b - c.t); ctx.clip(); return true;
+  };
+  const pending = [];
+  for (let node = walker.currentNode; node; node = walker.nextNode()) {
+    if (node.nodeType === 3) {
+      const el = node.parentElement, cs = getComputedStyle(el);
+      if (el.closest('svg')) continue;
+      ctx.save(); if (!clipTo(el)) { ctx.restore(); continue; } ctx.globalAlpha = alphaOf(el);
+      ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`; ctx.fillStyle = cs.color; ctx.textBaseline = 'middle';
+      if ('letterSpacing' in ctx) ctx.letterSpacing = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing;
+      const upper = cs.textTransform === 'uppercase', range = document.createRange(), re = /\S+/g;
+      let m;
+      while ((m = re.exec(node.data))) {
+        range.setStart(node, m.index); range.setEnd(node, m.index + m[0].length);
+        const r = range.getClientRects()[0]; if (!r || !r.width) continue;
+        ctx.fillText(upper ? m[0].toUpperCase() : m[0], r.left - box.left + ox, r.top - box.top + oy + r.height / 2 + 0.5);
+      }
+      ctx.restore(); continue;
+    }
+    const el = node, cs = getComputedStyle(el), r = el.getBoundingClientRect();
+    if (el instanceof SVGElement && el.tagName.toLowerCase() !== 'svg') continue;
+    if (r.width < 1 || r.height < 1) continue;
+    const x = r.left - box.left + ox, y = r.top - box.top + oy, radii = ['TopLeft', 'TopRight', 'BottomRight', 'BottomLeft'].map(c => parseFloat(cs['border' + c + 'Radius']) || 0);
+    ctx.save(); if (!clipTo(el.parentElement ?? el)) { ctx.restore(); continue; } ctx.globalAlpha = alphaOf(el);
+    if (!clear(cs.backgroundColor)) { ctx.fillStyle = cs.backgroundColor; roundPath(ctx, x, y, r.width, r.height, radii); ctx.fill(); }
+    const bw = ['Top', 'Right', 'Bottom', 'Left'].map(sd => (cs['border' + sd + 'Style'] === 'none' ? 0 : parseFloat(cs['border' + sd + 'Width']) || 0));
+    if (bw.some(v => v > 0)) {
+      const same = bw.every(v => v === bw[0]) && ['Top', 'Right', 'Bottom', 'Left'].every(sd => cs['border' + sd + 'Color'] === cs.borderTopColor);
+      if (same && !clear(cs.borderTopColor)) { ctx.strokeStyle = cs.borderTopColor; ctx.lineWidth = bw[0]; roundPath(ctx, x + bw[0] / 2, y + bw[0] / 2, r.width - bw[0], r.height - bw[0], radii.map(v => Math.max(0, v - bw[0] / 2))); ctx.stroke(); }
+      else ['Top', 'Right', 'Bottom', 'Left'].forEach((sd, i) => { const col = cs['border' + sd + 'Color']; if (!bw[i] || clear(col)) return; ctx.fillStyle = col; if (i === 0) ctx.fillRect(x, y, r.width, bw[0]); if (i === 1) ctx.fillRect(x + r.width - bw[1], y, bw[1], r.height); if (i === 2) ctx.fillRect(x, y + r.height - bw[2], r.width, bw[2]); if (i === 3) ctx.fillRect(x, y, bw[3], r.height); });
+    }
+    const tag = el.tagName.toLowerCase();
+    if (tag === 'canvas') { try { ctx.drawImage(el, x, y, r.width, r.height); } catch { /* unreadable canvas */ } }
+    if (tag === 'svg') { pending.push({ el, x, y, w: r.width, h: r.height, a: alphaOf(el), clip: clipOf(el.parentElement ?? el) }); walker.currentNode = el; let last = el; while (last.lastChild) last = last.lastChild; walker.currentNode = last; }
+    ctx.restore();
+  }
+  for (const item of pending) {
+    try { const d = await drawable(item.el); ctx.save(); if (item.clip) { ctx.beginPath(); ctx.rect(item.clip.l - box.left + ox, item.clip.t - box.top + oy, item.clip.r - item.clip.l, item.clip.b - item.clip.t); ctx.clip(); } ctx.globalAlpha = item.a; ctx.drawImage(d.img, item.x, item.y, item.w, item.h); ctx.restore(); } catch { /* chart left blank rather than failing the whole image */ }
+  }
+}
+
+function recortLine() {
+  const lens = document.querySelector('.nx-lens span')?.textContent?.trim();
+  return [lens && 'Recorte: ' + lens, 'Filtros: ' + contextLine()].filter(Boolean);
+}
+
+function wrapLines(ctx, text, width) {
+  const words = String(text).split(' '), lines = []; let line = '';
+  for (const w of words) { const t = line ? line + ' ' + w : w; if (ctx.measureText(t).width > width && line) { lines.push(line); line = w; } else line = t; }
+  if (line) lines.push(line); return lines;
+}
+
+/* The card exactly as it looks on the page (HTML bars, SVG charts and canvas maps alike) on the Atlas grey,
+   then a footer with the cut (period, territory, brand, filters), the source and the date. */
+export async function exportCardToPng(root, { filename = 'atlas', scope = '' } = {}) {
+  if (!root) throw Error('Nada para exportar nesta visualização.');
+  await (document.fonts?.ready ?? Promise.resolve());
+  const box = root.getBoundingClientRect(), w = Math.ceil(box.width), h = Math.ceil(box.height);
+  const grey = '#f5f5f7', ink = '#1d1d1f', muted = '#6e6e73', stack = '"Inter Variable", Inter, -apple-system, system-ui, sans-serif';
+  const scale = 2, pad = 28, inner = Math.max(w, 640), probe = document.createElement('canvas').getContext('2d');
+  probe.font = `500 12.5px ${stack}`;
+  const lines = [...recortLine(), scope && 'Escopo: ' + scope, 'Fonte: emplacamentos mensais, registros (não veículos únicos), automóveis e comerciais leves, salvo indicação no gráfico.'].filter(Boolean).flatMap(t => wrapLines(probe, t, inner));
+  const footH = 22 + lines.length * 19 + 26, W = inner + pad * 2, H = pad + h + footH + pad - 8;
+  const canvas = document.createElement('canvas'); canvas.width = W * scale; canvas.height = H * scale;
+  const ctx = canvas.getContext('2d'); ctx.scale(scale, scale);
+  ctx.fillStyle = grey; ctx.fillRect(0, 0, W, H);
+  await paintCard(ctx, root, pad + (inner - w) / 2, pad);
+  let y = pad + h + 30;
+  ctx.fillStyle = ink; ctx.font = `800 12px ${stack}`; ctx.textBaseline = 'alphabetic';
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '3px'; ctx.fillText('ATLAS', pad + 4, y);
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  ctx.fillStyle = muted; ctx.font = `500 12.5px ${stack}`;
+  const date = new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }), dw = ctx.measureText(date).width;
+  ctx.fillText(date, W - pad - 4 - dw, y); y += 12;
+  for (const line of lines) { y += 19; ctx.fillText(line, pad + 4, y); }
+  const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+  if (!blob) throw Error('O navegador não conseguiu gerar a imagem.');
+  const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = filename.replace(/[^\w.+-]+/g, '-') + '.png';
+  document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+}
+
+/* The card as it looks on screen; if the browser refuses (canvas tainted by foreignObject), the charts alone on the same template. */
+export async function exportRootToPng(root, { filename = 'atlas', title = '', legend = [], scope = '' } = {}) {
+  try { await exportCardToPng(root, { filename, scope }); return; } catch { /* fall back below */ }
+  const nodes = [...root.querySelectorAll('svg:not(.ax-icon), canvas')].filter(n => !n.parentElement?.closest('svg') && n.getBoundingClientRect().width >= 120);
+  if (!nodes.length) throw Error('Este cartão não tem um gráfico exportável como imagem.');
+  await exportVisualsToPng(nodes, { filename, title: title || root.getAttribute('data-export-title') || '', legend });
+}

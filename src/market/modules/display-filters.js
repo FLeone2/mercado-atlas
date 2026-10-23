@@ -5,7 +5,9 @@
 const HIDDEN_CATEGORIES=new Set(['Não classificado no BD','Sem correspondência BD','Não classificado']);
 // Keys whose subtree keeps every row: the Explorar período check needs the complete
 // composition to confirm it covers the total, and hides these rows itself when drawing.
-const HIDDEN_CATEGORY_KEEP=new Set(['interactive']);
+// originByMonth also stays complete: the origin view checks coverage against the market total and
+// hides these categories itself when it draws (see originViewModel).
+const HIDDEN_CATEGORY_KEEP=new Set(['interactive','originByMonth']);
 const hiddenCategoryRow=row=>{for(const key in row){const v=row[key];if(typeof v==='string'&&HIDDEN_CATEGORIES.has(v))return true;}return false;};
 function hideUnclassified(value,depth=0){
  if(value===null||typeof value!=='object'||depth>12)return value;

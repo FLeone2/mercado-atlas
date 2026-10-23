@@ -5,6 +5,7 @@ import { ShareArea } from '../charts.jsx';
 import { fmt, monthLabel, pct, pp, rangeText } from '../format.js';
 import { AreaHead, Block } from '../ui.jsx';
 import LegacyTab from '../LegacyTab.jsx';
+import { ChineseBrandPicker, useBrandNames } from './chinesas.jsx';
 import { GroupBars, LENSES, LeaderCards, groupLabel, isUnclassified, prepGroups } from './segmentos-charts.jsx';
 import './segmentos.css';
 import './segmentos-skin.css';
@@ -23,6 +24,7 @@ const LEGACY = { porte: 'segments', propulsao: 'technology', origem: 'origin' };
 export default function Segmentos() {
   const { filters, setFilter, model, hist, manifest, base: dataBase } = useNext();
   const [tab, setTab] = useState('porte');
+  const brandNames = useBrandNames(hist);
   const lens = LENSES.find(l => l.id === tab) ?? LENSES[0], dim = lens.dim;   // a aba Origem não tem lente nativa (o modelo não traz bd_origem)
   const selected = list(filters[dim]);
 
@@ -117,7 +119,9 @@ export default function Segmentos() {
   const legacy = LEGACY[tab] && <LegacyTab key={tab} tab={LEGACY[tab]} className="nxs-leg" hide={HIDE[tab] ?? []} />;
   const cls = (span, extra = '') => `nx-c${span} ${extra}`;
 
-  if (tab === 'origem') return <>{head}<div className="nx-wrap nxs-area"><div className="nx-grid nxs-grid" data-tab="origem">{legacy}</div></div></>;
+  // which brands count as Chinese drives the origin bars and the pyramid below
+  const picker = <Block className="nx-c12 nxs-b-chn" title="Marcas consideradas chinesas" sub="Padrão: classificação auditada. Escolha outras e os gráficos de origem e a pirâmide acompanham."><ChineseBrandPicker names={brandNames} /></Block>;
+  if (tab === 'origem') return <>{head}<div className="nx-wrap nxs-area"><div className="nx-grid nxs-grid" data-tab="origem">{picker}{legacy}</div></div></>;
   if (!base) return <>{head}<div className="nx-wrap nxs-area"><div className="nx-grid nxs-grid"><div className="nx-card nx-c6"><div className="nxs-skel" /></div><div className="nx-card nx-c6"><div className="nxs-skel" /></div></div></div></>;
   if (!rows.length) return <>{head}<div className="nx-wrap nxs-area"><Block className="nx-c12" title="Nenhum emplacamento neste recorte." caption="Os filtros atuais não deixam nada para dividir. Ajuste o período ou limpe filtros na barra do topo." /></div></>;
 
@@ -162,6 +166,7 @@ export default function Segmentos() {
           </Block>
         )}
 
+        {tab === 'porte' && picker}
         {/* peças do Atlas atual (posições definidas em segmentos-skin.css) */}
         {legacy}
       </div>
