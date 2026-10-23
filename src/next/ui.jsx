@@ -64,7 +64,7 @@ export function InfoTip({ children, label = 'O que este gráfico mostra' }) {
 /* One chart = one card: a short title, a one-line subtitle (the key fact) and an ⓘ with the explanation.
    title: short label ("Marcas"); sub: one line ("Fiat lidera com 19,9%"); info: what the chart means and how to read it.
    `caption` (older blocks) goes into the ⓘ. */
-export function Block({ title, sub, info, caption, children, className = '', actions }) {
+export function Block({ title, sub, info, caption, children, className = '', actions, exportScope }) {
   // Footnotes written as <p className="nx-note"> directly inside the card join the ⓘ instead of showing as text.
   const notes = [], body = [];
   Children.toArray(children).forEach(c => (isValidElement(c) && c.type === 'p' && String(c.props.className ?? '').includes('nx-note') ? notes : body).push(c));
@@ -80,7 +80,7 @@ export function Block({ title, sub, info, caption, children, className = '', act
     } catch (error) { globalThis.alert?.(error.message); } finally { setBusy(false); }
   };
   return (
-    <div className={'nx-card nx-block ' + className} ref={root}>
+    <div className={'nx-card nx-block ' + className} ref={root} data-export-scope={exportScope}>
       {(title || actions) && (
         <div className="nx-block-head">
           <div className="nx-block-titles">
@@ -91,6 +91,7 @@ export function Block({ title, sub, info, caption, children, className = '', act
         </div>
       )}
       <div className="nx-block-body">{body}</div>
+      {tip && <div hidden data-export-notes>{tip}</div>}
     </div>
   );
 }

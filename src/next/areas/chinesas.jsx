@@ -4,6 +4,7 @@ import { ShareArea, useTip } from '../charts.jsx';
 import { useNext } from '../ctx.js';
 import { fmt, monthLabel, pct } from '../format.js';
 import { Block } from '../ui.jsx';
+import { Anexo2, Anexo3, useAnnual } from './chinesas-anexos.jsx';
 import './chinesas.css';
 
 const COLORS = ['#e60f2d', '#2f6fed', '#e8a317', '#0f9d8a', '#8e5cf0', '#d9558f', '#5b6b7a', '#b45309'];
@@ -96,6 +97,7 @@ export default function Chinesas() {
   const selection = engine.useChineseSelection(), defaults = useMemo(() => engine.chineseDefaults(), []);
   const chosen = selection ?? defaults, chosenKey = chosen.join('|');
   const [span, setSpan] = useState(60), [smooth, setSmooth] = useState(false);
+  const annual = useAnnual(hist, chosen);
 
   /* every complete month of the light universe, national: market total and the selected brands */
   const all = useMemo(() => {
@@ -136,7 +138,7 @@ export default function Chinesas() {
         info="Começa com as marcas de origem chinesa da classificação auditada. Você pode tirar ou incluir marcas; a escolha vale para os gráficos desta página, para as barras de origem e para a pirâmide em Segmentos.">
         <ChineseBrandPicker names={names} />
       </Block>
-      <Block className="nx-c12" title="Mercado × marcas chinesas" sub={sub}
+      <Block exportScope="Brasil, automóveis e comerciais leves, meses completos desde 2016. Os filtros do topo não se aplicam; vale a seleção de marcas chinesas." className="nx-c12" title="Anexo 1 · Mercado × marcas chinesas" sub={sub}
         info="Emplacamentos mensais de automóveis e comerciais leves no Brasil: o mercado inteiro e a soma das marcas escolhidas. Série nacional desde 2016; os filtros do topo não se aplicam."
         actions={<div className="nxch-ctl">
           <div className="nx-seg" role="group" aria-label="Janela">{WINDOWS.map(([k, l]) => <button key={k} type="button" aria-pressed={span === k} onClick={() => setSpan(k)}>{l}</button>)}</div>
@@ -144,11 +146,13 @@ export default function Chinesas() {
         </div>}>
         {view ? <Lines months={view.months} series={view.lines} label="Emplacamentos mensais: mercado total e marcas chinesas" /> : <div className="nxch-skel" />}
       </Block>
-      <Block className="nx-c12" title="Participação das chinesas no mercado" sub={view ? <>De {pct(view.shareThen, 1)} para <em>{pct(view.shareNow, 1)}</em>{view.peak.v > view.shareNow + .005 ? <>, com pico de {pct(view.peak.v, 1)} em {monthLabel(view.peak.month)}</> : ''}.</> : ''}
+      <Block exportScope="Brasil, automóveis e comerciais leves, meses completos desde 2016. Os filtros do topo não se aplicam; vale a seleção de marcas chinesas." className="nx-c12" title="Anexo 1 · Participação das chinesas no mercado" sub={view ? <>De {pct(view.shareThen, 1)} para <em>{pct(view.shareNow, 1)}</em>{view.peak.v > view.shareNow + .005 ? <>, com pico de {pct(view.peak.v, 1)} em {monthLabel(view.peak.month)}</> : ''}.</> : ''}
         info="Cada faixa é a fatia de uma marca no total de emplacamentos do mês; a altura total é a participação das marcas escolhidas. As sete maiores aparecem separadas e as demais ficam em 'Outras chinesas'.">
         {view ? (view.stack.length ? <ShareArea months={view.months.map(m => ({ label: monthLabel(m), short: short(m) }))} series={view.stack} max={view.maxShare} /> : <p className="nx-note">Nenhuma das marcas escolhidas emplacou nesta janela.</p>) : <div className="nxch-skel" />}
         <p className="nx-note">Base: emplacamentos (registros) de automóveis e comerciais leves, meses completos, todo o Brasil. Marcas com variantes (B)/(T) somam numa só.</p>
       </Block>
+      <Anexo2 annual={annual} />
+      <Anexo3 annual={annual} />
     </div>
   );
 }

@@ -9,3 +9,15 @@
 .nxch-skel{height:340px;border-radius:16px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--nx-ink) 6%,transparent),transparent);background-size:200% 100%;animation:nxsk 1.4s infinite}
 @keyframes nxsk{to{background-position:-200% 0}}
 .nxch .nx-found{position:absolute;left:0;right:0;z-index:5;background:var(--nx-card);box-shadow:0 12px 30px -10px rgba(0,0,0,.3)}
+.nx-bar{transition:opacity .15s}.nx-bar:hover{opacity:.8}
+.nxch-entrants{display:grid;gap:18px}
+.nxch-year h4{display:flex;align-items:baseline;gap:10px;margin:0 0 8px;font:700 15px var(--nx-font)}.nxch-year h4 small{font:500 12.5px var(--nx-font);color:var(--nx-soft)}
+.nx-chip.static{cursor:default}.nx-chip.static.cn{background:#e60f2d;color:#fff}
+.nxch-tablewrap{overflow-x:auto;margin-top:18px}
+.nxch-table{width:100%;border-collapse:collapse;font:500 14px var(--nx-font);font-variant-numeric:tabular-nums}
+.nxch-table th,.nxch-table td{padding:10px 12px;text-align:right;border-top:1px solid var(--nx-line)}
+.nxch-table thead th{border-top:0;font:600 12px var(--nx-font);letter-spacing:.04em;text-transform:uppercase;color:var(--nx-soft)}
+.nxch-table tbody th{text-align:left;font-weight:700}.nxch-table th:first-child{text-align:left}
+.nxch-table tbody th i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px}
+.nxch-table .up{color:#0a7a4f}.nxch-table .down{color:#c1272d}
+.nxch-lbl{font:600 12px var(--nx-font);color:var(--nx-soft);align-self:center}

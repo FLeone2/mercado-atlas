@@ -95,7 +95,23 @@ const AREAS = ['panorama', 'evolucao', 'concorrencia', 'segmentos', 'territorios
   for (const e of slices) { await e.hover({ force: true }).catch(() => {}); const d = (await page.locator('.am-rank-detail').first().innerText().catch(() => '')).replace(/\s+/g, ' '); if (/^Compact ·/.test(d)) compact = d; }
   expect('PIRAMIDE', /24,2%/.test(compact) && compact.includes('27.080'), 'pirâmide Compact jan–set/2026 deveria ter 24,2% chinesa e 27.080 parceria (recálculo independente)'); await page.close();
 
+  // anexos 2 e 3 conferidos contra recálculo independente nos cubos mensais (corte de 100 emplacamentos/ano)
+  page = await open('?a=economia&e=chinesas', 1440, 14000); t = await text(page);
+  expect('ANEXO-2', t.includes('De 36 marcas em 2022 para 49 em 2026') && t.includes('as chinesas passaram de 4 para 14'), 'marcas por ano divergem do recálculo (36 → 49; chinesas 4 → 14)');
+  expect('ANEXO-2b', t.includes('De 176 modelos em 2022 para 222 em 2026') && t.includes('de 6 para 50'), 'modelos por ano divergem do recálculo (176 → 222; chinesas 6 → 50)');
+  expect('ANEXO-3', t.includes('+60,3%') && t.includes('−0,1%') && t.includes('+2,6%') && t.includes('110.147') && t.includes('176.594'), 'crescimento 2025/2024 diverge do recálculo');
+  await page.locator('.nx-block:has-text("Anexo 3") .nx-seg button', { hasText: 'Jan' }).click(); await page.waitForTimeout(1500);
+  t = (await page.locator('.nx-block:has-text("Anexo 3")').innerText()).replace(/\s+/g, ' ');
+  expect('ANEXO-3b', t.includes('+197,9%') && t.includes('+7,3%') && t.includes('+19,3%'), 'crescimento jan–set 2026/2025 diverge do recálculo'); await page.close();
+
+  // exportação de PNG: o Duelo A×B baixa um arquivo e o rodapé carrega as duas marcas, a medida e a explicação
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
+  page = await ctx.newPage(); await page.goto(base + '?a=concorrencia'); await page.waitForSelector('.nx-nav'); await page.waitForTimeout(7000);
+  await tab(page, 'Comparar');
+  const [file] = await Promise.all([page.waitForEvent('download', { timeout: 30000 }).catch(() => null), page.locator('.nx-block:has-text("Duelo de marcas") .nx-dl').click()]);
+  expect('PNG-DUELO', !!file && /duelo/.test(file?.suggestedFilename() ?? ''), 'o Duelo não baixou imagem'); await ctx.close();
+
   await browser.close();
   if (failures.length) { console.error('FAIL\n  ' + failures.join('\n  ')); process.exit(1); }
-  console.log(`PASS novo: ${views.n} vistas sem erro nem rolagem horizontal · 16 conferências (auditoria, origem chinesa e pirâmide) com o resultado correto`);
+  console.log(`PASS novo: ${views.n} vistas sem erro nem rolagem horizontal · 22 conferências (auditoria, origem chinesa, pirâmide, anexos e exportação) com o resultado correto`);
 })();

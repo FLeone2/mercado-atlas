@@ -132,7 +132,7 @@ export function exportSvgToPng(svg, options) { return exportVisualsToPng([svg], 
 
 /* ---------- snapshot of a whole card: what is on screen, with its context ---------- */
 // Controls and helpers that mean nothing in a picture.
-const EXPORT_SKIP = '.export-image-button,.ax-card-tools,.nx-info,.nx-dl,.nx-tip,.nx-info-pop,.ax-popover,.ax-tooltip,.nx-block-actions,.nx-seg,.nxe-seg,.nxx-seg,.tbm-seg,.ax-segmented,.lm-zoom,[data-nxnote],[data-export-skip],.nx-found,input,select,textarea,script,style';
+const EXPORT_SKIP = '.export-image-button,.ax-card-tools,.nx-info,.nx-dl,.nx-tip,.nx-info-pop,.ax-popover,.ax-tooltip,.nx-block-actions,.nx-seg,.nxe-seg,.nxx-seg,.tbm-seg,.ax-segmented,.lm-zoom,[data-nxnote],[data-export-skip],.nx-found,[data-export-notes],input,textarea,script,style';
 
 function roundPath(ctx, x, y, w, h, r) {
   const [tl, tr, br, bl] = r.map(v => Math.max(0, Math.min(v, w / 2, h / 2)));
@@ -193,6 +193,17 @@ async function paintCard(ctx, root, ox, oy) {
       ctx.restore(); continue;
     }
     const el = node, cs = getComputedStyle(el), r = el.getBoundingClientRect();
+    if (el.tagName.toLowerCase() === 'select') {
+      // the chosen option is the pill's text (brand A, brand B, measure…): paint it where the select sits
+      const text = el.selectedOptions?.[0]?.text?.trim();
+      if (text && r.width > 1) {
+        ctx.save(); if (clipTo(el.parentElement ?? el)) {
+          ctx.globalAlpha = alphaOf(el); ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`; ctx.fillStyle = cs.color; ctx.textBaseline = 'middle';
+          ctx.fillText(text, r.left - box.left + ox + (parseFloat(cs.paddingLeft) || 0), r.top - box.top + oy + r.height / 2 + 0.5);
+        } ctx.restore();
+      }
+      let last = el; while (last.lastChild) last = last.lastChild; walker.currentNode = last; continue;
+    }
     if (el instanceof SVGElement && el.tagName.toLowerCase() !== 'svg') continue;
     if (r.width < 1 || r.height < 1) continue;
     const x = r.left - box.left + ox, y = r.top - box.top + oy, radii = ['TopLeft', 'TopRight', 'BottomRight', 'BottomLeft'].map(c => parseFloat(cs['border' + c + 'Radius']) || 0);
@@ -214,6 +225,23 @@ async function paintCard(ctx, root, ox, oy) {
   }
 }
 
+// What the reader chose on the card (measure, window, brands) and how to read it: both are lost when the
+// controls and the ⓘ are left out of the picture, so they go into the footer.
+function cardSelections(root) {
+  const out = [];
+  for (const group of root.querySelectorAll('[role="group"][aria-label]')) {
+    const on = [...group.querySelectorAll('[aria-pressed="true"],[aria-selected="true"]')].map(b => b.textContent.trim()).filter(Boolean);
+    if (on.length && group.getAttribute('aria-label') !== 'Marcas consideradas chinesas') out.push(group.getAttribute('aria-label') + ': ' + on.join(', '));
+  }
+  for (const sel of root.querySelectorAll('select')) { const t = sel.selectedOptions?.[0]?.text?.trim(), l = sel.getAttribute('aria-label'); if (t && l) out.push(l + ': ' + t); }
+  return [...new Set(out)];
+}
+function cardNotes(root) {
+  const holder = root.querySelector('[data-export-notes]');
+  const notes = holder ? [...holder.childNodes].map(n => n.textContent.trim()).filter(Boolean) : [];
+  for (const el of root.querySelectorAll('[data-nxnote]')) { const t = (el.getAttribute('data-nxnote') || '').trim(); if (t) notes.push(t); }
+  return [...new Set(notes)];
+}
 function recortLine() {
   const lens = document.querySelector('.nx-lens span')?.textContent?.trim();
   return [lens && 'Recorte: ' + lens, 'Filtros: ' + contextLine()].filter(Boolean);
@@ -234,7 +262,9 @@ export async function exportCardToPng(root, { filename = 'atlas', scope = '' } =
   const grey = '#f5f5f7', ink = '#1d1d1f', muted = '#6e6e73', stack = '"Inter Variable", Inter, -apple-system, system-ui, sans-serif';
   const scale = 2, pad = 28, inner = Math.max(w, 640), probe = document.createElement('canvas').getContext('2d');
   probe.font = `500 12.5px ${stack}`;
-  const lines = [...recortLine(), scope && 'Escopo: ' + scope, 'Fonte: emplacamentos mensais, registros (não veículos únicos), automóveis e comerciais leves, salvo indicação no gráfico.'].filter(Boolean).flatMap(t => wrapLines(probe, t, inner));
+  const picked = cardSelections(root), notes = cardNotes(root);
+  const fixed = root.getAttribute('data-export-scope');
+  const lines = [...(fixed ? ['Escopo: ' + fixed] : recortLine()), picked.length && 'Visão: ' + picked.join(' · '), scope && 'Escopo: ' + scope, ...notes.map((n, i) => (i === 0 ? 'Como ler: ' : 'Nota: ') + n), 'Fonte: emplacamentos mensais, registros (não veículos únicos), automóveis e comerciais leves, salvo indicação no gráfico.'].filter(Boolean).flatMap(t => wrapLines(probe, t, inner));
   const footH = 22 + lines.length * 19 + 26, W = inner + pad * 2, H = pad + h + footH + pad - 8;
   const canvas = document.createElement('canvas'); canvas.width = W * scale; canvas.height = H * scale;
   const ctx = canvas.getContext('2d'); ctx.scale(scale, scale);
