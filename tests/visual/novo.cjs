@@ -88,7 +88,7 @@ const AREAS = ['panorama', 'evolucao', 'concorrencia', 'segmentos', 'territorios
   page = await open('?a=economia&e=chinesas', 1440, 12000); t = await text(page);
   expect('CHN-1', /Marcas chinesas/.test(t) && t.includes('Mercado × marcas chinesas') && t.includes('Participação das chinesas no mercado'), 'aba Marcas chinesas sem os dois gráficos');
   await page.locator('.nxch-extras .nx-chip', { hasText: 'Parcerias' }).click(); await page.waitForTimeout(1500);
-  expect('CHN-2', decodeURIComponent(page.url()).includes('CAOA CHERY') && /3[0-9]\.[0-9]{3} emplacamentos|[4-9][0-9]\.[0-9]{3} emplacamentos/.test(await text(page)), 'incluir CAOA deveria entrar no link e aumentar a soma'); await page.close();
+  expect('CHN-2', decodeURIComponent(page.url()).replace(/\+/g, ' ').includes('CAOA CHERY') && /3[0-9]\.[0-9]{3} emplacamentos|[4-9][0-9]\.[0-9]{3} emplacamentos/.test(await text(page)), 'incluir CAOA deveria entrar no link e aumentar a soma'); await page.close();
 
   page = await open('?a=segmentos&f.date=2026-01-01..2026-09-30', 1440, 12000);
   const slices = await page.locator('g.am-pyramid-slice').all(); let compact = '';
