@@ -55,7 +55,7 @@ function Simulator({ model, models, focusName, mitPickup }) {
       <div className="px-sim-presets"><span>Cenários prontos:</span>{model.presets.map(p => <button key={p.id} type="button" className="nx-chip" onClick={() => setV({ rate: 0, income: 0, confidence: 0, default: 0, agro: 0, soy: 0, ...Object.fromEntries(Object.entries(p.shock).map(([k, x]) => [k, ['rate', 'default'].includes(k) ? x : Math.round(x * 1000) / 10])) })}>{p.label}</button>)}<button type="button" className="px-link" onClick={() => setV({ rate: 0, income: 0, confidence: 0, default: 0, agro: 0, soy: 0 })}>Zerar</button></div>
       <div className="px-sim-grid">
         <div className="px-sliders">{KEYS.map(([k, l, u, mn, mx, st]) => (
-          <label key={k} className="px-slider"><span>{l}<b className={v[k] === 0 ? '' : v[k] > 0 ? 'up' : 'down'}>{v[k] > 0 ? '+' : ''}{nf(v[k], st < 1 ? (st < .5 ? 2 : 1) : 0)} {u}</b></span>
+          <label key={k} className="px-slider"><span>{l}<b className={v[k] === 0 ? '' : (['rate', 'default'].includes(k) ? -v[k] : v[k]) > 0 ? 'up' : 'down'}>{v[k] > 0 ? '+' : ''}{nf(v[k], st < 1 ? (st < .5 ? 2 : 1) : 0)} {u}</b></span>
             <input type="range" min={mn} max={mx} step={st} value={v[k]} onChange={e => setV(o => ({ ...o, [k]: +e.target.value }))} /></label>))}
           <p className="px-pop-note">Variação sustentada por 12 meses, contra o cenário sem mudança.</p>
         </div>

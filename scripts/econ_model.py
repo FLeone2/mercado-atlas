@@ -36,6 +36,7 @@ SOURCES = ROOT / 'data/scenarios/external_sources.json'
 HISTORY = ROOT / 'data/history/national.json.gz'
 OUT = ROOT / 'data/scenarios/econ_model.json'
 START = '2017-01'
+MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
 
 
 def month_list(a, b):
@@ -251,7 +252,7 @@ def affordability(s, raw):
         pmt = P * i / (1 - (1 + i) ** -n)
         rows.append({'month': m, 'price': price, 'rateYear': s['vehicle_rate_year'][m], 'term': n, 'pmt': pmt, 'income': s['income_real'][m], 'share': pmt / s['income_real'][m]})
     return {'assumptions': {'price': ref_price, 'priceMonth': ref_month, 'financed': financed,
-                            'text': f'Carro de R$ {ref_price:,.0f} a preços de {ref_month}, corrigido para trás pelo IPCA do automóvel novo; 60% financiado nos juros médios e no prazo médio das concessões PF do mês.'.replace(',', '.')},
+                            'text': 'Carro de R$ ' + f'{ref_price:,.0f}'.replace(',', '.') + f' a preços de {MESES[int(ref_month[5:7]) - 1]}/{ref_month[:4]}, corrigido para trás pelo IPCA do automóvel novo; 60% financiado nos juros médios e no prazo médio das concessões PF do mês.'},
             'rows': rows}
 
 
