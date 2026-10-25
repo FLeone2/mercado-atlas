@@ -58,14 +58,22 @@ export default function PanoramaHero({ model, points, ufFilter, insights, onTip 
       ctx.globalCompositeOperation = 'lighter';
       for (const d of dots) {
         const r = radius(d.v, g) * e, x = g.ox + d.x * g.k, y = g.oy + d.y * g.k;
-        if (x < -40 || y < -40 || x > W + 40 || y > H + 40) continue;
+        if (!(Number.isFinite(x) && Number.isFinite(y) && Number.isFinite(r)) || x < -40 || y < -40 || x > W + 40 || y > H + 40) continue;
         const a = .36 + Math.min(.5, Math.sqrt(d.v / max) * .9);
         ctx.fillStyle = `rgba(${glow},${a * (.5 + e * .5)})`; ctx.beginPath(); ctx.arc(x, y, Math.max(.5, r), 0, 6.283); ctx.fill();
         if (d.v / max > .18) { const gr = ctx.createRadialGradient(x, y, 0, x, y, r * 3.2); gr.addColorStop(0, `rgba(${glow},.34)`); gr.addColorStop(1, `rgba(${glow},0)`); ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, y, r * 3.2, 0, 6.283); ctx.fill(); }
       }
       ctx.globalCompositeOperation = 'source-over';
       if (s.hover) { const d = s.hover, r = radius(d.v, g) + 4; ctx.strokeStyle = accent; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(g.ox + d.x * g.k, g.oy + d.y * g.k, r, 0, 6.283); ctx.stroke(); }
-      wrap.current.querySelectorAll('.nx-callout').forEach((el, i) => { const d = tops[i]; if (!d) { el.style.opacity = 0; return; } el.style.transform = `translate(${g.ox + d.x * g.k + 16}px, ${g.oy + d.y * g.k - 30}px)`; el.style.opacity = ease > .9 && (!narrow() || i === 0) ? 1 : 0; });
+      // Rótulos das três maiores cidades: um rótulo que cairia sobre outro já posto fica escondido.
+      const placed = [];
+      wrap.current.querySelectorAll('.nx-callout').forEach((el, i) => {
+        const d = tops[i]; if (!d) { el.style.opacity = 0; return; }
+        const x = g.ox + d.x * g.k + 16, y = g.oy + d.y * g.k - 30, w = el.offsetWidth || 120, h = el.offsetHeight || 32;
+        const clash = placed.some(b => x < b.x + b.w + 6 && x + w + 6 > b.x && y < b.y + b.h + 4 && y + h + 4 > b.y);
+        if (!clash) placed.push({ x, y, w, h });
+        el.style.transform = `translate(${x}px, ${y}px)`; el.style.opacity = ease > .9 && !clash && (!narrow() || i === 0) ? 1 : 0;
+      });
       if (ease < 1 || moving) raf = requestAnimationFrame(() => draw());
     }
     const kick = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => draw()); };

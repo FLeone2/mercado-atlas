@@ -6,6 +6,8 @@ function marketRequestOptions(mode){
   includeInteractive:mode==='interactive'||mode==='interactive-daily',
   includeDaily:mode==='interactive-daily',
   includeMunicipalLeaders:mode==='leaders',
+  includeMunicipalLeadersUF:mode==='leaders-br',
+  includeYearGroups:mode==='atlas',
   includeFlow:mode==='flow',
   includeCatalog:['catalog','primary-map'].includes(mode),
   includeMarketBaseline:['technology','origin'].includes(mode),

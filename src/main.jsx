@@ -10,9 +10,10 @@ import { DataAppProvider } from './kit/index.js';
 import { ErrorBoundary } from './kit/boundary.jsx';
 import { DashboardContent } from 'virtual:market';
 import NextApp from './next/NextApp.jsx';
+import ProtoApp from './proto/ProtoApp.jsx';
 
-// O Atlas novo é o padrão; a versão antiga continua acessível em ?ui=antigo.
-const novo = new URLSearchParams(location.search).get('ui') !== 'antigo';
+// Nesta branch o protótipo da reorganização é o padrão; a interface atual fica em ?ui=atual e a antiga em ?ui=antigo.
+const ui = new URLSearchParams(location.search).get('ui');
 
 const root = createRoot(document.getElementById('root'));
 fetch('/data/snapshot.json')
@@ -20,7 +21,7 @@ fetch('/data/snapshot.json')
   .then(snapshot => root.render(
     <DataAppProvider snapshot={snapshot}>
       <ErrorBoundary>
-        {novo ? <NextApp /> : <DashboardContent />}
+        {ui === 'antigo' ? <DashboardContent /> : ui === 'atual' ? <NextApp /> : <ProtoApp />}
       </ErrorBoundary>
     </DataAppProvider>,
   ))

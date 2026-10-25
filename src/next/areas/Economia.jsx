@@ -114,7 +114,7 @@ function cardOf(series, def) {
   return { last, prev, value: nf(last.value * k, def.d), diff, change: prev ? (def.rate ? ppSigned(diff) : signed(last.value / prev.value - 1)) : null, spark: series.slice(-24).map(r => r.value) };
 }
 
-function Contexto() {
+export function Contexto() {
   const src = useScenario('external_sources.json'), mon = useScenario('monthly.json'), mac = useScenario('macro_analysis.json');
   const [span, setSpan] = useState(36);
 
@@ -222,7 +222,7 @@ const OF = { registrations: '', mitsubishi: ' da Mitsubishi', nonMitsubishi: ' d
 const histOf = (rows, target) => rows.map(r => ({ month: r.month, value: target === 'registrations' ? r.registrations : target === 'mitsubishi' ? r.mitsubishi : target === 'nonMitsubishi' ? r.registrations - r.mitsubishi : r.mitsubishiShare })).filter(r => Number.isFinite(r.value));
 const metricAt = (t, model, h) => t.test?.[model]?.byHorizon?.find(x => x.horizon === h);
 
-function Projecoes() {
+export function Projecoes() {
   const mod = useScenario('phase23_models.json'), mon = useScenario('monthly.json');
   const [target, setTarget] = useState('registrations'), [h, setH] = useState(12);
   const targets = mod.data?.forecasts?.targets ?? {}, keys = Object.keys(TARGETS).filter(k => targets[k]);
@@ -368,7 +368,7 @@ function PorEstado({ h, setH, horizons }) {
 const COVARIATE = { logGdpPerCapita: 'PIB por habitante', logHouseholdIncomePerCapita2022: 'renda domiciliar', logDensity2022: 'densidade', urbanization2022: 'urbanização', logPamValuePerCapita: 'valor agrícola por habitante' };
 const MIN_POP = 300000;
 
-function Regional() {
+export function Regional() {
   const reg = useScenario('regional.json'), soc = useScenario('socioeconomic.json'), mod = useScenario('phase23_models.json');
   const [all, setAll] = useState(false), [focus, setFocus] = useState(null), tip = useTip();
 

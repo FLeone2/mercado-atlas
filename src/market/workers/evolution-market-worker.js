@@ -87,7 +87,7 @@
    if(range.start.endsWith('-01')&&range.start.slice(0,7)===range.end.slice(0,7)){const endDay=e.getUTCDate();s.setUTCMonth(s.getUTCMonth()-1);const last=new Date(Date.UTC(s.getUTCFullYear(),s.getUTCMonth()+1,0)).getUTCDate();const pe=new Date(Date.UTC(s.getUTCFullYear(),s.getUTCMonth(),Math.min(endDay,last),12));return {start:iso(s),end:iso(pe)};}
    const n=Math.round((e-s)/86400000)+1; s.setUTCDate(s.getUTCDate()-n);e.setUTCDate(e.getUTCDate()-n);return {start:iso(s),end:iso(e)};
   }
-  function createAccumulator(){return {total:0,groups:Object.fromEntries(DIMS.map(d=>[d,new Map()])),daily:new Map(),monthly:new Map(),brandsByMonth:new Map(),fuelByMonth:new Map(),modelsByMonth:new Map(),technologyByMonth:new Map(),propulsionByMonth:new Map(),bodyByMonth:new Map(),channelByMonth:Object.fromEntries(['marca','modelo','bd_carroceria'].map(d=>[d,new Map()])),channelCoverage:new Map(),stateChannelsByMonth:new Map(),originByMonth:new Map(),municipalBrands:new Map(),flowPaths:new Map(),regionBrands:new Map(),brandFuels:new Map(),sourceRows:0};}
+  function createAccumulator(){return {total:0,groups:Object.fromEntries(DIMS.map(d=>[d,new Map()])),daily:new Map(),monthly:new Map(),brandsByMonth:new Map(),fuelByMonth:new Map(),modelsByMonth:new Map(),technologyByMonth:new Map(),propulsionByMonth:new Map(),bodyByMonth:new Map(),channelByMonth:Object.fromEntries(['marca','modelo','bd_carroceria'].map(d=>[d,new Map()])),channelCoverage:new Map(),stateChannelsByMonth:new Map(),originByMonth:new Map(),municipalBrands:new Map(),municipalBrandsUF:new Map(),flowPaths:new Map(),regionBrands:new Map(),brandFuels:new Map(),sourceRows:0};}
   // Preserve exact source-brand membership after every analytical filter has passed.
   // A model/group label can belong to multiple manufacturers; never infer aliases.
   const RANKING_BRAND_DIMENSIONS = ['marca','modelo','grupo_modelo'];
@@ -128,6 +128,8 @@
    // Four-way path origin × channel × fuel × vehicle type, kept whole so ribbons can be traced end to end.
    const flowDims=options.includeFlow?['fluxo_origem','fluxo_canal','fluxo_combustivel','fluxo_segmento'].map(descriptor):null,flowRadix=flowDims?flowDims.map(d=>d.labels.length):null;
    const newJointCounter=spec=>{const length=spec.left.labels.length*spec.right.labels.length;return {...spec,stride:spec.right.labels.length,counts:new Float64Array(length),seen:new Uint8Array(length),touched:[]};};
+   // Municipality × UF × brand over the whole period, for the national leader map (one query for all 5.570 municipalities).
+   const leadersUF=options.includeMunicipalLeadersUF?{mun:descriptor('municipio'),brand:descriptor('marca'),counts:new Map()}:null;
    const months=new Map(),dates=new Map();
    const datePlan=date=>{if(dates.has(date))return dates.get(date);if(!date||date<range.start||date>range.end){dates.set(date,null);return null;}const month=date.slice(0,7);if(!months.has(month))months.set(month,{month,total:0,seen:false,counters:grouped.map(newCounter),joints:jointSpecs.map(newJointCounter),flow:flowDims?new Map():null,channelTotals:{observedCount:0,knownCount:0,unknownCount:0},municipalities:new Map()});const plan={date,count:0,seen:false,month:months.get(month),dayCounters:trackDaily?grouped.filter(desc=>INTERACTIVE_DIMS.includes(desc.dim)).map(newCounter):null};dates.set(date,plan);return plan;};
    const datePlans=(dictionaries.date??[]).map(date=>date==null?undefined:datePlan(date));
@@ -143,6 +145,7 @@
     acc.total+=count;acc.sourceRows++;plan.count+=count;plan.seen=true;const month=plan.month;month.total+=count;month.seen=true;
     for(const counter of month.counters)increment(counter,codeFor(counter,row),count);
     if(plan.dayCounters)for(const counter of plan.dayCounters)increment(counter,codeFor(counter,row),count);
+    if(leadersUF){const rawUf=row[idx.uf],u=ufLabels[rawUf]===undefined?ufFallback:rawUf,k=(u*leadersUF.mun.labels.length+codeFor(leadersUF.mun,row))*leadersUF.brand.labels.length+codeFor(leadersUF.brand,row);leadersUF.counts.set(k,(leadersUF.counts.get(k)??0)+count);}
     if(municipality){const rawUf=row[idx.uf],uf=ufLabels[rawUf]===undefined?ufFallback:rawUf;let counter=month.municipalities.get(uf);if(!counter){counter=newCounter(municipality);month.municipalities.set(uf,counter);}increment(counter,codeFor(counter,row),count);}
    }
    const targets={marca:acc.brandsByMonth,combustivel:acc.fuelByMonth,modelo:acc.modelsByMonth,bd_combustivel:acc.technologyByMonth,propulsao:acc.propulsionByMonth,...((options.includeHistoryComparisons||options.includeBody)?{bd_carroceria:acc.bodyByMonth}:{})};
@@ -153,6 +156,7 @@
     for(const joint of month.joints)for(const code of joint.touched){const left=joint.left.labels[Math.floor(code/joint.stride)],right=joint.right.labels[code%joint.stride];add(joint.target,joint.noMonth?JSON.stringify([left,right]):JSON.stringify([month.month,left,right]),joint.counts[code]);}
     for(const [uf,counter]of month.municipalities)for(const code of counter.touched){const key=counter.labels[code]+' · '+ufLabels[uf];acc.groups.municipio.set(key,(acc.groups.municipio.get(key)??0)+counter.counts[code]);}
    }
+   if(leadersUF){const nm=leadersUF.mun.labels.length,nb=leadersUF.brand.labels.length;for(const [k,n] of leadersUF.counts){const b=k%nb,rest=(k-b)/nb,m=rest%nm,u=(rest-m)/nm;add(acc.municipalBrandsUF,JSON.stringify([ufLabels[u],leadersUF.mun.labels[m],leadersUF.brand.labels[b]]),n);}}
    if(trackChannels){const meta=options.sourceMeta??{},sourceValues=dictionaries.tipo_venda??[],available=sourceValues.some(v=>v==='VD'||v==='VAREJO');for(const month of listMonths(range).filter(m=>m===cube.month)){const totals=months.get(month)?.channelTotals??{observedCount:0,knownCount:0,unknownCount:0};const previous=acc.channelCoverage.get(month);acc.channelCoverage.set(month,{month,available,sourceFields:[...(meta.channelSourceFields??[])],aliasRows:meta.channelAliasRows??0,observedCount:totals.observedCount+(previous?.observedCount??0),knownCount:totals.knownCount+(previous?.knownCount??0),unknownCount:totals.unknownCount+(previous?.unknownCount??0)});}}
    return acc;
   }
@@ -286,6 +290,14 @@
    if(extra&&(!value.extra||value.extra.limit!==extra.limit||!(value.extra.segmentFields instanceof Set)||!(value.extra.overflow instanceof Set)||!countMap(value.extra.ufByMonth)||!['segmentBrandModel','modelChannelRegion'].every(name=>countMap(value.extra.joints?.[name]))))return false;
    return true;
   }
+  // One entry per municipality: total, the three biggest brands and where the brand in focus stands.
+  function reduceMunicipalLeaders(map,focus){
+   const byKey=new Map();
+   for(const [key,count] of map){if(!(count>0))continue;const [uf,municipio,marca]=JSON.parse(key),k=uf+'|'+municipio;let m=byKey.get(k);if(!m){m={uf,municipio,total:0,brands:[]};byKey.set(k,m);}m.total+=count;m.brands.push([marca,count]);}
+   const out=[];
+   for(const m of byKey.values()){m.brands.sort((a,b)=>b[1]-a[1]||String(a[0]).localeCompare(String(b[0])));const i=m.brands.findIndex(b=>b[0]===focus);out.push({uf:m.uf,municipio:m.municipio,total:m.total,top:m.brands.slice(0,3),brandCount:m.brands.length,tie:m.brands.length>1&&m.brands[0][1]===m.brands[1][1],focus:i>=0?m.brands[i][1]:0,focusRank:i>=0?i+1:null});}
+   return out.sort((a,b)=>b.total-a.total);
+  }
   function createResultCache({maxBytes=8*1024*1024,maxEntries=4}={}){
    const cache=new Map();let bytes=0;
    return {get(key){if(!cache.has(key))return null;const item=cache.get(key);cache.delete(key);cache.set(key,item);return item.value;},set(key,value){const size=retainedAggregateBytes(value,maxBytes);if(cache.has(key)){bytes-=cache.get(key).bytes;cache.delete(key);}if(size>maxBytes||maxEntries<1)return;while(cache.size&&(bytes+size>maxBytes||cache.size>=maxEntries)){const first=cache.keys().next().value;bytes-=cache.get(first).bytes;cache.delete(first);}cache.set(key,{value,bytes:size});bytes+=size;},clear(){cache.clear();bytes=0;},stats:()=>({entries:cache.size,logicalBytes:bytes,maxBytes,maxEntries})};
@@ -392,12 +404,12 @@
     const token=++generation;controller?.abort();controller=null;
     if(data.type==='clear-cache'){loader.clear();resultCache.clear();aggregateCache.clear();sourceSummaries.clear();namespace=null;try{await aggregateStore?.clear();}catch{}return;}
     if(data.type==='cancel'){if(data.releaseCubes)loader.clear();return;}
-    const {id,manifest,filters={},base,includeMarketBaseline=false,includeHistoryComparisons=false,includeChannelReference=false,includeOriginAnalysis=false,includeMitsubishiProfile=false,includeInteractive=false,includeDaily=false,includeMunicipalLeaders=false,includeFlow=false,includeCatalog=false,includeConnections=false,focusBrand=null}=data;
+    const {id,manifest,filters={},base,includeMarketBaseline=false,includeHistoryComparisons=false,includeChannelReference=false,includeOriginAnalysis=false,includeMitsubishiProfile=false,includeInteractive=false,includeDaily=false,includeMunicipalLeaders=false,includeMunicipalLeadersUF=false,includeYearGroups=false,includeFlow=false,includeCatalog=false,includeConnections=false,focusBrand=null}=data;
     const activeController=new AbortController();controller=activeController;
     try{
      const identity=await manifestCacheIdentity(manifest,base);if(generation!==token)return;
      if(identity!==namespace){loader.setNamespace(identity);resultCache.clear();aggregateCache.clear();sourceSummaries.clear();namespace=identity;}
-     const options={includeMarketBaseline:Boolean(includeMarketBaseline),includeHistoryComparisons:Boolean(includeHistoryComparisons),includeChannelReference:Boolean(includeChannelReference),includeOriginAnalysis:Boolean(includeOriginAnalysis),includeMitsubishiProfile:Boolean(includeMitsubishiProfile),includeInteractive:Boolean(includeInteractive),includeDaily:Boolean(includeInteractive&&includeDaily),includeMunicipalLeaders:Boolean(includeMunicipalLeaders),includeFlow:Boolean(includeFlow),includeCatalog:Boolean(includeCatalog),includeConnections:Boolean(includeConnections),focusBrand:typeof focusBrand==='string'&&focusBrand?focusBrand:null};
+     const options={includeMarketBaseline:Boolean(includeMarketBaseline),includeHistoryComparisons:Boolean(includeHistoryComparisons),includeChannelReference:Boolean(includeChannelReference),includeOriginAnalysis:Boolean(includeOriginAnalysis),includeMitsubishiProfile:Boolean(includeMitsubishiProfile),includeInteractive:Boolean(includeInteractive),includeDaily:Boolean(includeInteractive&&includeDaily),includeMunicipalLeaders:Boolean(includeMunicipalLeaders),includeMunicipalLeadersUF:Boolean(includeMunicipalLeadersUF),includeYearGroups:Boolean(includeYearGroups),includeFlow:Boolean(includeFlow),includeCatalog:Boolean(includeCatalog),includeConnections:Boolean(includeConnections),focusBrand:typeof focusBrand==='string'&&focusBrand?focusBrand:null};
      const queryKey=canonicalFilterKey(filters)+'|'+JSON.stringify(options),cached=resultCache.get(queryKey);
      if(cached){port.postMessage({id,result:cached});return;}
      const requestedRange=rangeFrom(filters.date,manifest);let range=requestedRange;
@@ -435,6 +447,8 @@
      // brand/model filters, restricted to that brand (what a separate pulse query would ask).
      const focus=options.focusBrand,focusFilters=focus?{...filters,modelo:'all',grupo_modelo:'all',marca:[focus]}:null;
      const focusCurrent=focus?createAccumulator():null,focusYear=focus?createAccumulator():null;
+     // With includeYearGroups the same months of the year before are grouped too (rankings A×B, shift-share), and the brand in focus by more dimensions.
+     const YEAR_DIMS=['marca','grupo_modelo','bd_segmento','bd_carroceria','propulsao','tipo_venda','uf','regiao'],focusDims=includeYearGroups?['uf','bd_segmento','bd_carroceria','propulsao','tipo_venda','grupo_modelo']:['uf','bd_segmento'];
      const baselineFilters={...filters,marca:'all',modelo:'all',grupo_modelo:'all',propulsao:'all'},channelReferenceFilters={...filters,tipo_venda:'all'};
      const historyFilters={...filters,marca:'all',modelo:'all',grupo_modelo:'all'};
      const selectedBrands=categoricalSelection(filters.marca),mitsubishiAllowed=!selectedBrands.length||selectedBrands.includes('MITSUBISHI');
@@ -481,17 +495,17 @@
        if(catalogExtra)mergeCatalogExtras(catalogExtra,contribution.extra);
       };
       if(overlaps(cube.month,range)){
-       await collectMonthly(a,cube,filters,range,{includeConnections:Boolean(includeConnections),includeInteractive,includeDaily:Boolean(includeInteractive&&includeDaily),includeMunicipalLeaders:Boolean(includeMunicipalLeaders),includeFlow:Boolean(includeFlow),includeHistoryComparisons,includeOriginAnalysis,includeChannelCoverage:includeChannelReference,sourceMeta:meta,membership:brandMembership,catalogExtra:catalogCurrentExtra});
+       await collectMonthly(a,cube,filters,range,{includeConnections:Boolean(includeConnections),includeInteractive,includeDaily:Boolean(includeInteractive&&includeDaily),includeMunicipalLeaders:Boolean(includeMunicipalLeaders),includeMunicipalLeadersUF:Boolean(includeMunicipalLeadersUF),includeFlow:Boolean(includeFlow),includeHistoryComparisons,includeOriginAnalysis,includeChannelCoverage:includeChannelReference,sourceMeta:meta,membership:brandMembership,catalogExtra:catalogCurrentExtra});
        if(includeCatalog){await collectMonthly(catalogMarket,cube,historyFilters,range,{catalogExtra:catalogMarketExtra});await collectMonthly(catalogMit,cube,{...historyFilters,marca:['MITSUBISHI']},range);}
        if(includeHistoryComparisons){await collectMonthly(historyMarket,cube,historyFilters,range,{groupDimensions:['marca','propulsao','bd_carroceria'],includeBody:true});await collectMonthly(historyMit,cube,{...historyFilters,marca:['MITSUBISHI']},range,{groupDimensions:['marca','propulsao','bd_carroceria'],includeBody:true});}
        if(includeMitsubishiProfile&&mitsubishiAllowed)await collectMonthly(mitsubishiProfile,cube,{...filters,marca:['MITSUBISHI']},range,{groupDimensions:['marca','modelo','grupo_modelo','bd_segmento','bd_classe','bd_combustivel','subsegmento','ano_fabricacao']});
        if(includeMarketBaseline)await collectMonthly(baseline,cube,baselineFilters,range,{groupDimensions:['marca','propulsao','bd_carroceria'],includeBody:true});
        if(includeChannelReference)await collectMonthly(channelReference,cube,channelReferenceFilters,range,{groupDimensions:['uf','municipio','tipo_venda'],includeChannelCoverage:true,includeStateChannels:true,sourceMeta:meta});
       }
-      if(focus&&overlaps(cube.month,range))await collectMonthly(focusCurrent,cube,focusFilters,range,{groupDimensions:['uf','bd_segmento']});
-      if(focus&&yearOK&&overlaps(cube.month,yearRange))await collectMonthly(focusYear,cube,focusFilters,yearRange,{groupDimensions:['uf','bd_segmento']});
+      if(focus&&overlaps(cube.month,range))await collectMonthly(focusCurrent,cube,focusFilters,range,{groupDimensions:focusDims});
+      if(focus&&yearOK&&overlaps(cube.month,yearRange))await collectMonthly(focusYear,cube,focusFilters,yearRange,{groupDimensions:focusDims});
       if(priorOK&&overlaps(cube.month,previousRange))await collectMonthly(p,cube,filters,previousRange);
-      if(yearOK&&overlaps(cube.month,yearRange)){await collectMonthly(y,cube,filters,yearRange,{groupDimensions:includeCatalog?DIMS:[]});if(includeCatalog)await collectMonthly(catalogMarketPrior,cube,historyFilters,yearRange);if(includeHistoryComparisons)await collectMonthly(historyYear,cube,historyFilters,yearRange,{groupDimensions:['marca','propulsao','bd_carroceria'],includeBody:true});}
+      if(yearOK&&overlaps(cube.month,yearRange)){await collectMonthly(y,cube,filters,yearRange,{groupDimensions:includeCatalog?DIMS:includeYearGroups?YEAR_DIMS:[]});if(includeCatalog)await collectMonthly(catalogMarketPrior,cube,historyFilters,yearRange);if(includeHistoryComparisons)await collectMonthly(historyYear,cube,historyFilters,yearRange,{groupDimensions:['marca','propulsao','bd_carroceria'],includeBody:true});}
       if(expected.includes(needed[i]))for(const dim of DIMS)for(const value of cube.dictionaries?.[dim]??[])choices[dim].add(categoryLabel(value));
       port.postMessage({id,progress:{done:i+1,total:needed.length}});
       // Always yield between cubes, including a warm cache, before checking token again.
@@ -514,7 +528,10 @@
       const state={complete:result.complete,missingMonths:missing,incompleteMonths:incomplete,unavailableMonths:channelUnavailableMonths},yearCoverage=yearOK?listMonths(yearRange).map(m=>index.get(m)):[];
       result.catalog={current:finishCatalog(a,catalogCurrentExtra,range,fullCoverage,state),prior:yearOK?finishCatalog(y,null,yearRange,yearCoverage):null,market:finishCatalog(catalogMarket,catalogMarketExtra,range,fullCoverage,state),marketPrior:yearOK?finishCatalog(catalogMarketPrior,null,yearRange,yearCoverage):null,mitsubishi:finishCatalog(catalogMit,null,range,fullCoverage,state),removedFilters:['marca','modelo','grupo_modelo'],filters:canonicalFilters(filters),marketFilters:canonicalFilters(historyFilters),range,priorRange:yearRange,comparisonKind:'same_dates_prior_year',yearAvailable:yearOK};
      }
-     if(focus){const f=finish(focusCurrent,createAccumulator(),focusYear,range,fullCoverage,false,yearOK);result.focus={brand:focus,total:f.total,year:f.year,yearChangeRate:f.yearChangeRate,groups:{uf:f.groups.uf,bd_segmento:f.groups.bd_segmento}};}
+     if(includeMunicipalLeadersUF)result.municipalLeaders=reduceMunicipalLeaders(a.municipalBrandsUF,focus??'MITSUBISHI');
+     const counts=(acc,dims)=>Object.fromEntries(dims.map(d=>[d,[...acc.groups[d]].map(([name,count])=>({name,count})).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name))]));
+     if(includeYearGroups)result.yearGroups=yearOK?counts(y,YEAR_DIMS):null;
+     if(focus){const f=finish(focusCurrent,createAccumulator(),focusYear,range,fullCoverage,false,yearOK);result.focus={brand:focus,total:f.total,year:f.year,yearChangeRate:f.yearChangeRate,groups:Object.fromEntries(focusDims.map(d=>[d,f.groups[d]])),yearGroups:includeYearGroups&&yearOK?counts(focusYear,focusDims):null};}
      result.choices=Object.fromEntries(DIMS.map(d=>[d,[...choices[d]].sort()]));
      if(generation!==token)return;resultCache.set(queryKey,result);port.postMessage({id,result});
     }catch(error){if(generation===token&&error.name!=='AbortError')port.postMessage({id,error:error.message});}

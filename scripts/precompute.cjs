@@ -9,7 +9,9 @@ const core = loadCore(), worker = loadWorker();
 const manifestText = fs.readFileSync(path.join(root, 'data/manifest.json'), 'utf8');
 const manifest = JSON.parse(manifestText);
 // Main query of each area plus the pulse (also the query of areas without one) and the map.
-const MODES = ['dashboard', 'pulse', 'history', 'competition', 'ranking', 'segments', 'technology', 'origin', 'geography', 'primary-map', 'catalog'];
+const MODES = ['dashboard', 'pulse', 'history', 'competition', 'ranking', 'segments', 'technology', 'origin', 'geography', 'primary-map', 'catalog', 'leaders-br', 'atlas'];
+// The national leader map opens on retail (fleets register at the company's seat), so that variant is precomputed too.
+const EXTRA = [['leaders-br', { tipo_venda: ['VAREJO'] }]];
 
 (async () => {
   const started = Date.now();
@@ -25,9 +27,9 @@ const MODES = ['dashboard', 'pulse', 'history', 'competition', 'ranking', 'segme
   const entries = {}, done = new Map();
   let bytes = 0;
   for (const preset of presets.presets) {
-    const filters = { date: preset.value, population: 'light' };
-    const filterKey = core.canonicalFilterKey(filters), focusBrand = core.marketFocusBrand(filters);
-    for (const mode of MODES) {
+    for (const [mode, extra] of [...MODES.map(m => [m, {}]), ...EXTRA]) {
+      const filters = { date: preset.value, population: 'light', ...extra };
+      const filterKey = core.canonicalFilterKey(filters), focusBrand = core.marketFocusBrand(filters);
       const options = core.marketRequestOptions(mode), key = core.marketRequestKey(filterKey, options, focusBrand);
       if (entries[key]) continue;
       const t = Date.now(), messages = [], port = { postMessage: m => messages.push(m) };
@@ -39,7 +41,7 @@ const MODES = ['dashboard', 'pulse', 'history', 'competition', 'ranking', 'segme
       const file = `${preset.id}-${mode}-${digest}.json.gz`;
       if (!done.has(digest)) { const gz = zlib.gzipSync(json, { level: 9 }); fs.writeFileSync(path.join(out, file), gz); bytes += gz.length; done.set(digest, file); }
       entries[key] = done.get(digest);
-      console.log(`${preset.id.padEnd(6)} ${mode.padEnd(12)} ${String(Date.now() - t).padStart(6)} ms  ${(json.length / 1024).toFixed(0).padStart(5)} KB`);
+      console.log(`${preset.id.padEnd(6)} ${(mode + (extra.tipo_venda ? '+varejo' : '')).padEnd(12)} ${String(Date.now() - t).padStart(6)} ms  ${(json.length / 1024).toFixed(0).padStart(5)} KB`);
     }
   }
   fs.writeFileSync(path.join(root, 'data/precomputed.json'), JSON.stringify({ version: 1, identity: core.precomputedIdentity(manifest), generatedAt: new Date().toISOString(), presets: presets.presets.map(p => p.value), entries }));

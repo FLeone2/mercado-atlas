@@ -21,6 +21,26 @@ mostrar cada análise uma vez, com pouco texto (método e ressalvas ficam atrás
 Links antigos (`?tab=ranking`, `?tab=structure`) abrem Concorrência e Segmentos.
 Os repositórios `mercado-automotivo`, `mercado-automotivo-2` e `atlas-automotivo` seguem intocados.
 
+## Protótipo da reorganização (`src/proto/`)
+
+Nesta branch o protótipo abre por padrão; a interface atual fica em `?ui=atual` e a antiga em `?ui=antigo`.
+
+| Página | O que tem |
+|---|---|
+| Resumo | Mapa escuro com o total, placar da marca em foco, de onde veio a variação (mercado, mix, desempenho), ranking e ganhos e perdas, 24 meses |
+| Mercado | Ritmo por dia útil (e projeção do mês aberto), 12 meses, ano contra ano, sazonalidade, o que o mercado compra × o que a marca vende, eletrificação, chinesas |
+| Concorrência | Ranking conectado (marcas ou modelos, contra o ano anterior ou o período anterior), ranking mês a mês, duelo, concentração |
+| Mitsubishi | Modelos, segmentos onde compete (participação e ranking de modelos), varejo × venda direta, força por estado, onde crescer |
+| Territórios | Mapa dos 5.570 municípios num canvas (marca líder, volume, por mil habitantes, participação e índice da marca em foco), estados e regiões |
+| Economia | Juros, crédito e câmbio, projeções, potencial regional e os próximos indicadores |
+| Laboratório | Atalhos para construtor, animações, 3D, simulações e metodologia da versão atual |
+
+- **Uma barra de filtros fixa.** Período, território em cascata (região → estado → município), marca em foco, porte, propulsão, canal e mais filtros. A **marca em foco** (Mitsubishi por padrão) nunca recorta o mercado: é destacada e comparada com ele em todas as páginas.
+- **Uma consulta principal** (`atlas`): o mercado do recorte, a marca em foco e o mesmo período do ano anterior agrupado por marca, modelo, porte, carroceria, propulsão, canal e UF. Alimenta o placar, o ranking conectado e a decomposição da variação com qualquer filtro.
+- **Mapa nacional** (`leaders-br`): município × UF × marca numa só consulta, reduzido às três maiores marcas e à posição da marca em foco em cada município. As malhas estaduais do IBGE vão para a projeção nacional com um ajuste pelos centros publicados em `municipal-points.json`.
+- Trajetórias usam o histórico mensal e sempre mostram os meses anteriores até o fim do período; um filtro que o histórico não tem (município, por exemplo) aparece escrito embaixo do gráfico.
+- Teste: `tests/visual/proto.cjs` (todas as páginas no desktop e no celular, filtros de estado, porte, marca em foco e Limpar).
+
 ## Publicação (Cloudflare Pages)
 
 | Configuração | Valor |

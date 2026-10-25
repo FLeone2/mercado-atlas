@@ -1,4 +1,4 @@
-// New interface (default UI): every area and sub-tab on desktop and phone, failing on a page
+// Current interface (?ui=atual): every area and sub-tab on desktop and phone, failing on a page
 // error or horizontal scrolling; then the audit reproductions of 22/10/2026 as assertions on
 // the published numbers and labels (they must show the CORRECT result).
 // Needs a running preview:  npm run build && npm run preview   (port 8765)
@@ -15,7 +15,8 @@ const AREAS = ['panorama', 'evolucao', 'concorrencia', 'segmentos', 'territorios
   const open = async (query, width = 1440, wait = 9000) => {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     page.errors = []; page.on('pageerror', e => page.errors.push(e.message));
-    await page.goto(base + query, { waitUntil: 'domcontentloaded' });
+    // the current interface lives at ?ui=atual while the reorganization prototype is the default
+    await page.goto(base + query.replace(/^\?/, '?ui=atual&'), { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('.nx-nav'); await page.waitForTimeout(wait);
     return page;
   };
@@ -106,7 +107,7 @@ const AREAS = ['panorama', 'evolucao', 'concorrencia', 'segmentos', 'territorios
 
   // exportação de PNG: o Duelo A×B baixa um arquivo e o rodapé carrega as duas marcas, a medida e a explicação
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
-  page = await ctx.newPage(); await page.goto(base + '?a=concorrencia'); await page.waitForSelector('.nx-nav'); await page.waitForTimeout(7000);
+  page = await ctx.newPage(); await page.goto(base + '?ui=atual&a=concorrencia'); await page.waitForSelector('.nx-nav'); await page.waitForTimeout(7000);
   await tab(page, 'Comparar');
   const [file] = await Promise.all([page.waitForEvent('download', { timeout: 30000 }).catch(() => null), page.locator('.nx-block:has-text("Duelo de marcas") .nx-dl').click()]);
   expect('PNG-DUELO', !!file && /duelo/.test(file?.suggestedFilename() ?? ''), 'o Duelo não baixou imagem'); await ctx.close();
