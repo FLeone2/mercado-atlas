@@ -6,6 +6,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 python3 scripts/build-history.py          # 10-year history (data/history)
 python3 scripts/build-population.py       # population by UF/municipality (changes only with a new IBGE estimate)
+python3 scripts/fetch_econ_extra.py       # economic series (BCB, IBGE, Ipeadata) with receipts
+python3 scripts/econ_model.py             # elasticities, decomposition and simulator (data/scenarios/econ_model.json)
 node tests/lib/data-baseline.cjs --update # records the new data fingerprint
 npm run build                             # dist/ for Cloudflare Pages
 bash scripts/test.sh                      # every test

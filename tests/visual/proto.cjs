@@ -48,7 +48,39 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
   if (page.errors.length) failures.push('filtros: ' + page.errors[0]);
   await page.close();
 
+  // mapa: entrar num estado mostra o cartão dele; buscar e abrir um município; ‹ › passam de município
+  {
+    const m = await open('?a=territorios', 1440, 9000);
+    await m.evaluate(() => { const e = document.querySelector('#t-mapa'); scrollTo(0, e.getBoundingClientRect().top + scrollY - 120); }); await m.waitForTimeout(800);
+    await m.locator('.px-cities.scroll button', { hasText: 'Minas Gerais' }).click(); await m.waitForTimeout(2000);
+    if ((await m.locator('.px-map-panel h3').first().innerText()) !== 'Minas Gerais') failures.push('mapa: clicar no estado não abriu o cartão do estado');
+    if (!(await m.locator('.px-ufbrands li').count())) failures.push('mapa: o estado não mostra o ranking de marcas');
+    await m.locator('.px-cityq').fill('uberl'); await m.waitForTimeout(300); await m.locator('.px-cities.scroll button').first().click(); await m.waitForTimeout(1800);
+    if ((await m.locator('.px-city h3').innerText()) !== 'Uberlândia') failures.push('mapa: a busca não abriu o município');
+    await m.locator('.px-city-nav button').last().click(); await m.waitForTimeout(1200);
+    if ((await m.locator('.px-city h3').innerText()) === 'Uberlândia') failures.push('mapa: › não passou para o próximo município');
+    if (m.errors.length) failures.push('mapa: ' + m.errors[0]);
+    await m.close();
+  }
+  // corrida das marcas anda com o play; o simulador responde a um cenário pronto
+  {
+    const c = await open('?a=concorrencia', 1440, 9000);
+    await c.evaluate(() => document.querySelector('#c-corrida').scrollIntoView()); await c.waitForTimeout(800);
+    await c.locator('.px-race-ctl input[type=range]').fill('0'); const m0 = await c.locator('.px-race-m').innerText();
+    await c.locator('.px-play').click(); await c.waitForTimeout(2500);
+    if ((await c.locator('.px-race-m').innerText()) === m0) failures.push('corrida: o play não avançou os meses');
+    if (c.errors.length) failures.push('corrida: ' + c.errors[0]);
+    await c.close();
+    const e = await open('?a=economia', 1440, 9000);
+    await e.evaluate(() => document.querySelector('#e-simulador').scrollIntoView()); await e.waitForTimeout(600);
+    await e.locator('.px-sim-presets .nx-chip', { hasText: 'Selic cai' }).click(); await e.waitForTimeout(400);
+    const out = await e.locator('.px-sim-r b').first().innerText();
+    if (!/^\+[1-9]/.test(out)) failures.push('simulador: corte de juros deveria aumentar o mercado (veio ' + out + ')');
+    if (e.errors.length) failures.push('economia: ' + e.errors[0]);
+    await e.close();
+  }
+
   await browser.close();
   if (failures.length) { console.error('FAIL\n  ' + failures.join('\n  ')); process.exit(1); }
-  console.log(`PASS protótipo: ${PAGES.length * 2} páginas sem erro nem rolagem horizontal · filtros de estado, porte, marca em foco e Limpar`);
+  console.log(`PASS protótipo: ${PAGES.length * 2} páginas sem erro nem rolagem horizontal · filtros de estado, porte, marca em foco e Limpar · mapa por estado e município · corrida · simulador`);
 })();

@@ -87,7 +87,7 @@
    if(range.start.endsWith('-01')&&range.start.slice(0,7)===range.end.slice(0,7)){const endDay=e.getUTCDate();s.setUTCMonth(s.getUTCMonth()-1);const last=new Date(Date.UTC(s.getUTCFullYear(),s.getUTCMonth()+1,0)).getUTCDate();const pe=new Date(Date.UTC(s.getUTCFullYear(),s.getUTCMonth(),Math.min(endDay,last),12));return {start:iso(s),end:iso(pe)};}
    const n=Math.round((e-s)/86400000)+1; s.setUTCDate(s.getUTCDate()-n);e.setUTCDate(e.getUTCDate()-n);return {start:iso(s),end:iso(e)};
   }
-  function createAccumulator(){return {total:0,groups:Object.fromEntries(DIMS.map(d=>[d,new Map()])),daily:new Map(),monthly:new Map(),brandsByMonth:new Map(),fuelByMonth:new Map(),modelsByMonth:new Map(),technologyByMonth:new Map(),propulsionByMonth:new Map(),bodyByMonth:new Map(),channelByMonth:Object.fromEntries(['marca','modelo','bd_carroceria'].map(d=>[d,new Map()])),channelCoverage:new Map(),stateChannelsByMonth:new Map(),originByMonth:new Map(),municipalBrands:new Map(),municipalBrandsUF:new Map(),flowPaths:new Map(),regionBrands:new Map(),brandFuels:new Map(),sourceRows:0};}
+  function createAccumulator(){return {total:0,groups:Object.fromEntries(DIMS.map(d=>[d,new Map()])),daily:new Map(),monthly:new Map(),brandsByMonth:new Map(),fuelByMonth:new Map(),modelsByMonth:new Map(),technologyByMonth:new Map(),propulsionByMonth:new Map(),bodyByMonth:new Map(),channelByMonth:Object.fromEntries(['marca','modelo','bd_carroceria'].map(d=>[d,new Map()])),channelCoverage:new Map(),stateChannelsByMonth:new Map(),originByMonth:new Map(),municipalBrands:new Map(),municipalBrandsUF:new Map(),ufBrands:new Map(),flowPaths:new Map(),regionBrands:new Map(),brandFuels:new Map(),sourceRows:0};}
   // Preserve exact source-brand membership after every analytical filter has passed.
   // A model/group label can belong to multiple manufacturers; never infer aliases.
   const RANKING_BRAND_DIMENSIONS = ['marca','modelo','grupo_modelo'];
@@ -123,6 +123,8 @@
    if(options.includeOriginAnalysis)jointSpecs.push({left:descriptor('marca'),right:descriptor('bd_origem'),target:acc.originByMonth});
    // Municipality × brand over the whole period (no month in the key): the leader map reads one UF at a time.
    if(options.includeMunicipalLeaders)jointSpecs.push({left:descriptor('municipio'),right:descriptor('marca'),target:acc.municipalBrands,noMonth:true});
+   // UF × brand over the whole period: the state card of the map (leader and ranking of each state).
+   if(options.includeUfBrands)jointSpecs.push({left:descriptor('uf'),right:descriptor('marca'),target:acc.ufBrands,noMonth:true});
    // Region × brand and brand × fuel over the whole period, for the connections chord.
    if(options.includeConnections){jointSpecs.push({left:descriptor('regiao'),right:descriptor('marca'),target:acc.regionBrands,noMonth:true});jointSpecs.push({left:descriptor('marca'),right:descriptor('fluxo_combustivel'),target:acc.brandFuels,noMonth:true});}
    // Four-way path origin × channel × fuel × vehicle type, kept whole so ribbons can be traced end to end.
@@ -495,7 +497,7 @@
        if(catalogExtra)mergeCatalogExtras(catalogExtra,contribution.extra);
       };
       if(overlaps(cube.month,range)){
-       await collectMonthly(a,cube,filters,range,{includeConnections:Boolean(includeConnections),includeInteractive,includeDaily:Boolean(includeInteractive&&includeDaily),includeMunicipalLeaders:Boolean(includeMunicipalLeaders),includeMunicipalLeadersUF:Boolean(includeMunicipalLeadersUF),includeFlow:Boolean(includeFlow),includeHistoryComparisons,includeOriginAnalysis,includeChannelCoverage:includeChannelReference,sourceMeta:meta,membership:brandMembership,catalogExtra:catalogCurrentExtra});
+       await collectMonthly(a,cube,filters,range,{includeConnections:Boolean(includeConnections),includeInteractive,includeDaily:Boolean(includeInteractive&&includeDaily),includeMunicipalLeaders:Boolean(includeMunicipalLeaders),includeMunicipalLeadersUF:Boolean(includeMunicipalLeadersUF),includeUfBrands:Boolean(includeYearGroups),includeFlow:Boolean(includeFlow),includeHistoryComparisons,includeOriginAnalysis,includeChannelCoverage:includeChannelReference,sourceMeta:meta,membership:brandMembership,catalogExtra:catalogCurrentExtra});
        if(includeCatalog){await collectMonthly(catalogMarket,cube,historyFilters,range,{catalogExtra:catalogMarketExtra});await collectMonthly(catalogMit,cube,{...historyFilters,marca:['MITSUBISHI']},range);}
        if(includeHistoryComparisons){await collectMonthly(historyMarket,cube,historyFilters,range,{groupDimensions:['marca','propulsao','bd_carroceria'],includeBody:true});await collectMonthly(historyMit,cube,{...historyFilters,marca:['MITSUBISHI']},range,{groupDimensions:['marca','propulsao','bd_carroceria'],includeBody:true});}
        if(includeMitsubishiProfile&&mitsubishiAllowed)await collectMonthly(mitsubishiProfile,cube,{...filters,marca:['MITSUBISHI']},range,{groupDimensions:['marca','modelo','grupo_modelo','bd_segmento','bd_classe','bd_combustivel','subsegmento','ano_fabricacao']});
@@ -531,6 +533,7 @@
      if(includeMunicipalLeadersUF)result.municipalLeaders=reduceMunicipalLeaders(a.municipalBrandsUF,focus??'MITSUBISHI');
      const counts=(acc,dims)=>Object.fromEntries(dims.map(d=>[d,[...acc.groups[d]].map(([name,count])=>({name,count})).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name))]));
      if(includeYearGroups)result.yearGroups=yearOK?counts(y,YEAR_DIMS):null;
+     if(includeYearGroups)result.ufBrands=[...a.ufBrands].map(([key,count])=>{const [uf,marca]=JSON.parse(key);return {uf,marca,count};}).filter(r=>r.count>0).sort((x,y)=>x.uf.localeCompare(y.uf)||y.count-x.count);
      if(focus){const f=finish(focusCurrent,createAccumulator(),focusYear,range,fullCoverage,false,yearOK);result.focus={brand:focus,total:f.total,year:f.year,yearChangeRate:f.yearChangeRate,groups:Object.fromEntries(focusDims.map(d=>[d,f.groups[d]])),yearGroups:includeYearGroups&&yearOK?counts(focusYear,focusDims):null};}
      result.choices=Object.fromEntries(DIMS.map(d=>[d,[...choices[d]].sort()]));
      if(generation!==token)return;resultCache.set(queryKey,result);port.postMessage({id,result});

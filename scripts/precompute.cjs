@@ -26,8 +26,15 @@ const EXTRA = [['leaders-br', { tipo_venda: ['VAREJO'] }]];
   };
   const entries = {}, done = new Map();
   let bytes = 0;
-  for (const preset of presets.presets) {
-    for (const [mode, extra] of [...MODES.map(m => [m, {}]), ...EXTRA]) {
+  // The prototype's other quick periods (12 meses, ano passado) are precomputed for its own queries.
+  const latest = presets.presets.find(p => p.id === 'latest')?.value.slice(0, 7) ?? presets.presets[0].value.slice(0, 7);
+  const end = m => { const [y, mo] = m.split('-').map(Number); return m + '-' + String(new Date(Date.UTC(y, mo, 0)).getUTCDate()).padStart(2, '0'); };
+  const back = (m, n) => { const [y, mo] = m.split('-').map(Number), d = new Date(Date.UTC(y, mo - 1 - n, 1)); return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0'); };
+  const lastYear = String(+latest.slice(0, 4) - 1);
+  const PROTO = [{ id: '12m', value: back(latest, 11) + '-01..' + end(latest) }, { id: 'lastyear', value: lastYear + '-01-01..' + lastYear + '-12-31' }];
+  const plan = [...presets.presets.map(p => [p, [...MODES.map(m => [m, {}]), ...EXTRA]]), ...PROTO.map(p => [p, [['atlas', {}], ['leaders-br', {}], ...EXTRA]])];
+  for (const [preset, jobs] of plan) {
+    for (const [mode, extra] of jobs) {
       const filters = { date: preset.value, population: 'light', ...extra };
       const filterKey = core.canonicalFilterKey(filters), focusBrand = core.marketFocusBrand(filters);
       const options = core.marketRequestOptions(mode), key = core.marketRequestKey(filterKey, options, focusBrand);

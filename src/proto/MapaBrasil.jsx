@@ -84,6 +84,21 @@ export default function MapaBrasil() {
   }, [geo, data, pop.city, focus, MIN]);
   const colorOf = b => joined?.color.get(b) ?? '#a8a29e';
 
+  /* números de cada estado no recorte (todos os canais, salvo filtro): total, ano anterior, marca em foco, ranking de marcas */
+  const ufInfo = useMemo(() => {
+    if (!market?.groups?.uf) return null;
+    const y = new Map((market.yearGroups?.uf ?? []).map(r => [r.name, r.count])), f = new Map((market.focus?.groups?.uf ?? []).map(r => [r.name, r.count])), fy = new Map((market.focus?.yearGroups?.uf ?? []).map(r => [r.name, r.count]));
+    const brands = new Map(); for (const r of market.ufBrands ?? []) { if (!brands.has(r.uf)) brands.set(r.uf, []); brands.get(r.uf).push([r.marca, r.count]); }
+    const nat = market.total > 0 ? (market.focus?.total ?? 0) / market.total : 0, out = new Map();
+    for (const r of market.groups.uf) {
+      if (!UF_NAMES[r.name]) continue;
+      const list = (brands.get(r.name) ?? []).sort((a, b) => b[1] - a[1]), share = r.count > 0 ? (f.get(r.name) ?? 0) / r.count : 0, y0 = y.get(r.name), sy = y0 > 0 ? (fy.get(r.name) ?? 0) / y0 : null;
+      out.set(r.name, { uf: r.name, total: r.count, change: y0 > 0 ? r.count / y0 - 1 : null, focus: f.get(r.name) ?? 0, share, dShare: sy == null ? null : share - sy, index: nat > 0 ? share / nat : null, brands: list, rank: list.findIndex(b => b[0] === focus) + 1 || null, per: pop.uf.get(r.name) > 0 ? r.count / pop.uf.get(r.name) * 1000 : null });
+    }
+    return out;
+  }, [market, focus, pop.uf]);
+  const [cityQuery, setCityQuery] = useState('');
+
   /* cor de cada município na medida escolhida */
   const fills = useMemo(() => {
     if (!joined) return null;
@@ -114,7 +129,7 @@ export default function MapaBrasil() {
   }, [joined, mode, hiBrand, MIN]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ---------- desenho e navegação ---------- */
-  const wrap = useRef(null), cv = useRef(null), S = useRef({ view: null, target: null, hover: -1, sel: -1, raf: 0, W: 0, H: 0, dpr: 1, drag: null, pts: new Map(), live: false });
+  const wrap = useRef(null), cv = useRef(null), S = useRef({ view: null, target: null, hover: -1, hoverUF: null, sel: -1, raf: 0, W: 0, H: 0, dpr: 1, drag: null, pts: new Map(), live: false });
   const fitBox = (box, pad = .86) => { const s = S.current, w = Math.max(4, box[2] - box[0]), h = Math.max(4, box[3] - box[1]); return { k: Math.min(s.W * pad / w, s.H * pad / h), cx: (box[0] + box[2]) / 2, cy: (box[1] + box[3]) / 2 }; };
   const home = () => (S.current.W < 560 ? fitBox([0, 0, VW, VH], .98) : fitBox([0, -8, VW, VH + 64], .98)); // no desktop, espaço embaixo para a legenda
   const kick = useCallback(() => { const s = S.current; cancelAnimationFrame(s.raf); s.raf = requestAnimationFrame(() => drawRef.current?.()); }, []);
@@ -138,15 +153,18 @@ export default function MapaBrasil() {
       const zoomed = v.k / home().k;
       if (zoomed > 2.2) { ctx.lineWidth = .7 / v.k; ctx.strokeStyle = 'rgba(255,255,255,.75)'; for (const [, paths] of groups) for (const p of paths) ctx.stroke(p); }
     } else { ctx.fillStyle = EMPTY; for (const u of UF_SHAPES) ctx.fill(u.path ?? (u.path = new Path2D(u.d))); }
+    // dentro de um estado, os outros ficam esmaecidos (a visão do país continua ali)
+    if (place.uf) { ctx.fillStyle = 'rgba(247,247,249,.74)'; for (const u of UF_SHAPES) if (u.uf !== place.uf) ctx.fill(u.path ?? (u.path = new Path2D(u.d))); }
     ctx.lineWidth = 1.3 / v.k; ctx.strokeStyle = '#ffffff'; for (const u of UF_SHAPES) ctx.stroke(u.path ?? (u.path = new Path2D(u.d)));
-    if (place.uf && place.code == null) { const u = UF_SHAPES.find(x => x.uf === place.uf); if (u) { ctx.lineWidth = 2.4 / v.k; ctx.strokeStyle = '#1d1d1f'; ctx.stroke(u.path); } }
+    if (s.hoverUF && s.hoverUF !== place.uf) { const u = UF_SHAPES.find(x => x.uf === s.hoverUF); if (u) { ctx.lineWidth = 2.6 / v.k; ctx.strokeStyle = '#1d1d1f'; ctx.stroke(u.path); } }
+    if (place.uf) { const u = UF_SHAPES.find(x => x.uf === place.uf); if (u) { ctx.lineWidth = 2.4 / v.k; ctx.strokeStyle = '#1d1d1f'; ctx.stroke(u.path); } }
     if (s.sel >= 0 && feats[s.sel]) { ctx.lineWidth = 3 / v.k; ctx.strokeStyle = '#1d1d1f'; ctx.stroke(feats[s.sel].path); }
     if (s.hover >= 0 && feats[s.hover]) { ctx.lineWidth = 2 / v.k; ctx.strokeStyle = '#1d1d1f'; ctx.stroke(feats[s.hover].path); }
     // nomes dos maiores municípios à vista, sem sobreposição
     if (joined && v.k / home().k > 2.6) {
       ctx.setTransform(s.dpr, 0, 0, s.dpr, 0, 0); ctx.font = '600 12px Inter Variable, Inter, system-ui, sans-serif'; ctx.textAlign = 'center';
       const boxes = []; let n = 0;
-      for (const r of labelOrder) { if (n >= 14) break; const m = r.f, sx = ox + m.cx * v.k, sy = oy + m.cy * v.k; if (sx < 30 || sy < 20 || sx > s.W - 30 || sy > s.H - 10) continue;
+      for (const r of labelOrder) { if (n >= 14) break; if (place.uf && r.f.uf !== place.uf) continue; const m = r.f, sx = ox + m.cx * v.k, sy = oy + m.cy * v.k; if (sx < 30 || sy < 20 || sx > s.W - 30 || sy > s.H - 10) continue;
         const w = ctx.measureText(m.name).width + 8, b = [sx - w / 2, sy - 9, sx + w / 2, sy + 7]; if (boxes.some(o => b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1])) continue; boxes.push(b); n++;
         ctx.lineWidth = 3.2; ctx.strokeStyle = 'rgba(255,255,255,.92)'; ctx.strokeText(m.name, sx, sy + 4); ctx.fillStyle = '#1d1d1f'; ctx.fillText(m.name, sx, sy + 4); }
     }
@@ -165,6 +183,12 @@ export default function MapaBrasil() {
   /* ponteiro: mapa → índice do município */
   const toMap = (cx, cy) => { const s = S.current, r = cv.current.getBoundingClientRect(), v = s.view; return [(cx - r.left - s.W / 2) / v.k + v.cx, (cy - r.top - s.H / 2) / v.k + v.cy]; };
   const hit = useMemo(() => { const c = document.createElement('canvas').getContext('2d'); return (mx, my) => { if (!geo) return -1; const gx = Math.floor(mx / VW * geo.G), gy = Math.floor(my / VH * geo.G); if (gx < 0 || gy < 0 || gx >= geo.G || gy >= geo.G) return -1; for (const i of geo.grid[gy * geo.G + gx]) { const m = geo.feats[i]; if (mx >= m.box[0] && mx <= m.box[2] && my >= m.box[1] && my <= m.box[3] && c.isPointInPath(m.path, mx, my)) return i; } return -1; }; }, [geo]);
+  const hitUF = useMemo(() => { const c = document.createElement('canvas').getContext('2d'); return (mx, my) => { for (const u of UF_SHAPES) { const [x0, y0, x1, y1] = u.box; if (mx >= x0 && mx <= x1 && my >= y0 && my <= y1 && c.isPointInPath(u.path ?? (u.path = new Path2D(u.d)), mx, my)) return u.uf; } return null; }; }, []);
+  const stateTip = (e, uf) => {
+    const r = ufInfo?.get(uf); if (!r) { tip.show(e, <><strong>{UF_NAMES[uf]}</strong><span>Sem emplacamentos neste recorte</span></>); return; }
+    const lead = r.brands[0];
+    tip.show(e, <><strong>{UF_NAMES[uf]}</strong><span>{fmt(r.total)} emplacamentos{r.change != null ? ' · ' + (r.change >= 0 ? '+' : '−') + pct(Math.abs(r.change), 1) + ' em um ano' : ''}</span>{lead && <span><i style={{ background: colorOf(lead[0]) }} />Líder: {brandName(lead[0])} <b>{pct(lead[1] / r.total, 1)}</b></span>}<span>{focusName}: <b>{r.rank ? r.rank + 'ª · ' + pct(r.share, 2) : '—'}</b></span><span>Clique para entrar no estado</span></>);
+  };
   const zoomAt = (factor, cx, cy) => {
     const s = S.current, h = home(), t = s.target ?? s.view, k = Math.min(h.k * 60, Math.max(h.k, t.k * factor));
     if (cx == null) { fly({ ...t, k }); return; }
@@ -189,24 +213,28 @@ export default function MapaBrasil() {
       if (Math.abs(dx) + Math.abs(dy) > 4) s.drag.moved = true;
       if (s.drag.moved) { const v = { k: s.view.k, cx: s.drag.view.cx - dx / s.view.k, cy: s.drag.view.cy - dy / s.view.k }; s.view = { ...v }; s.target = { ...v }; s.live = true; tip.hide(); kick(); return; }
     }
-    const [mx, my] = toMap(e.clientX, e.clientY), i = hit(mx, my);
-    if (i !== s.hover) { s.hover = i; kick(); }
-    if (i >= 0) showTip(e, i); else tip.hide();
+    const [mx, my] = toMap(e.clientX, e.clientY);
+    // no país: o estado sob o ponteiro; dentro de um estado: os municípios dele
+    const uf = hitUF(mx, my), i = place.uf && uf === place.uf ? hit(mx, my) : -1, hu = place.uf && uf === place.uf ? null : uf;
+    if (i !== s.hover || hu !== s.hoverUF) { s.hover = i; s.hoverUF = hu; kick(); }
+    if (i >= 0) showTip(e, i); else if (hu) stateTip(e, hu); else tip.hide();
   };
   const onUp = e => {
     const s = S.current, d = s.drag; s.pts.delete(e.pointerId); if (s.pts.size) return; s.drag = null;
-    if (d && !d.moved) { const [mx, my] = toMap(e.clientX, e.clientY), i = hit(mx, my); if (i >= 0) pick(i); }
+    if (d && !d.moved) { const [mx, my] = toMap(e.clientX, e.clientY), uf = hitUF(mx, my); if (!uf) return; if (uf !== place.uf) { goUF(uf); return; } const i = hit(mx, my); if (i >= 0) pick(i); }
   };
   const pick = i => {
-    const s = S.current, f = geo.feats[i], h = home(), zoomed = s.view.k / h.k;
-    if (zoomed < 1.8 && place.uf !== f.uf) { goUF(f.uf); return; }
+    const s = S.current, f = geo.feats[i], h = home();
     s.sel = i; setPlace({ uf: f.uf, code: f.code });
     const t = fitBox(f.box, .3); fly({ k: Math.max(s.view.k, Math.min(t.k, h.k * 40)), cx: f.cx, cy: f.cy }); s.live = true;
   };
-  const goUF = uf => { const u = UF_SHAPES.find(x => x.uf === uf); if (!u) return; S.current.sel = -1; setPlace({ uf, code: null }); fly(fitBox(u.box, .88)); S.current.live = true; };
+  const goUF = uf => { const u = UF_SHAPES.find(x => x.uf === uf); if (!u) return; S.current.sel = -1; S.current.hoverUF = null; tip.hide(); setCityQuery(''); setPlace({ uf, code: null }); fly(fitBox(u.box, .88)); S.current.live = true; };
   const goHome = () => { S.current.sel = -1; setPlace({ uf: null, code: null }); fly(home()); S.current.live = false; };
   const back = () => { if (place.code) { S.current.sel = -1; setPlace({ uf: place.uf, code: null }); goUF(place.uf); } else goHome(); };
   useEffect(() => { const c = cv.current; const wheel = e => { if (!(e.ctrlKey || e.metaKey)) { setHint(true); clearTimeout(S.current.hintT); S.current.hintT = setTimeout(() => setHint(false), 1400); return; } e.preventDefault(); zoomAt(Math.exp(-e.deltaY * .0045), e.clientX, e.clientY); }; c.addEventListener('wheel', wheel, { passive: false }); return () => c.removeEventListener('wheel', wheel); });
+  // teclado (com o ponteiro ou o foco no mapa): Esc volta um nível; ← → passam de município na ordem de volume do estado
+  const stepCity = dir => { if (!panel?.cities?.length || !place.code) return; const k = panel.cities.findIndex(r => r.f.code === place.code), n = panel.cities[(k + dir + panel.cities.length) % panel.cities.length]; if (n) pick(geo.feats.indexOf(n.f)); };
+  useEffect(() => { const key = e => { const host = wrap.current?.closest('.px-map'); if (!host || !(host.matches(':hover') || host.contains(document.activeElement))) return; if (e.target?.tagName === 'INPUT') return; if (e.key === 'Escape' && place.uf) back(); if (place.code && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { e.preventDefault(); stepCity(e.key === 'ArrowRight' ? 1 : -1); } }; addEventListener('keydown', key); return () => removeEventListener('keydown', key); });
   // um estado escolhido nos filtros globais: o mapa abre nele
   const ufFilter = list(filters.uf);
   useEffect(() => { if (geo && ufFilter.length === 1) goUF(ufFilter[0]); }, [geo, ufFilter.join()]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -221,7 +249,9 @@ export default function MapaBrasil() {
     const leaders = [...led].sort((a, b) => b[1] - a[1]);
     const top = [...withData].sort((a, b) => b.m.total - a.m.total).slice(0, 8);
     const city = place.code ? joined.rows.find(r => r.f.code === place.code) : null;
-    return { total, focusTotal, share: total > 0 ? focusTotal / total : 0, leaders, colored, n: inPlace.length, focusLed: led.get(focus) ?? 0, present: withData.filter(r => r.m.focus > 0).length, top, city };
+    const cities = place.uf ? [...withData].sort((a, b) => b.m.total - a.m.total) : [];
+    const cityRank = city ? cities.findIndex(r => r.f.code === city.f.code) + 1 : null;
+    return { total, focusTotal, share: total > 0 ? focusTotal / total : 0, leaders, colored, n: inPlace.length, focusLed: led.get(focus) ?? 0, present: withData.filter(r => r.m.focus > 0).length, top, city, cities, cityRank };
   }, [joined, place, focus, MIN]);
 
   const legend = mode === 'lider' ? (panel?.leaders ?? []).slice(0, 9).map(([b, n]) => ({ b, n })) : null;
@@ -261,24 +291,45 @@ export default function MapaBrasil() {
           </nav>
           {!panel ? <div className="px-skel" style={{ height: 320 }} /> : city ? (
             <div className="px-city">
+              <div className="px-city-nav">
+                <button type="button" onClick={() => stepCity(-1)} aria-label="Município anterior">‹</button>
+                <span>{panel.cityRank ? panel.cityRank + 'º de ' + fmt(panel.cities.length) + ' em ' + UF_NAMES[city.f.uf] : ''}</span>
+                <button type="button" onClick={() => stepCity(1)} aria-label="Próximo município">›</button>
+              </div>
               <h3>{city.f.name}</h3>
               {city.m ? <>
-                <div className="px-kv"><div><small>Emplacamentos</small><b>{fmt(city.m.total)}</b></div>{city.pop ? <div><small>Por mil habitantes</small><b>{(city.m.total / city.pop * 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}</b></div> : null}<div><small>{focusName}</small><b className="red">{city.m.focusRank ? city.m.focusRank + 'ª' : '—'}</b></div></div>
+                <div className="px-kv"><div><small>Emplacamentos{chan === 'VAREJO' && !globalChannel ? ' (varejo)' : ''}</small><b>{fmt(city.m.total)}</b></div>{city.pop ? <div><small>Por mil habitantes</small><b>{(city.m.total / city.pop * 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}</b></div> : null}<div><small>{focusName}</small><b className="red">{city.m.focusRank ? city.m.focusRank + 'ª' : '—'}</b></div></div>
                 <ol className="px-top3">{city.m.top.map(([b, c]) => <li key={b}><i style={{ background: colorOf(b) }} /><span>{brandName(b)}</span><b>{pct(c / city.m.total, 1)}</b><small>{fmt(c)}</small></li>)}
                   {city.m.focusRank > 3 && <li className="focus"><i style={{ background: FOCUS_COLOR }} /><span>{city.m.focusRank}º {focusName}</span><b>{pct(city.m.focus / city.m.total, 1)}</b><small>{fmt(city.m.focus)}</small></li>}</ol>
-                <p className="px-pnote">{city.m.brandCount} marcas emplacaram aqui no período{chan === 'VAREJO' && !globalChannel ? ', só no varejo' : ''}.</p>
+                <p className="px-pnote">{city.m.brandCount} marcas emplacaram aqui no período. Use ← → para passar de município.</p>
               </> : <p className="px-pnote">Sem emplacamentos neste recorte.</p>}
               <button type="button" className="px-apply" onClick={() => { setFilter('uf', [city.f.uf]); const raw = data?.municipalLeaders?.find(m => engine.geoKey(m.municipio, m.uf) + '|' + m.uf === city.f.key); if (raw) setFilter('municipio', [raw.municipio]); }}>Filtrar o site por {city.f.name}</button>
             </div>
-          ) : (
+          ) : place.uf ? (() => {
+            const r = ufInfo?.get(place.uf), q = cityQuery.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+            const shown = q ? panel.cities.filter(c => c.f.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(q)) : panel.cities;
+            const maxB = r?.brands[0]?.[1] ?? 1;
+            return <>
+              <h3>{UF_NAMES[place.uf]}</h3>
+              {r ? <>
+                <div className="px-kv"><div><small>Emplacamentos</small><b>{fmt(r.total)}</b></div><div><small>Em um ano</small><b className={r.change >= 0 ? 'upc' : 'downc'}>{r.change == null ? '—' : (r.change >= 0 ? '+' : '−') + pct(Math.abs(r.change), 1)}</b></div>{r.per != null && <div><small>Por mil hab.</small><b>{r.per.toLocaleString('pt-BR', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</b></div>}</div>
+                <h4>Marcas no estado</h4>
+                <ol className="px-ufbrands">{[...r.brands.slice(0, 5), ...(r.rank > 5 ? [null, r.brands[r.rank - 1]] : [])].map((x, k) => x ? <li key={x[0]} className={x[0] === focus ? 'focus' : ''}><span>{(r.brands.indexOf(x) + 1)}º {brandName(x[0])}</span><span className="px-ufb-t"><span style={{ width: x[1] / maxB * 100 + '%', background: x[0] === focus ? FOCUS_COLOR : colorOf(x[0]) }} /></span><b>{pct(x[1] / r.total, 1)}</b></li> : <li key="gap" className="gap">···</li>)}</ol>
+                <p className="px-pnote">{focusName}: {pct(r.share, 2)} do estado{r.dShare != null ? ' (' + (r.dShare >= 0 ? '+' : '−') + (Math.abs(r.dShare) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + ' p.p. em um ano)' : ''}, índice {r.index?.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}× a média do país; lidera em {fmt(panel.focusLed)} {panel.focusLed === 1 ? 'município' : 'municípios'}.</p>
+              </> : <p className="px-pnote">Sem emplacamentos neste recorte.</p>}
+              <h4>Municípios · {fmt(panel.cities.length)} com emplacamentos{chan === 'VAREJO' && !globalChannel ? ' no varejo' : ''}</h4>
+              <input type="search" className="px-cityq" value={cityQuery} onChange={e => setCityQuery(e.target.value)} placeholder={'Buscar município de ' + UF_NAMES[place.uf]} aria-label="Buscar município" />
+              <ol className="px-cities scroll">{shown.slice(0, 200).map(c => <li key={c.f.code}><button type="button" onClick={() => pick(geo.feats.indexOf(c.f))}><span>{c.f.name}<small>{c.m.focusRank ? ' · ' + focusName + ' ' + c.m.focusRank + 'ª' : ''}</small></span><b>{fmt(c.m.total)}</b><i style={{ background: colorOf(c.m.top[0][0]) }} title={'Líder: ' + brandName(c.m.top[0][0])} /></button></li>)}</ol>
+              <button type="button" className="px-apply" onClick={() => setFilter('uf', [place.uf])}>Filtrar o site por {UF_NAMES[place.uf]}</button>
+            </>;
+          })() : (
             <>
               <div className="px-kv"><div><small>Emplacamentos{chan === 'VAREJO' && !globalChannel ? ' no varejo' : ''}</small><b>{fmt(panel.total)}</b></div><div><small>{focusName}</small><b className="red">{pct(panel.share, 2)}</b></div><div><small>Lidera em</small><b>{fmt(panel.focusLed)}</b></div></div>
-              <p className="px-pnote">{focusName} emplacou em {fmt(panel.present)} dos {fmt(panel.n)} municípios{place.uf ? ' de ' + UF_NAMES[place.uf] : ' do país'}.</p>
+              <p className="px-pnote">Passe o mouse num estado para ver o resumo; clique para entrar nele e navegar pelos municípios.</p>
               <h4>Quem lidera mais municípios</h4>
-              <ol className="px-leaders">{panel.leaders.slice(0, 6).map(([b, n]) => <li key={b} className={b === focus ? 'focus' : ''}><button type="button" aria-pressed={hiBrand === b} onClick={() => { setMode('lider'); setHiBrand(h => (h === b ? null : b)); }}><i style={{ background: colorOf(b) }} /><span>{brandName(b)}</span><b>{fmt(n)}</b><small>{pct(n / Math.max(1, panel.colored), 0)}</small></button></li>)}</ol>
-              <h4>Maiores municípios</h4>
-              <ol className="px-cities">{panel.top.map(r => <li key={r.f.code}><button type="button" onClick={() => pick(geo.feats.indexOf(r.f))}><span>{r.f.name}{!place.uf && <small> · {r.f.uf}</small>}</span><b>{fmt(r.m.total)}</b><i style={{ background: colorOf(r.m.top[0][0]) }} title={brandName(r.m.top[0][0])} /></button></li>)}</ol>
-              {place.uf && <button type="button" className="px-apply" onClick={() => setFilter('uf', [place.uf])}>Filtrar o site por {UF_NAMES[place.uf]}</button>}
+              <ol className="px-leaders">{panel.leaders.slice(0, 5).map(([b, n]) => <li key={b} className={b === focus ? 'focus' : ''}><button type="button" aria-pressed={hiBrand === b} onClick={() => { setMode('lider'); setHiBrand(h => (h === b ? null : b)); }}><i style={{ background: colorOf(b) }} /><span>{brandName(b)}</span><b>{fmt(n)}</b><small>{pct(n / Math.max(1, panel.colored), 0)}</small></button></li>)}</ol>
+              <h4>Estados</h4>
+              <ol className="px-cities scroll">{[...(ufInfo?.values() ?? [])].sort((x, y) => y.total - x.total).map(r => <li key={r.uf}><button type="button" onClick={() => goUF(r.uf)}><span>{UF_NAMES[r.uf]}<small>{r.rank ? ' · ' + focusName + ' ' + r.rank + 'ª' : ''}</small></span><b>{fmt(r.total)}</b><i style={{ background: colorOf(r.brands[0]?.[0]) }} title={'Líder: ' + brandName(r.brands[0]?.[0])} /></button></li>)}</ol>
             </>
           )}
         </aside>

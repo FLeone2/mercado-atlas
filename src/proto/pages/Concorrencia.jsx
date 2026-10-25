@@ -1,13 +1,24 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import LegacyTab from '../../next/LegacyTab.jsx';
+import '../../next/legacy-skin.css';
+import '../../next/areas/concorrencia-skin.css';
 import { Block } from '../../next/ui.jsx';
 import { Bump } from '../../next/areas/concorrencia-charts.jsx';
 import '../../next/areas/concorrencia.css';
 import { useProto } from '../ctx.js';
 import { PageHead, Section, Scope, Seg, Skel } from '../ui.jsx';
-import { Slope, Lines } from '../charts.jsx';
-import { brandName, fmt, pct, label, rangeText, historyGroup, ignoredBy, lastCompleteIndex, hhi, monthLabel } from '../lib.js';
+import { Slope, Lines, BarRace } from '../charts.jsx';
+import { brandName, fmt, pct, pp, signed, label, rangeText, historyGroup, ignoredBy, lastCompleteIndex, hhi, monthLabel, periodMonths, UF_NAMES } from '../lib.js';
 
 const roll12 = a => a.map((_, i) => (i < 11 ? null : a.slice(i - 11, i + 1).reduce((s, v) => s + v, 0)));
+const CMP_COLORS = ['#1d1d1f', '#2f6fdf', '#2a9d8f', '#e09a2c', '#8e6bd1'];
+
+/* Monta uma peça pesada só quando ela chega perto da tela (mantém a página rápida). */
+function WhenVisible({ children, h = 600 }) {
+  const ref = useRef(null), [on, setOn] = useState(false);
+  useEffect(() => { const el = ref.current; if (!el || on) return undefined; const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { setOn(true); io.disconnect(); } }, { rootMargin: '600px 0px' }); io.observe(el); return () => io.disconnect(); }, [on]);
+  return <div ref={ref} style={on ? undefined : { minHeight: h }}>{on ? children : <div className="px-skel" style={{ height: h }} />}</div>;
+}
 
 export default function Concorrencia() {
   const { market, focus, focusName, hist, mFilters } = useProto();
@@ -77,9 +88,51 @@ export default function Concorrencia() {
     return { months, a, b, where: duelSeg === 'seg' && segRival?.seg ? label('bd_segmento', segRival.seg).toLowerCase() : 'o mercado' };
   }, [hist.data, mFilters, market?.range, focus, rv, duelSeg, segRival]);
 
+  /* ---------- comparar marcas: a marca em foco e até 4 outras ---------- */
+  const months = useMemo(() => periodMonths(market?.range), [market?.range]);
+  const segRivals = useMemo(() => {
+    const seg = market?.focus?.groups?.bd_segmento?.[0]?.name; if (!seg || !hist.data) return [];
+    const g = historyGroup(hist.data, { ...mFilters, bd_segmento: [seg] }, ['marca']); if (!g) return [];
+    const i1 = lastCompleteIndex(g, market.range.end.slice(0, 7)), from = Math.max(0, i1 - 11);
+    return [...g.by].map(([n, a]) => [n, a.slice(from, i1 + 1).reduce((x, v) => x + v, 0)]).filter(([n, v]) => n !== focus && v > 0).sort((x, y) => y[1] - x[1]).slice(0, 4).map(([n]) => n);
+  }, [market, hist.data, mFilters, focus]);
+  const [picked, setPicked] = useState(null);
+  const cmpBrands = [focus, ...(picked ?? segRivals).filter(n => n !== focus)].slice(0, 5);
+  const cmpData = useMemo(() => {
+    if (!market || !hist.data) return null;
+    const cur = new Map((market.groups?.marca ?? []).map(r => [r.name, r.count])), yr = new Map((market.yearGroups?.marca ?? []).map(r => [r.name, r.count]));
+    const rank = new Map([...(market.groups?.marca ?? [])].sort((a, b) => b.count - a.count).map((r, i) => [r.name, i + 1]));
+    const ch = historyGroup(hist.data, mFilters, ['marca', 'tipo_venda']), pr = historyGroup(hist.data, mFilters, ['marca', 'propulsao']), sg = historyGroup(hist.data, mFilters, ['marca', 'bd_segmento']);
+    const idx = g => months.map(m => g.months.indexOf(m)).filter(i => i >= 0 && g.complete[i]);
+    const sumKey = (g, f) => { const ii = idx(g); let s = 0; for (const [k, a] of g.by) if (f(k.split('|'))) for (const i of ii) s += a[i]; return s; };
+    const nat = new Map(); const ufTot = new Map((market.groups?.uf ?? []).map(r => [r.name, r.count]));
+    for (const r of market.ufBrands ?? []) { if (!nat.has(r.marca)) nat.set(r.marca, []); nat.get(r.marca).push(r); }
+    const rows = cmpBrands.map((b, k) => {
+      const c = cur.get(b) ?? 0, y = yr.get(b), sh = market.total > 0 ? c / market.total : 0, shy = market.year > 0 && y != null ? y / market.year : null;
+      const tot = sumKey(ch, ([m]) => m === b), vd = sumKey(ch, ([m, t]) => m === b && t === 'VD'), el = sumKey(pr, ([m, t]) => m === b && ['BEV', 'PHEV', 'HEV', 'MHEV'].includes(t));
+      const segs = new Map(); { const ii = idx(sg); for (const [key, a] of sg.by) { const [m, s2] = key.split('|'); if (m !== b) continue; let v = 0; for (const i of ii) v += a[i]; segs.set(s2, (segs.get(s2) ?? 0) + v); } }
+      const topSeg = [...segs].sort((x, z) => z[1] - x[1])[0], segTotal = [...segs.values()].reduce((x, v) => x + v, 0);
+      const ufs = (nat.get(b) ?? []).map(r => ({ uf: r.uf, idx: sh > 0 && ufTot.get(r.uf) > 0 ? r.count / ufTot.get(r.uf) / sh : 0, n: r.count })).filter(r => r.n >= 30).sort((x, z) => z.idx - x.idx)[0];
+      return { b, color: b === focus ? 'var(--nx-accent)' : CMP_COLORS[k - 1] ?? '#8e8e93', count: c, change: y > 0 ? c / y - 1 : null, share: sh, dShare: shy == null ? null : sh - shy, rank: rank.get(b), vd: tot > 0 ? vd / tot : null, el: tot > 0 ? el / tot : null, seg: topSeg ? { name: topSeg[0], share: segTotal > 0 ? topSeg[1] / segTotal : 0 } : null, uf: ufs };
+    });
+    const g = historyGroup(hist.data, mFilters, ['marca']), i1 = lastCompleteIndex(g, market.range.end.slice(0, 7)), i0 = Math.max(0, i1 - 35), ms = g.months.slice(i0, i1 + 1);
+    const series = rows.map(r => ({ name: brandName(r.b), color: r.color, width: r.b === focus ? 3.5 : 2.2, values: ms.map((_, j) => (g.total[i0 + j] > 0 ? (g.by.get(r.b)?.[i0 + j] ?? 0) / g.total[i0 + j] : null)) }));
+    return { rows, ms, series };
+  }, [market, hist.data, mFilters, months, cmpBrands.join('|'), focus]); // eslint-disable-line react-hooks/exhaustive-deps
+  const addable = (market?.groups?.marca ?? []).slice(0, 40).map(r => r.name).filter(n => !cmpBrands.includes(n));
+
+  /* ---------- corrida das marcas: acumulado de 12 meses, mês a mês desde 2017 ---------- */
+  const race = useMemo(() => {
+    if (!brandsG) return null;
+    const i1 = lastCompleteIndex(brandsG, market?.range?.end?.slice(0, 7)); if (i1 < 24) return null;
+    const frames = [];
+    for (let i = 11; i <= i1; i++) { const vals = new Map(); for (const [n, a] of brandsG.by) { let s = 0; for (let k = 0; k < 12; k++) s += a[i - k]; if (s > 0) vals.set(n, s); } frames.push({ month: brandsG.months[i], vals }); }
+    return frames;
+  }, [brandsG, market?.range]);
+
   return (
     <div className="px-page">
-      <PageHead title="Concorrência" toc={[['c-conectado', 'Ranking conectado'], ['c-mes', 'Mês a mês'], ['c-duelo', 'Duelo'], ['c-concentracao', 'Concentração']]} />
+      <PageHead title="Concorrência" toc={[['c-conectado', 'Ranking conectado'], ['c-comparar', 'Comparar marcas'], ['c-mes', 'Mês a mês'], ['c-corrida', 'Corrida das marcas'], ['c-duelo', 'Duelo'], ['c-conexoes', 'Conexões'], ['c-concentracao', 'Concentração']]} />
 
       <Section id="c-conectado" title="Ranking conectado" sub={movers?.up && movers.up.d > 0 ? <>{label(dim, movers.up.r.name)} foi quem mais subiu ({movers.up.d} {movers.up.d === 1 ? 'posição' : 'posições'}){movers.down && movers.down.d < 0 ? <>; {label(dim, movers.down.r.name)} quem mais caiu ({-movers.down.d}).</> : '.'}</> : 'Posições de um período contra o outro.'}>
         {!slope ? <div className="nx-c12"><Skel h={520} /></div> : (
@@ -98,6 +151,22 @@ export default function Concorrencia() {
         )}
       </Section>
 
+      <Section id="c-comparar" title="Comparar marcas" sub={<>{focusName} e até quatro marcas: por padrão, as maiores do segmento principal dela. Mesmo período e filtros do site.</>}>
+        {!cmpData ? <div className="nx-c12"><Skel h={360} /></div> : <>
+          <Block className="nx-c12" title="Lado a lado" sub={'Variações contra ' + (market?.yearRange ? rangeText(market.yearRange) : 'o ano anterior')}
+            actions={<div className="px-ctl"><div className="nx-chips">{cmpBrands.map(b => <button key={b} type="button" className={'nx-chip' + (b === focus ? ' on' : '')} disabled={b === focus} onClick={() => setPicked(cmpBrands.filter(x => x !== b && x !== focus))}>{brandName(b)}{b !== focus && <span aria-hidden> ×</span>}</button>)}</div>
+              {cmpBrands.length < 5 && <label className="px-select">Adicionar<select value="" onChange={e => e.target.value && setPicked([...cmpBrands.filter(x => x !== focus), e.target.value])}><option value="">marca…</option>{addable.map(n => <option key={n} value={n}>{brandName(n)}</option>)}</select></label>}</div>}>
+            <div className="px-table-wrap"><table className="px-table px-cmp">
+              <thead><tr><th>Marca</th><th>Emplacamentos</th><th>Var. a/a</th><th>Participação</th><th>Var. p.p.</th><th>Posição</th><th>Venda direta</th><th>Eletrificados</th><th>Segmento principal</th><th>Estado mais forte</th></tr></thead>
+              <tbody>{cmpData.rows.map(r => <tr key={r.b} className={r.b === focus ? 'f' : ''}><th><i style={{ background: r.color }} />{brandName(r.b)}</th><td>{fmt(r.count)}</td><td className={r.change > 0 ? 'up' : r.change < 0 ? 'down' : ''}>{signed(r.change, 1)}</td><td>{pct(r.share, 2)}</td><td className={r.dShare > 0 ? 'up' : r.dShare < 0 ? 'down' : ''}>{pp(r.dShare, 2)}</td><td>{r.rank ? r.rank + 'ª' : '—'}</td><td>{pct(r.vd, 0)}</td><td>{pct(r.el, 0)}</td><td>{r.seg ? label('bd_segmento', r.seg.name) + ' · ' + pct(r.seg.share, 0) : '—'}</td><td>{r.uf ? UF_NAMES[r.uf.uf] + ' · ' + r.uf.idx.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '×' : '—'}</td></tr>)}</tbody>
+            </table></div>
+            <h4 className="px-h4" style={{ marginTop: 22 }}>Participação no mercado, 36 meses</h4>
+            <Lines months={cmpData.ms} series={cmpData.series} fmtY={v => pct(v, 0)} fmtTip={v => pct(v, 2)} height={300} label="Participação das marcas comparadas" />
+            <Scope ignored={ignored} extra="Venda direta, eletrificados e segmento usam os meses completos do período no histórico mensal; estado mais forte = participação no estado ÷ participação no país (30 emplacamentos ou mais)." />
+          </Block>
+        </>}
+      </Section>
+
       <Section id="c-mes" title="Ranking mês a mês" sub={bump?.fr ? <>{focusName}: {bump.fr.ranks[0] ? bump.fr.ranks[0] + 'ª' : 'fora do top'} há 24 meses, {bump.fr.ranks.at(-1)}ª em {monthLabel(bump.months.at(-1))}.</> : null}>
         {!bump ? <div className="nx-c12"><Skel h={420} /></div> : (
           <Block className="nx-c12" title="Posição de cada marca nos últimos 24 meses" sub={bumpMode === 'mes' ? 'Mês a mês' : 'Pelo acumulado de 12 meses (mais estável)'}
@@ -106,6 +175,10 @@ export default function Concorrencia() {
             <Scope ignored={ignored} />
           </Block>
         )}
+      </Section>
+
+      <Section id="c-corrida" title="Corrida das marcas" sub="Acumulado de 12 meses, mês a mês desde 2017. Aperte o play ou arraste a linha do tempo.">
+        {!race ? <div className="nx-c12"><Skel h={460} /></div> : <Block className="nx-c12" title="Quem esteve no topo, mês a mês" sub={focusName + ' em vermelho'}><BarRace frames={race} focus={focus} name={brandName} /><Scope ignored={ignored} /></Block>}
       </Section>
 
       <Section id="c-duelo" title="Duelo" sub={duel ? <>{focusName} contra {brandName(rv)}, participação em {duel.where} nos últimos 36 meses.</> : null}>
@@ -119,6 +192,10 @@ export default function Concorrencia() {
             <Scope ignored={ignored} />
           </Block>
         )}
+      </Section>
+
+      <Section id="c-conexoes" title="Conexões" sub="Como origem, canal, combustível e segmento se ligam ponta a ponta (Sankey) e quem vende o quê em cada região (cordas). Passe o mouse para destacar um caminho.">
+        <div className="nx-c12"><WhenVisible h={760}><div className="nx-grid nxc-grid px-legacy" data-v="conexoes"><LegacyTab tab="competition" /></div></WhenVisible></div>
       </Section>
 
       <Section id="c-concentracao" title="Concentração do mercado">

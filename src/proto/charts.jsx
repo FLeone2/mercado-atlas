@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWidth } from '../next/areas/economia-charts.jsx';
 import { engine } from 'virtual:market';
 import { useTip } from '../next/charts.jsx';
@@ -205,10 +205,11 @@ export function Lines({ months, series, fmtY = fmt, fmtTip, height = 300, endLab
   const longest = endLabels ? Math.max(0, ...series.map(s => String(s.name).length)) : 0;
   const pad = { l: 50, r: endLabels ? Math.min(140, 16 + longest * 7.2) : 12, t: 14, b: 28 };
   const all = series.flatMap(s => s.values.filter(v => v != null && Number.isFinite(v)));
-  const lo = yMin ?? 0, nm = niceMax(Math.max(1e-9, ...all) * 1.05 - lo, 4), yMax = lo + nm.max;
+  const hiV = Math.max(1e-9, ...all), loV = Math.min(0, ...all), nm = niceMax((hiV - (yMin ?? loV)) * 1.05, 4);
+  const lo = yMin ?? Math.floor(loV / nm.step) * nm.step, yMax = Math.max(lo + nm.max, Math.ceil(hiV / nm.step) * nm.step);
   const X = i => pad.l + (i / Math.max(1, n - 1)) * (W - pad.l - pad.r), Y = v => pad.t + (1 - (v - lo) / (yMax - lo)) * (H - pad.t - pad.b);
   const path = vals => { let d = '', pen = false; vals.forEach((v, i) => { if (v == null || !Number.isFinite(v)) { pen = false; return; } d += (pen ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1); pen = true; }); return d; };
-  const ticks = []; for (let v = lo; v <= yMax + 1e-9; v += nm.step) ticks.push(v);
+  const ticks = []; for (let v = lo; v <= yMax + 1e-9; v += nm.step) ticks.push(+v.toFixed(9));
   const every = Math.max(1, Math.ceil(n / Math.max(3, (W - pad.l - pad.r) / 78)));
   const xt = xFmt ? months.map((m, i) => [i, xFmt(m)]).filter(([i]) => i % every === 0) : n > 40 ? months.map((m, i) => [i, m]).filter(([, m]) => m.endsWith('-01')).filter((_, k, a) => a.length <= (W - 80) / 52 || k % 2 === 0).map(([i, m]) => [i, m.slice(0, 4)])
     : months.map((m, i) => [i, m]).filter(([i]) => (n - 1 - i) % every === 0).map(([i, m]) => [i, monthLabel(m).replace('/20', '/')]);
@@ -221,7 +222,7 @@ export function Lines({ months, series, fmtY = fmt, fmtTip, height = 300, endLab
       <svg className="px-ch" width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} onPointerMove={move} onPointerLeave={() => { setHover(null); tip.hide(); }}>
         {shade && <rect x={X(shade[0]) - 3} width={Math.max(6, X(shade[1]) - X(shade[0]) + 6)} y={pad.t} height={H - pad.t - pad.b} className="px-shade" />}
         <g className="px-axis">
-          {ticks.map(t => <g key={t}><line x1={pad.l} x2={W - pad.r} y1={Y(t)} y2={Y(t)} /><text x={pad.l - 8} y={Y(t) + 4} textAnchor="end">{fmtY(t)}</text></g>)}
+          {ticks.map(t => <g key={t}><line x1={pad.l} x2={W - pad.r} y1={Y(t)} y2={Y(t)} className={Math.abs(t) < 1e-9 && lo < 0 ? 'zero' : ''} /><text x={pad.l - 8} y={Y(t) + 4} textAnchor="end">{fmtY(Math.abs(t) < 1e-9 ? 0 : t)}</text></g>)}
           {xt.map(([i, l]) => <text key={i} x={X(i)} y={H - 8} textAnchor="middle">{l}</text>)}
         </g>
         {series.map((s, k) => <path key={s.name} className="px-line" d={path(s.values)} stroke={s.color} strokeWidth={s.width ?? 2.5} strokeDasharray={s.dash} style={{ animationDelay: k * 90 + 'ms' }} />)}
@@ -231,6 +232,90 @@ export function Lines({ months, series, fmtY = fmt, fmtTip, height = 300, endLab
         {ends.map(({ s, y }) => <text key={s.name} className="px-endlabel" x={W - pad.r + 8} y={y + 4} fill={s.color}>{s.name}</text>)}
       </svg>
       {tip.node}
+    </div>
+  );
+}
+
+/* ============ Efeito de cada fator com intervalo de 90% (gráfico de floresta) ============ */
+export function Forest({ rows, fmtV = v => (v >= 0 ? '+' : '−') + Math.abs(v * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%' }) {
+  const max = Math.max(.01, ...rows.flatMap(r => [Math.abs(r.lo), Math.abs(r.hi)])) * 1.1;
+  const X = v => 50 + v / max * 50;
+  return (
+    <div className="px-forest">
+      {rows.map(r => (
+        <div key={r.key} className="px-forest-row">
+          <span className="px-forest-l">{r.label}<small>{r.sub}</small></span>
+          <span className="px-forest-t">
+            <i className="zero" />
+            <i className={'ci ' + (r.lo > 0 ? 'up' : r.hi < 0 ? 'down' : 'flat')} style={{ left: X(Math.min(r.lo, r.hi)) + '%', width: Math.max(.6, X(Math.max(r.lo, r.hi)) - X(Math.min(r.lo, r.hi))) + '%' }} />
+            <i className={'pt ' + (r.effect > 0 ? 'up' : 'down')} style={{ left: X(r.effect) + '%' }} />
+          </span>
+          <span className={'px-forest-v ' + (r.lo > 0 ? 'up' : r.hi < 0 ? 'down' : '')}>{fmtV(r.effect)}<small>{fmtV(r.lo)} a {fmtV(r.hi)}</small></span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ============ Decomposição mês a mês: barras empilhadas (positivas e negativas) e a linha do observado ============ */
+export function ContribBars({ months, parts, actual, height = 320, fmtY = v => pct(v, 0) }) {
+  const [box, w] = useWidth(), tip = useTip(), W = Math.max(280, w || 800), H = height, pad = { l: 46, r: 10, t: 12, b: 28 }, n = months.length;
+  const pos = months.map((_, i) => parts.reduce((s, p) => s + Math.max(0, p.values[i] ?? 0), 0)), neg = months.map((_, i) => parts.reduce((s, p) => s + Math.min(0, p.values[i] ?? 0), 0));
+  const hi = Math.max(...pos, ...actual.filter(v => v != null)), lo = Math.min(...neg, ...actual.filter(v => v != null), 0);
+  const st = niceMax(Math.max(hi - lo, .01), 5).step, yMax = Math.ceil(hi / st) * st, yMin = Math.floor(lo / st) * st;
+  const bw = (W - pad.l - pad.r) / n, X = i => pad.l + i * bw + bw / 2, Y = v => pad.t + (yMax - v) / (yMax - yMin) * (H - pad.t - pad.b);
+  const ticks = []; for (let v = yMin; v <= yMax + 1e-9; v += st) ticks.push(+v.toFixed(6));
+  const every = Math.max(1, Math.ceil(n / Math.max(4, W / 70)));
+  const show = (e, i) => tip.show(e, <><strong>{monthLabel(months[i])}</strong><span>Observado <b>{fmtY(actual[i])}</b></span>{parts.map(p => <span key={p.key}><i style={{ background: p.color }} />{p.label} <b>{(p.values[i] >= 0 ? '+' : '−') + Math.abs(p.values[i] * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} p.p.</b></span>)}</>);
+  return (
+    <div ref={box} className="px-chartbox">
+      <svg className="px-ch" width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Decomposição do crescimento" onPointerLeave={tip.hide}>
+        <g className="px-axis">{ticks.map(t => <g key={t}><line x1={pad.l} x2={W - pad.r} y1={Y(t)} y2={Y(t)} className={t === 0 ? 'zero' : ''} /><text x={pad.l - 8} y={Y(t) + 4} textAnchor="end">{fmtY(t)}</text></g>)}
+          {months.map((m, i) => (n - 1 - i) % every === 0 && <text key={m} x={X(i)} y={H - 8} textAnchor="middle">{monthLabel(m).replace('/20', '/')}</text>)}</g>
+        {months.map((m, i) => { let up = 0, dn = 0; return <g key={m} onPointerMove={e => show(e, i)}>{parts.map(p => { const v = p.values[i] ?? 0, y0 = v >= 0 ? up : dn, y1 = y0 + v; if (v >= 0) up = y1; else dn = y1; return <rect key={p.key} x={X(i) - bw * .36} width={bw * .72} y={Y(Math.max(y0, y1))} height={Math.max(0, Math.abs(Y(y0) - Y(y1)))} fill={p.color} />; })}<rect x={X(i) - bw / 2} width={bw} y={pad.t} height={H - pad.t - pad.b} fill="transparent" /></g>; })}
+        <path className="px-line" d={actual.map((v, i) => (v == null ? '' : (i && actual[i - 1] != null ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1))).join('')} stroke="var(--nx-ink)" strokeWidth="2.5" />
+        {actual.map((v, i) => v != null && <circle key={i} cx={X(i)} cy={Y(v)} r="2.6" fill="var(--nx-ink)" />)}
+      </svg>
+      <div className="nx-legend">{parts.map(p => <span key={p.key}><i style={{ background: p.color }} />{p.label}</span>)}<span><i style={{ background: 'var(--nx-ink)', borderRadius: '50%' }} />Observado</span></div>
+      {tip.node}
+    </div>
+  );
+}
+
+/* ============ Corrida das marcas: barras do acumulado de 12 meses, animadas mês a mês ============
+   frames = [{month, vals: Map(marca → volume)}]. Interpola entre meses para o movimento ser contínuo;
+   a marca em foco fica sempre visível (fixada embaixo quando está fora do topo); chinesas em âmbar. */
+export function BarRace({ frames, focus, name, top = 12 }) {
+  const [t, setT] = useState(frames.length - 1), [play, setPlay] = useState(false), [speed, setSpeed] = useState(1), raf = useRef(0), last = useRef(0);
+  const sel = engine.useChineseSelection();
+  useEffect(() => {
+    if (!play) return undefined;
+    const step = now => { const dt = last.current ? (now - last.current) / 1000 : 0; last.current = now; setT(v => { const n = v + dt * 3 * speed; if (n >= frames.length - 1) { setPlay(false); return frames.length - 1; } return n; }); raf.current = requestAnimationFrame(step); };
+    last.current = 0; raf.current = requestAnimationFrame(step); return () => cancelAnimationFrame(raf.current);
+  }, [play, speed, frames.length]);
+  const i = Math.floor(t), f = t - i, A = frames[i], B = frames[Math.min(frames.length - 1, i + 1)];
+  const vals = new Map(); for (const k of new Set([...A.vals.keys(), ...B.vals.keys()])) vals.set(k, (A.vals.get(k) ?? 0) * (1 - f) + (B.vals.get(k) ?? 0) * f);
+  const sorted = [...vals].sort((a, b) => b[1] - a[1]), shown = sorted.slice(0, top), fi = sorted.findIndex(([k]) => k === focus);
+  const rows = fi >= top ? [...shown, ['…', null], sorted[fi]] : shown, max = shown[0]?.[1] ?? 1, rowH = 34;
+  const month = (f < .5 ? A : B).month;
+  const start = () => { if (t >= frames.length - 1) setT(0); setPlay(true); };
+  return (
+    <div className="px-race">
+      <div className="px-race-ctl">
+        <button type="button" className="px-play" onClick={() => (play ? setPlay(false) : start())} aria-label={play ? 'Pausar' : 'Reproduzir'}>{play ? '❚❚' : '▶'}</button>
+        <input type="range" min="0" max={frames.length - 1} step="0.01" value={t} onChange={e => { setPlay(false); setT(+e.target.value); }} aria-label="Linha do tempo" />
+        <span className="px-race-m">{monthLabel(month)}</span>
+        <div className="px-seg" role="group" aria-label="Velocidade">{[[1, '1×'], [2, '2×'], [4, '4×']].map(([v, l]) => <button key={v} type="button" aria-pressed={speed === v} onClick={() => setSpeed(v)}>{l}</button>)}</div>
+      </div>
+      <div className="px-race-bars" style={{ height: rows.length * rowH }}>
+        {rows.map(([k, v], r) => k === '…' ? <div key="gap" className="px-race-gap" style={{ transform: `translateY(${r * rowH}px)` }}>···</div> : (
+          <div key={k} className={'px-race-row' + (k === focus ? ' focus' : engine.isChineseBrand(k, sel) ? ' cn' : '')} style={{ transform: `translateY(${r * rowH}px)` }}>
+            <span className="px-race-n">{(r < top ? r + 1 : fi + 1) + 'º'} {name(k)}</span>
+            <span className="px-race-t"><span style={{ width: Math.max(.5, v / max * 100) + '%' }} /></span>
+            <span className="px-race-v">{fmt(v)}</span>
+          </div>))}
+      </div>
+      <div className="nx-legend"><span><i style={{ background: 'var(--nx-accent)' }} />Marca em foco</span><span><i style={{ background: '#d69a3c' }} />Marcas chinesas</span><span><i style={{ background: '#3a3a3c' }} />Demais</span></div>
     </div>
   );
 }

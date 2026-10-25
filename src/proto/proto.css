@@ -235,3 +235,64 @@
 .px .nxc-scroll{overflow-x:auto;overflow-y:hidden}
 @media(max-width:700px){.px .nxc-scroll>svg{min-width:720px}}
 @media(max-width:560px){.px-map-col>.px-map-legend{position:static;margin-top:10px}.px .px-map-legend>button,.px-map-legend>span{box-shadow:inset 0 0 0 1px var(--nx-line)}}
+.px-axis line.zero{stroke:var(--nx-ink);stroke-dasharray:none;opacity:.35}
+/* ---- floresta ---- */
+.px-forest{display:grid;gap:4px}
+.px-forest-row{display:grid;grid-template-columns:minmax(150px,240px) 1fr 120px;gap:14px;align-items:center;padding:7px 0;border-bottom:1px solid var(--nx-line)}.px-forest-row:last-child{border-bottom:0}
+.px-forest-l{font:600 14.5px/1.25 var(--nx-font)}.px-forest-l small{display:block;font:500 12px var(--nx-font);color:var(--nx-soft);margin-top:2px}
+.px-forest-t{position:relative;height:22px}.px-forest-t i{position:absolute;top:50%;transform:translateY(-50%)}
+.px-forest-t .zero{left:50%;width:1px;height:22px;background:var(--nx-ink);opacity:.3}
+.px-forest-t .ci{height:8px;border-radius:4px;background:#c7c7cc}.px-forest-t .ci.up{background:color-mix(in srgb,var(--nx-up) 45%,transparent)}.px-forest-t .ci.down{background:color-mix(in srgb,var(--nx-down) 45%,transparent)}
+.px-forest-t .pt{width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--nx-ink);box-shadow:0 0 0 3px var(--nx-card)}.px-forest-t .pt.up{background:var(--nx-up)}.px-forest-t .pt.down{background:var(--nx-down)}
+.px-forest-v{text-align:right;font:750 16px var(--nx-font);font-variant-numeric:tabular-nums}.px-forest-v small{display:block;font:500 11.5px var(--nx-font);color:var(--nx-soft)}.px-forest-v.up{color:var(--nx-up)}.px-forest-v.down{color:var(--nx-down)}
+@media(max-width:560px){.px-forest-row{grid-template-columns:110px 1fr 86px;gap:8px}}
+/* ---- economia: indicadores e simulador ---- */
+.px-etiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.px-etile{position:relative;display:grid;gap:4px;padding:16px 18px;border-radius:20px;background:var(--nx-card);min-height:150px}
+.px-etile-k{font:600 13px/1.25 var(--nx-font);color:var(--nx-soft);padding-right:110px}
+.px-etile b{font:780 26px/1.1 var(--nx-font);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.px-etile-d{font:650 13px var(--nx-font)}.px-etile-d.up{color:var(--nx-up)}.px-etile-d.down{color:var(--nx-down)}.px-etile-d small{font-weight:500;color:var(--nx-soft)}
+.px-etile .nxo-spark{position:absolute;right:14px;top:14px;fill:none;stroke:var(--nx-ink);stroke-width:1.6}.px-etile .nxo-spark circle{fill:var(--nx-accent);stroke:none}
+.px-etile-s{font:500 11px var(--nx-font);color:var(--nx-soft)}
+@media(max-width:1100px){.px-etiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.px-etiles{grid-template-columns:1fr}}
+.px-sim-presets{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:500 13px var(--nx-font);color:var(--nx-soft);margin-bottom:18px}.px-sim-presets .px-link{margin:0 0 0 6px}
+.px-sim-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:32px}
+@media(max-width:900px){.px-sim-grid{grid-template-columns:1fr}}
+.px-sliders{display:grid;gap:14px}
+.px-slider{display:grid;gap:6px;font:600 14px var(--nx-font)}.px-slider span{display:flex;justify-content:space-between}.px-slider b{font-variant-numeric:tabular-nums}.px-slider b.up{color:var(--nx-up)}.px-slider b.down{color:var(--nx-down)}
+.px-slider input{width:100%;accent-color:var(--nx-ink)}
+.px-sim-out{display:grid;gap:12px;align-content:start}
+.px-sim-r{display:grid;gap:3px;padding:16px 18px;border-radius:18px;background:rgba(0,0,0,.035)}
+.px-sim-l{font:600 13.5px var(--nx-font);color:var(--nx-soft)}.px-sim-r>b{font:800 34px/1.05 var(--nx-font);letter-spacing:-.04em;font-variant-numeric:tabular-nums}.px-sim-r>b.up{color:var(--nx-up)}.px-sim-r>b.down{color:var(--nx-down)}
+.px-sim-ci{font:500 12.5px/1.4 var(--nx-font);color:var(--nx-soft)}.px-sim-ci.f{color:var(--nx-accent);font-weight:600}
+/* painel do mapa: estado e município */
+.px-city-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;font:500 12.5px var(--nx-font);color:var(--nx-soft)}
+.px .px-city-nav button{width:32px;height:32px;border-radius:10px;box-shadow:inset 0 0 0 1px var(--nx-line);font:600 18px/1 var(--nx-font);text-align:center}.px .px-city-nav button:hover{background:var(--nx-ink);color:#fff}
+.px-kv b.upc{color:var(--nx-up)}.px-kv b.downc{color:var(--nx-down)}
+.px-ufbrands{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.px-ufbrands li{display:grid;grid-template-columns:118px 1fr 52px;gap:8px;align-items:center;font:600 13.5px var(--nx-font)}.px-ufbrands li.focus{color:var(--nx-accent)}.px-ufbrands li.gap{display:block;text-align:center;color:var(--nx-soft)}
+.px-ufb-t{height:10px;border-radius:4px;background:rgba(0,0,0,.05);overflow:hidden}.px-ufb-t>span{display:block;height:100%;border-radius:4px}
+.px-ufbrands b{text-align:right;font-variant-numeric:tabular-nums}
+.px-cityq{width:100%;padding:8px 11px;border-radius:10px;border:1px solid rgba(0,0,0,.1);background:#fff;font:500 13.5px var(--nx-font)}
+.px-cities.scroll{max-height:300px;overflow-y:auto;padding-right:4px}
+@media(max-width:1100px){.px-cities.scroll{max-height:260px}}
+/* ---- corrida das marcas ---- */
+.px-race-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:14px}
+.px .px-play{width:40px;height:40px;border-radius:50%;background:var(--nx-ink);color:#fff;font:600 14px/1 var(--nx-font);text-align:center;display:grid;place-items:center}
+.px-race-ctl input[type=range]{flex:1;min-width:160px;accent-color:var(--nx-ink)}
+.px-race-m{font:800 26px/1 var(--nx-font);letter-spacing:-.03em;min-width:110px;font-variant-numeric:tabular-nums}
+.px-race-bars{position:relative}
+.px-race-row,.px-race-gap{position:absolute;left:0;right:0;height:30px;display:grid;grid-template-columns:150px 1fr 90px;gap:12px;align-items:center;transition:transform .35s var(--out)}
+.px-race-gap{display:block;text-align:center;color:var(--nx-soft)}
+.px-race-n{font:600 14px var(--nx-font);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.px-race-t{height:22px;border-radius:7px;background:rgba(0,0,0,.04);overflow:hidden}.px-race-t>span{display:block;height:100%;border-radius:7px;background:#3a3a3c}
+.px-race-row.cn .px-race-t>span{background:#d69a3c}.px-race-row.focus .px-race-t>span{background:var(--nx-accent)}.px-race-row.focus .px-race-n,.px-race-row.focus .px-race-v{color:var(--nx-accent)}
+.px-race-v{font:700 14px var(--nx-font);text-align:right;font-variant-numeric:tabular-nums}
+@media(max-width:560px){.px-race-row,.px-race-gap{grid-template-columns:100px 1fr 70px;gap:8px}.px-race-n{font-size:12.5px}.px-race-v{font-size:12.5px}}
+/* comparar marcas */
+.px-cmp th i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px;vertical-align:middle}
+.px-cmp tr.f th,.px-cmp tr.f td:first-of-type{color:var(--nx-accent)}
+.px .nx-chip:disabled{opacity:1;cursor:default}
+/* conexões (peças da versão atual dentro do protótipo) */
+.px-legacy{min-height:400px}
