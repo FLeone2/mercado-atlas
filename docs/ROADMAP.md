@@ -41,10 +41,10 @@ Hoje: Cloudflare Pages com 270 MB de arquivos estáticos; o navegador baixa os c
 | Etapa | O que fazer | Ganho | Custo |
 |---|---|---|---|
 | A · agora, sem servidor | Agregados por mês × UF × município × marca × modelo × porte × canal × propulsão em **Parquet**, servidos pelo **R2** (CDN), consultados com **DuckDB-WASM** no worker (lê só as colunas e blocos necessários); pré-cálculo também por UF e por marca em foco | Filtro qualquer em ~0,3–1 s depois do primeiro carregamento; fim do limite de 25 MB por arquivo do Pages | quase zero |
-| B · site oficial | **API na borda**: Cloudflare Worker que recebe o mesmo pedido do worker atual (`marketRequestKey`) e responde de um banco analítico (**ClickHouse Cloud** ou **MotherDuck**), com cache na borda (Cache API/KV) por pedido | Respostas em < 100 ms, qualquer recorte, nada pesado no celular | US$ 50–200/mês |
+| B · se o uso crescer | **API na borda**: Cloudflare Worker que recebe o mesmo pedido do worker atual (`marketRequestKey`) e responde de um banco analítico (**ClickHouse Cloud** ou **MotherDuck**), com cache na borda (Cache API/KV) por pedido | Respostas em < 100 ms, qualquer recorte, nada pesado no celular | US$ 50–200/mês |
 | C · operação | **GitHub Actions** mensal: novo mês + séries econômicas → derivados → testes → publicação; manifesto versionado; checagens de qualidade (totais, nomes de municípios, classificação BD) | Atualização sem passo manual, auditável | zero |
 
-Recomendação: A já na próxima etapa (mantém Pages/R2); B quando o site for oficial e com mais usuários; C junto com A. Acesso restrito, se necessário, com **Cloudflare Access** (login por e-mail/SSO, sem mudar o código).
+Recomendação (orçamento de US$ 10/mês): A na próxima etapa (Pages + R2 gratuito), C junto com A; B só se o uso crescer.
 
 ## 4. Front-end
 
@@ -69,9 +69,10 @@ Recomendação: A já na próxima etapa (mantém Pages/R2); B quando o site for 
 4. Revisão de acessibilidade e desempenho; testes visuais no celular.
 5. Publicar em `main` (Cloudflare publica sozinho) com a versão atual em `?ui=atual` por um período.
 
-## 7. Decisões que dependem de você
+## 7. Decisões (25/10/2026)
 
-- Acesso: site aberto ou restrito (Cloudflare Access)?
-- Orçamento para a etapa B (banco analítico gerenciado)?
-- Dados pagos: FIPE, Anfavea por montadora?
-- Quem recebe o resumo automático do mês (e-mail, Slack)?
+- **Acesso:** site aberto. Sem Cloudflare Access.
+- **Orçamento:** até US$ 10/mês. Etapa A (Parquet no **R2** + **DuckDB-WASM** no navegador) cabe no plano gratuito do R2 (10 GB e saída sem custo); se precisar de API com cache na borda, **Workers Paid** (US$ 5/mês). A etapa B com banco analítico gerenciado fica fora do orçamento — só se o uso crescer.
+- **Anfavea:** os dados detalhados virão de você (produção, exportação e licenciamento por montadora). Quando chegarem: script de carga com recibo, como as demais fontes, e os gráficos de oferta por montadora na Economia e na página da marca em foco.
+- **Imposto de importação:** 35% em vigor para elétricos, híbridos e plug-in desde jul/2026 (destacado na Economia).
+- **Pendente:** quem recebe o resumo automático do mês (e-mail, Slack) e dados FIPE (preço por versão).

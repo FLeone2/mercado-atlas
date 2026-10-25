@@ -87,7 +87,12 @@ export default function Economia() {
     const diff = prev ? (kind === 'pp' ? last.value - prev.value : kind === 'abs' ? last.value - prev.value : last.value / prev.value - 1) : null;
     const good = diff == null || Math.abs(diff) < 1e-9 ? '' : diff * sign > 0 ? 'up' : 'down';
     return { k, l, value: f(last.value), month: last.month, diff: diff == null ? '—' : kind === 'pct' ? signed(diff, 1) : (diff > 0 ? '+' : '−') + nf(Math.abs(diff), kind === 'abs' ? 0 : 1) + (kind === 'abs' ? ' meses' : ' p.p.'), good, spark: rows.slice(-24).map(r => r.value), source: d.levels[k].source };
-  }).filter(Boolean) : null, [d]);
+  }).filter(Boolean).concat((() => {
+    // imposto de importação dos elétricos: a alíquota em vigor hoje e desde quando
+    const steps = d.importTax.steps, now = steps[steps.length - 1], last = d.levels.ipca.rows.at(-1).month;
+    const spark = Array.from({ length: 24 }, (_, k) => { const y = +last.slice(0, 4), mo = +last.slice(5, 7) - 24 + k, m = (y + Math.floor(mo / 12)) + '-' + String(((mo % 12) + 12) % 12 + 1).padStart(2, '0'); let v = 0; for (const st of steps) if (m >= st.from) v = st.BEV; return v; });
+    return [{ k: 'import_tax', l: 'Imposto de importação (elétricos e híbridos)', value: now.BEV + '%', month: now.from, diff: 'em vigor', note: 'desde ' + monthLabel(now.from) + ' · era 10% em jan/2024', good: '', spark, source: 'Gecex/Camex' }];
+  })()) : null, [d]);
 
   /* decomposição do crescimento de 12 meses: base + fatores + choques + o que o modelo não explica */
   const decomp = useMemo(() => {
@@ -150,7 +155,7 @@ export default function Economia() {
 
       <Section id="e-agora" title="Condições de compra agora" sub="Último dado publicado de cada fonte e a variação em 12 meses. Verde ajuda a compra; âmbar atrapalha.">
         {!tiles ? <div className="nx-c12"><Skel h={180} /></div> : <div className="nx-c12 px-etiles">{tiles.map(t => (
-          <div key={t.k} className="px-etile"><span className="px-etile-k">{t.l}</span><b>{t.value}</b><span className={'px-etile-d ' + t.good}>{t.diff} <small>em 12 meses · {monthLabel(t.month)}</small></span><Spark values={t.spark} /><small className="px-etile-s">{t.source}</small></div>))}</div>}
+          <div key={t.k} className="px-etile"><span className="px-etile-k">{t.l}</span><b>{t.value}</b><span className={'px-etile-d ' + t.good}>{t.diff} <small>{t.note ?? 'em 12 meses · ' + monthLabel(t.month)}</small></span><Spark values={t.spark} /><small className="px-etile-s">{t.source}</small></div>))}</div>}
       </Section>
 
       <Section id="e-explica" title="O que explica o crescimento" sub={decomp ? <>Em {monthLabel(decomp.last.month)}, {decomp.m.label.toLowerCase()} cresceu {pctLog(decomp.last.actual)} em 12 meses. {m.factors.map(k => <span key={k}>{m.coef.find(x => x.key === k).label}: {(decomp.lc?.[k] ?? 0) >= 0 ? '+' : '−'}{nf(Math.abs((decomp.lc?.[k] ?? 0) * 100), 1)} p.p. · </span>)}fora do modelo (lançamentos, importados, vendas diretas): {decomp.other >= 0 ? '+' : '−'}{nf(Math.abs(decomp.other * 100), 1)} p.p.</> : null}>
@@ -191,7 +196,7 @@ export default function Economia() {
         </>}
       </Section>
 
-      <Section id="e-importacao" title="Imposto de importação e eletrificados" sub={policy ? <>O imposto sobre elétricos subiu de 10% (jan/2024) para 35% (jul/2026). No mesmo período, os elétricos foram de {pct(policy.bev[policy.months.indexOf('2024-01')], 1)} para {pct(policy.bev.at(-1), 1)} do mercado e as marcas chinesas para {pct(policy.cn.at(-1), 1)}.</> : null}>
+      <Section id="e-importacao" title="Imposto de importação e eletrificados" sub={policy ? <>Hoje o imposto está em 35% para elétricos, híbridos e plug-in (desde jul/2026); era 10% para elétricos em jan/2024. No mesmo período, os elétricos foram de {pct(policy.bev[policy.months.indexOf('2024-01')], 1)} para {pct(policy.bev.at(-1), 1)} do mercado e as marcas chinesas para {pct(policy.cn.at(-1), 1)}.</> : null}>
         {!policy ? <div className="nx-c12"><Skel h={300} /></div> : <>
           <Block className="nx-c6" title="Alíquota de importação" sub={d.importTax.source} info={d.importTax.note}>
             <Lines months={policy.months} series={[{ name: 'Elétricos', values: policy.tax.BEV, color: '#e60f2d', width: 3 }, { name: 'Plug-in', values: policy.tax.PHEV, color: '#1d1d1f' }, { name: 'Híbridos', values: policy.tax.HEV, color: '#8e8e93' }]} fmtY={v => pct(v, 0)} height={280} label="Alíquota do imposto de importação" />

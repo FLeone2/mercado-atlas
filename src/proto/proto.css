@@ -247,14 +247,13 @@
 .px-forest-v{text-align:right;font:750 16px var(--nx-font);font-variant-numeric:tabular-nums}.px-forest-v small{display:block;font:500 11.5px var(--nx-font);color:var(--nx-soft)}.px-forest-v.up{color:var(--nx-up)}.px-forest-v.down{color:var(--nx-down)}
 @media(max-width:560px){.px-forest-row{grid-template-columns:110px 1fr 86px;gap:8px}}
 /* ---- economia: indicadores e simulador ---- */
-.px-etiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.px-etiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
 .px-etile{position:relative;display:grid;gap:4px;padding:16px 18px;border-radius:20px;background:var(--nx-card);min-height:150px}
 .px-etile-k{font:600 13px/1.25 var(--nx-font);color:var(--nx-soft);padding-right:110px}
 .px-etile b{font:780 26px/1.1 var(--nx-font);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .px-etile-d{font:650 13px var(--nx-font)}.px-etile-d.up{color:var(--nx-up)}.px-etile-d.down{color:var(--nx-down)}.px-etile-d small{font-weight:500;color:var(--nx-soft)}
 .px-etile .nxo-spark{position:absolute;right:14px;top:14px;fill:none;stroke:var(--nx-ink);stroke-width:1.6}.px-etile .nxo-spark circle{fill:var(--nx-accent);stroke:none}
 .px-etile-s{font:500 11px var(--nx-font);color:var(--nx-soft)}
-@media(max-width:1100px){.px-etiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.px-etiles{grid-template-columns:1fr}}
 .px-sim-presets{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:500 13px var(--nx-font);color:var(--nx-soft);margin-bottom:18px}.px-sim-presets .px-link{margin:0 0 0 6px}
 .px-sim-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:32px}

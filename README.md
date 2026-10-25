@@ -1,6 +1,6 @@
 # Atlas · Mercado Automotivo
 
-Painel dos emplacamentos de automóveis e comerciais leves no Brasil, com a estética
+Painel dos emplacamentos de automóveis e comerciais leves no Brasil. A interface padrão é o Atlas reorganizado (seção abaixo); as tabelas a seguir descrevem a interface anterior (`?ui=atual`), com a estética
 **Marfim Botânico** do Atlas: fundo marfim, títulos em DM Serif Display, interface em
 Inter (as mesmas fontes do Mercado Atlas 2), tinta verde-escura, latão para ação e seleção, filetes no lugar de caixas.
 
@@ -21,9 +21,9 @@ mostrar cada análise uma vez, com pouco texto (método e ressalvas ficam atrás
 Links antigos (`?tab=ranking`, `?tab=structure`) abrem Concorrência e Segmentos.
 Os repositórios `mercado-automotivo`, `mercado-automotivo-2` e `atlas-automotivo` seguem intocados.
 
-## Protótipo da reorganização (`src/proto/`)
+## Atlas reorganizado (`src/proto/`)
 
-Nesta branch o protótipo abre por padrão; a interface atual fica em `?ui=atual` e a antiga em `?ui=antigo`.
+É a interface padrão. A interface anterior (oito áreas com subabas) fica em `?ui=atual` e a antiga em `?ui=antigo`. Lista de trabalho: `docs/ROADMAP.md`.
 
 | Página | O que tem |
 |---|---|
@@ -39,7 +39,8 @@ Nesta branch o protótipo abre por padrão; a interface atual fica em `?ui=atual
 - **Uma consulta principal** (`atlas`): o mercado do recorte, a marca em foco e o mesmo período do ano anterior agrupado por marca, modelo, porte, carroceria, propulsão, canal e UF. Alimenta o placar, o ranking conectado e a decomposição da variação com qualquer filtro.
 - **Mapa nacional** (`leaders-br`): município × UF × marca numa só consulta, reduzido às três maiores marcas e à posição da marca em foco em cada município. As malhas estaduais do IBGE vão para a projeção nacional com um ajuste pelos centros publicados em `municipal-points.json`.
 - Trajetórias usam o histórico mensal e sempre mostram os meses anteriores até o fim do período; um filtro que o histórico não tem (município, por exemplo) aparece escrito embaixo do gráfico.
-- Teste: `tests/visual/proto.cjs` (todas as páginas no desktop e no celular, filtros de estado, porte, marca em foco e Limpar).
+- Economia: `scripts/fetch_econ_extra.py` (17 séries com recibo) e `scripts/econ_model.py` (elasticidades, decomposição, simulador); ambos rodam em `scripts/update-derived.sh`.
+- Teste: `tests/visual/proto.cjs` (todas as páginas no desktop e no celular, filtros, mapa por estado e município, corrida, simulador) e `tests/test_econ_model.py`.
 
 ## Publicação (Cloudflare Pages)
 

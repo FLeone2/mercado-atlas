@@ -12,7 +12,7 @@ import { DashboardContent } from 'virtual:market';
 import NextApp from './next/NextApp.jsx';
 import ProtoApp from './proto/ProtoApp.jsx';
 
-// Nesta branch o protótipo da reorganização é o padrão; a interface atual fica em ?ui=atual e a antiga em ?ui=antigo.
+// O Atlas reorganizado (src/proto) é o padrão; a interface anterior fica em ?ui=atual e a antiga em ?ui=antigo.
 const ui = new URLSearchParams(location.search).get('ui');
 
 const root = createRoot(document.getElementById('root'));
