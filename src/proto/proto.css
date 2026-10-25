@@ -1,9 +1,8 @@
-/* Protótipo da reorganização. Mesmo desenho da interface nova (tokens --nx-*); quedas em âmbar para não
+/* Atlas reorganizado. Mesmo desenho da interface nova (tokens --nx-*); quedas em âmbar para não
    confundir com o vermelho da marca em foco. Tudo sob .px. */
 .px{--nx-down:#b4570f;--px-up-soft:color-mix(in srgb,var(--nx-up) 14%,transparent);--px-down-soft:color-mix(in srgb,var(--nx-down) 14%,transparent);--px-focus-soft:color-mix(in srgb,var(--nx-accent) 10%,transparent)}
 .px .nx-links a.px-focus-link{color:var(--nx-accent);opacity:.9}.px .nx-links a.px-focus-link[aria-current]{opacity:1}
 .px .nx-links a.px-lab-link{opacity:.45}
-.px-proto-tag{flex:none;font:600 11px/1 var(--nx-font);letter-spacing:.08em;text-transform:uppercase;padding:6px 10px;border-radius:999px;background:color-mix(in srgb,var(--nx-accent) 12%,transparent);color:var(--nx-accent)}
 
 /* ---- barra de filtros fixa ---- */
 .px-fbar{position:sticky;top:56px;z-index:45;margin-top:56px;background:rgba(245,245,247,.86);-webkit-backdrop-filter:saturate(180%) blur(22px);backdrop-filter:saturate(180%) blur(22px);border-bottom:1px solid rgba(0,0,0,.06)}
@@ -59,7 +58,6 @@
   .px-fbar-in{overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}.px-fbar-in::-webkit-scrollbar{display:none}
   .px-fgroup{position:static}
   .px-pop,.px-pop.wide{position:fixed;left:12px;right:12px;top:122px;width:auto;max-height:calc(100vh - 210px)}
-  .px-proto-tag{margin-left:auto}
   .px-foot{padding-bottom:120px}
 }
 @media(max-width:560px){
@@ -293,5 +291,5 @@
 .px-cmp th i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px;vertical-align:middle}
 .px-cmp tr.f th,.px-cmp tr.f td:first-of-type{color:var(--nx-accent)}
 .px .nx-chip:disabled{opacity:1;cursor:default}
-/* conexões (peças da versão atual dentro do protótipo) */
+/* conexões (peças da interface anterior dentro do Atlas) */
 .px-legacy{min-height:400px}

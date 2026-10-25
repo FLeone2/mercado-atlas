@@ -1,6 +1,6 @@
 # Atlas · Mercado Automotivo — lista de trabalho
 
-Atualizado em 25/10/2026. Legenda: **feito** (no protótipo, branch `prototipo-reorganizacao`), **próximo** (proposto para a próxima etapa), **depende de você** (decisão, conta ou acesso).
+Atualizado em 25/10/2026. Legenda: **feito** (publicado em mercado-atlas.pages.dev), **próximo** (proposto para a próxima etapa), **depende de você** (decisão, conta ou acesso).
 
 ## 1. O que você pediu
 
@@ -63,11 +63,11 @@ Recomendação (orçamento de US$ 10/mês): A na próxima etapa (Pages + R2 grat
 
 ## 6. Para virar o site oficial
 
-1. Validar o protótipo (você) e listar o que mover, cortar ou manter.
+1. Validar o Atlas publicado (você) e listar o que mover, cortar ou manter.
 2. Portar Sankey, cordas e animações para componentes nativos; retirar a versão antiga do caminho principal.
 3. Etapa A de dados (Parquet + DuckDB-WASM) e o fluxo mensal no GitHub Actions.
 4. Revisão de acessibilidade e desempenho; testes visuais no celular.
-5. Publicar em `main` (Cloudflare publica sozinho) com a versão atual em `?ui=atual` por um período.
+5. **feito** — publicado em `main` (25/10/2026), com a interface anterior em `?ui=atual` por um período.
 
 ## 7. Decisões (25/10/2026)
 

@@ -16,7 +16,7 @@ import Laboratorio from './pages/Laboratorio.jsx';
 import '../next/next.css';
 import './proto.css';
 
-/* Protótipo da reorganização: 6 páginas + laboratório, rolagem contínua (sem subabas), uma barra de
+/* Atlas reorganizado: 6 páginas + laboratório, rolagem contínua (sem subabas), uma barra de
    filtros fixa e a marca em foco (Mitsubishi por padrão) comparada com o resto em todas as páginas. */
 export const PAGES = [
   { slug: 'resumo', label: 'Resumo', C: Resumo },
@@ -98,7 +98,6 @@ export default function ProtoApp() {
           <nav className="nx-links" aria-label="Páginas">
             {PAGES.map(p => <a key={p.slug} href={'?a=' + p.slug} aria-current={p.slug === page ? 'page' : undefined} className={p.slug === 'foco' ? 'px-focus-link' : p.slug === 'laboratorio' ? 'px-lab-link' : undefined} onClick={e => { e.preventDefault(); go(p.slug); }}>{label(p)}</a>)}
           </nav>
-          <span className="px-proto-tag" title="Protótipo para validação">Protótipo</span>
         </header>
         <FilterBar />
         <nav className="nx-dock" aria-label="Páginas (celular)">
@@ -109,7 +108,7 @@ export default function ProtoApp() {
           <Page />
           <footer className="px-foot nx-wrap">
             <span>Fonte: emplacamentos mensais (cubos do Atlas) · série mensal desde 2016 · BCB para os indicadores econômicos.</span>
-            <a href={atual}>Ver a versão atual do site ↗</a>
+            <a href={atual}>Ver a interface anterior ↗</a>
           </footer>
         </main>
         {tip.node}

@@ -1,7 +1,7 @@
 import { PageHead } from '../ui.jsx';
 
 /* Laboratório: ferramentas e visões especiais que não precisam estar no caminho principal da análise.
-   No protótipo, cada cartão abre a peça correspondente da versão atual do site. */
+   Cada cartão abre a peça correspondente da interface anterior (?ui=atual). */
 const ITEMS = [
   ['Construtor de gráficos', 'Monte o seu cruzamento: qualquer dimensão, medida e formato, com CSV.', 'explorar', 'x=construtor'],
   ['Perguntas rápidas', 'Respostas prontas para as perguntas mais comuns do dia a dia.', 'explorar', 'x=perguntas'],
@@ -19,7 +19,7 @@ export default function Laboratorio() {
     <div className="px-page">
       <PageHead title="Laboratório" strip={false} />
       <section className="px-sec nx-wrap">
-        <div className="px-sec-head"><p>Ferramentas para explorar além das páginas principais. No protótipo, elas abrem na versão atual do site, com os mesmos filtros.</p></div>
+        <div className="px-sec-head"><p>Ferramentas para explorar além das páginas principais. Elas abrem na interface anterior do site, com os mesmos filtros.</p></div>
         <div className="px-lab">{ITEMS.map(([t, d, area, extra]) => <a key={t} className="px-lab-i" href={href(area, extra)}><b>{t}</b><p>{d}</p><span aria-hidden>↗</span></a>)}</div>
       </section>
     </div>

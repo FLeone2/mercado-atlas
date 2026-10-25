@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 
-/* Tudo o que as páginas do protótipo usam, montado uma vez em ProtoApp:
+/* Tudo o que as páginas do Atlas usam, montado uma vez em ProtoApp:
    filters/mFilters   filtros globais / os mesmos sem a marca (o mercado do recorte)
    focus, focusName   marca em foco (Mitsubishi por padrão)
    market             resultado 'atlas': mercado do recorte, marca em foco e o mesmo período do ano anterior

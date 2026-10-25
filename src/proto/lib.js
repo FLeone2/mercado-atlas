@@ -1,4 +1,4 @@
-// Protótipo · funções de dados que as páginas compartilham: nomes de exibição, filtros de recorte
+// Atlas · funções de dados que as páginas compartilham: nomes de exibição, filtros de recorte
 // × marca em foco, séries do histórico mensal e a decomposição da variação da marca em foco.
 import { engine } from 'virtual:market';
 import { groupLabel } from '../next/areas/segmentos-charts.jsx';
