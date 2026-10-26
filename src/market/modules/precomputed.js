@@ -4,7 +4,7 @@
 // Identity = calculation version + hash of the WHOLE manifest (keys sorted), so any change in
 // coverage, revision or metadata, not only in file names, invalidates the stored answers.
 // Bump PRECOMPUTED_CALC_VERSION whenever the worker's answer to the same request changes.
-const PRECOMPUTED_CALC_VERSION='market-2026-10-25';
+const PRECOMPUTED_CALC_VERSION='market-2026-10-26';
 function precomputedCanonical(value){
  if(Array.isArray(value))return '['+value.map(precomputedCanonical).join(',')+']';
  if(value&&typeof value==='object')return '{'+Object.keys(value).sort().map(k=>JSON.stringify(k)+':'+precomputedCanonical(value[k])).join(',')+'}';

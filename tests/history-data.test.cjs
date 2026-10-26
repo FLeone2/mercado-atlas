@@ -10,6 +10,8 @@ assert(H.historyHolidays(2024).has('2024-11-20'));assert(!H.historyHolidays(2023
 // Filter plans: UF/região switch to the UF file; unknown dimensions are reported, never silently applied.
 assert.deepEqual(H.historyPlan({date:'2026-01-01..2026-09-30',marca:['MITSUBISHI']}),{file:'national',active:['marca'],ignored:[],ignoredLabels:[]});
 const p=H.historyPlan({uf:['SP'],grupo_modelo:['L200'],municipio:['Campinas · SP']});assert.equal(p.file,'uf');assert.deepEqual(p.ignored,['grupo_modelo','municipio']);
+// A version filter (or a panel asking for versions) reads the version file; UF still wins.
+assert.equal(H.historyPlan({modelo:['MMC/TRITON HPE AT4']}).file,'versions');assert.equal(H.historyPlan({},'versions').file,'versions');assert.equal(H.historyPlan({uf:['SP']},'versions').file,'uf');
 assert.equal(H.historyEndMonth({date:'2026-01-01..2026-06-30'},[{month:'2026-05'},{month:'2026-06'},{month:'2026-07'}]),'2026-06');
 // Filtering on the real national file reproduces the reference September 2026 totals.
 const data=JSON.parse(zlib.gunzipSync(fs.readFileSync('data/history/national.json.gz')));

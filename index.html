@@ -3,15 +3,25 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light dark" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f5f5f7" />
     <meta name="description" content="Atlas · Mercado Automotivo: emplacamentos de automóveis e comerciais leves no Brasil, por marca, modelo, segmento e território." />
     <title>Atlas · Mercado Automotivo</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <script src="/theme.js"></script>
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <style>
+      html,body{margin:0;background:#f5f5f7}
+      .at-boot{min-height:100vh;display:grid;place-content:center;justify-items:center;gap:14px;font:500 14px/1.4 'Inter Variable',Inter,-apple-system,system-ui,sans-serif;color:#6e6e73}
+      .at-boot svg{width:56px;height:56px;animation:at-pulse 1.4s ease-in-out infinite}
+      .at-wordmark{font:700 15px/1 'Inter Variable',Inter,-apple-system,system-ui,sans-serif;letter-spacing:.24em;color:#1d1d1f}
+      @keyframes at-pulse{50%{opacity:.55;transform:scale(.96)}}
+      @media (prefers-reduced-motion:reduce){.at-boot svg{animation:none}}
+    </style>
   </head>
   <body>
     <div id="root">
       <div class="at-boot" role="status">
+        <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#1d1d1f"/><path d="M32 12.5 49.5 51h-7.9L32 29.4 22.4 51h-7.9z" fill="#fff"/><rect x="22.8" y="39.6" width="18.4" height="5.2" rx="1.6" fill="#e60f2d"/></svg>
         <span class="at-wordmark">ATLAS</span>
         <span>Carregando o mercado…</span>
       </div>

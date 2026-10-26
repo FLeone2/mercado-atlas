@@ -34,13 +34,4 @@ function overviewInsights(model){
  return out;
 }
 
-function OverviewInsights({model,period}){
- const h=jsxRuntime.jsx,hs=jsxRuntime.jsxs;
- const items=React.useMemo(()=>overviewInsights(model),[model]);
- if(!items.length)return null;
- const icon={up:'↑',down:'↓',brand:'◆',neutral:'•'};
- return hs('section',{className:'oi-card','aria-labelledby':'oi-title',children:[
-  hs('div',{className:'oi-head',children:[h('h2',{id:'oi-title',children:'O que mudou'}),period&&h('span',{children:period})]}),
-  h('ul',{className:'oi-list',children:items.map(item=>hs('li',{className:'oi-item oi-'+item.tone,children:[h('span',{className:'oi-icon','aria-hidden':true,children:icon[item.tone]}),h('span',{children:item.text})]},item.id))})]});
-}
 if(typeof module!=='undefined'&&module.exports)module.exports={overviewInsights};

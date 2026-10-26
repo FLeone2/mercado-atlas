@@ -1,5 +1,5 @@
-// Precomputes the market results for the two quick periods (Ano atual, Último mês) with no
-// filters, for every area's main query, the pulse and the territory map. Same worker, same
+// Precomputes the market results for the quick periods (Último mês, Ano atual, 12 meses, Ano
+// passado) with no filters: the Atlas main query, the national leader map and the connections. Same worker, same
 // request as the browser; the site uses a file only when the manifest and request match.
 // Output: data/precomputed.json (index) + data/precomputed/*.json.gz. Runs before vite build.
 const fs = require('fs'), path = require('path'), zlib = require('zlib'), crypto = require('crypto');
@@ -8,8 +8,8 @@ const root = path.join(__dirname, '..'), out = path.join(root, 'data/precomputed
 const core = loadCore(), worker = loadWorker();
 const manifestText = fs.readFileSync(path.join(root, 'data/manifest.json'), 'utf8');
 const manifest = JSON.parse(manifestText);
-// Main query of each area plus the pulse (also the query of areas without one) and the map.
-const MODES = ['dashboard', 'pulse', 'history', 'competition', 'ranking', 'segments', 'technology', 'origin', 'geography', 'primary-map', 'catalog', 'leaders-br', 'atlas'];
+// The Atlas main query, the national leader map and the connections (Sankey and chord).
+const MODES = ['atlas', 'leaders-br', 'conexoes'];
 // The national leader map opens on retail (fleets register at the company's seat), so that variant is precomputed too.
 const EXTRA = [['leaders-br', { tipo_venda: ['VAREJO'] }]];
 
@@ -26,13 +26,13 @@ const EXTRA = [['leaders-br', { tipo_venda: ['VAREJO'] }]];
   };
   const entries = {}, done = new Map();
   let bytes = 0;
-  // The prototype's other quick periods (12 meses, ano passado) are precomputed for its own queries.
+  // The other quick periods of the filter bar (12 meses, ano passado).
   const latest = presets.presets.find(p => p.id === 'latest')?.value.slice(0, 7) ?? presets.presets[0].value.slice(0, 7);
   const end = m => { const [y, mo] = m.split('-').map(Number); return m + '-' + String(new Date(Date.UTC(y, mo, 0)).getUTCDate()).padStart(2, '0'); };
   const back = (m, n) => { const [y, mo] = m.split('-').map(Number), d = new Date(Date.UTC(y, mo - 1 - n, 1)); return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0'); };
   const lastYear = String(+latest.slice(0, 4) - 1);
-  const PROTO = [{ id: '12m', value: back(latest, 11) + '-01..' + end(latest) }, { id: 'lastyear', value: lastYear + '-01-01..' + lastYear + '-12-31' }];
-  const plan = [...presets.presets.map(p => [p, [...MODES.map(m => [m, {}]), ...EXTRA]]), ...PROTO.map(p => [p, [['atlas', {}], ['leaders-br', {}], ...EXTRA]])];
+  const more = [{ id: '12m', value: back(latest, 11) + '-01..' + end(latest) }, { id: 'lastyear', value: lastYear + '-01-01..' + lastYear + '-12-31' }];
+  const plan = [...presets.presets, ...more].map(p => [p, [...MODES.map(m => [m, {}]), ...EXTRA]]);
   for (const [preset, jobs] of plan) {
     for (const [mode, extra] of jobs) {
       const filters = { date: preset.value, population: 'light', ...extra };

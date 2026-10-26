@@ -26,7 +26,6 @@ const __module = { exports: {} };
 (function (module, exports, require) {
 ${body}
 })(__module, __module.exports, id => { if (id in __modules) return __modules[id]; throw new Error('Módulo ausente: ' + id); });
-export const DashboardContent = __module.exports.DashboardContent;
 export const engine = __module.exports.engine;
 `;
 }

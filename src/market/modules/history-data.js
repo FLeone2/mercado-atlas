@@ -2,15 +2,16 @@
 // Long-range panels read these small aggregates instead of 129 monthly cubes. The
 // global filters are applied when the file has that dimension; any other active
 // filter is reported back so each panel can say what it ignores.
-const HISTORY_FILES={national:['segmento','marca','grupo_modelo','bd_segmento','bd_carroceria','combustivel','propulsao','tipo_venda'],uf:['uf','segmento','marca','bd_segmento','bd_carroceria','combustivel','propulsao','tipo_venda']};
+const HISTORY_FILES={national:['segmento','marca','grupo_modelo','bd_segmento','bd_carroceria','combustivel','propulsao','tipo_venda'],uf:['uf','segmento','marca','bd_segmento','bd_carroceria','combustivel','propulsao','tipo_venda'],versions:['segmento','marca','grupo_modelo','modelo','bd_segmento','bd_carroceria','combustivel','propulsao','tipo_venda']};
 const HISTORY_REGIONS={Norte:['AC','AM','AP','PA','RO','RR','TO'],Nordeste:['AL','BA','CE','MA','PB','PE','PI','RN','SE'],'Centro-Oeste':['DF','GO','MS','MT'],Sudeste:['ES','MG','RJ','SP'],Sul:['PR','RS','SC']};
 const HISTORY_FILTER_LABELS={uf:'UF',regiao:'Região',municipio:'Município',marca:'Marca',modelo:'Modelo',grupo_modelo:'Grupo de modelos',combustivel:'Combustível',segmento:'Segmento',subsegmento:'Subsegmento',tipo_venda:'Canal de venda',nacionalidade:'Nacionalidade',ano_fabricacao:'Ano de fabricação',potencia:'Potência',capacidade_carga:'Capacidade de carga',capacidade_passageiros:'Capacidade de passageiros',bd_segmento:'Porte',bd_carroceria:'Carroceria',bd_classe:'Classe BD',bd_macro:'Macrosegmento BD',bd_combustivel:'Tecnologia BD',bd_origem:'Origem do veículo',propulsao:'Propulsão'};
 const historyCache=new Map();
 function historySelection(value){if(value==null||value===''||value==='all')return [];const list=Array.isArray(value)?value:[value];return list.includes('all')?[]:list.map(String);}
-// Which file serves these filters, and which active filters it cannot apply.
-function historyPlan(filters={}){
+// Which file serves these filters, and which active filters it cannot apply. The version
+// file (national dimensions + modelo) is used when a version filter is active or a panel asks for it.
+function historyPlan(filters={},prefer=null){
  const active=Object.keys(filters).filter(k=>!['date','population'].includes(k)&&historySelection(filters[k]).length);
- const territorial=active.some(k=>k==='uf'||k==='regiao'),file=territorial?'uf':'national',dims=HISTORY_FILES[file];
+ const territorial=active.some(k=>k==='uf'||k==='regiao'),file=territorial?'uf':prefer==='versions'||active.includes('modelo')?'versions':'national',dims=HISTORY_FILES[file];
  const ignored=active.filter(k=>!(dims.includes(k)||(k==='regiao'&&file==='uf')));
  return {file,active,ignored,ignoredLabels:ignored.map(k=>HISTORY_FILTER_LABELS[k]??k)};
 }
@@ -66,15 +67,9 @@ function historyWorkingDays(month){
 }
 // End month of the global period (history panels look back from it).
 function historyEndMonth(filters,months){const d=String(filters?.date??'');const end=/\.\.(\d{4}-\d{2})/.exec(d)?.[1]??(/^\d{4}-\d{2}/.exec(d)?.[0]);const list=months.map(m=>m.month);return end&&list.includes(end)?end:list.at(-1);}
-function useHistory(filters,base,enabled=true){
- const plan=historyPlan(filters),[state,setState]=React.useState({data:null,error:null,file:null});
+function useHistory(filters,base,enabled=true,prefer=null){
+ const plan=historyPlan(filters,prefer),[state,setState]=React.useState({data:null,error:null,file:null});
  React.useEffect(()=>{if(!enabled)return;let alive=true;historyFetch(plan.file,base).then(data=>{if(alive)setState({data,error:null,file:plan.file});}).catch(error=>{if(alive)setState({data:null,error:error.message,file:plan.file});});return ()=>{alive=false;};},[plan.file,base,enabled]);
  return {...state,pending:enabled&&state.file!==plan.file,plan};
-}
-// Always rendered when there is anything to declare: filters the history cannot apply and the
-// panel's own intentional exception (`extra`), which holds even with no filter ignored.
-function HistoryScopeNote({plan,extra}){
- if(!plan.ignored.length&&!extra)return null;
- return jsxRuntime.jsx('p',{className:'hx-scope',children:(plan.ignored.length?'Histórico mensal pré-calculado (2016 em diante), com os filtros globais exceto '+plan.ignoredLabels.join(', ')+', que este painel não consegue aplicar.':'')+(extra?(plan.ignored.length?' ':'')+extra:'')});
 }
 if(typeof module!=='undefined'&&module.exports)module.exports={HISTORY_FILES,HISTORY_REGIONS,historyPlan,historyRows,historyMonthly,historyEaster,historyHolidays,historyWorkingDays,historyEndMonth,historySelection};

@@ -1,46 +1,23 @@
 # Atlas · Mercado Automotivo
 
-Painel dos emplacamentos de automóveis e comerciais leves no Brasil. A interface padrão é o Atlas reorganizado (seção abaixo); as tabelas a seguir descrevem a interface anterior (`?ui=atual`), com a estética
-**Marfim Botânico** do Atlas: fundo marfim, títulos em DM Serif Display, interface em
-Inter (as mesmas fontes do Mercado Atlas 2), tinta verde-escura, latão para ação e seleção, filetes no lugar de caixas.
-
-É a reconstrução do `mercado-automotivo-2` com a mesma base de dados, reorganizada para
-mostrar cada análise uma vez, com pouco texto (método e ressalvas ficam atrás do ⓘ):
-
-| Área | O que tem |
-|---|---|
-| Panorama | Mapa, pulso, 4 destaques, evolução, marcas, combustível e canal |
-| Evolução | Uma página: ritmo e sazonalidade, trajetórias, propulsão, crescimento, modelos/carrocerias, combustível/canal, linha do tempo |
-| Concorrência | Mitsubishi no segmento e onde crescer, concentração, ranking (lista, conectado, pirâmide), ganhos e perdas, duelo, ranking mês a mês, Sankey, conexões |
-| Segmentos | Porte (pirâmide + segmentos/carrocerias), Propulsão, Origem |
-| Territórios | Mapas (mapa principal, líder por município, top 3, força da marca, calor, por mil habitantes / canal) e 3D (espigões, estados em 3D, atlas municipal) |
-| Explorar | Monte seu gráfico e todos os formatos |
-| Economia | Contexto, Potencial regional, Projeções (testes técnicos em Dados e metodologia) |
-| Animações | Corrida, liderança, mapas e composição no tempo |
-
-Links antigos (`?tab=ranking`, `?tab=structure`) abrem Concorrência e Segmentos.
-Os repositórios `mercado-automotivo`, `mercado-automotivo-2` e `atlas-automotivo` seguem intocados.
-
-## Atlas reorganizado (`src/proto/`)
-
-É a interface padrão. A interface anterior (oito áreas com subabas) fica em `?ui=atual` e a antiga em `?ui=antigo`. Lista de trabalho: `docs/ROADMAP.md`.
+Painel dos emplacamentos de automóveis e comerciais leves no Brasil, publicado em
+https://mercado-atlas.pages.dev. Seis páginas e um laboratório, em rolagem contínua (sem subabas),
+uma barra de filtros fixa e a **marca em foco** (Mitsubishi por padrão) sempre comparada com o resto.
+Lista de trabalho: `docs/ROADMAP.md`.
 
 | Página | O que tem |
 |---|---|
-| Resumo | Mapa escuro com o total, placar da marca em foco, de onde veio a variação (mercado, mix, desempenho), ranking e ganhos e perdas, 24 meses |
+| Resumo | Mapa escuro com o total, placar da marca em foco, de onde veio a variação (mercado, mix, desempenho), ranking, ganhos e perdas, 24 meses |
 | Mercado | Ritmo por dia útil (e projeção do mês aberto), 12 meses, ano contra ano, sazonalidade, o que o mercado compra × o que a marca vende, eletrificação, chinesas |
-| Concorrência | Ranking conectado (marcas ou modelos, contra o ano anterior ou o período anterior), ranking mês a mês, duelo, concentração |
-| Mitsubishi | Modelos, segmentos onde compete (participação e ranking de modelos), varejo × venda direta, força por estado, onde crescer |
-| Territórios | Mapa dos 5.570 municípios num canvas (marca líder, volume, por mil habitantes, participação e índice da marca em foco), estados e regiões |
-| Economia | Juros, crédito e câmbio, projeções, potencial regional e os próximos indicadores |
-| Laboratório | Atalhos para construtor, animações, 3D, simulações e metodologia da versão atual |
+| Concorrência | Ranking conectado (marcas ou modelos), **versões** (ranking conectado por versão e versão × versão entre marcas), comparar marcas, ranking mês a mês, corrida das marcas, duelo, **conexões** (Sankey e cordas), concentração |
+| Mitsubishi | Modelos, **versões da marca**, segmentos onde compete (participação, ranking de modelos e de versões), varejo × venda direta, força por estado, onde crescer |
+| Territórios | Mapa dos 5.570 municípios (marca líder, volume, por mil habitantes, participação e índice da marca em foco), clique no estado para o cartão e a lista de municípios; estados e regiões |
+| Economia | Condições de compra, o que explica o mercado, peso de cada fator, simulador, parcela, imposto de importação, oferta, projeções, potencial regional e análises técnicas (coeficientes, validação, defasagens) |
+| Laboratório | Perguntas rápidas, construtor de gráficos (com CSV), mapa no tempo, composição no tempo, Brasil em relevo e dados e metodologia |
 
-- **Uma barra de filtros fixa.** Período, território em cascata (região → estado → município), marca em foco, porte, propulsão, canal e mais filtros. A **marca em foco** (Mitsubishi por padrão) nunca recorta o mercado: é destacada e comparada com ele em todas as páginas.
-- **Uma consulta principal** (`atlas`): o mercado do recorte, a marca em foco e o mesmo período do ano anterior agrupado por marca, modelo, porte, carroceria, propulsão, canal e UF. Alimenta o placar, o ranking conectado e a decomposição da variação com qualquer filtro.
-- **Mapa nacional** (`leaders-br`): município × UF × marca numa só consulta, reduzido às três maiores marcas e à posição da marca em foco em cada município. As malhas estaduais do IBGE vão para a projeção nacional com um ajuste pelos centros publicados em `municipal-points.json`.
-- Trajetórias usam o histórico mensal e sempre mostram os meses anteriores até o fim do período; um filtro que o histórico não tem (município, por exemplo) aparece escrito embaixo do gráfico.
-- Economia: `scripts/fetch_econ_extra.py` (17 séries com recibo) e `scripts/econ_model.py` (elasticidades, decomposição, simulador); ambos rodam em `scripts/update-derived.sh`.
-- Teste: `tests/visual/proto.cjs` (todas as páginas no desktop e no celular, filtros, mapa por estado e município, corrida, simulador) e `tests/test_econ_model.py`.
+- **Filtros.** Período, território em cascata (região → estado → município), marca em foco, porte, propulsão, canal e mais filtros (tipo de veículo, carroceria, combustível, modelo, **versão**, origem, ano de fabricação). Tudo fica no endereço da página. A marca em foco nunca recorta o mercado: é destacada e comparada com ele.
+- **Versão** é o campo modelo do registro (Renavam, ex.: `MMC/TRITON HPE AT4`). O site mostra "Triton HPE AT4" e guarda o registro original no ⓘ e no CSV.
+- Links antigos (`?a=panorama`, `?ui=atual`…) abrem a página equivalente do Atlas.
 
 ## Publicação (Cloudflare Pages)
 
@@ -58,7 +35,7 @@ Cabeçalhos de segurança e cache ficam em `public/_headers`.
 
 ```sh
 npm install
-npm run dev                 # http://localhost:5173
+npm run dev                        # http://localhost:5173
 npm run build && npm run preview   # versão de produção em http://localhost:8765
 ```
 
@@ -66,102 +43,65 @@ npm run build && npm run preview   # versão de produção em http://localhost:8
 
 | Pasta | O quê |
 |---|---|
-| `src/kit/` | Os componentes no estilo Atlas: seções, figuras (com CSV e PNG), gráficos SVG, tabelas, campos, seletor de período, diálogos e o estado do painel na URL. |
-| `src/market/` | As análises. `core.js` é a montagem; `modules/` tem cada área (mapas, Sankey, histórico, cenários, animações…); `workers/` são os cálculos que rodam fora da tela; `modules/market-request.js` define cada consulta e `modules/precomputed.js` usa o pré-cálculo. |
-| `src/styles/atlas.css` | A camada visual Atlas (tokens claro/escuro, cabeçalho, filtros, figuras). É carregada por último. `legacy/` guarda os estilos de layout de cada análise. |
-| `data/` | A mesma base do mercado-automotivo-2: cubos mensais, cubos de origem, geografia, histórico de 10 anos, população IBGE, cenários e `snapshot.json` (listas de filtros e séries oficiais). |
-| `scripts/` | Histórico, população, cenários e `update-derived.sh`. |
-| `tests/` | Testes automáticos (dados reais) e a varredura visual. |
+| `src/atlas/` | O site: `App.jsx` (páginas, consulta principal, barra), `FilterBar.jsx`, `MapaBrasil.jsx`, `pages/` (uma por página, mais `versoes.jsx`, `conexoes.jsx` e `economia-modelos.jsx`), `charts.jsx`, `lib.js` (nomes, filtros, histórico), `base/` (cartões, gráficos de apoio, mapa dos estados, estilos de base) |
+| `src/market/` | O motor: `core.js` (consultas, worker, pré-cálculo, histórico), `modules/` (histórico, nomes de municípios, marcas chinesas, pedido e pré-cálculo), `workers/` (o cálculo sobre os cubos, fora da tela) |
+| `src/kit/` | Estado do painel na URL, exportação PNG/CSV e o aviso de erro de tela |
+| `data/` | Cubos mensais, cubos de origem, geografia, histórico de 10 anos (`history/national`, `uf` e `versions`), população IBGE, cenários e `snapshot.json` |
+| `scripts/` | Histórico, população, cenários, economia, pré-cálculo e `update-derived.sh` |
+| `tests/` | Testes automáticos (dados reais) e a varredura visual (`tests/visual/atlas.cjs`) |
 
-`src/market/core.js` usa `/*@include arquivo*/` para juntar os módulos num só escopo
-(eles foram escritos assim) e `/*@string a + b*/` para embutir o código dos workers.
-Quem faz isso é o plugin `atlas-market` em `vite.config.js`.
+`src/market/core.js` usa `/*@include arquivo*/` para juntar os módulos num só escopo e `/*@string a + b*/`
+para embutir o código do worker. Quem faz isso é o plugin `atlas-market` em `vite.config.js`.
 
-## Período
-
-- **Ano atual** (janeiro até o último mês) e **Último mês** ficam sempre na barra de filtros,
-  em todas as áreas. Os dois seguem o manifesto: quando um mês novo entra, eles avançam sozinhos.
-  Se o mês mais recente vier parcial e sem data final declarada, os botões usam o último mês completo
-  (nunca somem). Teste: `tests/period-shortcuts.test.cjs`.
-- **Período personalizado** no seletor: atalhos (último mês, ano atual, últimos 12 meses, ano anterior,
-  todo o período), meses de/até e dia inicial/final.
-- Ao abrir sem período na URL, o painel mostra o último mês disponível.
-
-## Explore as conexões
-
-Gráfico de cordas trazido do Atlas Automotivo, em Concorrência (depois do Sankey): liga regiões, marcas
-(6 maiores + Mitsubishi + Outras) e propulsões do recorte. Passar o mouse destaca; clicar numa marca filtra o painel.
-Os dados (região × marca e marca × propulsão) vêm na mesma consulta de Concorrência, sem leitura extra dos cubos,
-e entram no pré-cálculo. Fonte: `src/market/modules/connections-chord.js`; teste: `tests/connections.test.cjs`.
+- **Consulta principal** (`atlas`): o mercado do recorte, a marca em foco e o mesmo período do ano anterior, agrupados por marca, modelo, versão, porte, carroceria, propulsão, canal e UF, mais quem faz cada versão (marca, modelo e porte).
+- **Mapa nacional** (`leaders-br`): município × UF × marca numa só consulta.
+- **Conexões** (`conexoes`): caminhos origem → canal → combustível → tipo de veículo e as ligações região × marca × combustível.
+- **Histórico mensal**: `data/history/national.json.gz` (padrão), `uf.json.gz` (com filtro de estado) e `versions.json.gz` (painéis de versão e filtro de versão). Um filtro que o arquivo não tem aparece escrito embaixo do gráfico.
 
 ## Tempo de carregamento
 
-- **Pré-cálculo dos períodos rápidos.** `npm run build` roda antes `scripts/precompute.cjs`, que usa o mesmo cálculo
-  do navegador para gerar o resultado de "Ano atual" e "Último mês" sem filtros, para cada área
-  (`data/precomputed.json` + `data/precomputed/*.json.gz`, ~7 MB, ~1 min). O site usa um arquivo só quando ele foi gerado
-  do manifesto em uso e responde exatamente ao mesmo pedido; com filtros (ou se algo falhar) volta ao cálculo normal.
-  Medido a 25 Mbps: Ano atual de ~18 s para ~2 s; Último mês de ~3 s para ~1,5 s.
-- **Uma leitura só para painel e pulso.** A consulta principal já traz a marca em foco (Mitsubishi, ou a marca filtrada),
-  e a faixa de pulso reaproveita esse resultado. Recortes com filtro baixam e processam cada cubo uma vez (antes, duas).
-- Os arquivos pré-calculados não vão para o Git: são gerados a cada build (no Cloudflare também).
-  Para gerar localmente sem o build: `npm run precompute`.
-- Testes: `tests/precompute.test.cjs` (índice do manifesto atual, uma entrada por área, arquivo = cálculo ao vivo) e
-  `tests/market-focus.test.cjs` (marca em foco = consulta separada da marca).
+- `npm run build` roda antes `scripts/precompute.cjs`, que usa o mesmo cálculo do navegador para gerar, sem filtros,
+  Último mês, Ano atual, 12 meses e Ano passado das três consultas (`data/precomputed.json` + `data/precomputed/*.json.gz`,
+  ~7 MB, ~1 min). O site usa um arquivo só quando ele foi gerado do manifesto em uso e responde ao mesmo pedido;
+  com filtros, volta ao cálculo no navegador.
+- Peças pesadas (versões × versões, conexões) só carregam quando a seção chega perto da tela.
+- Pacote do site: ~750 KB de JavaScript (~240 KB comprimido) e ~85 KB de CSS.
+
+## Período
+
+**Último mês**, **Ano atual**, **12 meses** e **Ano passado** seguem o manifesto: quando um mês novo entra, eles avançam
+sozinhos; se o mês mais recente vier parcial sem data final, usam o último mês completo. Teste: `tests/period-shortcuts.test.cjs`.
 
 ## Nomes de municípios e população
 
-Um só módulo compara nomes de municípios entre registros, malhas do IBGE, pontos e população: `src/market/modules/geo-names.js`.
-Ele ignora acentos, apóstrofos e "de/do/da" (Alta Floresta D'Oeste = ALTA FLORESTA DO OESTE) e tem uma lista curta de apelidos
-por UF (Campos dos Goitacazes → Goytacazes, Embu → Embu das Artes…). Quem não casa fica "N/D", nunca zero.
-Os cálculos por mil habitantes usam o catálogo completo (`data/geography/catalog-population.json`, 5.571 municípios).
-Testes: `tests/geo-names.test.cjs` (os 129 cubos casam inteiros) e `tests/audit-regression.test.cjs` (números do dossiê de auditoria de 19/10/2026).
-Pacotes regionais (Economia › Potencial regional): `scripts/relink_regional.py` religa ao código IBGE só os municípios que ficaram sem código
-(regra e apelidos iguais aos do site, em `scripts/lib/geo_names.py`; `tests/test_geo_names.py` mantém os dois idênticos). Para refazer depois de mudar a regra:
+Um só módulo compara nomes de municípios entre registros, malhas do IBGE, pontos e população: `src/market/modules/geo-names.js`
+(ignora acentos, apóstrofos e "de/do/da", com uma lista curta de apelidos por UF). Os cálculos por mil habitantes usam
+`data/geography/catalog-population.json` (5.571 municípios). Testes: `tests/geo-names.test.cjs` e `tests/test_geo_names.py`.
 
-```sh
-python3 scripts/relink_regional.py && python3 scripts/phase2_regional.py
-python3 scripts/phase23_models.py --regional-only   # refaz só a seção regional; previsões e economia ficam como publicadas
-python3 scripts/phase3_spatial.py && python3 scripts/refresh_scenario_receipts.py && node tests/lib/data-baseline.cjs --update
-```
+## Economia
 
-Em 19/10/2026: 91 municípios (10.684 emplacamentos) ganharam código; sobram 2 sem vínculo (53 emplacamentos: Não Identificado, Boa Esperança do Norte). Duas grafias do mesmo município somam no código IBGE, sem sobrescrever (reteste D-03: Espírito Santo do Oeste → Paraú, São Bento de Pombal → São Bentinho).
-
-## Ferramentas
-
-Copiar link (área + filtros + vistas na URL), favoritos, relatório executivo, exportar recorte (CSV),
-CSV e PNG de cada figura (menu ⋯), imprimir/PDF da área ou resumo de uma página, faixa de pulso,
-perguntas rápidas, guia "Como confiar nestes números" e tema claro/escuro (☾/☼).
+`scripts/fetch_econ_extra.py` (17 séries com recibo: BCB, IBGE/SIDRA, Ipeadata e o cronograma do imposto de importação)
+e `scripts/econ_model.py` (elasticidades com erros de Newey–West, decomposição, validação fora da amostra, simulador e parcela).
+Ambos rodam em `scripts/update-derived.sh`. Teste: `tests/test_econ_model.py`.
 
 ## Testes
 
 ```sh
 pip install -r scripts/requirements-scenarios.txt   # uma vez, para os testes de Economia
 bash scripts/test.sh                                 # Node + Python
-node tests/visual/run.cjs                            # com o preview rodando: 13 áreas × claro/escuro × desktop/celular
+npm run build && npm run preview &                   # e então:
+npm run test:visual                                  # todas as páginas no desktop e no celular, filtros, mapa, versões, conexões, laboratório
 ```
 
-`tests/fixtures/data-baseline.json` guarda o SHA-256 de cada arquivo de dados (o mesmo do
-mercado-automotivo-2): mudança visual não pode alterar dados.
+`tests/fixtures/data-baseline.json` guarda o SHA-256 de cada arquivo de dados: mudança visual não pode alterar dados.
 
 ## Atualizar com um mês novo
 
-1. Coloque o cubo do mês em `data/cubes/` e `data/origin-cubes/` e atualize `data/manifest.json`
-   (mesmo processo de ingestão do mercado-automotivo-2).
-2. `bash scripts/update-derived.sh` — regenera o histórico, registra a nova impressão digital dos dados,
-   gera `dist/` (com o pré-cálculo dos períodos rápidos do mês novo) e roda os testes.
+1. Coloque o cubo do mês em `data/cubes/` e `data/origin-cubes/` e atualize `data/manifest.json`.
+2. `bash scripts/update-derived.sh`: regenera o histórico (nacional, por estado e por versão), as séries e o modelo
+   econômico, registra a nova impressão digital dos dados, gera `dist/` (com o pré-cálculo) e roda os testes.
 3. Commit e push em `main`.
 
-## Regras de cor
+## Cores
 
-Vermelho carmim é exclusivo da Mitsubishi. Queda usa cobre; crescimento, verde.
-Cada marca tem a mesma cor em todas as áreas (FIAT azul, VW âmbar, GM lavanda, BYD verde…).
-
-## Temas visuais
-
-O seletor **Tema do site** oferece **Original** (padrão) e **Liquid Aurora**.
-O Original preserva as aparências clara e escura de Marfim Botânico e sua preferência
-existente (`atlas-theme`). Liquid Aurora é um tema visual adicional, com vidro escuro
-e luz azul fria, aplicado apenas quando selecionado (`atlas-visual-theme`).
-Ao voltar ao Original, a preferência clara/escura anterior é restaurada.
-Os estilos adicionais ficam isolados em `src/styles/liquid-aurora.css`; dados e
-organização do painel são compartilhados pelos dois temas.
+Vermelho é exclusivo da marca em foco. Queda usa âmbar; crescimento, verde.

@@ -10,11 +10,10 @@
     "build": "node scripts/precompute.cjs && vite build",
     "preview": "vite preview --port 8765",
     "test": "bash scripts/test.sh",
-    "test:visual": "node tests/visual/run.cjs && node tests/visual/novo.cjs && node tests/visual/proto.cjs"
+    "test:visual": "node tests/visual/atlas.cjs"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",
-    "@fontsource/dm-serif-display": "^5.3.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

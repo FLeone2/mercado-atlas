@@ -7,6 +7,7 @@ the same cubes once, with the same labels the market worker uses:
 
   national.json.gz  month × segmento × marca × grupo_modelo × bd_segmento × bd_carroceria × combustivel × propulsao × tipo_venda
   uf.json.gz        month × uf × segmento × marca × bd_segmento × bd_carroceria × combustivel × propulsao × tipo_venda
+  versions.json.gz  the national dimensions plus modelo (a versão do Renavam), loaded only by the version panels
 
 Every row of every cube is counted once in each file, so totals match the cubes
 exactly (tests/history-aggregates.test.cjs checks this against the worker).
@@ -26,6 +27,7 @@ ELECTRIC = {'HEV', 'PHEV', 'BEV', 'MHEV', 'FCEL'}
 FILES = {
     'national': ['segmento', 'marca', 'grupo_modelo', 'bd_segmento', 'bd_carroceria', 'combustivel', 'propulsao', 'tipo_venda'],
     'uf': ['uf', 'segmento', 'marca', 'bd_segmento', 'bd_carroceria', 'combustivel', 'propulsao', 'tipo_venda'],
+    'versions': ['segmento', 'marca', 'grupo_modelo', 'modelo', 'bd_segmento', 'bd_carroceria', 'combustivel', 'propulsao', 'tipo_venda'],
 }
 
 

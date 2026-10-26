@@ -12,8 +12,6 @@ class IntegrationTest(unittest.TestCase):
  def test_all_static_assets_small(self):
   for p in (ROOT/'data/scenarios').rglob('*'):
    if p.is_file():self.assertLess(p.stat().st_size,25*1024*1024,str(p))
- def test_original_simulation_gate(self):
-  text=(ROOT/'src/market/modules/scenarios.js').read_text();self.assertIn('Não há modelo exógeno de dois fatores validado',text);self.assertIn('Base fixa: os filtros não alteram esta área.',text)
  def test_strict_json(self):
   for p in (ROOT/'data/scenarios').glob('*.json'):
    json.loads(p.read_text(),parse_constant=lambda v:(_ for _ in ()).throw(ValueError(v)))

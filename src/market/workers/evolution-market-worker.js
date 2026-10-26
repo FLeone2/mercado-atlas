@@ -87,7 +87,7 @@
    if(range.start.endsWith('-01')&&range.start.slice(0,7)===range.end.slice(0,7)){const endDay=e.getUTCDate();s.setUTCMonth(s.getUTCMonth()-1);const last=new Date(Date.UTC(s.getUTCFullYear(),s.getUTCMonth()+1,0)).getUTCDate();const pe=new Date(Date.UTC(s.getUTCFullYear(),s.getUTCMonth(),Math.min(endDay,last),12));return {start:iso(s),end:iso(pe)};}
    const n=Math.round((e-s)/86400000)+1; s.setUTCDate(s.getUTCDate()-n);e.setUTCDate(e.getUTCDate()-n);return {start:iso(s),end:iso(e)};
   }
-  function createAccumulator(){return {total:0,groups:Object.fromEntries(DIMS.map(d=>[d,new Map()])),daily:new Map(),monthly:new Map(),brandsByMonth:new Map(),fuelByMonth:new Map(),modelsByMonth:new Map(),technologyByMonth:new Map(),propulsionByMonth:new Map(),bodyByMonth:new Map(),channelByMonth:Object.fromEntries(['marca','modelo','bd_carroceria'].map(d=>[d,new Map()])),channelCoverage:new Map(),stateChannelsByMonth:new Map(),originByMonth:new Map(),municipalBrands:new Map(),municipalBrandsUF:new Map(),ufBrands:new Map(),flowPaths:new Map(),regionBrands:new Map(),brandFuels:new Map(),sourceRows:0};}
+  function createAccumulator(){return {total:0,groups:Object.fromEntries(DIMS.map(d=>[d,new Map()])),daily:new Map(),monthly:new Map(),brandsByMonth:new Map(),fuelByMonth:new Map(),modelsByMonth:new Map(),technologyByMonth:new Map(),propulsionByMonth:new Map(),bodyByMonth:new Map(),channelByMonth:Object.fromEntries(['marca','modelo','bd_carroceria'].map(d=>[d,new Map()])),channelCoverage:new Map(),stateChannelsByMonth:new Map(),originByMonth:new Map(),municipalBrands:new Map(),municipalBrandsUF:new Map(),ufBrands:new Map(),versionBrands:new Map(),versionModels:new Map(),versionSegments:new Map(),flowPaths:new Map(),regionBrands:new Map(),brandFuels:new Map(),sourceRows:0};}
   // Preserve exact source-brand membership after every analytical filter has passed.
   // A model/group label can belong to multiple manufacturers; never infer aliases.
   const RANKING_BRAND_DIMENSIONS = ['marca','modelo','grupo_modelo'];
@@ -125,6 +125,8 @@
    if(options.includeMunicipalLeaders)jointSpecs.push({left:descriptor('municipio'),right:descriptor('marca'),target:acc.municipalBrands,noMonth:true});
    // UF × brand over the whole period: the state card of the map (leader and ranking of each state).
    if(options.includeUfBrands)jointSpecs.push({left:descriptor('uf'),right:descriptor('marca'),target:acc.ufBrands,noMonth:true});
+   // Version × brand, model and size over the period: who makes each Renavam version and where it competes.
+   if(options.includeUfBrands){jointSpecs.push({left:descriptor('modelo'),right:descriptor('marca'),target:acc.versionBrands,noMonth:true});jointSpecs.push({left:descriptor('modelo'),right:descriptor('grupo_modelo'),target:acc.versionModels,noMonth:true});jointSpecs.push({left:descriptor('modelo'),right:descriptor('bd_segmento'),target:acc.versionSegments,noMonth:true});}
    // Region × brand and brand × fuel over the whole period, for the connections chord.
    if(options.includeConnections){jointSpecs.push({left:descriptor('regiao'),right:descriptor('marca'),target:acc.regionBrands,noMonth:true});jointSpecs.push({left:descriptor('marca'),right:descriptor('fluxo_combustivel'),target:acc.brandFuels,noMonth:true});}
    // Four-way path origin × channel × fuel × vehicle type, kept whole so ribbons can be traced end to end.
@@ -450,7 +452,7 @@
      const focus=options.focusBrand,focusFilters=focus?{...filters,modelo:'all',grupo_modelo:'all',marca:[focus]}:null;
      const focusCurrent=focus?createAccumulator():null,focusYear=focus?createAccumulator():null;
      // With includeYearGroups the same months of the year before are grouped too (rankings A×B, shift-share), and the brand in focus by more dimensions.
-     const YEAR_DIMS=['marca','grupo_modelo','bd_segmento','bd_carroceria','propulsao','tipo_venda','uf','regiao'],focusDims=includeYearGroups?['uf','bd_segmento','bd_carroceria','propulsao','tipo_venda','grupo_modelo']:['uf','bd_segmento'];
+     const YEAR_DIMS=['marca','grupo_modelo','modelo','bd_segmento','bd_carroceria','propulsao','tipo_venda','uf','regiao'],focusDims=includeYearGroups?['uf','bd_segmento','bd_carroceria','propulsao','tipo_venda','grupo_modelo','modelo']:['uf','bd_segmento'];
      const baselineFilters={...filters,marca:'all',modelo:'all',grupo_modelo:'all',propulsao:'all'},channelReferenceFilters={...filters,tipo_venda:'all'};
      const historyFilters={...filters,marca:'all',modelo:'all',grupo_modelo:'all'};
      const selectedBrands=categoricalSelection(filters.marca),mitsubishiAllowed=!selectedBrands.length||selectedBrands.includes('MITSUBISHI');
@@ -534,6 +536,7 @@
      const counts=(acc,dims)=>Object.fromEntries(dims.map(d=>[d,[...acc.groups[d]].map(([name,count])=>({name,count})).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name))]));
      if(includeYearGroups)result.yearGroups=yearOK?counts(y,YEAR_DIMS):null;
      if(includeYearGroups)result.ufBrands=[...a.ufBrands].map(([key,count])=>{const [uf,marca]=JSON.parse(key);return {uf,marca,count};}).filter(r=>r.count>0).sort((x,y)=>x.uf.localeCompare(y.uf)||y.count-x.count);
+     if(includeYearGroups){const top=map=>{const best=new Map();for(const [key,count] of map){const [v,x]=JSON.parse(key);if(count>(best.get(v)?.[1]??0))best.set(v,[x,count]);}return best;},brands=top(a.versionBrands),models=top(a.versionModels),sizes=top(a.versionSegments);result.versionInfo=[...brands].map(([modelo,[marca]])=>({modelo,marca,grupo_modelo:models.get(modelo)?.[0]??null,bd_segmento:sizes.get(modelo)?.[0]??null}));}
      if(focus){const f=finish(focusCurrent,createAccumulator(),focusYear,range,fullCoverage,false,yearOK);result.focus={brand:focus,total:f.total,year:f.year,yearChangeRate:f.yearChangeRate,groups:Object.fromEntries(focusDims.map(d=>[d,f.groups[d]])),yearGroups:includeYearGroups&&yearOK?counts(focusYear,focusDims):null};}
      result.choices=Object.fromEntries(DIMS.map(d=>[d,[...choices[d]].sort()]));
      if(generation!==token)return;resultCache.set(queryKey,result);port.postMessage({id,result});

@@ -8,14 +8,14 @@ function marketRequestOptions(mode){
   includeMunicipalLeaders:mode==='leaders',
   includeMunicipalLeadersUF:mode==='leaders-br',
   includeYearGroups:mode==='atlas',
-  includeFlow:mode==='flow',
+  includeFlow:mode==='flow'||mode==='conexoes',
   includeCatalog:['catalog','primary-map'].includes(mode),
   includeMarketBaseline:['technology','origin'].includes(mode),
   includeHistoryComparisons:mode==='history',
   includeChannelReference:['geography','primary-map'].includes(mode),
   includeOriginAnalysis:mode==='origin',
   includeMitsubishiProfile:['competition','ranking','segments'].includes(mode),
-  includeConnections:mode==='competition'
+  includeConnections:mode==='competition'||mode==='conexoes'
  };
 }
 // The pulse follows the single brand in the filters, otherwise Mitsubishi.

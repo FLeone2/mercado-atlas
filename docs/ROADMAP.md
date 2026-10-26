@@ -1,6 +1,6 @@
 # Atlas · Mercado Automotivo — lista de trabalho
 
-Atualizado em 25/10/2026. Legenda: **feito** (publicado em mercado-atlas.pages.dev), **próximo** (proposto para a próxima etapa), **depende de você** (decisão, conta ou acesso).
+Atualizado em 26/10/2026. Legenda: **feito** (publicado em mercado-atlas.pages.dev), **próximo** (proposto para a próxima etapa), **depende de você** (decisão, conta ou acesso).
 
 ## 1. O que você pediu
 
@@ -13,10 +13,13 @@ Atualizado em 25/10/2026. Legenda: **feito** (publicado em mercado-atlas.pages.d
 | Clicar no estado e ver as informações básicas; navegar pelos municípios | **feito** — resumo ao passar o mouse; clique entra no estado (outros esmaecidos); cartão com total, variação em um ano, por mil habitantes, ranking de marcas e a marca em foco; busca, lista e ‹ › entre municípios; Esc volta |
 | Filtros funcionando corretamente | **feito** — barra fixa, território em cascata, tudo no link; o que um gráfico não consegue aplicar aparece escrito |
 | Comparar mais contra outras marcas | **feito** — "Comparar marcas" (até 5): volume, variação, participação, posição, venda direta, eletrificados, segmento principal, estado mais forte e linhas de 36 meses |
-| Manter os gráficos de conexões | **feito** — Sankey e cordas em Concorrência (carregam ao chegar na seção) |
-| Melhorar as animações | **feito em parte** — corrida das marcas nativa (play, linha do tempo, velocidade); demais animações seguem no Laboratório · **próximo**: mapa no tempo e bolhas nativos |
+| Manter os gráficos de conexões | **feito** — Sankey e cordas nativos em Concorrência (Sankey do mercado ou da marca em foco; cordas com leitura da marca em foco) |
+| Melhorar as animações | **feito** — corrida das marcas, mapa no tempo (participação da marca ou líder por estado, com play), composição no tempo e Brasil em relevo (3D, girar e inclinar) |
 | Dados econômicos novos na base | **feito** — 17 séries com recibo (URL + sha256): juros, prazo, saldo e inadimplência do crédito de veículos, confiança, desemprego, renda e massa real, IBC-Br e IBC-Br Agro, IPCA e IPCA do carro novo, produção (Anfavea), vendas (Fenabrave), soja e boi (Deral/PR) e o cronograma do imposto de importação dos eletrificados |
 | Modelagem matemática da economia | **feito** — elasticidades com intervalo de 90% e erros de Newey–West, decomposição do crescimento, simulador com covariância, parcela de referência (Price), validação fora da amostra; testes em `tests/test_econ_model.py` |
+| Ver por versão e comparar versão × versão com outras marcas (26/10) | **feito** — Concorrência › Versões: ranking conectado por versão (no segmento da marca ou no recorte) e versão × versão de até cinco versões de qualquer marca (volume, variação, posição e participação no segmento, peso no modelo, venda direta, 36 meses); Mitsubishi › versões da marca e barras de versões em cada segmento; filtro Versão com nomes legíveis |
+| Site inteiro no desenho atual, sem restos das versões antigas (26/10) | **feito** — interfaces antigas removidas (`?ui=atual` e `?ui=antigo` abrem o Atlas); Laboratório, conexões, análises técnicas e metodologia nativos; nenhum link leva mais ao site anterior; JS de 1,8 MB para 0,75 MB e CSS de 354 KB para 85 KB |
+| Logo no modelo atual (26/10) | **feito** — "A" branco com barra vermelha sobre grafite: cabeçalho, ícone da aba, ícone de celular, tela de carregamento e página 404 |
 | Carregamento rápido da base histórica | **feito em parte** — pré-cálculo de Último mês, Ano atual, 12 meses e Ano passado; consultas pesadas só quando a seção aparece · **próximo**: ver seção 3 |
 
 ## 2. Análises, gráficos e mapas sugeridos
@@ -48,7 +51,7 @@ Recomendação (orçamento de US$ 10/mês): A na próxima etapa (Pages + R2 grat
 
 ## 4. Front-end
 
-- Tirar as camadas antigas: 30+ folhas de estilo e componentes da versão atual depois de portar o que falta (Sankey, cordas, animações) — o pacote JS (1,8 MB) cai bastante.
+- **feito** — camadas antigas retiradas (pacote JS de 1,8 MB para 0,75 MB).
 - Dividir o código por página (carregar só a página aberta) e baixar malhas e dados de mapa sob demanda.
 - Guardar no link também o lugar do mapa e as marcas comparadas (link compartilhável de qualquer vista).
 - Relatório em PDF de uma página por área; PNG/CSV de cada gráfico (já existe nos cartões).
@@ -57,14 +60,14 @@ Recomendação (orçamento de US$ 10/mês): A na próxima etapa (Pages + R2 grat
 
 ## 5. Qualidade e confiança
 
-- Testes: unitários (Node e Python), conferências de auditoria e varredura visual do protótipo, da versão atual e da antiga (`npm run test:visual`).
-- Página "Dados e metodologia" nativa: cobertura mensal, regras de classificação, método do modelo econômico, recibos das fontes.
+- Testes: unitários (Node e Python) e varredura visual do Atlas no desktop e no celular (`npm run test:visual`).
+- **feito** — "Dados e metodologia" nativa no Laboratório (cobertura, o que os números medem e não medem, conferências, fontes econômicas).
 - Versão do cálculo no pré-cálculo (`PRECOMPUTED_CALC_VERSION`) sempre que a resposta do worker mudar.
 
 ## 6. Para virar o site oficial
 
 1. Validar o Atlas publicado (você) e listar o que mover, cortar ou manter.
-2. Portar Sankey, cordas e animações para componentes nativos; retirar a versão antiga do caminho principal.
+2. **feito** — Sankey, cordas e animações nativos; versões antigas retiradas.
 3. Etapa A de dados (Parquet + DuckDB-WASM) e o fluxo mensal no GitHub Actions.
 4. Revisão de acessibilidade e desempenho; testes visuais no celular.
 5. **feito** — publicado em `main` (25/10/2026), com a interface anterior em `?ui=atual` por um período.
