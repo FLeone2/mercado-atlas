@@ -1,6 +1,6 @@
 # Atlas · Mercado Automotivo — lista de trabalho
 
-Atualizado em 26/10/2026. Legenda: **feito** (publicado em mercado-atlas.pages.dev), **próximo** (proposto para a próxima etapa), **depende de você** (decisão, conta ou acesso).
+Atualizado em 27/10/2026. Legenda: **feito** (publicado em mercado-atlas.pages.dev), **próximo** (proposto para a próxima etapa), **depende de você** (decisão, conta ou acesso).
 
 ## 1. O que você pediu
 
@@ -19,6 +19,7 @@ Atualizado em 26/10/2026. Legenda: **feito** (publicado em mercado-atlas.pages.d
 | Modelagem matemática da economia | **feito** — elasticidades com intervalo de 90% e erros de Newey–West, decomposição do crescimento, simulador com covariância, parcela de referência (Price), validação fora da amostra; testes em `tests/test_econ_model.py` |
 | Ver por versão e comparar versão × versão com outras marcas (26/10) | **feito** — Concorrência › Versões: ranking conectado por versão (no segmento da marca ou no recorte) e versão × versão de até cinco versões de qualquer marca (volume, variação, posição e participação no segmento, peso no modelo, venda direta, 36 meses); Mitsubishi › versões da marca e barras de versões em cada segmento; filtro Versão com nomes legíveis |
 | Site inteiro no desenho atual, sem restos das versões antigas (26/10) | **feito** — interfaces antigas removidas (`?ui=atual` e `?ui=antigo` abrem o Atlas); Laboratório, conexões, análises técnicas e metodologia nativos; nenhum link leva mais ao site anterior; JS de 1,8 MB para 0,75 MB e CSS de 354 KB para 85 KB |
+| Pirâmide de segmentos, mapas de calor e top 3, concessionárias no mapa (27/10) | **feito** — pirâmide em Mercado (porte ou carroceria; marca em foco, chinesas ou eletrificados); mapa de calor e três primeiras marcas (estados e municípios) no Laboratório; rede Mitsubishi no mapa de Territórios, visível ao aproximar ou dentro do estado, com botão liga/desliga, lojas no cartão do município e, no cartão do estado, a parte dos emplacamentos coberta pela rede e os maiores mercados sem loja |
 | Logo no modelo atual (26/10) | **feito** — "A" branco com barra vermelha sobre grafite: cabeçalho, ícone da aba, ícone de celular, tela de carregamento e página 404 |
 | Carregamento rápido da base histórica | **feito em parte** — pré-cálculo de Último mês, Ano atual, 12 meses e Ano passado; consultas pesadas só quando a seção aparece · **próximo**: ver seção 3 |
 
@@ -26,7 +27,7 @@ Atualizado em 26/10/2026. Legenda: **feito** (publicado em mercado-atlas.pages.d
 
 **Próximo (alto valor, dados já existem)**
 - Mapa no tempo: a líder de cada município mês a mês (play), e a expansão das chinesas por município.
-- Rede de concessionárias × demanda: 138 pontos da Rede Mitsubishi sobre o mapa; municípios com demanda de picape média sem concessionária a menos de X km (oportunidade de rede).
+- Rede de concessionárias × demanda: **feito em parte** (lojas no mapa, cobertura e maiores mercados sem loja por estado) · **próximo**: demanda de picape média sem concessionária a menos de X km (oportunidade de rede).
 - Potencial municipal: emplacamentos esperados por município (renda, população, PIB agro) contra o observado — onde a marca está abaixo do potencial.
 - Participação dessazonalizada (X-13) e marcos no tempo: lançamentos, troca L200 → Triton, IPI, imposto de importação.
 - Ligar o simulador às projeções: projeção de 12 meses do mercado, do varejo e das picapes médias por cenário.
@@ -85,6 +86,5 @@ Recomendação (orçamento de US$ 10/mês): A na próxima etapa (Pages + R2 grat
 Ficam no histórico do Git (último commit com tudo: `c504907`); voltam se fizerem falta.
 
 - Tema escuro e o tema Liquid Aurora; favoritos salvos no navegador; relatório executivo para imprimir.
-- Pirâmide de segmentos e o catálogo de mapas antigos (calor, top 3 por município, mapa por canal).
+- Mapa por canal do catálogo antigo (pirâmide, calor e top 3 voltaram em 27/10).
 - Na Economia: tabelas completas da reconciliação hierárquica das projeções, dependência espacial (Moran) e as simulações da fase 2. As projeções, o potencial regional, o simulador novo e as análises técnicas continuam.
-- A rede de concessionárias Mitsubishi (138 pontos, `src/market/geo/dealers.json`): será a base do item "Rede de concessionárias × demanda" da seção 2.

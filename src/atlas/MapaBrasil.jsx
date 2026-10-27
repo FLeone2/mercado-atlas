@@ -9,10 +9,10 @@ import { brandName, fmt, pct, list, UF_NAMES } from './lib.js';
 /* Mapa do Brasil com os 5.570 municípios num só canvas: navegação contínua (arrastar, Ctrl/⌘ + rolagem ou
    pinça para aproximar, clique num estado para voar até ele, clique num município para abrir o detalhe).
    Medidas: marca líder (padrão), volume, por mil habitantes, participação e índice da marca em foco. */
-const VW = 630, VH = 565;
-const PALETTE = ['#2f6fdf', '#e09a2c', '#2a9d8f', '#8e6bd1', '#d2589b', '#5b8c3a', '#3fa7d6', '#9a7b4f', '#64748b', '#c0843d'];
-const FOCUS_COLOR = '#e60f2d', EMPTY = '#e6e6ea', FEW = '#d4d4da';
-const UF_SHAPES = ufGeometry.features.map(f => {
+export const VW = 630, VH = 565;
+export const PALETTE = ['#2f6fdf', '#e09a2c', '#2a9d8f', '#8e6bd1', '#d2589b', '#5b8c3a', '#3fa7d6', '#9a7b4f', '#64748b', '#c0843d'];
+export const FOCUS_COLOR = '#e60f2d', EMPTY = '#e6e6ea', FEW = '#d4d4da';
+export const UF_SHAPES = ufGeometry.features.map(f => {
   const n = f.path.match(/-?\d+(?:\.\d+)?/g).map(Number); let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
   for (let i = 0; i < n.length - 1; i += 2) { x0 = Math.min(x0, n[i]); x1 = Math.max(x1, n[i]); y0 = Math.min(y0, n[i + 1]); y1 = Math.max(y1, n[i + 1]); }
   return { uf: f.uf, d: f.path, box: [x0, y0, x1, y1] };
@@ -22,7 +22,7 @@ const UF_SHAPES = ufGeometry.features.map(f => {
    Cada malha estadual tem a sua projeção; o ajuste (escala + deslocamento por eixo) usa os centros dos
    municípios já publicados na projeção nacional (municipal-points.json). */
 const geoCache = new Map();
-function loadGeometry(base, points) {
+export function loadGeometry(base, points) {
   if (geoCache.has(base)) return geoCache.get(base);
   const centre = new Map(points.rows.map(([code, , , x, y]) => [code, [x, y]]));
   const job = Promise.all(UF_SHAPES.map(s => fetch(new URL('geography/' + s.uf + '.json', base), { credentials: 'same-origin' }).then(r => { if (!r.ok) throw Error('Malha de ' + s.uf + ' indisponível'); return r.json(); }).then(g => ({ s, g }))))
@@ -50,6 +50,14 @@ function loadGeometry(base, points) {
   geoCache.set(base, job); job.catch(() => geoCache.delete(base));
   return job;
 }
+
+/* Rede Mitsubishi (data/reference/concessionarias-mitsubishi.json): lojas por município, no centro do município. */
+const dealerCache = new Map();
+const loadDealers = base => {
+  if (!dealerCache.has(base)) dealerCache.set(base, fetch(new URL('reference/concessionarias-mitsubishi.json', base), { credentials: 'same-origin' }).then(r => { if (!r.ok) throw Error('Rede de concessionárias indisponível'); return r.json(); }).catch(e => { dealerCache.delete(base); throw e; }));
+  return dealerCache.get(base);
+};
+const DEALER_ZOOM = 1.8; // a rede aparece a partir deste zoom (ou dentro de um estado)
 
 const MODES = [['lider', 'Marca líder'], ['volume', 'Volume'], ['habitante', 'Por mil habitantes'], ['share', 'Participação'], ['indice', 'Índice vs Brasil']];
 const ramp = (hex, t) => { const n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255, m = (c, w) => Math.round(w + (c - w) * t); return `rgb(${m(r, 244)},${m(g, 244)},${m(b, 246)})`; };
@@ -98,6 +106,17 @@ export default function MapaBrasil() {
     return out;
   }, [market, focus, pop.uf]);
   const [cityQuery, setCityQuery] = useState('');
+
+  /* concessionárias: carregadas quando ligadas; ligadas a cada contorno pelo código IBGE */
+  const [showDealers, setShowDealers] = useState(true), [dealerData, setDealerData] = useState(null);
+  useEffect(() => { if (!showDealers || dealerData) return undefined; let alive = true; loadDealers(base).then(d => { if (alive) setDealerData(d); }).catch(() => {}); return () => { alive = false; }; }, [showDealers, dealerData, base]);
+  const dealers = useMemo(() => {
+    if (!geo || !dealerData) return null;
+    const at = new Map(geo.feats.map((f, i) => [f.code, i])), list = [], byCode = new Map();
+    for (const d of dealerData.municipalities ?? []) { const i = at.get(String(d.municipalityCode)); if (i == null) continue; const x = { i, f: geo.feats[i], names: d.dealerNames ?? [], count: d.locationCount ?? 1 }; list.push(x); byCode.set(x.f.code, x); }
+    return { list, byCode, asOf: dealerData.asOf, note: dealerData.locationNote, stores: list.reduce((a, d) => a + d.count, 0) };
+  }, [geo, dealerData]);
+  const dealerOn = showDealers && dealers;
 
   /* cor de cada município na medida escolhida */
   const fills = useMemo(() => {
@@ -165,8 +184,25 @@ export default function MapaBrasil() {
       ctx.setTransform(s.dpr, 0, 0, s.dpr, 0, 0); ctx.font = '600 12px Inter Variable, Inter, system-ui, sans-serif'; ctx.textAlign = 'center';
       const boxes = []; let n = 0;
       for (const r of labelOrder) { if (n >= 14) break; if (place.uf && r.f.uf !== place.uf) continue; const m = r.f, sx = ox + m.cx * v.k, sy = oy + m.cy * v.k; if (sx < 30 || sy < 20 || sx > s.W - 30 || sy > s.H - 10) continue;
-        const w = ctx.measureText(m.name).width + 8, b = [sx - w / 2, sy - 9, sx + w / 2, sy + 7]; if (boxes.some(o => b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1])) continue; boxes.push(b); n++;
-        ctx.lineWidth = 3.2; ctx.strokeStyle = 'rgba(255,255,255,.92)'; ctx.strokeText(m.name, sx, sy + 4); ctx.fillStyle = '#1d1d1f'; ctx.fillText(m.name, sx, sy + 4); }
+        const dy = dealerOn && dealers.byCode.has(m.code) ? 16 : 0; // com loja, o nome fica embaixo do marcador
+        const w = ctx.measureText(m.name).width + 8, b = [sx - w / 2, sy - 9 + dy, sx + w / 2, sy + 7 + dy]; if (boxes.some(o => b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1])) continue; boxes.push(b); n++;
+        ctx.lineWidth = 3.2; ctx.strokeStyle = 'rgba(255,255,255,.92)'; ctx.strokeText(m.name, sx, sy + 4 + dy); ctx.fillStyle = '#1d1d1f'; ctx.fillText(m.name, sx, sy + 4 + dy); }
+    }
+    // concessionárias: só aproximando (ou dentro de um estado); somem no Brasil inteiro
+    const dz = v.k / home().k; s.dealerPts = null;
+    if (dealerOn && (place.uf || dz > DEALER_ZOOM)) {
+      ctx.setTransform(s.dpr, 0, 0, s.dpr, 0, 0); ctx.globalAlpha = place.uf ? 1 : Math.min(1, (dz - DEALER_ZOOM) / .5);
+      ctx.font = '700 9.5px Inter Variable, Inter, system-ui, sans-serif'; ctx.textAlign = 'center'; s.dealerPts = [];
+      for (const d of dealers.list) {
+        if (place.uf && d.f.uf !== place.uf) continue;
+        const sx = ox + d.f.cx * v.k, sy = oy + d.f.cy * v.k; if (sx < -12 || sy < -12 || sx > s.W + 12 || sy > s.H + 12) continue;
+        const r = d.count > 1 ? 8 : 6.5, on = s.hoverDealer === d.i;
+        ctx.beginPath(); ctx.arc(sx, sy, r + (on ? 1.5 : 0), 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.shadowColor = 'rgba(0,0,0,.28)'; ctx.shadowBlur = 4; ctx.fill(); ctx.shadowBlur = 0;
+        ctx.lineWidth = 2.4; ctx.strokeStyle = FOCUS_COLOR; ctx.stroke();
+        if (d.count > 1) { ctx.fillStyle = FOCUS_COLOR; ctx.fillText(String(d.count), sx, sy + 3.4); } else { ctx.beginPath(); ctx.arc(sx, sy, 2.4, 0, Math.PI * 2); ctx.fillStyle = FOCUS_COLOR; ctx.fill(); }
+        s.dealerPts.push({ d, sx, sy });
+      }
+      ctx.globalAlpha = 1;
     }
     if (moving) s.raf = requestAnimationFrame(() => drawRef.current?.());
   };
@@ -178,7 +214,7 @@ export default function MapaBrasil() {
     const ro = new ResizeObserver(resize); ro.observe(el); resize();
     return () => { ro.disconnect(); cancelAnimationFrame(s.raf); };
   }, [kick]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { kick(); }, [fills, geo, place, kick]);
+  useEffect(() => { kick(); }, [fills, geo, place, kick, dealerOn, dealers]);
 
   /* ponteiro: mapa → índice do município */
   const toMap = (cx, cy) => { const s = S.current, r = cv.current.getBoundingClientRect(), v = s.view; return [(cx - r.left - s.W / 2) / v.k + v.cx, (cy - r.top - s.H / 2) / v.k + v.cy]; };
@@ -203,6 +239,16 @@ export default function MapaBrasil() {
       <span>{fmt(m.total)} emplacamentos{r.pop ? ' · ' + (m.total / r.pop * 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' por mil hab.' : ''}</span>
       <span>{focusName}: <b>{m.focusRank ? m.focusRank + 'º · ' + pct(m.focus / m.total, 1) : 'sem emplacamentos'}</b></span></> : <span>Sem emplacamentos neste recorte</span>}</>);
   };
+  const dealerAt = e => {
+    const s = S.current; if (!s.dealerPts?.length || !cv.current) return null;
+    const r = cv.current.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top; let best = null, bd = 121;
+    for (const q of s.dealerPts) { const dd = (q.sx - px) ** 2 + (q.sy - py) ** 2; if (dd < bd) { bd = dd; best = q.d; } }
+    return best;
+  };
+  const dealerTip = (e, d) => {
+    const m = rowsByIndex?.[d.i]?.m;
+    tip.show(e, <><strong>Concessionária Mitsubishi · {d.f.name}</strong><span>{d.names.join(', ')}{d.count > 1 ? ' · ' + d.count + ' lojas' : ''}</span>{m ? <span>{fmt(m.total)} emplacamentos no município · Mitsubishi {m.focusRank && focus === 'MITSUBISHI' ? m.focusRank + 'ª, ' + pct(m.focus / m.total, 1) : ''}</span> : null}<span>Clique para abrir o município</span></>);
+  };
   const onDown = e => { const s = S.current; s.pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); s.drag = { x: e.clientX, y: e.clientY, view: { ...s.view }, moved: false, dist: null }; e.currentTarget.setPointerCapture?.(e.pointerId); };
   const onMove = e => {
     const s = S.current;
@@ -213,6 +259,9 @@ export default function MapaBrasil() {
       if (Math.abs(dx) + Math.abs(dy) > 4) s.drag.moved = true;
       if (s.drag.moved) { const v = { k: s.view.k, cx: s.drag.view.cx - dx / s.view.k, cy: s.drag.view.cy - dy / s.view.k }; s.view = { ...v }; s.target = { ...v }; s.live = true; tip.hide(); kick(); return; }
     }
+    const dh = dealerAt(e);
+    if ((dh?.i ?? -1) !== (s.hoverDealer ?? -1)) { s.hoverDealer = dh?.i ?? -1; kick(); }
+    if (dh) { s.hover = -1; s.hoverUF = null; dealerTip(e, dh); return; }
     const [mx, my] = toMap(e.clientX, e.clientY);
     // no país: o estado sob o ponteiro; dentro de um estado: os municípios dele
     const uf = hitUF(mx, my), i = place.uf && uf === place.uf ? hit(mx, my) : -1, hu = place.uf && uf === place.uf ? null : uf;
@@ -221,7 +270,7 @@ export default function MapaBrasil() {
   };
   const onUp = e => {
     const s = S.current, d = s.drag; s.pts.delete(e.pointerId); if (s.pts.size) return; s.drag = null;
-    if (d && !d.moved) { const [mx, my] = toMap(e.clientX, e.clientY), uf = hitUF(mx, my); if (!uf) return; if (uf !== place.uf) { goUF(uf); return; } const i = hit(mx, my); if (i >= 0) pick(i); }
+    if (d && !d.moved) { const dh = dealerAt(e); if (dh) { pick(dh.i); return; } const [mx, my] = toMap(e.clientX, e.clientY), uf = hitUF(mx, my); if (!uf) return; if (uf !== place.uf) { goUF(uf); return; } const i = hit(mx, my); if (i >= 0) pick(i); }
   };
   const pick = i => {
     const s = S.current, f = geo.feats[i], h = home();
@@ -263,6 +312,7 @@ export default function MapaBrasil() {
       <div className="px-map-bar">
         <Seg label="Medida" value={mode} onChange={v => { setMode(v); setHiBrand(null); }} options={MODES.map(([k, l]) => [k, k === 'share' ? 'Participação ' + focusName : k === 'indice' ? 'Índice ' + focusName : l])} />
         {!globalChannel ? <Seg label="Canal" value={chan} onChange={setChan} options={[['VAREJO', 'Varejo'], ['all', 'Todos os canais']]} /> : <span className="px-map-note">Canal: o do filtro global</span>}
+        <button type="button" className="px-dealer-tg" aria-pressed={showDealers} onClick={() => setShowDealers(x => !x)} title="As lojas aparecem quando você aproxima o mapa ou entra num estado"><i aria-hidden />Concessionárias Mitsubishi</button>
       </div>
       <div className="px-map-grid">
         <div className="px-map-col">
@@ -301,6 +351,7 @@ export default function MapaBrasil() {
                 <div className="px-kv"><div><small>Emplacamentos{chan === 'VAREJO' && !globalChannel ? ' (varejo)' : ''}</small><b>{fmt(city.m.total)}</b></div>{city.pop ? <div><small>Por mil habitantes</small><b>{(city.m.total / city.pop * 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}</b></div> : null}<div><small>{focusName}</small><b className="red">{city.m.focusRank ? city.m.focusRank + 'ª' : '—'}</b></div></div>
                 <ol className="px-top3">{city.m.top.map(([b, c]) => <li key={b}><i style={{ background: colorOf(b) }} /><span>{brandName(b)}</span><b>{pct(c / city.m.total, 1)}</b><small>{fmt(c)}</small></li>)}
                   {city.m.focusRank > 3 && <li className="focus"><i style={{ background: FOCUS_COLOR }} /><span>{city.m.focusRank}º {focusName}</span><b>{pct(city.m.focus / city.m.total, 1)}</b><small>{fmt(city.m.focus)}</small></li>}</ol>
+                {dealerOn && dealers.byCode.get(city.f.code) && <p className="px-dealer-note"><i aria-hidden />Concessionária Mitsubishi: {dealers.byCode.get(city.f.code).names.join(', ')}{dealers.byCode.get(city.f.code).count > 1 ? ' (' + dealers.byCode.get(city.f.code).count + ' lojas)' : ''}</p>}
                 <p className="px-pnote">{city.m.brandCount} marcas emplacaram aqui no período. Use ← → para passar de município.</p>
               </> : <p className="px-pnote">Sem emplacamentos neste recorte.</p>}
               <button type="button" className="px-apply" onClick={() => { setFilter('uf', [city.f.uf]); const raw = data?.municipalLeaders?.find(m => engine.geoKey(m.municipio, m.uf) + '|' + m.uf === city.f.key); if (raw) setFilter('municipio', [raw.municipio]); }}>Filtrar o site por {city.f.name}</button>
@@ -317,6 +368,12 @@ export default function MapaBrasil() {
                 <ol className="px-ufbrands">{[...r.brands.slice(0, 5), ...(r.rank > 5 ? [null, r.brands[r.rank - 1]] : [])].map((x, k) => x ? <li key={x[0]} className={x[0] === focus ? 'focus' : ''}><span>{(r.brands.indexOf(x) + 1)}º {brandName(x[0])}</span><span className="px-ufb-t"><span style={{ width: x[1] / maxB * 100 + '%', background: x[0] === focus ? FOCUS_COLOR : colorOf(x[0]) }} /></span><b>{pct(x[1] / r.total, 1)}</b></li> : <li key="gap" className="gap">···</li>)}</ol>
                 <p className="px-pnote">{focusName}: {pct(r.share, 2)} do estado{r.dShare != null ? ' (' + (r.dShare >= 0 ? '+' : '−') + (Math.abs(r.dShare) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + ' p.p. em um ano)' : ''}, índice {r.index?.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}× a média do país; lidera em {fmt(panel.focusLed)} {panel.focusLed === 1 ? 'município' : 'municípios'}.</p>
               </> : <p className="px-pnote">Sem emplacamentos neste recorte.</p>}
+              {dealerOn && (() => {
+                const mine = dealers.list.filter(d => d.f.uf === place.uf), stores = mine.reduce((a, d) => a + d.count, 0), has = new Set(mine.map(d => d.f.code));
+                const covered = panel.cities.filter(c => has.has(c.f.code)).reduce((a, c) => a + c.m.total, 0), tot = panel.cities.reduce((a, c) => a + c.m.total, 0);
+                const gaps = panel.cities.filter(c => !has.has(c.f.code)).slice(0, 3);
+                return <div className="px-dealer-box"><h4>Rede Mitsubishi no estado</h4><p>{stores ? <>{stores} {stores === 1 ? 'loja' : 'lojas'} em {mine.length} {mine.length === 1 ? 'município' : 'municípios'}, onde estão <b>{pct(tot > 0 ? covered / tot : 0, 0)}</b> dos emplacamentos do estado{chan === 'VAREJO' && !globalChannel ? ' no varejo' : ''}.</> : 'Nenhuma loja no estado.'}</p>{gaps.length > 0 && <p>Maiores mercados sem loja: {gaps.map(c => c.f.name + ' (' + fmt(c.m.total) + ')').join(', ')}.</p>}</div>;
+              })()}
               <h4>Municípios · {fmt(panel.cities.length)} com emplacamentos{chan === 'VAREJO' && !globalChannel ? ' no varejo' : ''}</h4>
               <input type="search" className="px-cityq" value={cityQuery} onChange={e => setCityQuery(e.target.value)} placeholder={'Buscar município de ' + UF_NAMES[place.uf]} aria-label="Buscar município" />
               <ol className="px-cities scroll">{shown.slice(0, 200).map(c => <li key={c.f.code}><button type="button" onClick={() => pick(geo.feats.indexOf(c.f))}><span>{c.f.name}<small>{c.m.focusRank ? ' · ' + focusName + ' ' + c.m.focusRank + 'ª' : ''}</small></span><b>{fmt(c.m.total)}</b><i style={{ background: colorOf(c.m.top[0][0]) }} title={'Líder: ' + brandName(c.m.top[0][0])} /></button></li>)}</ol>
@@ -326,6 +383,10 @@ export default function MapaBrasil() {
             <>
               <div className="px-kv"><div><small>Emplacamentos{chan === 'VAREJO' && !globalChannel ? ' no varejo' : ''}</small><b>{fmt(panel.total)}</b></div><div><small>{focusName}</small><b className="red">{pct(panel.share, 2)}</b></div><div><small>Lidera em</small><b>{fmt(panel.focusLed)}</b></div></div>
               <p className="px-pnote">Passe o mouse num estado para ver o resumo; clique para entrar nele e navegar pelos municípios.</p>
+              {dealerOn && (() => {
+                const has = new Set(dealers.list.map(d => d.f.code)), covered = joined.rows.filter(r => r.m && has.has(r.f.code)).reduce((a, r) => a + r.m.total, 0);
+                return <p className="px-dealer-note"><i aria-hidden />Rede Mitsubishi: {dealers.stores} lojas em {dealers.list.length} municípios, onde estão {pct(panel.total > 0 ? covered / panel.total : 0, 0)} dos emplacamentos. Aproxime o mapa ou entre num estado para ver as lojas.</p>;
+              })()}
               <h4>Quem lidera mais municípios</h4>
               <ol className="px-leaders">{panel.leaders.slice(0, 5).map(([b, n]) => <li key={b} className={b === focus ? 'focus' : ''}><button type="button" aria-pressed={hiBrand === b} onClick={() => { setMode('lider'); setHiBrand(h => (h === b ? null : b)); }}><i style={{ background: colorOf(b) }} /><span>{brandName(b)}</span><b>{fmt(n)}</b><small>{pct(n / Math.max(1, panel.colored), 0)}</small></button></li>)}</ol>
               <h4>Estados</h4>
@@ -334,7 +395,7 @@ export default function MapaBrasil() {
           )}
         </aside>
       </div>
-      <p className="px-scopenote">{chan === 'VAREJO' && !globalChannel ? 'Varejo: locadoras e frotas emplacam na cidade da sede e “elegeriam” a líder de muitas cidades. ' : ''}Cinza: menos de {MIN} emplacamentos ou empate. Malhas municipais do IBGE; {market ? 'mesmo período e filtros do site' : ''}.</p>
+      <p className="px-scopenote">{chan === 'VAREJO' && !globalChannel ? 'Varejo: locadoras e frotas emplacam na cidade da sede e “elegeriam” a líder de muitas cidades. ' : ''}Cinza: menos de {MIN} emplacamentos ou empate. Malhas municipais do IBGE; {market ? 'mesmo período e filtros do site' : ''}.{dealerOn ? ' Concessionárias: rede Mitsubishi em ' + (dealers.asOf ? dealers.asOf.split('-').reverse().join('/') : '—') + ', no centro do município (não é o endereço da loja).' : ''}</p>
     </div>
   );
 }

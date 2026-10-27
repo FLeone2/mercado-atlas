@@ -343,3 +343,35 @@
 .ax-error-actions{display:flex;gap:10px;margin-top:16px}.ax-button{padding:9px 16px;border-radius:999px;border:0;background:#1d1d1f;color:#fff;font:600 14px var(--nx-font,system-ui);cursor:pointer}
 .px-swipe{display:none;margin:8px 0 0;font:500 12.5px var(--nx-font);color:var(--nx-soft)}
 @media(max-width:700px){.px-swipe{display:block}}
+
+/* ---- concessionárias no mapa ---- */
+.px .px-dealer-tg{display:inline-flex;align-items:center;gap:8px;padding:7px 13px;border-radius:999px;background:rgba(0,0,0,.05);font:600 13px var(--nx-font);color:var(--nx-soft)}
+.px .px-dealer-tg i{width:12px;height:12px;border-radius:50%;border:2.4px solid #c7c7cc;background:#fff;box-sizing:border-box}
+.px .px-dealer-tg[aria-pressed=true]{background:#fff;color:var(--nx-ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}.px .px-dealer-tg[aria-pressed=true] i{border-color:var(--nx-accent);background:radial-gradient(circle,var(--nx-accent) 0 30%,#fff 34%)}
+.px-dealer-note{display:flex;gap:8px;align-items:flex-start;margin:10px 0;font:500 13px/1.45 var(--nx-font);color:var(--nx-ink)}
+.px-dealer-note i{flex:none;width:12px;height:12px;margin-top:3px;border-radius:50%;border:2.4px solid var(--nx-accent);background:radial-gradient(circle,var(--nx-accent) 0 30%,#fff 34%);box-sizing:border-box}
+.px-dealer-box{margin:14px 0 4px;padding:12px 14px;border-radius:14px;background:rgba(230,15,45,.05)}.px-dealer-box h4{margin:0 0 4px}.px-dealer-box p{margin:2px 0;font:500 13px/1.45 var(--nx-font)}
+
+/* ---- pirâmide de segmentos ---- */
+.px-pyr{width:100%}.px-pyr svg{display:block;overflow:visible}
+.px-pyr-col{font:650 11px var(--nx-font);letter-spacing:.06em;text-transform:uppercase;fill:var(--nx-soft)}
+.px-pyr-b{transition:opacity .2s}.px-pyr-b.dim{opacity:.45}
+.px-pyr-l text{font:600 13px var(--nx-font);fill:var(--nx-ink)}.px-pyr-l.on text{font-weight:800}
+.px-pyr-l .px-pyr-v{font-weight:500;fill:var(--nx-soft);font-variant-numeric:tabular-nums}.px-pyr-l .px-pyr-p{font-weight:700;font-variant-numeric:tabular-nums}
+.px-pyr-lead{fill:none;stroke:rgba(0,0,0,.18);stroke-width:1}
+@media(max-width:700px){.px-pyr-l text{font-size:11.5px}}
+
+/* ---- mapa de calor e três primeiras marcas ---- */
+.px-heat{display:flex;justify-content:center}.px-heat canvas{display:block}
+.px-heat-ramp{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 0;font:500 12px var(--nx-font);color:var(--nx-soft)}
+.px-heat-ramp i{width:180px;height:9px;border-radius:5px;background:linear-gradient(90deg,rgba(47,111,223,.08),rgba(47,111,223,.6),#2f6fdf,#173a7a)}.px-heat-ramp.f i{background:linear-gradient(90deg,rgba(230,15,45,.08),rgba(230,15,45,.6),#e60f2d,#7a0818)}
+.px-select input[type=range]{accent-color:var(--nx-ink);width:110px}
+.px-t3-legend{margin-bottom:10px}
+.px-t3{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,1fr);gap:24px;align-items:start}
+.px-t3-svg{width:100%;height:auto;display:block}.px-t3-svg path{transition:opacity .2s}
+.px-t3-list{display:grid;gap:4px;max-height:520px;overflow:auto;padding-right:6px}
+.px-t3-row{display:grid;grid-template-columns:30px 1fr;gap:4px 10px;align-items:center;padding:5px 6px;border-radius:10px}.px-t3-row.on{background:rgba(0,0,0,.05)}
+.px-t3-row b{font:700 13px var(--nx-font)}.px-t3-stack{display:flex;gap:2px;height:12px;border-radius:4px;overflow:hidden;background:rgba(0,0,0,.04)}.px-t3-stack span{display:block;height:100%}
+.px-t3-names{grid-column:2;font:500 12px var(--nx-font);color:var(--nx-soft)}
+.px-t3-multi{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.px-t3-multi figure{margin:0}.px-t3-multi figcaption{font:650 11px var(--nx-font);letter-spacing:.06em;text-transform:uppercase;color:var(--nx-soft);margin-bottom:6px}
+@media(max-width:860px){.px-t3{grid-template-columns:1fr}.px-t3-multi{grid-template-columns:1fr}}

@@ -109,6 +109,29 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
     if (f.errors.length) failures.push('foco: ' + f.errors[0]);
     await f.close();
   }
+  // mercado: pirâmide de segmentos (faixas e a parte da marca em foco)
+  {
+    const m = await open('?a=mercado', 1440, 9000);
+    await m.evaluate(() => document.querySelector('#m-piramide').scrollIntoView()); await m.waitForTimeout(3000);
+    if ((await m.locator('#m-piramide .px-pyr-b').count()) < 6) failures.push('mercado: a pirâmide tem poucas faixas');
+    if (!(await m.locator('#m-piramide .px-pyr-p').allInnerTexts()).some(t => t !== '0,0%')) failures.push('mercado: a pirâmide não mostra a parte da marca em foco');
+    await m.locator('#m-piramide button', { hasText: 'Eletrificados' }).click(); await m.waitForTimeout(500);
+    if ((await m.locator('#m-piramide .px-pyr-b polygon').count()) < 8) failures.push('mercado: a pirâmide não desenhou os eletrificados');
+    if (m.errors.length) failures.push('mercado: ' + m.errors[0]);
+    await m.close();
+  }
+  // territórios: concessionárias só aparecem dentro do estado e o botão desliga
+  {
+    const t = await open('?a=territorios', 1440, 9000);
+    await t.evaluate(() => { const e = document.querySelector('#t-mapa'); scrollTo(0, e.getBoundingClientRect().top + scrollY - 120); }); await t.waitForTimeout(800);
+    if (!(await t.locator('.px-map-panel').innerText()).includes('Rede Mitsubishi')) failures.push('territórios: o painel do Brasil não fala da rede Mitsubishi');
+    await t.locator('.px-cities.scroll button', { hasText: 'São Paulo' }).first().click(); await t.waitForTimeout(2500);
+    if (!(await t.locator('.px-dealer-box').count())) failures.push('territórios: o estado não mostra a rede de concessionárias');
+    await t.locator('.px-dealer-tg').click(); await t.waitForTimeout(500);
+    if (await t.locator('.px-dealer-box').count()) failures.push('territórios: desligar as concessionárias não as escondeu');
+    if (t.errors.length) failures.push('territórios: ' + t.errors[0]);
+    await t.close();
+  }
   // economia: análises técnicas nativas
   {
     const e = await open('?a=economia', 1440, 9000);
@@ -133,11 +156,18 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
     const ink = await l.evaluate(() => { const c = document.querySelector('#l-relevo canvas'); if (!c) return 0; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4 * 97) if (d[i] > 0) n++; return n; });
     if (ink < 50) failures.push('laboratório: o relevo não desenhou');
     if ((await l.locator('.px-met-c').count()) !== 4) failures.push('laboratório: metodologia incompleta');
+    await l.evaluate(() => document.querySelector('#l-calor').scrollIntoView()); await l.waitForTimeout(5000);
+    const heat = await l.evaluate(() => { const c = document.querySelector('#l-calor canvas'); if (!c) return 0; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 0; i < d.length; i += 4 * 53) if (d[i + 2] > d[i] + 40) n++; return n; });
+    if (heat < 30) failures.push('laboratório: o mapa de calor não desenhou');
+    await l.evaluate(() => document.querySelector('#l-top3').scrollIntoView()); await l.waitForTimeout(1500);
+    if ((await l.locator('#l-top3 .px-t3-row').count()) < 20) failures.push('laboratório: o top 3 por estado não listou os estados');
+    await l.locator('#l-top3 button', { hasText: 'Municípios' }).click(); await l.waitForTimeout(6000);
+    if ((await l.locator('#l-top3 canvas').count()) !== 3) failures.push('laboratório: o top 3 por município não desenhou os três mapas');
     if (l.errors.length) failures.push('laboratório: ' + l.errors[0]);
     await l.close();
   }
 
   await browser.close();
   if (failures.length) { console.error('FAIL\n  ' + failures.join('\n  ')); process.exit(1); }
-  console.log(`PASS Atlas: ${PAGES.length * 2} páginas sem erro, sem rolagem horizontal e sem peças antigas · filtros · mapa por estado e município · versões · conexões · corrida · simulador · análises técnicas · laboratório`);
+  console.log(`PASS Atlas: ${PAGES.length * 2} páginas sem erro, sem rolagem horizontal e sem peças antigas · filtros · mapa por estado e município · versões · conexões · corrida · simulador · pirâmide · concessionárias · análises técnicas · laboratório (calor e top 3)`);
 })();
