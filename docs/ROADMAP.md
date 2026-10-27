@@ -79,3 +79,12 @@ Recomendação (orçamento de US$ 10/mês): A na próxima etapa (Pages + R2 grat
 - **Anfavea:** os dados detalhados virão de você (produção, exportação e licenciamento por montadora). Quando chegarem: script de carga com recibo, como as demais fontes, e os gráficos de oferta por montadora na Economia e na página da marca em foco.
 - **Imposto de importação:** 35% em vigor para elétricos, híbridos e plug-in desde jul/2026 (destacado na Economia).
 - **Pendente:** quem recebe o resumo automático do mês (e-mail, Slack) e dados FIPE (preço por versão).
+
+## 8. Retirado na limpeza de 26/10/2026 (sem equivalente no Atlas)
+
+Ficam no histórico do Git (último commit com tudo: `c504907`); voltam se fizerem falta.
+
+- Tema escuro e o tema Liquid Aurora; favoritos salvos no navegador; relatório executivo para imprimir.
+- Pirâmide de segmentos e o catálogo de mapas antigos (calor, top 3 por município, mapa por canal).
+- Na Economia: tabelas completas da reconciliação hierárquica das projeções, dependência espacial (Moran) e as simulações da fase 2. As projeções, o potencial regional, o simulador novo e as análises técnicas continuam.
+- A rede de concessionárias Mitsubishi (138 pontos, `src/market/geo/dealers.json`): será a base do item "Rede de concessionárias × demanda" da seção 2.
