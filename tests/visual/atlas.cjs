@@ -53,7 +53,7 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
   // mapa: entrar num estado mostra o cartão dele; buscar e abrir um município; ‹ › passam de município
   {
     const m = await open('?a=territorios', 1440, 9000);
-    await m.evaluate(() => { const e = document.querySelector('#t-mapa'); scrollTo(0, e.getBoundingClientRect().top + scrollY - 120); }); await m.waitForTimeout(800);
+    await m.evaluate(() => { const e = document.querySelector('#t-mapa'); if (e) scrollTo(0, e.getBoundingClientRect().top + scrollY - 120); }); await m.waitForTimeout(800);
     await m.locator('.px-cities.scroll button', { hasText: 'Minas Gerais' }).click(); await m.waitForTimeout(2000);
     if ((await m.locator('.px-map-panel h3').first().innerText()) !== 'Minas Gerais') failures.push('mapa: clicar no estado não abriu o cartão do estado');
     if (!(await m.locator('.px-ufbrands li').count())) failures.push('mapa: o estado não mostra o ranking de marcas');
@@ -67,14 +67,14 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
   // corrida das marcas anda com o play; o simulador responde a um cenário pronto
   {
     const c = await open('?a=concorrencia', 1440, 9000);
-    await c.evaluate(() => document.querySelector('#c-corrida').scrollIntoView()); await c.waitForTimeout(800);
+    await c.evaluate(() => document.querySelector('#c-corrida')?.scrollIntoView()); await c.waitForTimeout(800);
     await c.locator('.px-race-ctl input[type=range]').fill('0'); const m0 = await c.locator('.px-race-m').innerText();
     await c.locator('.px-play').click(); await c.waitForTimeout(2500);
     if ((await c.locator('.px-race-m').innerText()) === m0) failures.push('corrida: o play não avançou os meses');
     if (c.errors.length) failures.push('corrida: ' + c.errors[0]);
     await c.close();
     const e = await open('?a=economia', 1440, 9000);
-    await e.evaluate(() => document.querySelector('#e-simulador').scrollIntoView()); await e.waitForTimeout(600);
+    await e.evaluate(() => document.querySelector('#e-simulador')?.scrollIntoView()); await e.waitForTimeout(600);
     await e.locator('.px-sim-presets .nx-chip', { hasText: 'Selic cai' }).click(); await e.waitForTimeout(400);
     const out = await e.locator('.px-sim-r b').first().innerText();
     if (!/^\+[1-9]/.test(out)) failures.push('simulador: corte de juros deveria aumentar o mercado (veio ' + out + ')');
@@ -85,7 +85,7 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
   // versões: ranking conectado, versão × versão (tirar e pôr uma versão) e as versões da marca
   {
     const c = await open('?a=concorrencia', 1440, 9000);
-    await c.evaluate(() => document.querySelector('#c-versoes').scrollIntoView()); await c.waitForTimeout(6000);
+    await c.evaluate(() => document.querySelector('#c-versoes')?.scrollIntoView()); await c.waitForTimeout(6000);
     const sec = c.locator('#c-versoes');
     if ((await sec.locator('svg path').count()) < 10) failures.push('versões: o ranking conectado das versões não desenhou');
     const rows = () => sec.locator('.px-cmp tbody tr').count(), n0 = await rows();
@@ -96,15 +96,15 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
     if ((await rows()) !== n0 || !(await sec.locator('.px-cmp tbody').innerText()).includes(opt.split(' · ')[0])) failures.push('versões: adicionar uma versão pela busca não funcionou');
     if ((await sec.locator('.px-vhead ~ div svg path').count()) < 3) failures.push('versões: as linhas de 36 meses não desenharam');
     // conexões nativas
-    await c.evaluate(() => document.querySelector('#c-conexoes').scrollIntoView()); await c.waitForTimeout(9000);
+    await c.evaluate(() => document.querySelector('#c-conexoes')?.scrollIntoView()); await c.waitForTimeout(9000);
     if ((await c.locator('#c-conexoes .px-sankey path').count()) < 20) failures.push('conexões: o Sankey não desenhou');
     if ((await c.locator('#c-conexoes .px-chord path').count()) < 10) failures.push('conexões: as cordas não desenharam');
     if (c.errors.length) failures.push('versões/conexões: ' + c.errors[0]);
     await c.close();
     const f = await open('?a=foco', 1440, 9000);
-    await f.evaluate(() => document.querySelector('#f-versoes').scrollIntoView()); await f.waitForTimeout(5000);
+    await f.evaluate(() => document.querySelector('#f-versoes')?.scrollIntoView()); await f.waitForTimeout(5000);
     if ((await f.locator('#f-versoes tbody tr').count()) < 5) failures.push('foco: a tabela de versões da marca está vazia');
-    await f.evaluate(() => document.querySelector('#f-segmentos').scrollIntoView()); await f.waitForTimeout(5000);
+    await f.evaluate(() => document.querySelector('#f-segmentos')?.scrollIntoView()); await f.waitForTimeout(5000);
     if ((await f.locator('.px-vseg .px-mbar').count()) < 5) failures.push('foco: as barras de versões do segmento não apareceram');
     if (f.errors.length) failures.push('foco: ' + f.errors[0]);
     await f.close();
@@ -112,7 +112,7 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
   // laboratório: pirâmide de segmentos (faixas e a parte da marca em foco)
   {
     const m = await open('?a=laboratorio', 1440, 9000);
-    await m.evaluate(() => document.querySelector('#l-piramide').scrollIntoView()); await m.waitForTimeout(3000);
+    await m.evaluate(() => document.querySelector('#l-piramide')?.scrollIntoView()); await m.waitForTimeout(3000);
     if ((await m.locator('#l-piramide .px-pyr-b').count()) < 6) failures.push('laboratório: a pirâmide tem poucas faixas');
     if (!(await m.locator('#l-piramide .px-pyr-p').allInnerTexts()).some(t => t !== '0,0%')) failures.push('laboratório: a pirâmide não mostra a parte da marca em foco');
     await m.locator('#l-piramide button', { hasText: 'Eletrificados' }).click(); await m.waitForTimeout(500);
@@ -123,7 +123,7 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
   // territórios: concessionárias só aparecem dentro do estado e o botão desliga
   {
     const t = await open('?a=territorios', 1440, 9000);
-    await t.evaluate(() => { const e = document.querySelector('#t-mapa'); scrollTo(0, e.getBoundingClientRect().top + scrollY - 120); }); await t.waitForTimeout(800);
+    await t.evaluate(() => { const e = document.querySelector('#t-mapa'); if (e) scrollTo(0, e.getBoundingClientRect().top + scrollY - 120); }); await t.waitForTimeout(800);
     if (!(await t.locator('.px-map-panel').innerText()).includes('Rede Mitsubishi')) failures.push('territórios: o painel do Brasil não fala da rede Mitsubishi');
     await t.locator('.px-cities.scroll button', { hasText: 'São Paulo' }).first().click(); await t.waitForTimeout(2500);
     if (!(await t.locator('.px-dealer-box').count())) failures.push('territórios: o estado não mostra a rede de concessionárias');
@@ -135,7 +135,7 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
   // economia: análises técnicas nativas
   {
     const e = await open('?a=economia', 1440, 9000);
-    await e.evaluate(() => document.querySelector('#e-tecnico').scrollIntoView()); await e.waitForTimeout(5000);
+    await e.evaluate(() => document.querySelector('#e-tecnico')?.scrollIntoView()); await e.waitForTimeout(5000);
     if ((await e.locator('#e-tecnico ~ .nx-grid table tbody tr').count()) < 2) failures.push('economia: a tabela de coeficientes não apareceu');
     if (e.errors.length) failures.push('economia técnica: ' + e.errors[0]);
     await e.close();
@@ -148,18 +148,18 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
     if ((await l.locator('#l-construtor .nx-bar').count()) < 10) failures.push('laboratório: o construtor por versão não mostrou barras');
     await l.locator('#l-construtor select').selectOption('marca'); await l.locator('#l-construtor button', { hasText: 'No tempo' }).click(); await l.waitForTimeout(4000);
     if ((await l.locator('#l-construtor svg path').count()) < 4) failures.push('laboratório: o construtor no tempo não desenhou linhas');
-    await l.evaluate(() => document.querySelector('#l-mapa').scrollIntoView()); await l.waitForTimeout(6000);
+    await l.evaluate(() => document.querySelector('#l-mapa')?.scrollIntoView()); await l.waitForTimeout(6000);
     await l.locator('#l-mapa input[type=range]').fill('0'); const m0 = await l.locator('.px-mt-month').innerText();
     await l.locator('#l-mapa .px-play').click(); await l.waitForTimeout(1500);
     if ((await l.locator('.px-mt-month').innerText()) === m0) failures.push('laboratório: o mapa no tempo não andou com o play');
-    await l.evaluate(() => document.querySelector('#l-relevo').scrollIntoView()); await l.waitForTimeout(6000);
+    await l.evaluate(() => document.querySelector('#l-relevo')?.scrollIntoView()); await l.waitForTimeout(6000);
     const ink = await l.evaluate(() => { const c = document.querySelector('#l-relevo canvas'); if (!c) return 0; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4 * 97) if (d[i] > 0) n++; return n; });
     if (ink < 50) failures.push('laboratório: o relevo não desenhou');
     if ((await l.locator('.px-met-c').count()) !== 4) failures.push('laboratório: metodologia incompleta');
-    await l.evaluate(() => document.querySelector('#l-calor').scrollIntoView()); await l.waitForTimeout(5000);
+    await l.evaluate(() => document.querySelector('#l-calor')?.scrollIntoView()); await l.waitForTimeout(5000);
     const heat = await l.evaluate(() => { const c = document.querySelector('#l-calor canvas'); if (!c) return 0; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 0; i < d.length; i += 4 * 53) if (d[i + 2] > d[i] + 40) n++; return n; });
     if (heat < 30) failures.push('laboratório: o mapa de calor não desenhou');
-    await l.evaluate(() => document.querySelector('#l-top3').scrollIntoView()); await l.waitForTimeout(1500);
+    await l.evaluate(() => document.querySelector('#l-top3')?.scrollIntoView()); await l.waitForTimeout(1500);
     if ((await l.locator('#l-top3 .px-t3-row').count()) < 20) failures.push('laboratório: o top 3 por estado não listou os estados');
     await l.locator('#l-top3 button', { hasText: 'Municípios' }).click(); await l.waitForTimeout(6000);
     if ((await l.locator('#l-top3 canvas').count()) !== 3) failures.push('laboratório: o top 3 por município não desenhou os três mapas');
