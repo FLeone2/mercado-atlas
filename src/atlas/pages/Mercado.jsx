@@ -6,7 +6,6 @@ import { useAtlas } from '../ctx.js';
 import { PageHead, Section, Scope, Skel } from '../ui.jsx';
 import { DailyBars, Lines, PairBars, SeasonHeat } from '../charts.jsx';
 import { brandName, fmt, pct, signed, label, monthLabel, monthEnd, historyGroup, ignoredBy, lastCompleteIndex, sumRange } from '../lib.js';
-import Piramide from './piramide.jsx';
 
 const MONTH = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 const YEAR_COLORS = ['#d1d1d6', '#b4b4ba', '#8e8e93', '#5f5f66'];
@@ -100,7 +99,7 @@ export default function Mercado() {
 
   return (
     <div className="px-page">
-      <PageHead title="Mercado" toc={[['m-ritmo', 'Ritmo'], ['m-tendencia', 'Tendência'], ['m-sazonalidade', 'Sazonalidade'], ['m-mix', 'O que se compra'], ['m-piramide', 'Pirâmide'], ['m-eletrificacao', 'Eletrificação'], ['m-chinesas', 'Marcas chinesas']]} />
+      <PageHead title="Mercado" toc={[['m-ritmo', 'Ritmo'], ['m-tendencia', 'Tendência'], ['m-sazonalidade', 'Sazonalidade'], ['m-mix', 'O que se compra'], ['m-eletrificacao', 'Eletrificação'], ['m-chinesas', 'Marcas chinesas']]} />
 
       <Section id="m-ritmo" title="Ritmo do período" sub={rhythm ? <>Média de {fmt(rhythm.avg)} emplacamentos por dia útil{sameMonthLastYear ? <> ({signed(rhythm.avg / sameMonthLastYear.perDay - 1)} sobre {monthLabel(sameMonthLastYear.month)})</> : ''}.</> : null}>
         {!rhythm ? <div className="nx-c12"><Skel h={240} /></div> : (
@@ -143,10 +142,6 @@ export default function Mercado() {
             <PairBars rows={m.rows} focusName={focusName} />
           </Block>
         ))}
-      </Section>
-
-      <Section id="m-piramide" title="Pirâmide de segmentos" sub="O tamanho de cada segmento no mercado e, dentro dele, quanto é da marca em foco, das chinesas ou dos eletrificados.">
-        <Piramide />
       </Section>
 
       <Section id="m-eletrificacao" title="Eletrificação" sub={elec ? <>{pct(elec.now, 1)} dos emplacamentos no último mês completo; {pct(elec.yearAgo, 1)} um ano antes.</> : null}>

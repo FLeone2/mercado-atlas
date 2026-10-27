@@ -11,6 +11,7 @@ import { useAtlas } from '../ctx.js';
 import { PageHead, Section, Scope, Seg, Skel } from '../ui.jsx';
 import { Lines } from '../charts.jsx';
 import { MapaCalor, Top3 } from './lab-mapas.jsx';
+import Piramide from './piramide.jsx';
 import { active, brandName, fmt, pct, signed, label, monthLabel, rangeText, UF_NAMES, historyGroup, ignoredBy, lastCompleteIndex, versionLabel, SHORT_MONTH } from '../lib.js';
 
 /* Laboratório: perguntas rápidas, construtor de gráficos, mapa e composição no tempo, Brasil em
@@ -312,12 +313,13 @@ function Metodologia() {
 export default function Laboratorio() {
   return (
     <div className="px-page">
-      <PageHead title="Laboratório" strip={false} toc={[['l-perguntas', 'Perguntas rápidas'], ['l-construtor', 'Construtor de gráficos'], ['l-mapa', 'Mapa no tempo'], ['l-calor', 'Mapa de calor'], ['l-top3', 'Três primeiras marcas'], ['l-composicao', 'Composição'], ['l-relevo', 'Brasil em relevo'], ['l-metodologia', 'Dados e metodologia']]} />
+      <PageHead title="Laboratório" strip={false} toc={[['l-perguntas', 'Perguntas rápidas'], ['l-construtor', 'Construtor de gráficos'], ['l-mapa', 'Mapa no tempo'], ['l-calor', 'Mapa de calor'], ['l-top3', 'Três primeiras marcas'], ['l-piramide', 'Pirâmide de segmentos'], ['l-composicao', 'Composição'], ['l-relevo', 'Brasil em relevo'], ['l-metodologia', 'Dados e metodologia']]} />
       <Section id="l-perguntas" title="Perguntas rápidas" sub="Respostas de uma linha para o recorte dos filtros. Clique para ir à análise completa."><Perguntas /></Section>
       <Section id="l-construtor" title="Construtor de gráficos" sub="Monte o seu cruzamento: qualquer agrupamento, volume, participação ou variação, em barras, tabela ou no tempo, com CSV."><Construtor /></Section>
       <Section id="l-mapa" title="Mapa no tempo" sub="Os estados mês a mês desde 2016, pelo acumulado de 12 meses."><MapaTempo /></Section>
       <Section id="l-calor" title="Mapa de calor" sub="Onde os emplacamentos se concentram, município a município, do mercado ou da marca em foco."><MapaCalor /></Section>
       <Section id="l-top3" title="Três primeiras marcas" sub="A 1ª, a 2ª e a 3ª marca de cada estado e de cada município."><Top3 /></Section>
+      <Section id="l-piramide" title="Pirâmide de segmentos" sub="O tamanho de cada segmento no mercado e, dentro dele, quanto é da marca em foco, das chinesas ou dos eletrificados."><Piramide /></Section>
       <Section id="l-composicao" title="Composição no tempo" sub="Como o mercado se divide entre propulsões, portes, carrocerias, canais e combustíveis, mês a mês."><Composicao /></Section>
       <Section id="l-relevo" title="Brasil em relevo" sub="Os 5.570 municípios em três dimensões."><Relevo /></Section>
       <Section id="l-metodologia" title="Dados e metodologia" sub="De onde vêm os dados, o que cada número mede (e o que não mede) e como o site é conferido."><Metodologia /></Section>

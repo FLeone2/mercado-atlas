@@ -109,15 +109,15 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
     if (f.errors.length) failures.push('foco: ' + f.errors[0]);
     await f.close();
   }
-  // mercado: pirâmide de segmentos (faixas e a parte da marca em foco)
+  // laboratório: pirâmide de segmentos (faixas e a parte da marca em foco)
   {
-    const m = await open('?a=mercado', 1440, 9000);
-    await m.evaluate(() => document.querySelector('#m-piramide').scrollIntoView()); await m.waitForTimeout(3000);
-    if ((await m.locator('#m-piramide .px-pyr-b').count()) < 6) failures.push('mercado: a pirâmide tem poucas faixas');
-    if (!(await m.locator('#m-piramide .px-pyr-p').allInnerTexts()).some(t => t !== '0,0%')) failures.push('mercado: a pirâmide não mostra a parte da marca em foco');
-    await m.locator('#m-piramide button', { hasText: 'Eletrificados' }).click(); await m.waitForTimeout(500);
-    if ((await m.locator('#m-piramide .px-pyr-b polygon').count()) < 8) failures.push('mercado: a pirâmide não desenhou os eletrificados');
-    if (m.errors.length) failures.push('mercado: ' + m.errors[0]);
+    const m = await open('?a=laboratorio', 1440, 9000);
+    await m.evaluate(() => document.querySelector('#l-piramide').scrollIntoView()); await m.waitForTimeout(3000);
+    if ((await m.locator('#l-piramide .px-pyr-b').count()) < 6) failures.push('laboratório: a pirâmide tem poucas faixas');
+    if (!(await m.locator('#l-piramide .px-pyr-p').allInnerTexts()).some(t => t !== '0,0%')) failures.push('laboratório: a pirâmide não mostra a parte da marca em foco');
+    await m.locator('#l-piramide button', { hasText: 'Eletrificados' }).click(); await m.waitForTimeout(500);
+    if ((await m.locator('#l-piramide .px-pyr-b polygon').count()) < 8) failures.push('laboratório: a pirâmide não desenhou os eletrificados');
+    if (m.errors.length) failures.push('pirâmide: ' + m.errors[0]);
     await m.close();
   }
   // territórios: concessionárias só aparecem dentro do estado e o botão desliga

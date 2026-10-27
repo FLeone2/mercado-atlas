@@ -8,12 +8,12 @@ Lista de trabalho: `docs/ROADMAP.md`.
 | Página | O que tem |
 |---|---|
 | Resumo | Mapa escuro com o total, placar da marca em foco, de onde veio a variação (mercado, mix, desempenho), ranking, ganhos e perdas, 24 meses |
-| Mercado | Ritmo por dia útil (e projeção do mês aberto), 12 meses, ano contra ano, sazonalidade, o que o mercado compra × o que a marca vende, **pirâmide de segmentos** (porte ou carroceria; área = volume, com a parte da marca em foco, das chinesas ou dos eletrificados), eletrificação, chinesas |
+| Mercado | Ritmo por dia útil (e projeção do mês aberto), 12 meses, ano contra ano, sazonalidade, o que o mercado compra × o que a marca vende, eletrificação, chinesas |
 | Concorrência | Ranking conectado (marcas ou modelos), **versões** (ranking conectado por versão e versão × versão entre marcas), comparar marcas, ranking mês a mês, corrida das marcas, duelo, **conexões** (Sankey e cordas), concentração |
 | Mitsubishi | Modelos, **versões da marca**, segmentos onde compete (participação, ranking de modelos e de versões), varejo × venda direta, força por estado, onde crescer |
 | Territórios | Mapa dos 5.570 municípios (marca líder, volume, por mil habitantes, participação e índice da marca em foco), clique no estado para o cartão e a lista de municípios, **concessionárias Mitsubishi** (aparecem ao aproximar ou dentro do estado; botão para ligar e desligar); estados e regiões |
 | Economia | Condições de compra, o que explica o mercado, peso de cada fator, simulador, parcela, imposto de importação, oferta, projeções, potencial regional e análises técnicas (coeficientes, validação, defasagens) |
-| Laboratório | Perguntas rápidas, construtor de gráficos (com CSV), mapa no tempo, **mapa de calor**, **três primeiras marcas** (estados em faixas ou 1º·2º·3º lugar; municípios por lugar), composição no tempo, Brasil em relevo e dados e metodologia |
+| Laboratório | Perguntas rápidas, construtor de gráficos (com CSV), mapa no tempo, **mapa de calor**, **três primeiras marcas** (estados em faixas ou 1º·2º·3º lugar; municípios por lugar), **pirâmide de segmentos** (porte ou carroceria; área = volume, com a parte da marca em foco, das chinesas ou dos eletrificados), composição no tempo, Brasil em relevo e dados e metodologia |
 
 - **Filtros.** Período, território em cascata (região → estado → município), marca em foco, porte, propulsão, canal e mais filtros (tipo de veículo, carroceria, combustível, modelo, **versão**, origem, ano de fabricação). Tudo fica no endereço da página. A marca em foco nunca recorta o mercado: é destacada e comparada com ele.
 - **Versão** é o campo modelo do registro (Renavam, ex.: `MMC/TRITON HPE AT4`). O site mostra "Triton HPE AT4" e guarda o registro original no ⓘ e no CSV.
