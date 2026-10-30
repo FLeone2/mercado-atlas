@@ -88,3 +88,20 @@ Ficam no histórico do Git (último commit com tudo: `c504907`); voltam se fizer
 - Tema escuro e o tema Liquid Aurora; favoritos salvos no navegador; relatório executivo para imprimir.
 - Mapa por canal do catálogo antigo (pirâmide, calor e top 3 voltaram em 27/10).
 - Na Economia: tabelas completas da reconciliação hierárquica das projeções, dependência espacial (Moran) e as simulações da fase 2. As projeções, o potencial regional, o simulador novo e as análises técnicas continuam.
+
+## 9. Movimento e fluidez (referência: mebius.design/freebies/charts, 30/10/2026)
+
+Técnicas observadas no kit de gráficos da Mebius (React + anime.js v4) e o que entrou no Atlas, sem biblioteca nova (`src/atlas/base/motion.js`):
+
+| Técnica | Situação |
+|---|---|
+| Entrada só quando o gráfico aparece na tela (25% visível) | **feito** — linhas e todos os cartões |
+| Linha que se desenha com velocidade constante (`pathLength`), eixos e rótulos chegando em sequência | **feito** — gráfico de linhas e ranking conectado |
+| Curva suave sem criar picos falsos (monotônica) | **feito** — gráfico de linhas |
+| Guia e caixa do mês que deslizam de um mês ao outro, presas aos dados | **feito** — gráfico de linhas |
+| Dados que se transformam ao trocar filtro ou medida (em vez de piscar) | **feito** — linhas e barras |
+| Números que contam (placar, total do Resumo, cartões) | **feito** |
+| Caixa de informação que acompanha o ponteiro com suavidade | **feito** — todos os gráficos |
+| Faixa de destaque que desliza até a barra sob o ponteiro; linha antes/depois do mês escolhido em cores diferentes | **próximo** |
+| Pontos que aparecem quando a linha passa por eles; troca de período que reorganiza o eixo | **próximo** |
+| Mapa: transição de cores ao trocar medida ou período; Sankey e cordas que se recompõem | **próximo** |

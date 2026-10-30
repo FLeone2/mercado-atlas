@@ -89,7 +89,7 @@
 .px-slope-h{font:700 17px var(--nx-font);fill:var(--nx-ink)}.px-slope-s{font:500 12.5px var(--nx-font);fill:var(--nx-soft)}
 .px-slope-zebra{fill:rgba(0,0,0,.022)}
 .px-slope-row{cursor:pointer;transition:opacity .18s}
-.px-slope-line{stroke-dasharray:1200;stroke-dashoffset:1200;animation:nxdraw 1.3s var(--spring) forwards}
+.px-slope-line{stroke-dasharray:1;stroke-dashoffset:1;animation:pxdraw 1.3s cubic-bezier(.37,0,.63,1) forwards}
 .px-slope-rank{font:500 13px var(--nx-font);fill:var(--nx-soft);font-variant-numeric:tabular-nums}
 .px-slope-name{font:600 15px var(--nx-font);fill:var(--nx-ink)}
 .px-slope-val{font:600 14px var(--nx-font);fill:var(--nx-ink);font-variant-numeric:tabular-nums}
@@ -185,8 +185,7 @@
 .px-ch{display:block;overflow:visible;max-width:100%}
 .px-axis text{font:500 12px var(--nx-font);fill:var(--nx-soft);font-variant-numeric:tabular-nums}.px-axis line{stroke:var(--nx-line);stroke-dasharray:2 5}
 .px-ch .nx-axis text{font-size:12px}
-.px-line{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:6000;stroke-dashoffset:6000;animation:nxdraw 1.5s var(--spring) forwards}
-.px-cross{stroke:var(--nx-ink);opacity:.4}.px-endlabel{font:700 13px var(--nx-font)}
+.px-endlabel{font:700 13px var(--nx-font)}
 .px-mark circle{fill:var(--nx-card);stroke:var(--nx-ink);stroke-width:2}.px-mark text{font:600 11.5px var(--nx-font);fill:var(--nx-ink)}
 .px-shade{fill:var(--px-focus-soft)}
 
@@ -335,7 +334,7 @@
 @media(prefers-reduced-motion:reduce){.px-stack-a{animation:none}}
 
 /* ---- marca ---- */
-.px .px-brand{display:inline-flex;align-items:center;gap:9px}.px-mark{width:24px;height:24px;flex:none;display:block}
+.px .px-brand{display:inline-flex;align-items:center;gap:9px}.px-logo{width:24px;height:24px;flex:none;display:block}
 
 /* ---- erro de tela (kit/boundary.jsx) ---- */
 .ax-error-boundary{max-width:560px;margin:120px auto;padding:28px 30px;border-radius:22px;background:#fff;font:400 15px/1.5 var(--nx-font,system-ui);color:#1d1d1f}
@@ -380,3 +379,34 @@
 .px-mm th,.px-mm td{white-space:nowrap}.px-mm tbody tr{cursor:pointer}.px-mm tbody tr.sel th{color:var(--nx-accent)}
 .px-mm-c{text-align:center;padding:6px 8px!important;border-radius:8px}.px-mm-c b{display:block;font:700 13.5px var(--nx-font);font-variant-numeric:tabular-nums}.px-mm-c small{display:block;font:500 11px var(--nx-font);color:var(--nx-soft)}
 .px-mm-c.up{background:var(--px-up-soft)}.px-mm-c.down{background:var(--px-down-soft)}
+
+/* ---- movimento (base/motion.js): entradas quando o gráfico aparece, transições e guia que desliza ----
+   curvas: saída expo (.16,1,.3,1) para o que chega e se move; seno (.37,0,.63,1) para o traço da linha */
+.px-line{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
+.px-line.dash{stroke-dashoffset:0;opacity:0}
+.px-chartbox.in .px-line{animation:pxdraw 1.4s cubic-bezier(.37,0,.63,1) both}
+.px-chartbox.in .px-line.dash{animation:pxfadein .8s ease-out both}
+@keyframes pxdraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes pxfadein{to{opacity:1}}
+.px-chartbox .px-axis line{transform-box:fill-box;transform-origin:left center;transform:scaleX(0)}
+.px-chartbox .px-axis text,.px-chartbox .px-endlabel,.px-chartbox .px-mark{opacity:0}
+.px-chartbox.in .px-axis line{animation:pxgrid .8s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--i,0) * 45ms)}
+.px-chartbox.in .px-axis text{animation:pxrise2 .6s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(120ms + var(--i,0) * 40ms)}
+.px-chartbox.in .px-endlabel,.px-chartbox.in .px-mark{animation:pxrise2 .5s cubic-bezier(.16,1,.3,1) both}
+@keyframes pxgrid{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes pxrise2{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.px-cross{opacity:0;transition:transform .45s cubic-bezier(.16,1,.3,1),opacity .2s}.px-cross.on{opacity:1}.px-cross line{stroke:var(--nx-ink);stroke-opacity:.4;stroke-dasharray:3 3}
+.px-dot{transition:transform .45s cubic-bezier(.16,1,.3,1)}
+.px-ltip{position:absolute;top:6px;left:0;z-index:5;pointer-events:none;transition:transform .45s cubic-bezier(.16,1,.3,1)}
+.px-ltip-in{min-width:150px;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.97);color:var(--nx-ink);font:700 12.5px/1.4 var(--nx-font);box-shadow:0 10px 28px -12px rgba(0,0,0,.35),0 0 0 1px rgba(0,0,0,.05);white-space:nowrap;animation:pxtipin .22s cubic-bezier(.16,1,.3,1) both;transition:translate .35s cubic-bezier(.16,1,.3,1)}
+.px-ltip.flip .px-ltip-in{translate:-100% 0}
+.px-ltip-in span{display:block;font-weight:500;color:var(--nx-soft)}.px-ltip-in b{color:var(--nx-ink);font-variant-numeric:tabular-nums}.px-ltip-in i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px}
+@keyframes pxtipin{from{opacity:0;scale:.94}to{opacity:1;scale:1}}
+/* barras e cartões: a entrada só começa quando o cartão aparece; mudanças de dados deslizam */
+.nx-block:not([data-in]) :is(.nx-bar-fill,.px-mbar-t>span,.px-wf-b,.nx-div-fill,.px-slope-line,.px-stack-a,.nx-line,.nx-area,.px-pyr-b){animation-play-state:paused}
+.px-mbar-t>span{transition:transform .65s cubic-bezier(.16,1,.3,1),background-color .3s}.px-tbar>span,.px-model-s>span,.px-ch-bar>span{transition:width .65s cubic-bezier(.16,1,.3,1)}
+.px-num{font-variant-numeric:tabular-nums}
+@media(prefers-reduced-motion:reduce){.px-chartbox .px-line,.px-chartbox.in .px-line{stroke-dashoffset:0;animation:none}.px-chartbox .px-line.dash,.px-chartbox.in .px-line.dash,.px-chartbox .px-axis text,.px-chartbox.in .px-axis text,.px-chartbox .px-endlabel,.px-chartbox.in .px-endlabel,.px-chartbox .px-mark,.px-chartbox.in .px-mark{opacity:1;animation:none}.px-chartbox .px-axis line,.px-chartbox.in .px-axis line{transform:none;animation:none}.px-cross,.px-dot,.px-ltip,.px-ltip-in{transition:none;animation:none}}
+@media print{.px-line{stroke-dashoffset:0!important}.px-line.dash,.px-chartbox .px-axis text,.px-chartbox .px-endlabel,.px-chartbox .px-mark{opacity:1!important}.px-chartbox .px-axis line{transform:none!important}}
+.nx-tipbox{position:fixed;left:0;top:0;z-index:80;pointer-events:none;transition:transform .16s cubic-bezier(.16,1,.3,1)}.nx-tipbox>.nx-tip{position:static}
+@media(prefers-reduced-motion:reduce){.nx-tipbox{transition:none}}

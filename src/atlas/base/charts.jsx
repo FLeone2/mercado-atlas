@@ -6,7 +6,8 @@ export function useTip() {
   const [tip, setTip] = useState(null);
   const show = (e, html) => setTip({ x: Math.min(e.clientX + 16, innerWidth - 250), y: e.clientY + 16, html });
   const hide = () => setTip(null);
-  const node = tip && <div className="nx-tip" style={{ left: tip.x, top: tip.y }}>{tip.html}</div>;
+  // a caixa desliza atrás do ponteiro (transform com transição curta) em vez de pular
+  const node = tip && <div className="nx-tipbox" style={{ transform: `translate3d(${tip.x}px, ${tip.y}px, 0)` }}><div className="nx-tip">{tip.html}</div></div>;
   return { show, hide, node };
 }
 

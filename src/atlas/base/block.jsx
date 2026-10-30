@@ -1,5 +1,6 @@
 import { Children, isValidElement, useRef, useState } from 'react';
 import { exportRootToPng, exportContextSlug } from '../../kit/index.js';
+import { useInView } from './motion.js';
 
 export const Tile = ({ k, children, sub, dark, red, small }) => <div className={'nx-tile' + (dark ? ' dark' : '')}><div className="nx-tile-k">{k}</div><div><div className={'nx-tile-n' + (red ? ' red' : '') + (small ? ' sm' : '')}>{children}</div>{sub && <div className="nx-tile-s">{sub}</div>}</div></div>;
 
@@ -25,7 +26,7 @@ export function Block({ title, sub, info, caption, children, className = '', act
   Children.toArray(children).forEach(c => (isValidElement(c) && c.type === 'p' && String(c.props.className ?? '').includes('nx-note') ? notes : body).push(c));
   const base = info ?? caption;
   const tip = notes.length ? <>{base && <span style={{ display: 'block', marginBottom: 6 }}>{base}</span>}{notes.map((n, i) => <span key={i} style={{ display: 'block' }}>{n.props.children}</span>)}</> : base;
-  const root = useRef(null), [busy, setBusy] = useState(false);
+  const root = useRef(null), [busy, setBusy] = useState(false), seen = useInView(root, .15); // entradas começam quando o cartão aparece
   const download = async () => {
     if (!root.current) return;
     setBusy(true);
@@ -35,7 +36,7 @@ export function Block({ title, sub, info, caption, children, className = '', act
     } catch (error) { globalThis.alert?.(error.message); } finally { setBusy(false); }
   };
   return (
-    <div className={'nx-card nx-block ' + className} ref={root} data-export-scope={exportScope}>
+    <div className={'nx-card nx-block ' + className} ref={root} data-export-scope={exportScope} data-in={seen || undefined}>
       {(title || actions) && (
         <div className="nx-block-head">
           <div className="nx-block-titles">

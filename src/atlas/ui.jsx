@@ -1,5 +1,6 @@
 import { useAtlas } from './ctx.js';
 import { fmt, pct, pp, signed, standing, label } from './lib.js';
+import { Num } from './base/motion.js';
 
 /* Cabeçalho de página: título, recorte em uma linha e o índice das seções (âncoras, nunca abas). */
 export function PageHead({ title, toc = [], strip = true }) {
@@ -37,10 +38,10 @@ export function FocusStrip() {
   return (
     <div className="px-strip" role="group" aria-label={'Placar de ' + focusName}>
       <span className="px-strip-k">{focusName}</span>
-      <span><b>{fmt(s.total)}</b> emplacamentos <i className={tone(s.change)}>{signed(s.change)}</i><small>mercado {signed(s.marketChange)}</small></span>
-      <span><b>{pct(s.share, 2)}</b> do mercado <i className={tone(s.shareChange)}>{pp(s.shareChange, 2)}</i></span>
+      <span><b><Num value={s.total} format={fmt} /></b> emplacamentos <i className={tone(s.change)}>{signed(s.change)}</i><small>mercado {signed(s.marketChange)}</small></span>
+      <span><b><Num value={s.share} format={v => pct(v, 2)} /></b> do mercado <i className={tone(s.shareChange)}>{pp(s.shareChange, 2)}</i></span>
       <span><b>{s.rank ? s.rank + 'ª' : '—'}</b> marca{moved ? <i className={tone(moved)}>{moved > 0 ? '▲ ' + moved : '▼ ' + -moved}</i> : null}<small>de {s.brands}</small></span>
-      {s.seg && <span><b>{pct(s.seg.share, 1)}</b> de {s.seg.label.toLowerCase()}<small>{pct(s.seg.ofBrand, 0)} das vendas da marca</small></span>}
+      {s.seg && <span><b><Num value={s.seg.share} format={v => pct(v, 1)} /></b> de {s.seg.label.toLowerCase()}<small>{pct(s.seg.ofBrand, 0)} das vendas da marca</small></span>}
     </div>
   );
 }

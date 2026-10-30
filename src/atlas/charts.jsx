@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWidth } from './base/model-charts.jsx';
 import { engine } from 'virtual:market';
 import { useTip } from './base/charts.jsx';
+import { useInView, useMorph } from './base/motion.js';
 import { fmt, pct, pp, signed, monthLabel } from './lib.js';
 
 const niceStep = raw => { const mag = Math.pow(10, Math.floor(Math.log10(raw))); for (const m of [1, 2, 2.5, 5, 10]) if (m * mag >= raw) return m * mag; return 10 * mag; };
@@ -54,7 +55,7 @@ export function Slope({ a, b, focus, measure = 'volume', topN = 15, labelA, labe
           const path = r.ia != null && r.ib != null ? `M${xa} ${y(r.ia)} C${(xa + xb) / 2} ${y(r.ia)} ${(xa + xb) / 2} ${y(r.ib)} ${xb} ${y(r.ib)}` : null;
           return (
             <g key={r.name} className="px-slope-row" style={{ opacity: dim ? .16 : 1 }} onPointerEnter={() => setHov(r.name)} onPointerMove={e => show(e, r)} onClick={() => setLock(l => (l === r.name ? null : r.name))}>
-              {path && <path d={path} fill="none" stroke={c} strokeWidth={lit ? 4 : r.move ? 2 : 1.4} strokeOpacity={lit ? 1 : r.move ? .55 : .35} className="px-slope-line" />}
+              {path && <path d={path} fill="none" stroke={c} strokeWidth={lit ? 4 : r.move ? 2 : 1.4} strokeOpacity={lit ? 1 : r.move ? .55 : .35} className="px-slope-line" pathLength={1} />}
               {r.ia != null && <g className={'px-slope-l' + (lit ? ' lit' : '') + (r.focus ? ' focus' : '')}>
                 <text x={8} y={y(r.ia) + 5} className="px-slope-rank">{r.a.rank}º</text>
                 <text x={narrow ? 36 : 52} y={y(r.ia) + 5} className="px-slope-name">{narrow && r.label.length > 11 ? r.label.slice(0, 10) + '…' : r.label}</text>
@@ -195,40 +196,60 @@ export function Scatter({ rows, xLabel, yLabel, medX, medY }) {
   );
 }
 
-/* ============ Linhas no tempo, desenhadas em pixels reais (o texto não encolhe em cartão estreito) ============ */
-export function Lines({ months, series, fmtY = fmt, fmtTip, height = 300, endLabels = true, label: aria, yMin, marks, shade, xFmt }) {
-  const [box, w] = useWidth(), tip = useTip(), [hover, setHover] = useState(null);
+/* ============ Linhas no tempo, desenhadas em pixels reais (o texto não encolhe em cartão estreito) ============
+   Entram quando o cartão aparece (a linha se desenha, eixos e rótulos chegam em sequência), mudam de
+   dados por transformação (sem piscar) e, ao passar o mouse, a guia e a caixa deslizam de mês em mês. */
+// curva monotônica (Fritsch–Carlson): suaviza sem criar picos ou vales que não existem nos dados
+function smoothPath(pts) {
+  if (pts.length < 3) return pts.map(([x, y], i) => (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1)).join('');
+  const n = pts.length, d = [], m = new Array(n).fill(0);
+  for (let i = 0; i < n - 1; i++) d.push((pts[i + 1][1] - pts[i][1]) / (pts[i + 1][0] - pts[i][0] || 1));
+  m[0] = d[0]; m[n - 1] = d[n - 2];
+  for (let i = 1; i < n - 1; i++) m[i] = d[i - 1] * d[i] <= 0 ? 0 : (d[i - 1] + d[i]) / 2;
+  for (let i = 0; i < n - 1; i++) { if (d[i] === 0) { m[i] = 0; m[i + 1] = 0; continue; } const a = m[i] / d[i], b = m[i + 1] / d[i], h = a * a + b * b; if (h > 9) { const t = 3 / Math.sqrt(h); m[i] = t * a * d[i]; m[i + 1] = t * b * d[i]; } }
+  let s = 'M' + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(1);
+  for (let i = 0; i < n - 1; i++) { const [x0, y0] = pts[i], [x1, y1] = pts[i + 1], h = (x1 - x0) / 3; s += 'C' + (x0 + h).toFixed(1) + ' ' + (y0 + m[i] * h).toFixed(1) + ' ' + (x1 - h).toFixed(1) + ' ' + (y1 - m[i + 1] * h).toFixed(1) + ' ' + x1.toFixed(1) + ' ' + y1.toFixed(1); }
+  return s;
+}
+export function Lines({ months, series, fmtY = fmt, fmtTip, height = 300, endLabels = true, label: aria, yMin, marks, shade, xFmt, curve = 'smooth' }) {
+  const [box, w] = useWidth(), [hover, setHover] = useState(null), seen = useInView(box, .25);
+  const vals = useMorph(useMemo(() => series.map(s => s.values), [series]));
   const W = Math.max(260, w || 600), H = height, n = months.length;
   const longest = endLabels ? Math.max(0, ...series.map(s => String(s.name).length)) : 0;
   const pad = { l: 50, r: endLabels ? Math.min(140, 16 + longest * 7.2) : 12, t: 14, b: 28 };
+  // a escala segue os dados de destino (não a transição), para os eixos não tremerem
   const all = series.flatMap(s => s.values.filter(v => v != null && Number.isFinite(v)));
   const hiV = Math.max(1e-9, ...all), loV = Math.min(0, ...all), nm = niceMax((hiV - (yMin ?? loV)) * 1.05, 4);
   const lo = yMin ?? Math.floor(loV / nm.step) * nm.step, yMax = Math.max(lo + nm.max, Math.ceil(hiV / nm.step) * nm.step);
   const X = i => pad.l + (i / Math.max(1, n - 1)) * (W - pad.l - pad.r), Y = v => pad.t + (1 - (v - lo) / (yMax - lo)) * (H - pad.t - pad.b);
-  const path = vals => { let d = '', pen = false; vals.forEach((v, i) => { if (v == null || !Number.isFinite(v)) { pen = false; return; } d += (pen ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1); pen = true; }); return d; };
+  const path = vs => { const runs = [[]]; vs.forEach((v, i) => { if (v == null || !Number.isFinite(v)) { if (runs.at(-1).length) runs.push([]); return; } runs.at(-1).push([X(i), Y(v)]); }); return runs.filter(r => r.length).map(r => (curve === 'smooth' ? smoothPath(r) : r.map(([x, y], i) => (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1)).join(''))).join(''); };
   const ticks = []; for (let v = lo; v <= yMax + 1e-9; v += nm.step) ticks.push(+v.toFixed(9));
   const every = Math.max(1, Math.ceil(n / Math.max(3, (W - pad.l - pad.r) / 78)));
   const xt = xFmt ? months.map((m, i) => [i, xFmt(m)]).filter(([i]) => i % every === 0) : n > 40 ? months.map((m, i) => [i, m]).filter(([, m]) => m.endsWith('-01')).filter((_, k, a) => a.length <= (W - 80) / 52 || k % 2 === 0).map(([i, m]) => [i, m.slice(0, 4)])
     : months.map((m, i) => [i, m]).filter(([i]) => (n - 1 - i) % every === 0).map(([i, m]) => [i, monthLabel(m).replace('/20', '/')]);
   const ft = fmtTip ?? fmtY;
-  const move = e => { const r = e.currentTarget.getBoundingClientRect(), i = Math.max(0, Math.min(n - 1, Math.round((e.clientX - r.left - pad.l) / (W - pad.l - pad.r) * (n - 1)))); setHover(i); tip.show(e, <><strong>{xFmt ? xFmt(months[i]) : monthLabel(months[i])}</strong>{series.filter(s => s.values[i] != null).map(s => <span key={s.name}><i style={{ background: s.color }} />{s.name} <b>{ft(s.values[i])}</b></span>)}</>); };
-  const ends = endLabels ? series.map(s => { let k = s.values.length - 1; while (k >= 0 && s.values[k] == null) k--; return k >= 0 ? { s, y: Y(s.values[k]) } : null; }).filter(Boolean).sort((a, b) => a.y - b.y) : [];
+  const move = e => { const r = e.currentTarget.getBoundingClientRect(), i = Math.max(0, Math.min(n - 1, Math.round((e.clientX - r.left - pad.l) / (W - pad.l - pad.r) * (n - 1)))); if (i !== hover) setHover(i); };
+  const ends = endLabels ? series.map((s, k) => { let j = s.values.length - 1; while (j >= 0 && s.values[j] == null) j--; return j >= 0 ? { s, y: Y(vals[k]?.[j] ?? s.values[j]) } : null; }).filter(Boolean).sort((a, b) => a.y - b.y) : [];
   for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 15) ends[i].y = ends[i - 1].y + 15;
+  // caixa do mês sob o ponteiro: presa ao mês, troca de lado perto da borda direita
+  const hx = hover != null ? X(hover) : 0, flip = hx > pad.l + (W - pad.l - pad.r) * .62;
   return (
-    <div ref={box} className="px-chartbox">
-      <svg className="px-ch" width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} onPointerMove={move} onPointerLeave={() => { setHover(null); tip.hide(); }}>
+    <div ref={box} className={'px-chartbox' + (seen ? ' in' : '')}>
+      <svg className="px-ch" width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} onPointerMove={move} onPointerLeave={() => setHover(null)}>
         {shade && <rect x={X(shade[0]) - 3} width={Math.max(6, X(shade[1]) - X(shade[0]) + 6)} y={pad.t} height={H - pad.t - pad.b} className="px-shade" />}
         <g className="px-axis">
-          {ticks.map(t => <g key={t}><line x1={pad.l} x2={W - pad.r} y1={Y(t)} y2={Y(t)} className={Math.abs(t) < 1e-9 && lo < 0 ? 'zero' : ''} /><text x={pad.l - 8} y={Y(t) + 4} textAnchor="end">{fmtY(Math.abs(t) < 1e-9 ? 0 : t)}</text></g>)}
-          {xt.map(([i, l]) => <text key={i} x={X(i)} y={H - 8} textAnchor="middle">{l}</text>)}
+          {ticks.map((t, k) => <g key={t} style={{ '--i': ticks.length - 1 - k }}><line x1={pad.l} x2={W - pad.r} y1={Y(t)} y2={Y(t)} className={Math.abs(t) < 1e-9 && lo < 0 ? 'zero' : ''} /><text x={pad.l - 8} y={Y(t) + 4} textAnchor="end">{fmtY(Math.abs(t) < 1e-9 ? 0 : t)}</text></g>)}
+          {xt.map(([i, l], k) => <text key={i} className="px-xt" style={{ '--i': k }} x={X(i)} y={H - 8} textAnchor="middle">{l}</text>)}
         </g>
-        {series.map((s, k) => <path key={s.name} className="px-line" d={path(s.values)} stroke={s.color} strokeWidth={s.width ?? 2.5} strokeDasharray={s.dash} style={{ animationDelay: k * 90 + 'ms' }} />)}
-        {marks?.map((m, k) => <g key={k} className="px-mark"><circle cx={X(m.i)} cy={Y(m.v)} r="4.5" /><text x={X(m.i)} y={Y(m.v) + (m.down ? 20 : -10)} textAnchor={X(m.i) > W - 120 ? 'end' : X(m.i) < 120 ? 'start' : 'middle'}>{m.text}</text></g>)}
-        {hover != null && <line className="px-cross" x1={X(hover)} x2={X(hover)} y1={pad.t} y2={H - pad.b} />}
-        {hover != null && series.map(s => s.values[hover] != null && <circle key={s.name} cx={X(hover)} cy={Y(s.values[hover])} r="4.5" fill="var(--nx-card)" stroke={s.color} strokeWidth="2.5" />)}
-        {ends.map(({ s, y }) => <text key={s.name} className="px-endlabel" x={W - pad.r + 8} y={y + 4} fill={s.color}>{s.name}</text>)}
+        <g className={'px-cross' + (hover != null ? ' on' : '')} style={{ transform: `translateX(${hx}px)` }}><line x1="0" x2="0" y1={pad.t} y2={H - pad.b} /></g>
+        {series.map((s, k) => <path key={s.name} className={'px-line' + (s.dash ? ' dash' : '')} pathLength={s.dash ? undefined : 1} d={path(vals[k] ?? s.values)} stroke={s.color} strokeWidth={s.width ?? 2.5} strokeDasharray={s.dash} style={{ animationDelay: 150 + k * 120 + 'ms' }} />)}
+        {marks?.map((m, k) => <g key={k} className="px-mark" style={{ animationDelay: 1100 + k * 80 + 'ms' }}><circle cx={X(m.i)} cy={Y(m.v)} r="4.5" /><text x={X(m.i)} y={Y(m.v) + (m.down ? 20 : -10)} textAnchor={X(m.i) > W - 120 ? 'end' : X(m.i) < 120 ? 'start' : 'middle'}>{m.text}</text></g>)}
+        {hover != null && series.map((s, k) => { const v = vals[k]?.[hover]; return v != null && Number.isFinite(v) && <g key={s.name} className="px-dot" style={{ transform: `translate(${hx}px, ${Y(v)}px)` }}><circle r="4.5" fill="var(--nx-card)" stroke={s.color} strokeWidth="2.5" /></g>; })}
+        {ends.map(({ s, y }, k) => <text key={s.name} className="px-endlabel" style={{ animationDelay: 1000 + k * 90 + 'ms' }} x={W - pad.r + 8} y={y + 4} fill={s.color}>{s.name}</text>)}
       </svg>
-      {tip.node}
+      {hover != null && <div className={'px-ltip' + (flip ? ' flip' : '')} style={{ transform: `translateX(${flip ? hx - 14 : hx + 14}px)` }}>
+        <div className="px-ltip-in"><strong>{xFmt ? xFmt(months[hover]) : monthLabel(months[hover])}</strong>{series.filter(s => s.values[hover] != null).map(s => <span key={s.name}><i style={{ background: s.color }} />{s.name} <b>{ft(s.values[hover])}</b></span>)}</div>
+      </div>}
     </div>
   );
 }

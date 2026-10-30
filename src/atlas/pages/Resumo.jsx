@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { engine } from 'virtual:market';
 import { BarList, Diverging } from '../base/charts.jsx';
 import { Block, Tile } from '../base/block.jsx';
+import { Num } from '../base/motion.js';
 import PanoramaHero from '../base/hero.jsx';
 import '../base/hero.css';
 import { useAtlas } from '../ctx.js';
@@ -56,10 +57,10 @@ export default function Resumo() {
       <Section id="r-foco" title={focusName + ' no recorte'} sub={s ? <>Comparada com o mercado e com o mesmo período de um ano antes ({yearLabel}).</> : null}>
         {!s ? <div className="nx-c12"><Skel h={150} /></div> : <>
           <div className="nx-c12 px-tiles">
-            <Tile dark k={'Emplacamentos · ' + focusName} sub={<>{signed(s.change)} sobre {yearLabel} · mercado {signed(s.marketChange)}</>}>{fmt(s.total)}</Tile>
-            <Tile k="Participação no mercado" sub={s.shareChange != null ? <>{pp(s.shareChange, 2)} em um ano</> : null} red>{pct(s.share, 2)}</Tile>
+            <Tile dark k={'Emplacamentos · ' + focusName} sub={<>{signed(s.change)} sobre {yearLabel} · mercado {signed(s.marketChange)}</>}><Num value={s.total} format={fmt} /></Tile>
+            <Tile k="Participação no mercado" sub={s.shareChange != null ? <>{pp(s.shareChange, 2)} em um ano</> : null} red><Num value={s.share} format={v => pct(v, 2)} /></Tile>
             <Tile k="Posição entre as marcas" sub={s.rankYear ? <>era a {s.rankYear}ª em {yearLabel}</> : <>de {s.brands} marcas</>}>{s.rank ? s.rank + 'ª' : '—'}</Tile>
-            {s.seg && <Tile k={'Participação em ' + s.seg.label.toLowerCase()} sub={<>segmento de {pct(s.seg.ofBrand, 0)} das vendas da marca</>}>{pct(s.seg.share, 1)}</Tile>}
+            {s.seg && <Tile k={'Participação em ' + s.seg.label.toLowerCase()} sub={<>segmento de {pct(s.seg.ofBrand, 0)} das vendas da marca</>}><Num value={s.seg.share} format={v => pct(v, 1)} /></Tile>}
           </div>
           {ss && <Block className="nx-c7" title="De onde veio a variação" sub={<>{focusName}: {fmt(ss.before)} → <em>{fmt(ss.after)}</em>. {Math.abs(ss.perf) >= Math.max(Math.abs(ss.size), Math.abs(ss.mix)) ? <>O que mais pesou foi o <b>desempenho dentro dos segmentos</b>.</> : Math.abs(ss.size) >= Math.abs(ss.mix) ? <>O que mais pesou foi o <b>tamanho do mercado</b>.</> : <>O que mais pesou foi o <b>mix de segmentos</b>.</>}</>}
             info="Separa a variação da marca em três partes. Mercado: o que ela teria ganhado ou perdido mantendo a participação em cada segmento. Mix: o efeito de os segmentos onde ela vende crescerem mais ou menos que o mercado. Desempenho: ganho ou perda de participação dentro dos próprios segmentos (porte BD).">

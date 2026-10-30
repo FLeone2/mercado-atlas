@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { engine } from 'virtual:market';
 import ufGeometry from '../../market/geo/uf-geometry.json';
 import { fmt, rangeText, signed } from './format.js';
+import { Num } from './motion.js';
 
 const VW = 630, VH = 565;
 const UF_PATHS = ufGeometry.features.map(f => ({ uf: f.uf, path: new Path2D(f.path) }));
@@ -96,7 +97,7 @@ export default function PanoramaHero({ model, points, ufFilter, insights, onTip 
         <canvas ref={cv} aria-label="Mapa do Brasil com os emplacamentos por município" role="img" />
         <div className="nxp-copy">
           <div className="nxp-eyebrow">Mercado automotivo · {model ? rangeText(model.range) : 'carregando'}</div>
-          <div className="nxp-big">{model ? fmt(model.total) : '…'}</div>
+          <div className="nxp-big">{model ? <Num value={model.total} format={fmt} duration={1300} /> : '…'}</div>
           <p>emplacamentos{model && Number.isFinite(model.yearChangeRate) ? <>, <b className={model.yearChangeRate >= 0 ? 'up' : 'down'}>{signed(model.yearChangeRate)}</b> sobre o mesmo período do ano anterior</> : ''}.</p>
         </div>
         {insights?.length > 0 && (

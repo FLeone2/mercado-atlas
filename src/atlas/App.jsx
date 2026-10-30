@@ -19,7 +19,7 @@ import './atlas.css';
 /* Atlas: 6 páginas + laboratório, rolagem contínua (sem subabas), uma barra de
    filtros fixa e a marca em foco (Mitsubishi por padrão) comparada com o resto em todas as páginas. */
 /* A marca do Atlas: o mesmo desenho do favicon (public/favicon.svg). */
-const Mark = () => <svg className="px-mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#1d1d1f" /><path d="M32 12.5 49.5 51h-7.9L32 29.4 22.4 51h-7.9z" fill="#fff" /><rect x="22.8" y="39.6" width="18.4" height="5.2" rx="1.6" fill="#e60f2d" /></svg>;
+const Mark = () => <svg className="px-logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#1d1d1f" /><path d="M32 12.5 49.5 51h-7.9L32 29.4 22.4 51h-7.9z" fill="#fff" /><rect x="22.8" y="39.6" width="18.4" height="5.2" rx="1.6" fill="#e60f2d" /></svg>;
 export const PAGES = [
   { slug: 'resumo', label: 'Resumo', C: Resumo },
   { slug: 'mercado', label: 'Mercado', C: Mercado },
