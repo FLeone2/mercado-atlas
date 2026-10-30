@@ -8,6 +8,7 @@ import { PageHead, Section, Scope, Skel } from '../ui.jsx';
 import { Lines, Scatter } from '../charts.jsx';
 import { brandName, fmt, pct, signed, label, list, monthLabel, rangeText, UF_NAMES, historyGroup, ignoredBy, lastCompleteIndex, periodMonths } from '../lib.js';
 import { FocusVersions, segmentVersionRows, useVersionHistory, useVersions } from './versoes.jsx';
+import FocoMensal from './foco-mensal.jsx';
 
 const COMP = ['#1d1d1f', '#8e8e93', '#c7c7cc'];
 
@@ -101,7 +102,7 @@ export default function Foco() {
   const maxIdx = Math.max(2, ...strong.map(r => r.index));
   return (
     <div className="px-page">
-      <PageHead title={focusName} toc={[['f-modelos', 'Modelos'], ['f-versoes', 'Versões'], ['f-segmentos', 'Segmentos'], ['f-canal', 'Canal'], ['f-estados', 'Estados'], ['f-crescer', 'Onde crescer']]} />
+      <PageHead title={focusName} toc={[['f-modelos', 'Modelos'], ['f-versoes', 'Versões'], ['f-segmentos', 'Segmentos'], ['f-mensal', 'Mês a mês'], ['f-canal', 'Canal'], ['f-estados', 'Estados'], ['f-crescer', 'Onde crescer']]} />
 
       <Section id="f-modelos" title={'Modelos da ' + focusName} sub={models?.[0] ? <>{label('grupo_modelo', models[0].name)} responde por {pct(models[0].share, 0)} das vendas da marca no período.</> : null}>
         {!models ? <div className="nx-c12"><Skel h={160} /></div> : (
@@ -134,6 +135,10 @@ export default function Foco() {
             <Scope ignored={[...new Set([...ignored, ...vh.ignored])]} />
           </Block>
         ))}
+      </Section>
+
+      <Section id="f-mensal" title="Mês a mês nos segmentos" sub={'Como a ' + focusName + ' cresce em cada segmento, ao lado do próprio segmento e do mercado: sobre o mês anterior, sobre o mesmo mês do ano anterior ou em participação.'}>
+        <FocoMensal />
       </Section>
 
       <Section id="f-canal" title="Varejo e venda direta" sub={channel ? <>No último mês completo, {pct(channel.f.at(-1), 0)} das vendas de {focusName} foram venda direta, contra {pct(channel.m.at(-1), 0)} no mercado.</> : null}>

@@ -106,6 +106,11 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
     if ((await f.locator('#f-versoes tbody tr').count()) < 5) failures.push('foco: a tabela de versões da marca está vazia');
     await f.evaluate(() => document.querySelector('#f-segmentos')?.scrollIntoView()); await f.waitForTimeout(5000);
     if ((await f.locator('.px-vseg .px-mbar').count()) < 5) failures.push('foco: as barras de versões do segmento não apareceram');
+    await f.evaluate(() => document.querySelector('#f-mensal')?.scrollIntoView()); await f.waitForTimeout(2000);
+    if ((await f.locator('#f-mensal .px-mm tbody tr').count()) < 2) failures.push('foco: a tabela mês a mês dos segmentos está vazia');
+    if ((await f.locator('#f-mensal .px-line').count()) < 2) failures.push('foco: o gráfico mês a mês dos segmentos não desenhou');
+    await f.locator('#f-mensal button', { hasText: 'Participação' }).click(); await f.waitForTimeout(500);
+    if (!(await f.locator('#f-mensal .px-mm tbody td b').first().innerText()).includes('%')) failures.push('foco: a participação mês a mês não apareceu');
     if (f.errors.length) failures.push('foco: ' + f.errors[0]);
     await f.close();
   }
@@ -169,5 +174,5 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
 
   await browser.close();
   if (failures.length) { console.error('FAIL\n  ' + failures.join('\n  ')); process.exit(1); }
-  console.log(`PASS Atlas: ${PAGES.length * 2} páginas sem erro, sem rolagem horizontal e sem peças antigas · filtros · mapa por estado e município · versões · conexões · corrida · simulador · pirâmide · concessionárias · análises técnicas · laboratório (calor e top 3)`);
+  console.log(`PASS Atlas: ${PAGES.length * 2} páginas sem erro, sem rolagem horizontal e sem peças antigas · filtros · mapa por estado e município · versões · mês a mês nos segmentos · conexões · corrida · simulador · pirâmide · concessionárias · análises técnicas · laboratório (calor e top 3)`);
 })();

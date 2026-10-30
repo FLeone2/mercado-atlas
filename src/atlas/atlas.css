@@ -375,3 +375,8 @@
 .px-t3-names{grid-column:2;font:500 12px var(--nx-font);color:var(--nx-soft)}
 .px-t3-multi{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.px-t3-multi figure{margin:0}.px-t3-multi figcaption{font:650 11px var(--nx-font);letter-spacing:.06em;text-transform:uppercase;color:var(--nx-soft);margin-bottom:6px}
 @media(max-width:860px){.px-t3{grid-template-columns:1fr}.px-t3-multi{grid-template-columns:1fr}}
+
+/* ---- mês a mês nos segmentos ---- */
+.px-mm th,.px-mm td{white-space:nowrap}.px-mm tbody tr{cursor:pointer}.px-mm tbody tr.sel th{color:var(--nx-accent)}
+.px-mm-c{text-align:center;padding:6px 8px!important;border-radius:8px}.px-mm-c b{display:block;font:700 13.5px var(--nx-font);font-variant-numeric:tabular-nums}.px-mm-c small{display:block;font:500 11px var(--nx-font);color:var(--nx-soft)}
+.px-mm-c.up{background:var(--px-up-soft)}.px-mm-c.down{background:var(--px-down-soft)}
