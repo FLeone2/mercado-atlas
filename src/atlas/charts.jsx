@@ -4,6 +4,7 @@ import { engine } from 'virtual:market';
 import { useTip } from './base/charts.jsx';
 import { useInView, useMorph } from './base/motion.js';
 import { fmt, pct, pp, signed, monthLabel } from './lib.js';
+import ChartData from './ChartData.jsx';
 
 const niceStep = raw => { const mag = Math.pow(10, Math.floor(Math.log10(raw))); for (const m of [1, 2, 2.5, 5, 10]) if (m * mag >= raw) return m * mag; return 10 * mag; };
 export const niceMax = (v, ticks = 4) => { if (!(v > 0)) return { max: 1, step: .25 }; const step = niceStep(v / ticks); return { max: Math.ceil(v / step) * step, step }; };
@@ -15,7 +16,7 @@ export { compact };
    um dos dois períodos, mais a marca em foco; a posição escrita é a real. Verde subiu, âmbar caiu,
    vermelho é a marca em foco. Passar o mouse destaca; clicar fixa o destaque. */
 export function Slope({ a, b, focus, measure = 'volume', topN = 15, labelA, labelB, totalA, totalB }) {
-  const [hov, setHov] = useState(null), [lock, setLock] = useState(null), tip = useTip();
+  const [hov, setHov] = useState(null), [lock, setLock] = useState(null), [keyboard, setKeyboard] = useState(null), tip = useTip();
   const d = useMemo(() => {
     const rank = rows => new Map([...rows].filter(r => r.count > 0).sort((x, y) => y.count - x.count).map((r, i) => [r.name, { ...r, rank: i + 1 }]));
     const A = rank(a), B = rank(b), keep = new Set(), isFocus = n => (focus instanceof Set ? focus.has(n) : n === focus);
@@ -44,9 +45,25 @@ export function Slope({ a, b, focus, measure = 'volume', topN = 15, labelA, labe
   const color = r => (r.focus ? 'var(--nx-accent)' : r.move > 0 ? 'var(--nx-up)' : r.move < 0 ? 'var(--nx-down)' : 'var(--nx-soft)');
   const show = (e, r) => tip.show(e, <><strong>{r.label}</strong>{r.a && <span>{labelA}: <b>{r.a.rank}º · {val(r.a, totalA)}</b></span>}{r.b && <span>{labelB}: <b>{r.b.rank}º · {val(r.b, totalB)}</b></span>}{r.move ? <span>{r.move > 0 ? 'Subiu ' + r.move : 'Caiu ' + -r.move} {Math.abs(r.move) === 1 ? 'posição' : 'posições'}</span> : null}</>);
   const ordered = [...d.rows].sort((p, q) => (on(p) || p.focus ? 1 : 0) - (on(q) || q.focus ? 1 : 0));
+  const keyName = d.rows.some(r => r.name === keyboard) ? keyboard : d.rows[0]?.name;
+  const selected = d.rows.find(r => r.name === (lock ?? hov));
+  const rowText = r => r.label + ': ' + labelA + ', ' + (r.a ? r.a.rank + 'º, ' + val(r.a, totalA) : 'sem registro') + '; ' + labelB + ', ' + (r.b ? r.b.rank + 'º, ' + val(r.b, totalB) : 'sem registro');
+  const rowKey = (e, r) => {
+    const index = d.rows.indexOf(r);
+    let next = null;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') next = (index + 1) % d.rows.length;
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') next = (index - 1 + d.rows.length) % d.rows.length;
+    if (e.key === 'Home') next = 0;
+    if (e.key === 'End') next = d.rows.length - 1;
+    if (next != null) {
+      e.preventDefault(); setLock(null); setKeyboard(d.rows[next].name); setHov(d.rows[next].name);
+      e.currentTarget.ownerSVGElement.querySelector('[data-slope-index="' + next + '"]')?.focus();
+    } else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setLock(l => l === r.name ? null : r.name); }
+    else if (e.key === 'Escape') { e.preventDefault(); setLock(null); setHov(null); }
+  };
   return (
     <div ref={ref} className="px-chartbox">
-      <svg className="px-ch px-slope" width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Ranking conectado: ${labelA} contra ${labelB}`} onPointerLeave={() => { setHov(null); tip.hide(); }}>
+      <svg className="px-ch px-slope" width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="group" aria-label={`Ranking conectado: ${labelA} contra ${labelB}`} onPointerLeave={() => { if (!keyboard) setHov(null); tip.hide(); }}>
         <text className="px-slope-h" x={0} y={18}>{labelA}</text><text className="px-slope-h" x={W} y={18} textAnchor="end">{labelB}</text>
         <text className="px-slope-s" x={0} y={36}>{fmt(totalA)}{narrow ? '' : ' emplacamentos'}</text><text className="px-slope-s" x={W} y={36} textAnchor="end">{fmt(totalB)}{narrow ? '' : ' emplacamentos'}</text>
         {d.rows.map(r => r.ia != null && r.ia % 2 === 0 && <rect key={'z' + r.name} className="px-slope-zebra" x={0} width={W} y={top + r.ia * rowH} height={rowH} rx="8" />)}
@@ -54,7 +71,7 @@ export function Slope({ a, b, focus, measure = 'volume', topN = 15, labelA, labe
           const lit = on(r) || (!anyOn && r.focus), dim = anyOn && !on(r), c = color(r);
           const path = r.ia != null && r.ib != null ? `M${xa} ${y(r.ia)} C${(xa + xb) / 2} ${y(r.ia)} ${(xa + xb) / 2} ${y(r.ib)} ${xb} ${y(r.ib)}` : null;
           return (
-            <g key={r.name} className="px-slope-row" style={{ opacity: dim ? .16 : 1 }} onPointerEnter={() => setHov(r.name)} onPointerMove={e => show(e, r)} onClick={() => setLock(l => (l === r.name ? null : r.name))}>
+            <g key={r.name} className="px-slope-row" data-slope-index={d.rows.indexOf(r)} role="button" tabIndex={r.name === keyName ? 0 : -1} aria-label={rowText(r)} aria-pressed={lock === r.name} style={{ opacity: dim ? .16 : 1 }} onFocus={() => { setKeyboard(r.name); setHov(r.name); }} onKeyDown={e => rowKey(e, r)} onPointerEnter={() => setHov(r.name)} onPointerMove={e => show(e, r)} onClick={() => { setKeyboard(r.name); setLock(l => (l === r.name ? null : r.name)); }}>
               {path && <path d={path} fill="none" stroke={c} strokeWidth={lit ? 4 : r.move ? 2 : 1.4} strokeOpacity={lit ? 1 : r.move ? .55 : .35} className="px-slope-line" pathLength={1} />}
               {r.ia != null && <g className={'px-slope-l' + (lit ? ' lit' : '') + (r.focus ? ' focus' : '')}>
                 <text x={8} y={y(r.ia) + 5} className="px-slope-rank">{r.a.rank}º</text>
@@ -74,6 +91,8 @@ export function Slope({ a, b, focus, measure = 'volume', topN = 15, labelA, labe
           );
         })}
       </svg>
+      <p className="px-chart-readout" aria-live="polite" aria-atomic="true">{selected ? rowText(selected) + (lock ? ' · destaque fixado' : '') : 'Use as setas para percorrer as marcas; Enter fixa o destaque e Escape limpa.'}</p>
+      <ChartData caption={'Ranking conectado: ' + labelA + ' contra ' + labelB} columns={['Marca ou modelo', { label: labelA + ' · posição', numeric: true }, { label: labelA + ' · valor', numeric: true }, { label: labelB + ' · posição', numeric: true }, { label: labelB + ' · valor', numeric: true }]} rows={[...d.rows].sort((p, q) => (p.b?.rank ?? Infinity) - (q.b?.rank ?? Infinity)).map(r => [r.label, r.a ? r.a.rank + 'º' : '—', r.a ? val(r.a, totalA) : '—', r.b ? r.b.rank + 'º' : '—', r.b ? val(r.b, totalB) : '—'])} />
       {tip.node}
     </div>
   );
@@ -212,7 +231,8 @@ function smoothPath(pts) {
   return s;
 }
 export function Lines({ months, series, fmtY = fmt, fmtTip, height = 300, endLabels = true, label: aria, yMin, marks, shade, xFmt, curve = 'smooth' }) {
-  const [box, w] = useWidth(), [hover, setHover] = useState(null), seen = useInView(box, .25);
+  const [box, w] = useWidth(), [rawHover, setHover] = useState(null), [pinned, setPinned] = useState(false), [focused, setFocused] = useState(false), seen = useInView(box, .25);
+  const hover = rawHover == null || !months.length ? null : Math.max(0, Math.min(months.length - 1, rawHover));
   const vals = useMorph(useMemo(() => series.map(s => s.values), [series]));
   const W = Math.max(260, w || 600), H = height, n = months.length;
   const longest = endLabels ? Math.max(0, ...series.map(s => String(s.name).length)) : 0;
@@ -229,13 +249,26 @@ export function Lines({ months, series, fmtY = fmt, fmtTip, height = 300, endLab
     : months.map((m, i) => [i, m]).filter(([i]) => (n - 1 - i) % every === 0).map(([i, m]) => [i, monthLabel(m).replace('/20', '/')]);
   const ft = fmtTip ?? fmtY;
   const move = e => { const r = e.currentTarget.getBoundingClientRect(), i = Math.max(0, Math.min(n - 1, Math.round((e.clientX - r.left - pad.l) / (W - pad.l - pad.r) * (n - 1)))); if (i !== hover) setHover(i); };
+  const key = e => {
+    if (!n) return;
+    let next = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') next = Math.min(n - 1, (hover ?? -1) + 1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') next = Math.max(0, (hover ?? n) - 1);
+    if (e.key === 'Home') next = 0;
+    if (e.key === 'End') next = n - 1;
+    if (next != null) { e.preventDefault(); setHover(next); }
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setHover(hover ?? n - 1); setPinned(p => !p); }
+    else if (e.key === 'Escape') { e.preventDefault(); setPinned(false); setHover(null); }
+  };
+  const chartLabel = aria ?? series.map(s => s.name).join(', ');
+  const periodLabel = i => xFmt ? xFmt(months[i]) : monthLabel(months[i]);
   const ends = endLabels ? series.map((s, k) => { let j = s.values.length - 1; while (j >= 0 && s.values[j] == null) j--; return j >= 0 ? { s, y: Y(vals[k]?.[j] ?? s.values[j]) } : null; }).filter(Boolean).sort((a, b) => a.y - b.y) : [];
   for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 15) ends[i].y = ends[i - 1].y + 15;
   // caixa do mês sob o ponteiro: presa ao mês, troca de lado perto da borda direita
   const hx = hover != null ? X(hover) : 0, flip = hx > pad.l + (W - pad.l - pad.r) * .62;
   return (
     <div ref={box} className={'px-chartbox' + (seen ? ' in' : '')}>
-      <svg className="px-ch" width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} onPointerMove={move} onPointerLeave={() => setHover(null)}>
+      <svg className="px-ch px-line-interactive" width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="group" tabIndex={0} aria-label={chartLabel + '. Use as setas para consultar períodos, Enter para fixar e Escape para limpar.'} onKeyDown={key} onFocus={() => { setFocused(true); setHover(h => h ?? n - 1); }} onBlur={() => { setFocused(false); if (!pinned) setHover(null); }} onPointerMove={e => { if (!pinned) move(e); }} onClick={e => { move(e); setPinned(p => !p); }} onPointerLeave={() => { if (!pinned && !focused) setHover(null); }}>
         {shade && <rect x={X(shade[0]) - 3} width={Math.max(6, X(shade[1]) - X(shade[0]) + 6)} y={pad.t} height={H - pad.t - pad.b} className="px-shade" />}
         <g className="px-axis">
           {ticks.map((t, k) => <g key={t} style={{ '--i': ticks.length - 1 - k }}><line x1={pad.l} x2={W - pad.r} y1={Y(t)} y2={Y(t)} className={Math.abs(t) < 1e-9 && lo < 0 ? 'zero' : ''} /><text x={pad.l - 8} y={Y(t) + 4} textAnchor="end">{fmtY(Math.abs(t) < 1e-9 ? 0 : t)}</text></g>)}
@@ -248,8 +281,11 @@ export function Lines({ months, series, fmtY = fmt, fmtTip, height = 300, endLab
         {ends.map(({ s, y }, k) => <text key={s.name} className="px-endlabel" style={{ animationDelay: 1000 + k * 90 + 'ms' }} x={W - pad.r + 8} y={y + 4} fill={s.color}>{s.name}</text>)}
       </svg>
       {hover != null && <div className={'px-ltip' + (flip ? ' flip' : '')} style={{ transform: `translateX(${flip ? hx - 14 : hx + 14}px)` }}>
-        <div className="px-ltip-in"><strong>{xFmt ? xFmt(months[hover]) : monthLabel(months[hover])}</strong>{series.filter(s => s.values[hover] != null).map(s => <span key={s.name}><i style={{ background: s.color }} />{s.name} <b>{ft(s.values[hover])}</b></span>)}</div>
+        <div className="px-ltip-in"><strong>{periodLabel(hover)}</strong>{series.filter(s => s.values[hover] != null).map(s => <span key={s.name}><i style={{ background: s.color }} />{s.name} <b>{ft(s.values[hover])}</b></span>)}</div>
       </div>}
+      <p className="px-chart-readout" aria-live="polite" aria-atomic="true">{hover != null ? periodLabel(hover) + ': ' + series.map(s => s.name + ' ' + (s.values[hover] != null ? ft(s.values[hover]) : 'sem dado')).join('; ') + (pinned ? ' · consulta fixada' : '') : 'Use as setas ou toque no gráfico para consultar um período.'}</p>
+      {pinned && <button type="button" className="px-release" onClick={() => { setPinned(false); setHover(null); }}>Liberar consulta</button>}
+      <ChartData caption={chartLabel} columns={['Período', ...series.map(s => ({ label: s.name, numeric: true }))]} rows={months.map((m, i) => [periodLabel(i), ...series.map(s => s.values[i] != null ? ft(s.values[i]) : '—')])} />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Children, isValidElement, useRef, useState } from 'react';
+import { Children, isValidElement, useId, useRef, useState } from 'react';
 import { exportRootToPng, exportContextSlug } from '../../kit/index.js';
 import { useInView } from './motion.js';
 
@@ -7,12 +7,12 @@ export const Tile = ({ k, children, sub, dark, red, small }) => <div className={
 
 /* ⓘ that opens a short explanation on hover, focus or tap. */
 export function InfoTip({ children, label = 'O que este gráfico mostra' }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false), id = useId();
   if (children == null || children === '' || children === false) return null;
   return (
     <span className="nx-info" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <button type="button" aria-label={label} aria-expanded={open} onClick={() => setOpen(o => !o)} onBlur={() => setOpen(false)}>i</button>
-      {open && <span className="nx-info-pop" role="note">{children}</span>}
+      <button type="button" aria-label={label} aria-expanded={open} aria-describedby={open ? id : undefined} onFocus={() => setOpen(true)} onClick={() => setOpen(true)} onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); setOpen(false); } }} onBlur={() => setOpen(false)}>i</button>
+      {open && <span className="nx-info-pop" id={id} role="tooltip">{children}</span>}
     </span>
   );
 }
@@ -40,7 +40,7 @@ export function Block({ title, sub, info, caption, children, className = '', act
       {(title || actions) && (
         <div className="nx-block-head">
           <div className="nx-block-titles">
-            {title && <h3 className="nx-block-t">{title}<InfoTip>{tip}</InfoTip><button type="button" className="nx-dl" onClick={download} disabled={busy} aria-label="Baixar imagem (PNG)" title="Baixar imagem (PNG)"><svg viewBox="0 0 16 16" aria-hidden><path d="M8 2v8m0 0L4.5 6.6M8 10l3.5-3.4M3 13h10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg></button></h3>}
+            {title && <div className="px-card-title"><h3 className="nx-block-t">{title}</h3><span className="px-card-tools"><InfoTip>{tip}</InfoTip><button type="button" className="nx-dl" onClick={download} disabled={busy} aria-label="Baixar imagem (PNG)" title="Baixar imagem (PNG)"><svg viewBox="0 0 16 16" aria-hidden><path d="M8 2v8m0 0L4.5 6.6M8 10l3.5-3.4M3 13h10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg></button></span></div>}
             {sub && <p className="nx-block-sub">{sub}</p>}
           </div>
           {actions && <div className="nx-block-actions">{actions}</div>}

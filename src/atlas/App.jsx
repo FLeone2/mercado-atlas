@@ -15,11 +15,12 @@ import Economia from './pages/Economia.jsx';
 import Laboratorio from './pages/Laboratorio.jsx';
 import './base/base.css';
 import './atlas.css';
+import './refinement.css';
 
 /* Atlas: 6 páginas + laboratório, rolagem contínua (sem subabas), uma barra de
    filtros fixa e a marca em foco (Mitsubishi por padrão) comparada com o resto em todas as páginas. */
 /* A marca do Atlas: o mesmo desenho do favicon (public/favicon.svg). */
-const Mark = () => <svg className="px-logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#1d1d1f" /><path d="M32 12.5 49.5 51h-7.9L32 29.4 22.4 51h-7.9z" fill="#fff" /><rect x="22.8" y="39.6" width="18.4" height="5.2" rx="1.6" fill="#e60f2d" /></svg>;
+const Mark = () => <svg className="px-logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="var(--nx-ink)" /><path d="M32 12.5 49.5 51h-7.9L32 29.4 22.4 51h-7.9z" fill="#fff" /><rect x="22.8" y="39.6" width="18.4" height="5.2" rx="1.6" fill="var(--nx-accent)" /></svg>;
 export const PAGES = [
   { slug: 'resumo', label: 'Resumo', C: Resumo },
   { slug: 'mercado', label: 'Mercado', C: Mercado },
@@ -58,6 +59,17 @@ export default function App() {
   }, [names]);
 
   const [page, setPage] = useState(readPage);
+  const [menuOpen, setMenuOpen] = useState(false), menu = useRef(null), menuButton = useRef(null), firstPage = useRef(true);
+  useEffect(() => {
+    const dialog = menu.current;
+    if (menuOpen && !dialog.open) dialog.showModal();
+    if (!menuOpen && dialog.open) dialog.close();
+  }, [menuOpen]);
+  useEffect(() => {
+    if (firstPage.current) { firstPage.current = false; return; }
+    const frame = requestAnimationFrame(() => document.querySelector('#atlas-content h1')?.focus({ preventScroll: true }));
+    return () => cancelAnimationFrame(frame);
+  }, [page]);
   const go = useCallback((slug, anchor) => {
     const done = () => { if (anchor) requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' })); };
     if (slug === page) { if (anchor) done(); else scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' }); return; }
@@ -91,25 +103,34 @@ export default function App() {
 
   const Page = current.C;
   const label = p => (p.slug === 'foco' ? brandName(focus) : p.label);
+  const pageHref = slug => { const params = new URLSearchParams(location.search); params.set('a', slug); return '?' + params.toString(); };
+  const navigate = (e, slug, anchor) => {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault(); setMenuOpen(false); go(slug, anchor);
+  };
+  const closeMenu = () => { setMenuOpen(false); requestAnimationFrame(() => menuButton.current?.focus()); };
   return (
     <Ctx.Provider value={ctx}>
       <div className="nx px" data-page={page}>
+        <a className="px-skip" href="#atlas-content">Pular para o conteúdo</a>
         <header className="nx-nav px-nav" data-tone="light">
-          <a className="nx-brand px-brand" href="?" onClick={e => { e.preventDefault(); go('resumo'); }} aria-label="Atlas · Mercado Automotivo, início"><Mark />Atlas</a>
+          <a className="nx-brand px-brand" href={pageHref('resumo')} onClick={e => navigate(e, 'resumo')} aria-label="Atlas · Mercado Automotivo, início"><Mark />Atlas</a>
           <nav className="nx-links" aria-label="Páginas">
-            {PAGES.map(p => <a key={p.slug} href={'?a=' + p.slug} aria-current={p.slug === page ? 'page' : undefined} className={p.slug === 'foco' ? 'px-focus-link' : undefined} onClick={e => { e.preventDefault(); go(p.slug); }}>{label(p)}</a>)}
+            {PAGES.map(p => <a key={p.slug} href={pageHref(p.slug)} aria-current={p.slug === page ? 'page' : undefined} className={p.slug === 'foco' ? 'px-focus-link' : undefined} onClick={e => navigate(e, p.slug)}>{label(p)}</a>)}
           </nav>
+          <button className="px-menu-toggle" type="button" ref={menuButton} aria-haspopup="dialog" aria-expanded={menuOpen} aria-controls="atlas-menu" onClick={() => setMenuOpen(true)}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14" /></svg>Menu</button>
         </header>
+        <dialog className="px-dialog px-menu-dialog" ref={menu} id="atlas-menu" aria-labelledby="atlas-menu-title" onCancel={e => { e.preventDefault(); closeMenu(); }} onClick={e => { if (e.target === e.currentTarget) closeMenu(); }}>
+          <div className="px-dialog-head"><h2 id="atlas-menu-title">Navegar pelo Atlas</h2><button type="button" onClick={closeMenu}>Fechar</button></div>
+          <nav aria-label="Todas as páginas">{PAGES.map(p => <a key={p.slug} href={pageHref(p.slug)} aria-current={p.slug === page ? 'page' : undefined} onClick={e => navigate(e, p.slug)}>{label(p)}</a>)}</nav>
+        </dialog>
         <FilterBar />
-        <nav className="nx-dock" aria-label="Páginas (celular)">
-          {PAGES.map(p => <a key={p.slug} href={'?a=' + p.slug} aria-current={p.slug === page ? 'page' : undefined} onClick={e => { e.preventDefault(); go(p.slug); }}>{label(p)}</a>)}
-        </nav>
         {q.error && <div className="nx-status err" role="alert">Não foi possível calcular este recorte ({q.error}). Ajuste os filtros ou recarregue a página.</div>}
-        <main className={'px-main' + (stale ? ' nx-stale' : '')} aria-busy={q.pending || undefined}>
+        <main id="atlas-content" tabIndex={-1} className={'px-main' + (stale ? ' nx-stale' : '')} aria-busy={q.pending || undefined}>
           <Page />
           <footer className="px-foot nx-wrap">
             <span>Fonte: emplacamentos mensais (cubos do Atlas) · série mensal desde 2016 · BCB para os indicadores econômicos.</span>
-            <a href="?a=laboratorio" onClick={e => { e.preventDefault(); go('laboratorio', 'l-metodologia'); }}>Dados e metodologia</a>
+            <a href={pageHref('laboratorio') + '#l-metodologia'} onClick={e => navigate(e, 'laboratorio', 'l-metodologia')}>Dados e metodologia</a>
           </footer>
         </main>
         {tip.node}

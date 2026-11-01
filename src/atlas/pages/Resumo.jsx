@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { engine } from 'virtual:market';
 import { BarList, Diverging } from '../base/charts.jsx';
-import { Block, Tile } from '../base/block.jsx';
+import { Block } from '../base/block.jsx';
 import { Num } from '../base/motion.js';
 import PanoramaHero from '../base/hero.jsx';
 import '../base/hero.css';
@@ -44,23 +44,31 @@ export default function Resumo() {
     return { months, market: Array.from(g.total.slice(i0, i1 + 1)), share: months.map((_, k) => (g.total[i0 + k] > 0 ? (f?.[i0 + k] ?? 0) / g.total[i0 + k] : null)) };
   }, [hist.data, mFilters, market?.range, focus]);
   const ignored = ignoredBy(mFilters);
+  const summary = s && Number.isFinite(s.marketChange) && s.shareChange != null
+    ? 'Mercado ' + (s.marketChange > 0 ? 'cresce' : s.marketChange < 0 ? 'recua' : 'estável') + '; ' + focusName + ' ' + (s.shareChange > .00001 ? 'ganha' : s.shareChange < -.00001 ? 'perde' : 'mantém') + ' participação.'
+    : 'Mercado e marca em foco, no mesmo recorte.';
+  const changeTone = value => value > 0 ? 'up' : value < 0 ? 'down' : '';
 
   return (
     <div className="px-page">
-      <PageHead title="Resumo" strip={false} toc={[['r-foco', focusName + ' no recorte'], ['r-marcas', 'Marcas'], ['r-tendencia', '24 meses']]} />
-      <div className="nx-wrap">
-        <div className="nxp-heroframe px-hero">
-          <PanoramaHero model={market} points={points} ufFilter={list(filters.uf)} insights={insights} onTip={t => (t ? tip.show(t.e, t.html) : tip.hide())} />
-        </div>
+      <PageHead title="Resumo do mercado" strip={false} toc={[['r-foco', focusName + ' no recorte'], ['r-marcas', 'Marcas'], ['r-tendencia', '24 meses']]} />
+      <div className="nx-wrap px-overview">
+        <p className="px-summary">{summary}</p>
+        {!s ? <Skel h={112} /> : <dl className="px-kpi-band" aria-label="Mercado e marca em foco">
+          <div><dt>Mercado</dt><dd><Num value={market.total} format={fmt} /></dd><small><span className={changeTone(s.marketChange)}>{signed(s.marketChange)}</span> sobre {yearLabel}</small></div>
+          <div className="px-kpi-focus"><dt>{focusName}</dt><dd><Num value={s.total} format={fmt} /></dd><small><span className={changeTone(s.change)}>{signed(s.change)}</span> sobre {yearLabel}</small></div>
+          <div><dt>Participação no mercado</dt><dd><Num value={s.share} format={v => pct(v, 2)} /></dd><small><span className={changeTone(s.shareChange)}>{s.shareChange != null ? pp(s.shareChange, 2) : '—'}</span> em um ano</small></div>
+          <div><dt>Posição entre as marcas</dt><dd>{s.rank ? s.rank + 'ª' : '—'}</dd><small>{s.rankYear ? 'Era a ' + s.rankYear + 'ª em ' + yearLabel : 'De ' + s.brands + ' marcas'}</small></div>
+        </dl>}
       </div>
 
       <Section id="r-foco" title={focusName + ' no recorte'} sub={s ? <>Comparada com o mercado e com o mesmo período de um ano antes ({yearLabel}).</> : null}>
         {!s ? <div className="nx-c12"><Skel h={150} /></div> : <>
-          <div className="nx-c12 px-tiles">
-            <Tile dark k={'Emplacamentos · ' + focusName} sub={<>{signed(s.change)} sobre {yearLabel} · mercado {signed(s.marketChange)}</>}><Num value={s.total} format={fmt} /></Tile>
-            <Tile k="Participação no mercado" sub={s.shareChange != null ? <>{pp(s.shareChange, 2)} em um ano</> : null} red><Num value={s.share} format={v => pct(v, 2)} /></Tile>
-            <Tile k="Posição entre as marcas" sub={s.rankYear ? <>era a {s.rankYear}ª em {yearLabel}</> : <>de {s.brands} marcas</>}>{s.rank ? s.rank + 'ª' : '—'}</Tile>
-            {s.seg && <Tile k={'Participação em ' + s.seg.label.toLowerCase()} sub={<>segmento de {pct(s.seg.ofBrand, 0)} das vendas da marca</>}><Num value={s.seg.share} format={v => pct(v, 1)} /></Tile>}
+          <div className="nx-c5 px-summary-map">
+            <div className="nxp-heroframe px-hero">
+              <PanoramaHero compact model={market} points={points} ufFilter={list(filters.uf)} insights={insights} onTip={t => (t ? tip.show(t.e, t.html) : tip.hide())} />
+            </div>
+            {insights.length > 0 && <ul className="px-map-notes" aria-label="Observações rápidas">{insights.slice(0, 3).map(i => <li key={i.id}>{i.text}</li>)}</ul>}
           </div>
           {ss && <Block className="nx-c7" title="De onde veio a variação" sub={<>{focusName}: {fmt(ss.before)} → <em>{fmt(ss.after)}</em>. {Math.abs(ss.perf) >= Math.max(Math.abs(ss.size), Math.abs(ss.mix)) ? <>O que mais pesou foi o <b>desempenho dentro dos segmentos</b>.</> : Math.abs(ss.size) >= Math.abs(ss.mix) ? <>O que mais pesou foi o <b>tamanho do mercado</b>.</> : <>O que mais pesou foi o <b>mix de segmentos</b>.</>}</>}
             info="Separa a variação da marca em três partes. Mercado: o que ela teria ganhado ou perdido mantendo a participação em cada segmento. Mix: o efeito de os segmentos onde ela vende crescerem mais ou menos que o mercado. Desempenho: ganho ou perda de participação dentro dos próprios segmentos (porte BD).">
@@ -72,10 +80,11 @@ export default function Resumo() {
               { label: rangeText(market.range), note: 'agora', value: ss.after, kind: 'total' },
             ]} />
           </Block>}
-          {ss && <Block className="nx-c5" title="Onde o desempenho mudou" sub="Participação da marca em cada segmento, antes e agora" info="Segmentos (porte BD) onde a marca vende, ordenados pelo efeito de desempenho: participação de agora menos a de antes, vezes o tamanho do segmento agora.">
+          {ss && <Block className="nx-c12" title="Onde o desempenho mudou" sub="Participação da marca em cada segmento, antes e agora" info="Segmentos (porte BD) onde a marca vende, ordenados pelo efeito de desempenho: participação de agora menos a de antes, vezes o tamanho do segmento agora.">
             <div className="px-segs">
               {ss.segs.slice(0, 6).map(g => <div key={g.name} className="px-segrow"><span>{label('bd_segmento', g.name)}</span><span>{pct(g.share0, 1)} → <b>{pct(g.share1, 1)}</b></span><span className={g.perf >= 0 ? 'up' : 'down'}>{g.perf >= 0 ? '+' : '−'}{fmt(Math.abs(g.perf))}</span></div>)}
             </div>
+            {s.seg && <p className="px-focus-detail">A participação em {s.seg.label.toLowerCase()} é de <b>{pct(s.seg.share, 1)}</b>; o segmento representa {pct(s.seg.ofBrand, 0)} das vendas de {focusName}.</p>}
           </Block>}
         </>}
       </Section>

@@ -2,13 +2,15 @@ import { useEffect, useMemo, useRef } from 'react';
 import { engine } from 'virtual:market';
 import ufGeometry from '../../market/geo/uf-geometry.json';
 import { fmt, rangeText, signed } from './format.js';
-import { Num } from './motion.js';
+import { Num, useReducedMotion } from './motion.js';
+import ChartData from '../ChartData.jsx';
 
 const VW = 630, VH = 565;
 const UF_PATHS = ufGeometry.features.map(f => ({ uf: f.uf, path: new Path2D(f.path) }));
 
 /* The country as a field of light: one point per municipality, area proportional to its registrations in the current filter. */
-export default function PanoramaHero({ model, points, ufFilter, insights, onTip }) {
+export default function PanoramaHero({ model, points, ufFilter, insights, onTip, compact = false }) {
+  const rm = useReducedMotion();
   const wrap = useRef(null), cv = useRef(null), state = useRef({ p: 0, hover: null, view: null, target: null, t0: performance.now() });
   const dots = useMemo(() => {
     if (!model || !points?.rows) return [];
@@ -35,11 +37,12 @@ export default function PanoramaHero({ model, points, ufFilter, insights, onTip 
         const w = Math.max(40, x1 - x0) * 1.25, h = Math.max(40, y1 - y0) * 1.25;
         return { k: Math.min(W * .56 / w, H * .78 / h), cx: (x0 + x1) / 2, cy: (y0 + y1) / 2 };
       }
-      return { k: Math.min(W * .62 / VW, H * .9 / VH), cx: VW / 2, cy: VH / 2 };
+      return { k: Math.min(W * (compact ? .88 : .62) / VW, H * (compact ? .78 : .9) / VH), cx: VW / 2, cy: VH / 2 };
     };
     const narrow = () => W < 720;
     const geo = () => {
       const v = s.view, p = s.p;
+      if (compact) return { k: v.k, ox: W * .5 - v.cx * v.k, oy: H * .56 - v.cy * v.k };
       if (narrow()) { const kk = v.k * (W * .98 / (W * .62)) * Math.min(1, (H * .5 / VH) / (W * .98 / VW)) * 1; return { k: kk, ox: W * .5 - v.cx * kk, oy: H * .7 - v.cy * kk }; }
       const k = v.k, anchor = W * .68;
       return { k, ox: anchor - v.cx * k, oy: H * .5 - v.cy * k };
@@ -50,8 +53,9 @@ export default function PanoramaHero({ model, points, ufFilter, insights, onTip 
       const { glow, accent } = colors();
       s.target = fit(); if (!s.view || force && !s.view) s.view = { ...s.target };
       const v = s.view, t = s.target; let moving = false;
+      if (rm) Object.assign(v, t);
       for (const key of ['k', 'cx', 'cy']) { const d = t[key] - v[key]; if (Math.abs(d) > Math.abs(t[key]) * 1e-3 + 1e-4) { v[key] += d * .14; moving = true; } else v[key] = t[key]; }
-      const g = geo(), ease = Math.min(1, (performance.now() - s.t0) / 1700), e = 1 - Math.pow(1 - ease, 3);
+      const g = geo(), ease = rm ? 1 : Math.min(1, (performance.now() - s.t0) / 1700), e = 1 - Math.pow(1 - ease, 3);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
       ctx.save(); ctx.translate(g.ox, g.oy); ctx.scale(g.k, g.k); ctx.lineWidth = 1.1 / g.k;
       UF_PATHS.forEach(({ uf, path }) => { const on = !ufFilter?.length || ufFilter.includes(uf); ctx.strokeStyle = `rgba(255,255,255,${on ? .2 : .07})`; ctx.stroke(path); });
@@ -89,26 +93,27 @@ export default function PanoramaHero({ model, points, ufFilter, insights, onTip 
     addEventListener('resize', resize);
     resize();
     return () => { cancelAnimationFrame(raf); removeEventListener('resize', resize); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerleave', leave); };
-  }, [dots, max, ufFilter]);
+  }, [dots, max, ufFilter, rm, compact]);
 
   return (
-    <section className="nxp-hero" ref={wrap} id="topo">
+    <section className={'nxp-hero' + (compact ? ' compact' : '')} ref={wrap} id="topo">
       <div className="nxp-stick">
         <canvas ref={cv} aria-label="Mapa do Brasil com os emplacamentos por município" role="img" />
-        <div className="nxp-copy">
+        {compact ? <h3 className="px-map-title">Onde o mercado se concentra</h3> : <div className="nxp-copy">
           <div className="nxp-eyebrow">Mercado automotivo · {model ? rangeText(model.range) : 'carregando'}</div>
           <div className="nxp-big">{model ? <Num value={model.total} format={fmt} duration={1300} /> : '…'}</div>
           <p>emplacamentos{model && Number.isFinite(model.yearChangeRate) ? <>, <b className={model.yearChangeRate >= 0 ? 'up' : 'down'}>{signed(model.yearChangeRate)}</b> sobre o mesmo período do ano anterior</> : ''}.</p>
-        </div>
-        {insights?.length > 0 && (
+        </div>}
+        {!compact && insights?.length > 0 && (
           <aside className="nxp-obs" aria-label="Observações rápidas">
             <h2>Observações rápidas</h2>
             <ul>{insights.slice(0, 3).map(i => <li key={i.id} className={i.tone}>{i.text}</li>)}</ul>
           </aside>
         )}
         <div className="nx-callouts">{tops.map(d => <div key={d.code} className="nx-callout">{d.name}<small>{fmt(d.v)}</small></div>)}</div>
-        <div className="nxp-hint">Cada ponto é um município; passe o mouse para ver os valores</div>
+        <div className="nxp-hint">Cada ponto representa os emplacamentos de um município.</div>
       </div>
+      {compact && <div className="px-map-table"><ChartData caption="Emplacamentos por município" columns={['Município', 'UF', { label: 'Emplacamentos', numeric: true }]} rows={[...dots].reverse().map(d => [d.name, d.uf, fmt(d.v)])} /></div>}
     </section>
   );
 }

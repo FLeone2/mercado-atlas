@@ -1,4 +1,4 @@
-import { createElement, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { createElement, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 
 /* Movimento do Atlas, sem biblioteca: entradas que começam quando o gráfico aparece na tela,
    transições entre dados (o gráfico se transforma em vez de piscar) e números que contam.
@@ -56,15 +56,8 @@ export function useMorph(target, duration = 650) {
   return shown;
 }
 
-/* número que conta: de 0 ao valor na primeira vez, e do valor anterior ao novo quando ele muda */
-export function Num({ value, format = v => String(v), duration = 800 }) {
-  const ref = useRef(null), last = useRef(null), rm = useReducedMotion();
-  useLayoutEffect(() => {
-    const el = ref.current; if (!el) return undefined;
-    const a = last.current ?? 0, b = value; last.current = value;
-    if (rm || b == null || !Number.isFinite(b) || a === b) { el.textContent = format(b); return undefined; }
-    el.textContent = format(a);
-    return tween(duration, p => { el.textContent = format(a + (b - a) * p); }, { onDone: () => { el.textContent = format(b); } });
-  }, [value, rm]); // eslint-disable-line react-hooks/exhaustive-deps
-  return createElement('span', { ref, className: 'px-num' });
+/* O texto mostra sempre o valor final da consulta. O movimento fica nas formas
+   do gráfico; o leitor nunca precisa esperar uma contagem para conhecer o dado. */
+export function Num({ value, format = v => String(v) }) {
+  return createElement('span', { className: 'px-num' }, format(value));
 }
