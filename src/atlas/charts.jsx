@@ -91,7 +91,7 @@ export function Slope({ a, b, focus, measure = 'volume', topN = 15, labelA, labe
           );
         })}
       </svg>
-      <p className="px-chart-readout" aria-live="polite" aria-atomic="true">{selected ? rowText(selected) + (lock ? ' · destaque fixado' : '') : 'Use as setas para percorrer as marcas; Enter fixa o destaque e Escape limpa.'}</p>
+      <p className="px-chart-readout" data-export-skip aria-live="polite" aria-atomic="true">{selected ? rowText(selected) + (lock ? ' · destaque fixado' : '') : 'Use as setas para percorrer os itens; Enter fixa o destaque e Escape limpa.'}</p>
       <ChartData caption={'Ranking conectado: ' + labelA + ' contra ' + labelB} columns={['Marca ou modelo', { label: labelA + ' · posição', numeric: true }, { label: labelA + ' · valor', numeric: true }, { label: labelB + ' · posição', numeric: true }, { label: labelB + ' · valor', numeric: true }]} rows={[...d.rows].sort((p, q) => (p.b?.rank ?? Infinity) - (q.b?.rank ?? Infinity)).map(r => [r.label, r.a ? r.a.rank + 'º' : '—', r.a ? val(r.a, totalA) : '—', r.b ? r.b.rank + 'º' : '—', r.b ? val(r.b, totalB) : '—'])} />
       {tip.node}
     </div>
@@ -283,8 +283,8 @@ export function Lines({ months, series, fmtY = fmt, fmtTip, height = 300, endLab
       {hover != null && <div className={'px-ltip' + (flip ? ' flip' : '')} style={{ transform: `translateX(${flip ? hx - 14 : hx + 14}px)` }}>
         <div className="px-ltip-in"><strong>{periodLabel(hover)}</strong>{series.filter(s => s.values[hover] != null).map(s => <span key={s.name}><i style={{ background: s.color }} />{s.name} <b>{ft(s.values[hover])}</b></span>)}</div>
       </div>}
-      <p className="px-chart-readout" aria-live="polite" aria-atomic="true">{hover != null ? periodLabel(hover) + ': ' + series.map(s => s.name + ' ' + (s.values[hover] != null ? ft(s.values[hover]) : 'sem dado')).join('; ') + (pinned ? ' · consulta fixada' : '') : 'Use as setas ou toque no gráfico para consultar um período.'}</p>
-      {pinned && <button type="button" className="px-release" onClick={() => { setPinned(false); setHover(null); }}>Liberar consulta</button>}
+      <p className="px-chart-readout" data-export-skip aria-live="polite" aria-atomic="true">{hover != null ? periodLabel(hover) + ': ' + series.map(s => s.name + ' ' + (s.values[hover] != null ? ft(s.values[hover]) : 'sem dado')).join('; ') + (pinned ? ' · consulta fixada' : '') : 'Use as setas ou toque no gráfico para consultar um período.'}</p>
+      {pinned && <button type="button" data-export-skip className="px-release" onClick={() => { setPinned(false); setHover(null); }}>Liberar consulta</button>}
       <ChartData caption={chartLabel} columns={['Período', ...series.map(s => ({ label: s.name, numeric: true }))]} rows={months.map((m, i) => [periodLabel(i), ...series.map(s => s.values[i] != null ? ft(s.values[i]) : '—')])} />
     </div>
   );

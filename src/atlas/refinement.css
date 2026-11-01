@@ -84,6 +84,7 @@ html[data-nx], html[data-nx] body { background:#f4f5f7; }
 .px .nx-info { margin:0; vertical-align:middle; }
 .px .nx-info>button { font-size:15px; border:0; box-shadow:none; }
 .px .nx-info-pop { font-size:13px; line-height:1.5; max-width:min(300px,75vw); }
+.px-card-tools .nx-info-pop { left:auto; right:0; transform:none; }
 .px .px-summary-map .nxp-heroframe { margin:0; height:auto; overflow:visible; background:transparent; border-radius:12px; }
 .px .nxp-hero.compact { position:relative; }
 .px .compact .nxp-stick { position:relative; height:300px; background:var(--nx-hero); border-radius:12px; overflow:hidden; }

@@ -12,7 +12,7 @@ export default function ChartData({ caption, columns, rows }) {
   }, [rows, query]);
   const last = Math.max(0, Math.ceil(filtered.length / size) - 1), current = Math.min(page, last), start = current * size;
   return (
-    <details className="px-data" onToggle={e => setOpen(e.currentTarget.open)}>
+    <details className="px-data" data-export-skip onToggle={e => setOpen(e.currentTarget.open)}>
       <summary aria-label={caption + ': ver dados em tabela'}>Ver dados em tabela</summary>
       {open && <div className="px-data-body">
         {rows.length > size && <label className="px-data-search" htmlFor={id}>Buscar na tabela
