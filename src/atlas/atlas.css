@@ -15,6 +15,14 @@
 .px .px-fbtn.on{background:var(--nx-ink);color:#fff}.px .px-fbtn.on small{color:rgba(255,255,255,.65)}
 .px .px-fbtn.focus{background:var(--px-focus-soft)}.px .px-fbtn.focus span{color:var(--nx-accent)}
 .px .px-clear{margin-left:4px;padding:8px 12px;border-radius:12px;font:600 13px/1 var(--nx-font);color:var(--nx-accent)}
+@media(min-width:981px){
+  .px-fgroup{flex:1 1 0;min-width:0}
+  .px-fgroup:nth-child(3){flex-grow:1.4}
+  .px-fgroup:nth-child(7){flex-grow:1.25}
+  .px .px-fbtn{width:100%;max-width:none;grid-template-columns:minmax(0,1fr) 12px}
+  .px-fgroup:nth-child(4) .px-pop.wide{left:calc(50% - 280px)}
+  .px-fgroup:nth-child(n+5) .px-pop{left:auto;right:0}
+}
 .px-pop{position:absolute;z-index:60;top:calc(100% + 8px);left:0;width:min(380px,calc(100vw - 24px));max-height:min(70vh,560px);overflow:auto;padding:16px 18px 18px;border-radius:22px;background:rgba(255,255,255,.97);box-shadow:0 0 0 1px rgba(0,0,0,.06),0 24px 60px -18px rgba(0,0,0,.38);animation:pxpop .22s var(--spring) both}
 .px-pop.wide{width:min(560px,calc(100vw - 24px))}
 @keyframes pxpop{from{opacity:0;transform:translateY(-6px) scale(.98)}}
