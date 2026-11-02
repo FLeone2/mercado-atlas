@@ -6,17 +6,28 @@
   Cross-Origin-Resource-Policy: same-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Cache-Control: public, max-age=0, must-revalidate
+# Arquivos com nome único (o nome muda quando o conteúdo muda): guardados por um ano.
+# "! Cache-Control" tira a regra geral acima; sem isso as duas se somam no mesmo cabeçalho.
 /assets/app/*
+  ! Cache-Control
   Cache-Control: public, max-age=31536000, immutable
 /data/cubes/*
+  ! Cache-Control
+  Content-Type: application/gzip
+  Cache-Control: public, max-age=31536000, immutable
+/data/cubes-split/:dim/:dir/:file
+  ! Cache-Control
   Content-Type: application/gzip
   Cache-Control: public, max-age=31536000, immutable
 /data/origin-cubes/*
+  ! Cache-Control
   Content-Type: application/gzip
   Cache-Control: public, max-age=31536000, immutable
 /data/precomputed/*
+  ! Cache-Control
   Content-Type: application/gzip
   Cache-Control: public, max-age=31536000, immutable
 /data/history/*
+  ! Cache-Control
   Content-Type: application/gzip
   Cache-Control: public, max-age=3600, must-revalidate

@@ -28,7 +28,8 @@ Lista de trabalho: `docs/ROADMAP.md`.
 | Build output directory | `dist` |
 | Variável de ambiente | `NODE_VERSION=22` |
 
-Cada push em `main` publica sozinho. `dist/` leva o app, as fontes e `data/` (sem as fontes brutas de Economia).
+Cada push em `main` publica sozinho. `dist/` leva o app, as fontes e `data/` (sem as fontes brutas de Economia), mais as
+fatias por estado e por porte; a pasta `functions/` vira a rota `/api/market`. O build leva ~3 min (pré-cálculo + fatias).
 Cabeçalhos de segurança e cache ficam em `public/_headers`.
 
 ## Rodar localmente
@@ -47,7 +48,8 @@ npm run build && npm run preview   # versão de produção em http://localhost:8
 | `src/market/` | O motor: `core.js` (consultas, worker, pré-cálculo, histórico), `modules/` (histórico, nomes de municípios, marcas chinesas, pedido e pré-cálculo), `workers/` (o cálculo sobre os cubos, fora da tela) |
 | `src/kit/` | Estado do painel na URL, exportação PNG/CSV e o aviso de erro de tela |
 | `data/` | Cubos mensais, cubos de origem, geografia, histórico de 10 anos (`history/national`, `uf` e `versions`), população IBGE, rede Mitsubishi (`reference/concessionarias-mitsubishi.json`), cenários e `snapshot.json` |
-| `scripts/` | Histórico, população, cenários, economia, pré-cálculo e `update-derived.sh` |
+| `scripts/` | Histórico, população, cenários, economia, pré-cálculo, fatias (`split-cubes.cjs`), motor do servidor (`build-server.cjs`), aquecimento (`warm-api.cjs`) e `update-derived.sh` |
+| `functions/`, `server/` | O cálculo no servidor (Cloudflare Pages Function `/api/market`) |
 | `tests/` | Testes automáticos (dados reais) e a varredura visual (`tests/visual/atlas.cjs`) |
 
 `src/market/core.js` usa `/*@include arquivo*/` para juntar os módulos num só escopo e `/*@string a + b*/`
@@ -60,12 +62,21 @@ para embutir o código do worker. Quem faz isso é o plugin `atlas-market` em `v
 
 ## Tempo de carregamento
 
-- `npm run build` roda antes `scripts/precompute.cjs`, que usa o mesmo cálculo do navegador para gerar, sem filtros,
-  Último mês, Ano atual, 12 meses e Ano passado das três consultas (`data/precomputed.json` + `data/precomputed/*.json.gz`,
-  ~7 MB, ~1 min). O site usa um arquivo só quando ele foi gerado do manifesto em uso e responde ao mesmo pedido;
-  com filtros, volta ao cálculo no navegador.
+- **Abertura:** os filtros vêm no pacote do site (`virtual:shell`, de `data/snapshot.json`), e o manifesto, o índice do
+  pré-cálculo e a resposta da visão padrão começam a baixar junto com o código (`preload` em `index.html`).
+- **Pré-cálculo:** `scripts/precompute.cjs` usa o mesmo cálculo do navegador para gerar, sem filtros, Último mês, Ano atual,
+  12 meses e Ano passado das três consultas (`data/precomputed.json` + `data/precomputed/*.json.gz`, ~7 MB, ~1 min).
+  O site usa um arquivo só quando ele foi gerado do manifesto em uso e responde ao mesmo pedido.
+- **Fatias:** `scripts/split-cubes.cjs` separa os últimos 36 meses por estado e por porte (`data/cubes-split/`, ~45 s, não
+  versionado). Com um estado (ou um porte) no filtro, o cálculo lê só a fatia, com a mesma resposta.
+- **Servidor:** `functions/api/market.js` calcula na Cloudflare com o mesmo motor (`server/engine.js`, gerado por
+  `scripts/build-server.cjs`) e guarda cada resposta no cache e no KV `RESPOSTAS`. Fica desligado (404) enquanto o KV não
+  estiver ligado ao projeto; então o navegador calcula sozinho. Para ligar: `docs/ROADMAP.md`, seção 3.
+- **Aparelho:** `public/sw.js` abre a volta ao site sem esperar a rede e guarda cubos e código; as respostas calculadas
+  ficam no IndexedDB por 45 dias. Quando um mês novo é publicado, a página avisa "Há dados novos". Para desligar o
+  service worker, publique um `sw.js` que só chame `self.registration.unregister()`.
 - Peças pesadas (versões × versões, conexões) só carregam quando a seção chega perto da tela.
-- Pacote do site: ~750 KB de JavaScript (~240 KB comprimido) e ~85 KB de CSS.
+- Pacote do site: ~790 KB de JavaScript (~250 KB comprimido) e ~90 KB de CSS.
 
 ## Período
 

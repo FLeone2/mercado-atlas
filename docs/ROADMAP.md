@@ -40,15 +40,18 @@ Atualizado em 27/10/2026. Legenda: **feito** (publicado em mercado-atlas.pages.d
 
 ## 3. Back-end e dados (velocidade)
 
-Hoje: Cloudflare Pages com 270 MB de arquivos estáticos; o navegador baixa os cubos mensais (≈0,85 MB cada) e calcula num worker; só os períodos rápidos sem filtro vêm prontos.
+Decisão de 02/11/2026: **ficar no Cloudflare Pages**. A lentidão vinha do cálculo no navegador (baixar ~23 MB de cubos para SP em 12 meses), não da hospedagem. DuckDB-WASM e banco analítico pago foram descartados (o primeiro baixaria ~6 MB de motor; o segundo custa US$ 66–250/mês).
 
-| Etapa | O que fazer | Ganho | Custo |
-|---|---|---|---|
-| A · agora, sem servidor | Agregados por mês × UF × município × marca × modelo × porte × canal × propulsão em **Parquet**, servidos pelo **R2** (CDN), consultados com **DuckDB-WASM** no worker (lê só as colunas e blocos necessários); pré-cálculo também por UF e por marca em foco | Filtro qualquer em ~0,3–1 s depois do primeiro carregamento; fim do limite de 25 MB por arquivo do Pages | quase zero |
-| B · se o uso crescer | **API na borda**: Cloudflare Worker que recebe o mesmo pedido do worker atual (`marketRequestKey`) e responde de um banco analítico (**ClickHouse Cloud** ou **MotherDuck**), com cache na borda (Cache API/KV) por pedido | Respostas em < 100 ms, qualquer recorte, nada pesado no celular | US$ 50–200/mês |
-| C · operação | **GitHub Actions** mensal: novo mês + séries econômicas → derivados → testes → publicação; manifesto versionado; checagens de qualidade (totais, nomes de municípios, classificação BD) | Atualização sem passo manual, auditável | zero |
+| Etapa | O que foi feito | Estado |
+|---|---|---|
+| 1 · abertura | Os filtros vêm no pacote do site (sem esperar o `snapshot.json` de 2,7 MB); manifesto, índice do pré-cálculo e a resposta da visão padrão começam a baixar junto com o código (`preload`) | no ar |
+| 2 · fatias | `scripts/split-cubes.cjs`: os últimos 36 meses separados por estado e por porte (`data/cubes-split/`, gerados no build). Com um estado ou um porte no filtro, o cálculo lê só a fatia (2–25% dos bytes), com a mesma resposta (`tests/cubes-split.test.cjs`) | no ar |
+| 3 · aparelho | `public/sw.js`: a volta ao site abre do aparelho; cubos e código guardados de vez; manifesto atualizado por trás, com aviso "Há dados novos". Respostas calculadas guardadas no IndexedDB por 45 dias. Cabeçalhos de cache corrigidos (a regra geral somava `max-age=0` aos arquivos permanentes) | no ar |
+| 4 · servidor | `functions/api/market.js` + `server/market.js`: o mesmo motor (gerado de `src/market` por `scripts/build-server.cjs`) calcula na Cloudflare e guarda cada resposta no cache e no KV `RESPOSTAS`; o navegador pergunta primeiro e, se a função estiver desligada (404) ou falhar, calcula sozinho. Pior caso medido: ~80 MB de memória, ~10 s de CPU (limite 128 MB e 30 s) | pronto, **desligado até o Workers Paid (US$ 5/mês) e o KV `RESPOSTAS`** |
+| 5 · aquecimento | `.github/workflows/aquecer.yml` + `scripts/warm-api.cjs`: quando o manifesto muda na `main`, pede ao servidor 256 combinações (27 estados × principal e mapa no varejo + 10 portes, nos 4 períodos rápidos) | pronto; sem efeito enquanto o servidor estiver desligado |
+| C · operação | **GitHub Actions** mensal: novo mês + séries econômicas → derivados → testes → publicação; checagens de qualidade | a fazer |
 
-Recomendação (orçamento de US$ 10/mês): A na próxima etapa (Pages + R2 gratuito), C junto com A; B só se o uso crescer.
+**Para ligar o servidor (você, ~5 min):** no painel da Cloudflare, assinar **Workers Paid** (US$ 5/mês); criar o KV `atlas-respostas`; em Workers & Pages › mercado-atlas › Settings › Bindings, ligar o KV com o nome `RESPOSTAS` (produção e prévia); publicar de novo (qualquer push). Sem o plano pago, o limite de 10 ms de CPU por pedido faria a função falhar, e o site calcularia no navegador como hoje.
 
 ## 4. Front-end
 
@@ -76,7 +79,7 @@ Recomendação (orçamento de US$ 10/mês): A na próxima etapa (Pages + R2 grat
 ## 7. Decisões (25/10/2026)
 
 - **Acesso:** site aberto. Sem Cloudflare Access.
-- **Orçamento:** até US$ 10/mês. Etapa A (Parquet no **R2** + **DuckDB-WASM** no navegador) cabe no plano gratuito do R2 (10 GB e saída sem custo); se precisar de API com cache na borda, **Workers Paid** (US$ 5/mês). A etapa B com banco analítico gerenciado fica fora do orçamento — só se o uso crescer.
+- **Orçamento:** até US$ 10/mês. Velocidade: Pages + **Workers Paid** (US$ 5/mês) com o cálculo no servidor e respostas guardadas (seção 3). DuckDB-WASM e banco analítico gerenciado descartados em 02/11/2026.
 - **Anfavea:** os dados detalhados virão de você (produção, exportação e licenciamento por montadora). Quando chegarem: script de carga com recibo, como as demais fontes, e os gráficos de oferta por montadora na Economia e na página da marca em foco.
 - **Imposto de importação:** 35% em vigor para elétricos, híbridos e plug-in desde jul/2026 (destacado na Economia).
 - **Pendente:** quem recebe o resumo automático do mês (e-mail, Slack) e dados FIPE (preço por versão).

@@ -1,0 +1,24 @@
+name: Aquecer respostas do servidor
+# Quando um mês novo entra na main, calcula no servidor (/api/market) as combinações mais usadas
+# para que já estejam guardadas no primeiro acesso. Com o servidor desligado, termina sem fazer nada.
+on:
+  push:
+    branches: [main]
+    paths: ['data/manifest.json']
+  workflow_dispatch:
+jobs:
+  aquecer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            src/market
+            data/manifest.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/warm-api.cjs https://mercado-atlas.pages.dev

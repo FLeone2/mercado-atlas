@@ -38,6 +38,37 @@ function marketPlugin() {
   };
 }
 
+// What the shell needs from data/snapshot.json (the filter definitions and the data base) goes into
+// the bundle, so the page renders without downloading that 2.7 MB file first.
+const SHELL_ID = 'virtual:shell';
+function shellPlugin() {
+  return {
+    name: 'atlas-shell',
+    resolveId: id => (id === SHELL_ID ? '\0' + SHELL_ID : null),
+    load(id) {
+      if (id !== '\0' + SHELL_ID) return null;
+      const file = resolve(root, 'data/snapshot.json'); this.addWatchFile(file);
+      const { filters = [], marketDataBase = '/data/' } = JSON.parse(readFileSync(file, 'utf8'));
+      return `export default ${JSON.stringify({ filters, marketDataBase })};`;
+    },
+    // The first answers the page needs start downloading together with the code: the manifest,
+    // the index of precomputed answers and, for the default view (no filters), the answer itself.
+    transformIndexHtml: {
+      order: 'post',
+      handler(html, ctx) {
+        if (!ctx.bundle) return html;
+        const links = ['/data/manifest.json', '/data/precomputed.json'];
+        try {
+          const index = JSON.parse(readFileSync(resolve(root, 'data/precomputed.json'), 'utf8'));
+          const file = Object.values(index.entries ?? {}).find(f => f.startsWith('latest-atlas-'));
+          if (file) links.push('/data/precomputed/' + file);
+        } catch { /* sem pré-cálculo: só o manifesto */ }
+        return html.replace(/\n\s*<\/head>/, '\n' + links.map(h => `    <link rel="preload" href="${h}" as="fetch" crossorigin>\n`).join('') + '  </head>');
+      },
+    },
+  };
+}
+
 // data/ stays at the repository root (scripts and tests read it there); it is served
 // in dev and copied next to the bundle on build. Scenario sources (*.csv etc.) stay private.
 function dataPlugin() {
@@ -55,7 +86,7 @@ function dataPlugin() {
     closeBundle() {
       const out = resolve(root, 'dist/data');
       rmSync(out, { recursive: true, force: true });
-      for (const name of ['manifest.json', 'snapshot.json', 'precomputed.json', 'precomputed', 'cubes', 'origin-cubes', 'geography', 'history', 'reference']) if (existsSync(join(dataDir, name))) cpSync(join(dataDir, name), join(out, name), { recursive: true });
+      for (const name of ['manifest.json', 'precomputed.json', 'precomputed', 'cubes', 'cubes-split', 'origin-cubes', 'geography', 'history', 'reference']) if (existsSync(join(dataDir, name))) cpSync(join(dataDir, name), join(out, name), { recursive: true });
       for (const name of readdirSync(join(dataDir, 'scenarios'))) if (name.endsWith('.json')) cpSync(join(dataDir, 'scenarios', name), join(out, 'scenarios', name));
       rmSync(join(out, 'geography/.gitkeep'), { force: true });
     },
@@ -63,7 +94,7 @@ function dataPlugin() {
 }
 
 export default defineConfig({
-  plugins: [react(), marketPlugin(), dataPlugin()],
+  plugins: [react(), marketPlugin(), shellPlugin(), dataPlugin()],
   build: { chunkSizeWarningLimit: 4000, sourcemap: false, assetsDir: 'assets/app' },
   server: { port: 5173 },
 });

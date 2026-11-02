@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite",
     "precompute": "node scripts/precompute.cjs",
-    "build": "node scripts/precompute.cjs && vite build",
+    "build": "node scripts/precompute.cjs && node scripts/split-cubes.cjs && node scripts/build-server.cjs && vite build",
     "preview": "vite preview --port 8765",
     "test": "bash scripts/test.sh",
     "test:visual": "node tests/visual/atlas.cjs"

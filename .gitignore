@@ -2,7 +2,10 @@ node_modules/
 dist/
 data/precomputed/
 data/precomputed.json
+data/cubes-split/
+server/engine.js
 tests/visual/output/
 __pycache__/
 *.pyc
 .DS_Store
+.wrangler/

@@ -339,6 +339,7 @@
     for(const [key,count]of map){const out=target.joints[name];if(!out.has(key)&&out.size>=target.limit){out.clear();target.overflow.add(name);break;}out.set(key,(out.get(key)??0)+count);}
    }
   }
+  const summarizeCube=source=>({month:source.month,columns:source.columns??source.dimensions??[],dictionaries:Object.fromEntries(DIMS.map(dim=>[dim,source.dictionaries?.[dim]??[]]))});
   const cancelled=(signal,stale=false)=>{if(signal?.aborted||stale)throw new DOMException('Consulta cancelada.','AbortError');};
   function validateMonthlyCube(cube,meta){
    if(!cube||cube.month!==meta.month||!Array.isArray(cube.rows)||(!Array.isArray(cube.columns)&&!Array.isArray(cube.dimensions)))throw Error('Cubo mensal incompatível: '+meta.month);
@@ -403,14 +404,14 @@
   const overlaps=(month,range)=>month>=range.start.slice(0,7)&&month<=range.end.slice(0,7);
   const bdField=field=>field.startsWith('bd_')||field==='propulsao';
   const sourceField=field=>field==='propulsao'?'bd_combustivel':field;
-  function installMarketWorker(port,{loader=createMarketCubeLoader(),resultCache=createResultCache(),aggregateCache=createMonthlyAggregateCache(),aggregateStore=globalThis.PerformanceCache?.createPersistentCache({namespace:'market-monthly-aggregates-v1',maxBytes:48*1024*1024,maxEntries:384}),yieldControl=()=>new Promise(resolve=>setTimeout(resolve,0))}={}){
+  function installMarketWorker(port,{loader=createMarketCubeLoader(),resultCache=createResultCache(),aggregateCache=createMonthlyAggregateCache(),aggregateStore=globalThis.PerformanceCache?.createPersistentCache({namespace:'market-monthly-aggregates-v1',maxBytes:48*1024*1024,maxEntries:384}),resultStore=globalThis.PerformanceCache?.createPersistentCache({namespace:'market-results-v1',maxBytes:96*1024*1024,maxEntries:48,maxAgeMs:45*86400000}),yieldControl=()=>new Promise(resolve=>setTimeout(resolve,0))}={}){
    let generation=0,controller=null,namespace=null;
    const sourceSummaries=createResultCache({maxBytes:4*1024*1024,maxEntries:96});
    port.onmessage=async({data})=>{
     const token=++generation;controller?.abort();controller=null;
-    if(data.type==='clear-cache'){loader.clear();resultCache.clear();aggregateCache.clear();sourceSummaries.clear();namespace=null;try{await aggregateStore?.clear();}catch{}return;}
+    if(data.type==='clear-cache'){loader.clear();resultCache.clear();aggregateCache.clear();sourceSummaries.clear();namespace=null;try{await aggregateStore?.clear();}catch{}try{await resultStore?.clear();}catch{}return;}
     if(data.type==='cancel'){if(data.releaseCubes)loader.clear();return;}
-    const {id,manifest,filters={},base,includeMarketBaseline=false,includeHistoryComparisons=false,includeChannelReference=false,includeOriginAnalysis=false,includeMitsubishiProfile=false,includeInteractive=false,includeDaily=false,includeMunicipalLeaders=false,includeMunicipalLeadersUF=false,includeYearGroups=false,includeFlow=false,includeCatalog=false,includeConnections=false,focusBrand=null}=data;
+    const {id,manifest,filters={},base,includeMarketBaseline=false,includeHistoryComparisons=false,includeChannelReference=false,includeOriginAnalysis=false,includeMitsubishiProfile=false,includeInteractive=false,includeDaily=false,includeMunicipalLeaders=false,includeMunicipalLeadersUF=false,includeYearGroups=false,includeFlow=false,includeCatalog=false,includeConnections=false,focusBrand=null,splitIndex=null}=data;
     const activeController=new AbortController();controller=activeController;
     try{
      const identity=await manifestCacheIdentity(manifest,base);if(generation!==token)return;
@@ -418,6 +419,9 @@
      const options={includeMarketBaseline:Boolean(includeMarketBaseline),includeHistoryComparisons:Boolean(includeHistoryComparisons),includeChannelReference:Boolean(includeChannelReference),includeOriginAnalysis:Boolean(includeOriginAnalysis),includeMitsubishiProfile:Boolean(includeMitsubishiProfile),includeInteractive:Boolean(includeInteractive),includeDaily:Boolean(includeInteractive&&includeDaily),includeMunicipalLeaders:Boolean(includeMunicipalLeaders),includeMunicipalLeadersUF:Boolean(includeMunicipalLeadersUF),includeYearGroups:Boolean(includeYearGroups),includeFlow:Boolean(includeFlow),includeCatalog:Boolean(includeCatalog),includeConnections:Boolean(includeConnections),focusBrand:typeof focusBrand==='string'&&focusBrand?focusBrand:null};
      const queryKey=canonicalFilterKey(filters)+'|'+JSON.stringify(options),cached=resultCache.get(queryKey);
      if(cached){port.postMessage({id,result:cached});return;}
+     // Answers already computed on this device (any filters) come back from IndexedDB, for the same data (namespace).
+     const storeKey=namespace+'|'+queryKey;
+     if(resultStore){let stored=null;try{stored=await resultStore.get(storeKey);}catch{}if(generation!==token)return;if(stored&&typeof stored==='object'){resultCache.set(queryKey,stored);port.postMessage({id,result:stored});return;}}
      const requestedRange=rangeFrom(filters.date,manifest);let range=requestedRange;
      if(!range)throw Error('Ainda não há arquivos mensais prontos para análise.');
      const lastMeta=manifest.months.find(m=>m.month===range.end.slice(0,7)),declaredEnd=lastMeta?sourceCoverageEnd(lastMeta):null;
@@ -459,11 +463,19 @@
      const historyFilters={...filters,marca:'all',modelo:'all',grupo_modelo:'all'};
      const selectedBrands=categoricalSelection(filters.marca),mitsubishiAllowed=!selectedBrands.length||selectedBrands.includes('MITSUBISHI');
      const choices=Object.fromEntries(DIMS.map(d=>[d,new Set()]));
-     for(let i=0;i<needed.length;i++){
-      if(generation!==token)return;
+     // Split cubes: with one state (or else one size class) selected, read only that slice. Every collection below
+     // keeps the uf and bd_segmento filters, so the slice holds every row any of them can accept.
+     const sliceBy=splitIndex?.version===2&&splitIndex.dims?['uf','bd_segmento'].map(dim=>({dim,values:categoricalSelection(filters[dim]),files:splitIndex.dims[dim]})).find(s=>s.values.length===1&&s.files&&typeof s.files==='object')??null:null;
+     // One call per month: when it returns, nothing of that month's cube stays reachable (an async frame can
+     // otherwise keep it alive while the next one is read: two cubes in memory at once).
+     const processMonth=async i=>{
+      if(generation!==token)return false;
       const meta=index.get(needed[i]);
       if(needsOrigin&&!originPath(meta))throw Error('A origem do veículo no BD ainda não está disponível para '+needed[i]+'. Remova o filtro de origem ou escolha outro período.');
-      const loadMeta=needsOrigin?{...meta,cubePath:originPath(meta),sha256:meta.originCubeSha256??meta.sha256}:meta;
+      const srcMeta=needsOrigin?{...meta,cubePath:originPath(meta),sha256:meta.originCubeSha256??meta.sha256}:meta,slice=sliceBy?sliceBy.files[srcMeta.cubePath]:null,sliceFile=slice?.files?.[sliceBy.values[0]];
+      // Same rows of that value, same dictionaries: same answer from fewer bytes. A month without the value has no rows of it
+      // (no file), so it reads the full cube.
+      const loadMeta=typeof slice?.dir==='string'&&typeof sliceFile==='string'&&/^[\w.-]+$/.test(sliceFile)?{...srcMeta,cubePath:slice.dir+sliceFile}:srcMeta;
       const summaryKey=JSON.stringify(['source-summary-v1',namespace,loadMeta.cubePath,loadMeta.sha256??'',meta.month]);
       let summary=sourceSummaries.get(summaryKey),loadedCube=null;
       if(!summary&&aggregateStore){try{summary=await aggregateStore.get(summaryKey);if(summary?.month!==meta.month||!Array.isArray(summary.columns)||!summary.columns.every(c=>typeof c==='string')||!DIMS.every(dim=>Array.isArray(summary.dictionaries?.[dim])))summary=null;if(summary)sourceSummaries.set(summaryKey,summary);}catch{}}
@@ -471,8 +483,8 @@
        if(!loadedCube){loadedCube=await loader.load(loadMeta,base,activeController.signal);cancelled(activeController.signal,generation!==token);}
        return loadedCube;
       };
-      if(!summary){const source=await ensureCube();summary={month:source.month,columns:source.columns??source.dimensions??[],dictionaries:Object.fromEntries(DIMS.map(dim=>[dim,source.dictionaries?.[dim]??[]]))};sourceSummaries.set(summaryKey,summary);try{await aggregateStore?.set(summaryKey,summary);}catch{}}
-      if(generation!==token)return;
+      if(!summary){summary=summarizeCube(await ensureCube());sourceSummaries.set(summaryKey,summary);try{await aggregateStore?.set(summaryKey,summary);}catch{}}
+      if(generation!==token)return false;
       const cube=summary;
       const columns=cube.columns??cube.dimensions??[];
       if(bdFilters.some(field=>!columns.includes(sourceField(field))))throw Error('A classificação BD ainda está em processamento para '+needed[i]+'. Escolha um período já classificado ou remova o filtro BD.');
@@ -514,6 +526,10 @@
       if(yearOK&&overlaps(cube.month,yearRange)){await collectMonthly(y,cube,filters,yearRange,{groupDimensions:includeCatalog?DIMS:includeYearGroups?YEAR_DIMS:[]});if(includeCatalog)await collectMonthly(catalogMarketPrior,cube,historyFilters,yearRange);if(includeHistoryComparisons)await collectMonthly(historyYear,cube,historyFilters,yearRange,{groupDimensions:['marca','propulsao','bd_carroceria'],includeBody:true});}
       if(expected.includes(needed[i]))for(const dim of DIMS)for(const value of cube.dictionaries?.[dim]??[])choices[dim].add(categoryLabel(value));
       port.postMessage({id,progress:{done:i+1,total:needed.length}});
+      return true;
+     };
+     for(let i=0;i<needed.length;i++){
+      if(!(await processMonth(i)))return;
       // Always yield between cubes, including a warm cache, before checking token again.
       if(i<needed.length-1)await yieldControl();
      }
@@ -543,6 +559,7 @@
      if(focus){const f=finish(focusCurrent,createAccumulator(),focusYear,range,fullCoverage,false,yearOK);result.focus={brand:focus,total:f.total,year:f.year,yearChangeRate:f.yearChangeRate,groups:Object.fromEntries(focusDims.map(d=>[d,f.groups[d]])),yearGroups:includeYearGroups&&yearOK?counts(focusYear,focusDims):null};}
      result.choices=Object.fromEntries(DIMS.map(d=>[d,[...choices[d]].sort()]));
      if(generation!==token)return;resultCache.set(queryKey,result);port.postMessage({id,result});
+     if(resultStore)resultStore.set(storeKey,result).catch(()=>{});
     }catch(error){if(generation===token&&error.name!=='AbortError')port.postMessage({id,error:error.message});}
    };
    return {cacheStats:()=>({cubes:loader.stats(),results:resultCache.stats(),aggregates:aggregateCache.stats(),sourceSummaries:sourceSummaries.stats(),persistentAggregates:aggregateStore?.stats?.()??null}),clear:async()=>{generation++;controller?.abort();loader.clear();resultCache.clear();aggregateCache.clear();sourceSummaries.clear();namespace=null;try{await aggregateStore?.clear();}catch{}}};

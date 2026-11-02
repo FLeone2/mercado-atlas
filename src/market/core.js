@@ -82,6 +82,25 @@ function latestPeriodPresets(manifest){
   effectiveLabel:dateLabel(yearRange.start)+' a '+dateLabel(end),
   presets:[{id:'year',label:yearLabel,value:value(yearRange),range:yearRange},{id:'latest',label:shortMonth(month)+'/'+year,value:value(monthRange),range:monthRange}]};
 }
+// The server calculation (functions/api/market.js + server/market.js): same engine, answers kept at Cloudflare.
+// Off (404, or no function in dev), down, slow or on another data version: null, and the browser computes.
+let marketApi='unknown';const dataIdentities=new WeakMap();
+const dataIdentity=manifest=>{if(!dataIdentities.has(manifest))dataIdentities.set(manifest,precomputedIdentity(manifest));return dataIdentities.get(manifest);};
+async function serverAnswer(base,manifest,mode,filters,focusBrand){
+ if(marketApi==='off'||typeof AbortController!=='function')return null;
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);
+ try{
+  const url=new URL('/api/market',base);url.search=new URLSearchParams({v:dataIdentity(manifest),m:mode,b:focusBrand??'MITSUBISHI',f:canonicalFilterKey(filters)}).toString();
+  const r=await fetch(url,{signal:controller.signal,credentials:'same-origin',redirect:'error'});
+  if(r.status===404||!(r.headers.get('content-type')??'').includes('application/json')){marketApi='off';return null;}
+  if(!r.ok)return null;
+  const answer=await r.json();if(!answer||typeof answer!=='object')return null;marketApi='on';return answer;
+ }catch{return null;}finally{clearTimeout(timer);}
+}
+// Index of the cubes split by state and by size class (data/cubes-split/index.json); null when the build has none.
+const SPLIT_DIMS=['uf','bd_segmento'];
+const cubeSliceIndexes=new Map();
+function cubeSlices(base){if(!cubeSliceIndexes.has(base))cubeSliceIndexes.set(base,fetch(new URL('cubes-split/index.json',base),{credentials:'same-origin',redirect:'error'}).then(r=>r.ok?r.json():null).then(i=>i?.version===2&&i.dims&&typeof i.dims==='object'?i:null).catch(()=>null));return cubeSliceIndexes.get(base);}
 function getBase(snapshot){return new URL(snapshot?.marketDataBase??'data/',globalThis.location?.href??'http://localhost/').href;}
 /*@include ./modules/geo-names.js*/
 /*@include ./modules/query-service.js*/
@@ -97,13 +116,17 @@ function useMarketData(filters,enabled,mode,reportBusy=true,focusOverride=null){
  // Every query also carries the pulse's brand in focus, so the pulse can reuse this result.
  const focusBrand=focusOverride??marketFocusBrand(filters);
  const signature=canonicalFilterKey(filters),base=getBase(shell.snapshot),requestKey=React.useMemo(()=>({includeInteractive,includeDaily,includeMunicipalLeaders,includeMunicipalLeadersUF,includeYearGroups,includeFlow,manifest,signature,base,includeMarketBaseline,includeHistoryComparisons,includeChannelReference,includeOriginAnalysis,includeMitsubishiProfile,includeCatalog,includeConnections,focusBrand}),[includeInteractive,includeDaily,includeMunicipalLeaders,includeMunicipalLeadersUF,includeYearGroups,includeFlow,manifest,signature,base,includeMarketBaseline,includeHistoryComparisons,includeChannelReference,includeOriginAnalysis,includeMitsubishiProfile,includeCatalog,includeConnections,focusBrand]);
- React.useEffect(()=>{let alive=true;const controller=new AbortController();fetch(new URL('manifest.json',base),{signal:controller.signal,credentials:'same-origin',redirect:'error',cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Manifesto indisponível (HTTP '+r.status+').');return r.json();}).then(m=>{if(alive)setManifest(m);}).catch(e=>{if(alive&&e.name!=='AbortError'){setManifestError(e.message);if(shell.snapshot.marketManifest)setManifest(fallbackManifestFromSnapshot(shell.snapshot));else setState(s=>({...s,pending:false,error:'Os dados ainda não estão disponíveis neste ambiente.'}));}});return ()=>{alive=false;controller.abort();};},[base]);
+ React.useEffect(()=>{let alive=true;const controller=new AbortController();fetch(new URL('manifest.json',base),{signal:controller.signal,credentials:'same-origin',redirect:'error'}).then(r=>{if(!r.ok)throw Error('Manifesto indisponível (HTTP '+r.status+').');return r.json();}).then(m=>{if(alive)setManifest(m);}).catch(e=>{if(alive&&e.name!=='AbortError'){setManifestError(e.message);if(shell.snapshot.marketManifest)setManifest(fallbackManifestFromSnapshot(shell.snapshot));else setState(s=>({...s,pending:false,error:'Os dados ainda não estão disponíveis neste ambiente.'}));}});return ()=>{alive=false;controller.abort();};},[base]);
  React.useEffect(()=>{try{worker.current=createSharedQueryWorker(()=>new InlineCalculationWorker$1(),'market');worker.current.onmessage=({data})=>{if(data.id!==sequence.current)return;if(data.progress)setState(s=>({...s,progress:data.progress}));else setState({result:hideUnclassified(data.result??null),pending:false,progress:null,error:data.error??null,key:activeRequest.current});};worker.current.onerror=()=>setState({result:null,pending:false,progress:null,error:'Não foi possível concluir a consulta local. Recarregue para tentar novamente.',key:activeRequest.current});}catch{worker.current=null;setState({result:null,pending:false,progress:null,error:'Este navegador não iniciou a consulta local. Recarregue ou tente um navegador atualizado.',key:activeRequest.current});}return ()=>worker.current?.terminate();},[]);
  React.useEffect(()=>{if(!enabled){sequence.current++;try{worker.current?.postMessage({type:'cancel'});}catch{}return;}if(!manifest)return;const id=++sequence.current;activeRequest.current=requestKey;if(!worker.current){setState({result:null,pending:false,progress:null,error:'Este navegador não iniciou a consulta local. Recarregue ou tente um navegador atualizado.',key:requestKey});return;}setState({result:null,pending:true,error:null,progress:null,key:requestKey});
   const message={id,includeInteractive,includeDaily,includeMunicipalLeaders,includeMunicipalLeadersUF,includeYearGroups,includeFlow,manifest,filters,base,includeMarketBaseline,includeHistoryComparisons,includeChannelReference,includeOriginAnalysis,includeMitsubishiProfile,includeCatalog,includeConnections,focusBrand};
   const post=()=>{if(id!==sequence.current)return;try{worker.current.postMessage(message);}catch{setState({result:null,pending:false,progress:null,error:'Não foi possível iniciar a consulta local. Recarregue para tentar novamente.',key:requestKey});}};
   // The quick periods without filters have a result computed at build time by the same worker.
-  loadPrecomputed(base,manifest,marketRequestKey(signature,marketRequestOptions(mode),focusBrand)).then(result=>{if(id!==sequence.current)return;if(result)setState({result:hideUnclassified(result),pending:false,progress:null,error:null,key:requestKey});else post();});
+  loadPrecomputed(base,manifest,marketRequestKey(signature,marketRequestOptions(mode),focusBrand)).then(result=>{if(id!==sequence.current)return;if(result){setState({result:hideUnclassified(result),pending:false,progress:null,error:null,key:requestKey});return;}
+   // Then the server (functions/api/market.js), when it is on; otherwise this browser computes it. With one state
+   // (or one size class) selected, the worker reads the split cubes (scripts/split-cubes.cjs) when they exist.
+   const local=()=>{if(SPLIT_DIMS.some(d=>categoricalSelection(filters[d]).length===1))cubeSlices(base).then(index=>{message.splitIndex=index;post();});else post();};
+   serverAnswer(base,manifest,mode,filters,focusBrand).then(answer=>{if(id!==sequence.current)return;if(answer)setState({result:hideUnclassified(answer),pending:false,progress:null,error:null,key:requestKey});else local();});});
  },[requestKey,enabled]);
  const visible=enabled&&manifest&&state.key!==requestKey?{result:null,pending:true,progress:null,error:null}:state;
  React.useEffect(()=>{if(!reportBusy)return;shell.setDashboardBusy?.(enabled&&visible.pending);return ()=>shell.setDashboardBusy?.(false);},[visible.pending,enabled,reportBusy]);
