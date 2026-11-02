@@ -363,20 +363,37 @@
    const size=c=>c.rows.length*(c.columns?.length??c.dimensions.length+1);
    const touch=(map,key)=>{const value=map.get(key);map.delete(key);map.set(key,value);return value;};
    // Epoch invalidation also retires pending loads, even if a transport ignores abort.
-   const clear=()=>{epoch++;decoded.clear();compressed.clear();cells=0;bytes=0;};
-   async function load(meta,base,signal){
-    const activeEpoch=epoch,check=()=>cancelled(signal,activeEpoch!==epoch);check();
+   const clear=()=>{epoch++;decoded.clear();compressed.clear();pending.clear();cells=0;bytes=0;};
+   function locate(meta,base){
     const baseURL=new URL(base),url=new URL(meta.cubePath,baseURL);
     if(!['http:','https:'].includes(baseURL.protocol)||!['http:','https:'].includes(url.protocol)||url.origin!==baseURL.origin||(origin&&origin!=='null'&&url.origin!==origin))throw Error('A fonte de dados deve ter a mesma origem.');
     if(baseURL.username||baseURL.password||url.username||url.password)throw Error('Credenciais não são aceitas na URL de dados.');
     // sha256 identifies the original source workbook; it is not a gzip-body checksum.
-    const key=JSON.stringify([namespace,url.href,meta.sha256??'',meta.month]);
+    return {url,key:JSON.stringify([namespace,url.href,meta.sha256??'',meta.month])};
+   }
+   // Download ahead (the next months while this one is summed): files come one after another without waiting
+   // for each round trip. Only the compressed bytes wait here, for load() to take them; any failure is retried there.
+   const pending=new Map();
+   function prefetch(meta,base){
+    try{
+     const {url,key}=locate(meta,base);if(decoded.has(key)||compressed.has(key)||pending.has(key))return;
+     // a month whose sums were already stored is never loaded: keep at most 8 downloads waiting
+     while(pending.size>=8)pending.delete(pending.keys().next().value);
+     pending.set(key,fetchImpl(url,{credentials:'same-origin',redirect:'error'}).then(r=>r.ok?r.arrayBuffer():null).then(b=>b?new Uint8Array(b):null,()=>null));
+    }catch{}
+   }
+   async function load(meta,base,signal){
+    const activeEpoch=epoch,check=()=>cancelled(signal,activeEpoch!==epoch);check();
+    const {url,key}=locate(meta,base);
     if(decoded.has(key))return touch(decoded,key);
     let input;const reusedCompressed=compressed.has(key);
     if(reusedCompressed)input=touch(compressed,key);else {
-     const response=await fetchImpl(url,{signal,credentials:'same-origin',redirect:'error'});check();
-     if(!response.ok)throw Error('Arquivo indisponível: '+meta.month+' (HTTP '+response.status+').');
-     input=new Uint8Array(await response.arrayBuffer());check();
+     if(pending.has(key)){const ahead=pending.get(key);pending.delete(key);input=await ahead;check();}
+     if(!input){
+      const response=await fetchImpl(url,{signal,credentials:'same-origin',redirect:'error'});check();
+      if(!response.ok)throw Error('Arquivo indisponível: '+meta.month+' (HTTP '+response.status+').');
+      input=new Uint8Array(await response.arrayBuffer());check();
+     }
     }
     let text;if(input[0]===31&&input[1]===139){
      if(typeof DecompressionStream==='undefined')throw Error('Este navegador não oferece descompressão gzip. Abra em uma versão recente do Chrome, Edge, Safari ou Firefox.');
@@ -398,7 +415,7 @@
     }
     return cube;
    }
-   return {load,clear,setNamespace(value){if(value!==namespace){clear();namespace=value;}},stats:()=>({decodedEntries:decoded.size,cells,maxCells,compressedEntries:compressed.size,compressedBytes:bytes,maxCompressedBytes})};
+   return {load,prefetch,clear,setNamespace(value){if(value!==namespace){clear();namespace=value;}},stats:()=>({decodedEntries:decoded.size,cells,maxCells,compressedEntries:compressed.size,compressedBytes:bytes,maxCompressedBytes})};
   }
 
   const overlaps=(month,range)=>month>=range.start.slice(0,7)&&month<=range.end.slice(0,7);
@@ -468,14 +485,18 @@
      const sliceBy=splitIndex?.version===2&&splitIndex.dims?['uf','bd_segmento'].map(dim=>({dim,values:categoricalSelection(filters[dim]),files:splitIndex.dims[dim]})).find(s=>s.values.length===1&&s.files&&typeof s.files==='object')??null:null;
      // One call per month: when it returns, nothing of that month's cube stays reachable (an async frame can
      // otherwise keep it alive while the next one is read: two cubes in memory at once).
-     const processMonth=async i=>{
-      if(generation!==token)return false;
+     // The file a month is read from: the origin cube when needed, and the slice of the selected state or size class.
+     const metaFor=i=>{
       const meta=index.get(needed[i]);
       if(needsOrigin&&!originPath(meta))throw Error('A origem do veículo no BD ainda não está disponível para '+needed[i]+'. Remova o filtro de origem ou escolha outro período.');
       const srcMeta=needsOrigin?{...meta,cubePath:originPath(meta),sha256:meta.originCubeSha256??meta.sha256}:meta,slice=sliceBy?sliceBy.files[srcMeta.cubePath]:null,sliceFile=slice?.files?.[sliceBy.values[0]];
       // Same rows of that value, same dictionaries: same answer from fewer bytes. A month without the value has no rows of it
       // (no file), so it reads the full cube.
-      const loadMeta=typeof slice?.dir==='string'&&typeof sliceFile==='string'&&/^[\w.-]+$/.test(sliceFile)?{...srcMeta,cubePath:slice.dir+sliceFile}:srcMeta;
+      return {meta,loadMeta:typeof slice?.dir==='string'&&typeof sliceFile==='string'&&/^[\w.-]+$/.test(sliceFile)?{...srcMeta,cubePath:slice.dir+sliceFile}:srcMeta};
+     };
+     const processMonth=async i=>{
+      if(generation!==token)return false;
+      const {meta,loadMeta}=metaFor(i);
       const summaryKey=JSON.stringify(['source-summary-v1',namespace,loadMeta.cubePath,loadMeta.sha256??'',meta.month]);
       let summary=sourceSummaries.get(summaryKey),loadedCube=null;
       if(!summary&&aggregateStore){try{summary=await aggregateStore.get(summaryKey);if(summary?.month!==meta.month||!Array.isArray(summary.columns)||!summary.columns.every(c=>typeof c==='string')||!DIMS.every(dim=>Array.isArray(summary.dictionaries?.[dim])))summary=null;if(summary)sourceSummaries.set(summaryKey,summary);}catch{}}
@@ -528,7 +549,9 @@
       port.postMessage({id,progress:{done:i+1,total:needed.length}});
       return true;
      };
+     const AHEAD=4;
      for(let i=0;i<needed.length;i++){
+      for(let j=i;j<=i+AHEAD&&j<needed.length;j++){try{loader.prefetch?.(metaFor(j).loadMeta,base);}catch{}}
       if(!(await processMonth(i)))return;
       // Always yield between cubes, including a warm cache, before checking token again.
       if(i<needed.length-1)await yieldControl();
