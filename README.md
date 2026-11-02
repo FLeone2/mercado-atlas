@@ -72,9 +72,10 @@ para embutir o código do worker. Quem faz isso é o plugin `atlas-market` em `v
 - **Servidor:** `functions/api/market.js` calcula na Cloudflare com o mesmo motor (`server/engine.js`, gerado por
   `scripts/build-server.cjs`) e guarda cada resposta no cache e no KV `RESPOSTAS`. Fica desligado (404) enquanto o KV não
   estiver ligado ao projeto; então o navegador calcula sozinho. Para ligar: `docs/ROADMAP.md`, seção 3.
-- **Aparelho:** `public/sw.js` abre a volta ao site sem esperar a rede e guarda cubos e código; as respostas calculadas
-  ficam no IndexedDB por 45 dias. Quando um mês novo é publicado, a página avisa "Há dados novos". Para desligar o
-  service worker, publique um `sw.js` que só chame `self.registration.unregister()`.
+- **Aparelho:** `public/sw.js` guarda no aparelho o código e os arquivos de nome único (cubos, fatias, pré-cálculo);
+  a página e os índices vêm da rede (com o cache HTTP) e, sem rede ou após 3 s, da cópia guardada. As respostas
+  calculadas ficam no IndexedDB por 45 dias. Para desligar o service worker, publique um `sw.js` que só chame
+  `self.registration.unregister()`.
 - Peças pesadas (versões × versões, conexões) só carregam quando a seção chega perto da tela.
 - Pacote do site: ~790 KB de JavaScript (~250 KB comprimido) e ~90 KB de CSS.
 

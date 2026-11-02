@@ -33,10 +33,6 @@ export const PAGES = [
 const OLD = { panorama: 'resumo', evolucao: 'mercado', segmentos: 'mercado', explorar: 'laboratorio', animacoes: 'laboratorio' };
 const readPage = () => { const s = new URLSearchParams(location.search).get('a'); const v = OLD[s] ?? s; return PAGES.some(p => p.slug === v) ? v : 'resumo'; };
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-// O service worker avisa quando o manifesto mudou (mês novo publicado) e a página oferece recarregar.
-// O ouvinte entra ao carregar o módulo, antes do DOMContentLoaded, para não perder um aviso que chegue cedo.
-let freshData = false;
-navigator.serviceWorker?.addEventListener('message', e => { if (e.data?.type === 'atlas-data-updated') { freshData = true; dispatchEvent(new Event('atlas-fresh')); } });
 
 
 export default function App() {
@@ -78,8 +74,6 @@ export default function App() {
   useEffect(() => { document.documentElement.dataset.nx = ''; document.title = 'Atlas · ' + (current.slug === 'foco' ? brandName(focus) : current.label); }, [current, focus]);
 
   const tip = useTip();
-  const [fresh, setFresh] = useState(() => freshData);
-  useEffect(() => { const on = () => setFresh(true); addEventListener('atlas-fresh', on); return () => removeEventListener('atlas-fresh', on); }, []);
   const dateDefault = shell.snapshot.filters.find(f => f.id === 'date')?.defaultValue;
   const setFilter = useCallback((id, value) => shell.setFilter(id, value), [shell]);
   const reset = useCallback(() => { for (const [k, v] of Object.entries(filters)) if (!['date', 'population'].includes(k) && list(v).length) shell.setFilter(k, 'all'); if (dateDefault) shell.setFilter('date', dateDefault); if (filters.population === 'all_content') shell.setFilter('population', 'light'); }, [filters, shell, dateDefault]);
@@ -110,7 +104,6 @@ export default function App() {
         <nav className="nx-dock" aria-label="Páginas (celular)">
           {PAGES.map(p => <a key={p.slug} href={'?a=' + p.slug} aria-current={p.slug === page ? 'page' : undefined} onClick={e => { e.preventDefault(); go(p.slug); }}>{label(p)}</a>)}
         </nav>
-        {fresh && <div className="nx-status px-fresh" role="status">Há dados novos publicados. <button type="button" onClick={() => location.reload()}>Atualizar</button></div>}
         {q.error && <div className="nx-status err" role="alert">Não foi possível calcular este recorte ({q.error}). Ajuste os filtros ou recarregue a página.</div>}
         <main className={'px-main' + (stale ? ' nx-stale' : '')} aria-busy={q.pending || undefined}>
           <Page />
