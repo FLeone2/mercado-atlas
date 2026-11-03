@@ -3,10 +3,14 @@ import { useAtlas } from './ctx.js';
 import { label, list, brandName, monthLabel, monthEnd, presets, rangeText, UF_NAMES, FOCUS_DEFAULT, fmt, versionNames } from './lib.js';
 
 /* Barra de filtros fixa: cada botão mostra o valor escolhido e abre um painel curto.
+   Período | Território | Marca em foco | Segmento | Body type | Propulsão | Mais filtros.
+   Segmento e Body type são as duas classificações da BD (bd_segmento e bd_carroceria), lado a lado.
    Território em cascata (região → estado → município), marca em foco separada do recorte. */
 const REGIOES = { Norte: ['AC', 'AM', 'AP', 'PA', 'RO', 'RR', 'TO'], Nordeste: ['AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE'], 'Centro-Oeste': ['DF', 'GO', 'MS', 'MT'], Sudeste: ['ES', 'MG', 'RJ', 'SP'], Sul: ['PR', 'RS', 'SC'] };
 const PROPULSAO = ['ICE', 'MHEV', 'HEV', 'PHEV', 'BEV'];
-const MORE = [['segmento', 'Tipo de veículo'], ['bd_carroceria', 'Carroceria'], ['combustivel', 'Combustível'], ['grupo_modelo', 'Modelo'], ['modelo', 'Versão'], ['bd_origem', 'Origem do veículo'], ['ano_fabricacao', 'Ano de fabricação']];
+// Mais filtros: o canal (VD e varejo) primeiro, depois o resto; segmento e body type da BD ficam na barra.
+const MORE = [['tipo_venda', 'Canal'], ['segmento', 'Tipo de veículo'], ['combustivel', 'Combustível'], ['grupo_modelo', 'Modelo'], ['modelo', 'Versão'], ['bd_origem', 'Origem do veículo'], ['ano_fabricacao', 'Ano de fabricação']];
+const CANAL = [['VAREJO', 'Varejo'], ['VD', 'Venda direta']];
 const fold = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 const NONE = /classific|correspond|informado|indeterm|^outros$/i;
 
@@ -62,6 +66,8 @@ export default function FilterBar() {
   const showVersion = v => { const i = vinfo.get(v); return i ? vname(v) + ' · ' + brandName(i.marca) : v; };
   const set = id => v => setFilter(id, v.length ? v : 'all');
   const opts = (id, keys) => keys.filter(k => !NONE.test(k)).map(k => [k, label(id, k), rank(id).get(k) ?? 0]).sort((a, b) => b[2] - a[2]);
+  // os valores com emplacamentos no recorte (e os já escolhidos), do maior para o menor
+  const inUse = id => opts(id, choices[id] ?? []).filter(o => o[2] > 0 || list(filters[id]).includes(o[0])).map(([k, t]) => [k, t]);
 
   /* período */
   const date = String(filters.date ?? ''), [a, b] = date.split('..').map(s => s?.slice(0, 7));
@@ -119,23 +125,24 @@ export default function FilterBar() {
           </Pop>
         </div>
         <div className="px-fgroup">
-          <Btn {...bp} id="porte" k="Porte" v={valueText('bd_segmento', 'Todos')} on={list(filters.bd_segmento).length} />
-          <Pop open={open} id="porte" wide><Chips options={opts('bd_segmento', choices.bd_segmento ?? []).filter(o => o[2] > 0 || list(filters.bd_segmento).includes(o[0])).map(([k, t]) => [k, t])} value={filters.bd_segmento} onChange={set('bd_segmento')} /></Pop>
+          <Btn {...bp} id="segmento" k="Segmento" v={valueText('bd_segmento', 'Todos')} on={list(filters.bd_segmento).length} />
+          <Pop open={open} id="segmento" wide><Chips options={inUse('bd_segmento')} value={filters.bd_segmento} onChange={set('bd_segmento')} /><p className="px-pop-note">Segmento da BD: compacto, pequeno, médio, picape média…</p></Pop>
+        </div>
+        <div className="px-fgroup">
+          <Btn {...bp} id="body" k="Body type" v={valueText('bd_carroceria', 'Todos')} on={list(filters.bd_carroceria).length} />
+          <Pop open={open} id="body" wide><Chips options={inUse('bd_carroceria')} value={filters.bd_carroceria} onChange={set('bd_carroceria')} /><p className="px-pop-note">Body type da BD: SUV, hatch, sedã, picape, van…</p></Pop>
         </div>
         <div className="px-fgroup">
           <Btn {...bp} id="propulsao" k="Propulsão" v={valueText('propulsao', 'Todas')} on={list(filters.propulsao).length} />
           <Pop open={open} id="propulsao"><Chips options={PROPULSAO.map(k => [k, label('propulsao', k)])} value={filters.propulsao} onChange={set('propulsao')} /></Pop>
         </div>
         <div className="px-fgroup">
-          <Btn {...bp} id="canal" k="Canal" v={valueText('tipo_venda', 'Todos')} on={list(filters.tipo_venda).length} />
-          <Pop open={open} id="canal"><Chips options={[['VAREJO', 'Varejo'], ['VD', 'Venda direta']]} value={filters.tipo_venda} onChange={set('tipo_venda')} /><p className="px-pop-note">Venda direta inclui locadoras, frotistas, produtor rural, PcD e governo.</p></Pop>
-        </div>
-        <div className="px-fgroup">
           <Btn {...bp} id="mais" k="Mais filtros" v={moreOn ? moreOn + ' ativo' + (moreOn > 1 ? 's' : '') : 'Nenhum'} on={moreOn} />
           <Pop open={open} id="mais" wide>
             {MORE.map(([id, t]) => (
               <section key={id}><h4>{t}</h4>
-                {(choices[id] ?? []).length <= 14
+                {id === 'tipo_venda' ? <><Chips options={CANAL} value={filters.tipo_venda} onChange={set('tipo_venda')} /><p className="px-pop-note">Venda direta inclui locadoras, frotistas, produtor rural, PcD e governo.</p></>
+                  : (choices[id] ?? []).length <= 14
                   ? <Chips options={opts(id, choices[id] ?? []).map(([k, l]) => [k, l])} value={filters[id]} onChange={set(id)} />
                   : <Search choices={(choices[id] ?? []).filter(x => !NONE.test(x))} value={filters[id]} onChange={set(id)} show={id === 'modelo' ? showVersion : x => label(id, x)} rank={rank(id)} placeholder={'Buscar ' + t.toLowerCase()} />}
               </section>

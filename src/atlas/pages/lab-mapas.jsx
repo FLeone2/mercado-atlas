@@ -18,7 +18,7 @@ function useNational(chan) {
   const q = engine.useMarketData(f, true, 'leaders-br', false, focus);
   return { q, globalChannel };
 }
-const ChannelSeg = ({ chan, setChan, globalChannel }) => (!globalChannel ? <Seg label="Canal" value={chan} onChange={setChan} options={[['VAREJO', 'Varejo'], ['all', 'Todos os canais']]} /> : <span className="px-map-note">Canal: o do filtro global</span>);
+const ChannelSeg = ({ chan, setChan, globalChannel }) => (!globalChannel ? <Seg label="Canal" value={chan} onChange={setChan} options={[['VAREJO', 'Varejo'], ['all', 'Todos os canais']]} /> : <span className="px-map-note">Canal: o de Mais filtros</span>);
 const UF_P2D = new Map();
 const ufPath = u => { if (!UF_P2D.has(u.uf)) UF_P2D.set(u.uf, new Path2D(u.d)); return UF_P2D.get(u.uf); };
 

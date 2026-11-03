@@ -28,7 +28,7 @@
 @keyframes pxpop{from{opacity:0;transform:translateY(-6px) scale(.98)}}
 .px-pop h4{font:600 11px/1 var(--nx-font);letter-spacing:.07em;text-transform:uppercase;color:var(--nx-soft);margin:16px 0 9px}.px-pop h4:first-child,.px-pop section:first-child h4{margin-top:2px}
 .px-pop .nx-chip small.px-n{margin-left:7px;font-weight:500;opacity:.55;font-size:11.5px}
-.px-pop-note{font:500 12.5px/1.45 var(--nx-font);color:var(--nx-soft);margin:12px 0 0}.px-pop-note.first{margin:0 0 12px}
+.px-pop-note{font:500 12.5px/1.45 var(--nx-font);color:var(--nx-soft);margin:12px 0 0}.px-pop-note.first{margin:0 0 12px}.px-pop section .px-pop-note{margin:8px 0 14px}
 .px-search input{width:100%;margin-top:8px;padding:9px 12px;border-radius:10px;border:1px solid rgba(0,0,0,.1);background:#fff;font:500 14px var(--nx-font)}
 .px-search .nx-chips{margin-top:2px}.px .px-link{margin-top:12px;font:600 13px var(--nx-font);color:var(--nx-accent)}
 .px .nx-found small{float:right;color:var(--nx-soft);font-weight:500}.px .nx-none{font-size:13px;color:var(--nx-soft);margin-top:8px}

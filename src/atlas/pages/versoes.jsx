@@ -59,7 +59,7 @@ export function VersionRanking() {
   return (
     <Block className="nx-c12" title="Versões: quem ganhou e perdeu posições"
       sub={<>{d.labelA} → {d.labelB}{inSeg ? ' · em ' + segName : ''} · <em>vermelho</em> são as três versões mais vendidas da {focusName}{d.mv.top ? <> · mais vendida: {V.name(d.mv.top.name)} ({brandName(V.brand(d.mv.top.name))})</> : ''}</>}
-      info="As versões são o campo modelo do registro (Renavam), com o nome do modelo no começo. Use os filtros de Modelo, Versão, Porte e Canal para focar; a posição escrita é a real entre as versões do recorte. Passe o mouse para ver a marca e o registro original."
+      info="As versões são o campo modelo do registro (Renavam), com o nome do modelo no começo. Use os filtros de Segmento, Body type e, em Mais filtros, Modelo, Versão e Canal para focar; a posição escrita é a real entre as versões do recorte. Passe o mouse para ver a marca e o registro original."
       actions={<div className="px-ctl">
         {mainSeg && !segFiltered && <Seg label="Onde" value={where} onChange={setWhere} options={[['seg', 'Em ' + segName], ['all', 'Todo o recorte']]} />}
         <Seg label="Comparar com" value={cmp} onChange={setCmp} options={[['ano', 'Mesmo período, ano anterior'], ['anterior', 'Período anterior']]} />

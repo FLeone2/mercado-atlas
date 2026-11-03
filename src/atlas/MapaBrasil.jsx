@@ -311,7 +311,7 @@ export default function MapaBrasil() {
     <div className="px-map">
       <div className="px-map-bar">
         <Seg label="Medida" value={mode} onChange={v => { setMode(v); setHiBrand(null); }} options={MODES.map(([k, l]) => [k, k === 'share' ? 'Participação ' + focusName : k === 'indice' ? 'Índice ' + focusName : l])} />
-        {!globalChannel ? <Seg label="Canal" value={chan} onChange={setChan} options={[['VAREJO', 'Varejo'], ['all', 'Todos os canais']]} /> : <span className="px-map-note">Canal: o do filtro global</span>}
+        {!globalChannel ? <Seg label="Canal" value={chan} onChange={setChan} options={[['VAREJO', 'Varejo'], ['all', 'Todos os canais']]} /> : <span className="px-map-note">Canal: o de Mais filtros</span>}
         <button type="button" className="px-dealer-tg" aria-pressed={showDealers} onClick={() => setShowDealers(x => !x)} title="As lojas aparecem quando você aproxima o mapa ou entra num estado"><i aria-hidden />Concessionárias Mitsubishi</button>
       </div>
       <div className="px-map-grid">
