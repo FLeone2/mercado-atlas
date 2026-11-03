@@ -109,10 +109,27 @@ npm run test:visual                                  # todas as páginas no desk
 
 ## Atualizar com um mês novo
 
-1. Coloque o cubo do mês em `data/cubes/` e `data/origin-cubes/` e atualize `data/manifest.json`.
-2. `bash scripts/update-derived.sh`: regenera o histórico (nacional, por estado e por versão), as séries e o modelo
-   econômico, registra a nova impressão digital dos dados, gera `dist/` (com o pré-cálculo) e roda os testes.
-3. Commit e push em `main`.
+1. Baixe o XLSX original e o BD de classificação para uma pasta **fora do repositório**. Instale
+   `pip install -r scripts/requirements-import.txt` e gere uma carga em uma pasta temporária:
+
+   ```sh
+   python3 scripts/import-month.py --source /caminho/original.xlsx --bd /caminho/classificacao.xlsb \
+     --month 2026-10 --source-name 'nome original no Drive.xlsx' \
+     --source-modified-time '2026-11-03T12:54:32.976Z' --output-dir /tmp/atlas-month
+   ```
+
+   Confira `receipt.json` e reconcilie contagens com o original. A carga preserva duplicidades,
+   diagnostica datas e gera apenas agregados públicos. O BD usa somente a aba do ano exato.
+   Não envie os arquivos originais para GitHub ou para o diretório público.
+2. `python3 scripts/append-month.py --staging /tmp/atlas-month`: valida o cubo, a projeção completa de origem
+   e a revisão BD; acrescenta apenas o próximo mês, atualiza manifesto, filtros e snapshot e guarda um recibo
+   em `data/imports/`. Não reescreve cubos históricos. A verificação de identificadores entre meses fica
+   explicitamente pendente quando as fontes históricas restritas não estão disponíveis.
+3. `bash scripts/update-derived.sh`: regenera o histórico (nacional, por estado e por versão), os cenários,
+   as séries e o modelo econômico, registra a nova impressão digital dos dados, gera `dist/`
+   (com o pré-cálculo) e roda os testes. Fontes oficiais preservam suas próprias datas de referência;
+   resultados congelados de Fase 2 no snapshot mantêm sua data original.
+4. Revise as alterações, confirme os totais e a preservação dos cubos anteriores, faça commit e push em `main`.
 
 ## Cores
 

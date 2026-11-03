@@ -5,8 +5,30 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 python3 scripts/build-history.py          # 10-year history (data/history)
+python3 scripts/build_scenarios.py --repo . # monthly, regional and composition from the same cubes
+python3 scripts/relink_regional.py        # shared municipality-name rules
+python3 scripts/phase2_regional.py         # geographic metrics and scope audit
+python3 scripts/phase23_models.py --repo . # national and regional models
+python3 scripts/phase3_hierarchy.py --repo . # UF/brand forecasts and source conservation
+python3 scripts/phase3_spatial.py          # reuse verified geometry; refresh diagnostics
+python3 scripts/refresh_scenario_receipts.py # hashes of regenerated scenario artifacts
 python3 scripts/build-population.py       # population by UF/municipality (changes only with a new IBGE estimate)
-python3 scripts/fetch_econ_extra.py       # economic series (BCB, IBGE, Ipeadata) with receipts
+if ! python3 scripts/fetch_econ_extra.py; then # retain verified prior vintage if public APIs fail
+python3 - <<'PY'
+import json
+from pathlib import Path
+path = Path('data/scenarios/econ_extra.json')
+data = json.loads(path.read_text())
+series = data.get('series', [])
+if not data.get('retrievedAt') or len(series) != 17 or any(
+    s.get('status') != 'available' or not s.get('monthly') or not s.get('receipts') or any(
+        not r.get('sha256') or not r.get('url', '').startswith('https://') for r in s['receipts']
+    ) for s in series
+):
+    raise SystemExit('No complete verified economic vintage is available; stopping.')
+print('Economic refresh unavailable; retaining verified vintage:', data['retrievedAt'])
+PY
+fi
 python3 scripts/econ_model.py             # elasticities, decomposition and simulator (data/scenarios/econ_model.json)
 node tests/lib/data-baseline.cjs --update # records the new data fingerprint
 npm run build                             # dist/ for Cloudflare Pages

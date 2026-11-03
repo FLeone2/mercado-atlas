@@ -58,8 +58,8 @@ class Phase23Tests(unittest.TestCase):
     def test_all_sarimax_folds_have_explicit_convergence_audit(self):
         for target in ('registrations', 'mitsubishi', 'nonMitsubishi'):
             audit = self.result['forecasts']['targets'][target]['fitAudit']['seasonal_sarimax']
-            self.assertEqual(len(audit['validation']), 34)
-            self.assertEqual(len(audit['test']), 13)
+            self.assertEqual(len(audit['validation']), len(self.months) - 24 - m.MAX_HORIZON + 1 - m.MIN_TRAIN)
+            self.assertEqual(len(audit['test']), 24 - m.MAX_HORIZON + 1)
             for row in audit['validation'] + audit['test']:
                 self.assertTrue(row['converged'])
                 self.assertIn(row['optimizer'], ('lbfgs', 'powell_after_lbfgs'))
@@ -129,10 +129,10 @@ class Phase23Tests(unittest.TestCase):
     def test_validation_targets_precede_test_targets(self):
         p = self.result['protocol']
         self.assertLess(p['validationTargetRange'][1], p['testTargetRange'][0])
-        self.assertEqual(p['nValidationOrigins'], 34)
-        self.assertEqual(p['nTestOrigins'], 13)
-        self.assertEqual(p['testTargetRange'], ['2024-10', '2026-09'])
-        self.assertEqual(self.result['coverage']['months'], 129)
+        self.assertEqual(p['nValidationOrigins'], len(self.months) - 24 - m.MAX_HORIZON + 1 - m.MIN_TRAIN)
+        self.assertEqual(p['nTestOrigins'], 24 - m.MAX_HORIZON + 1)
+        self.assertEqual(p['testTargetRange'], [self.months[-24], self.months[-1]])
+        self.assertEqual(self.result['coverage']['months'], len(self.months))
 
     def test_selection_uses_validation_only_and_no_fresh_validation_claim(self):
         for key in ('registrations', 'mitsubishi', 'nonMitsubishi'):
@@ -169,8 +169,7 @@ class Phase23Tests(unittest.TestCase):
     def test_share_and_total_are_coherent(self):
         rows = self.result['forecasts']['rows']
         self.assertEqual(len(rows), 12)
-        self.assertEqual(rows[0]['month'], '2026-10')
-        self.assertEqual(rows[-1]['month'], '2027-09')
+        self.assertEqual([r['month'] for r in rows], [m.add_month(self.months[-1], h) for h in range(1, 13)])
         for i, row in enumerate(rows):
             self.assertGreaterEqual(row['mitsubishi'], 0)
             self.assertLessEqual(row['mitsubishi'], row['registrations'])
@@ -185,7 +184,7 @@ class Phase23Tests(unittest.TestCase):
         for target in self.result['forecasts']['targets'].values():
             for interval in target['intervals']:
                 self.assertTrue(0 <= interval['lo95'] <= interval['lo80'] <= interval['hi80'] <= interval['hi95'])
-                self.assertEqual(interval['calibrationN'], 34)
+                self.assertEqual(interval['calibrationN'], len(self.months) - 24 - m.MAX_HORIZON + 1 - m.MIN_TRAIN)
         for interval in self.result['forecasts']['targets']['mitsubishiShare']['intervals']:
             self.assertLessEqual(interval['hi95'], 1)
         content = (ROOT / 'data/scenarios/phase23_models.json').read_text()

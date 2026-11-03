@@ -22,7 +22,10 @@ class StatisticsTests(unittest.TestCase):
 class OutputTests(unittest.TestCase):
  def load(self,name):return json.loads((ROOT/name).read_text())
  def test_months_and_scope(self):
-  m=self.load('monthly.json');self.assertEqual(len(m['rows']),129);self.assertEqual(sum(x['registrations'] for x in m['rows']),24541931)
+  m=self.load('monthly.json');manifest=json.loads((ROOT.parent/'manifest.json').read_text())
+  self.assertEqual([r['month'] for r in m['rows']],manifest['expectedMonths'])
+  self.assertEqual([r['registrations'] for r in m['rows']],[r['lightVehicleRows'] for r in manifest['months']])
+  self.assertEqual(m['coverageEnd'],manifest['coverageEnd'])
  def test_sankey_reconciles(self):
   c=self.load('composition.json');m=self.load('monthly.json');self.assertEqual(sum(x['count'] for x in c['rows']),sum(x['registrations'] for x in m['rows'] if x['month'].startswith('2026')))
  def test_join_audit_reconciles(self):

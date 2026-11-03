@@ -1,16 +1,36 @@
 """Economia: séries novas na base e o modelo publicado em data/scenarios/econ_model.json."""
 import json, math, sys, unittest
 from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 import econ_model  # noqa: E402
+import fetch_econ_extra  # noqa: E402
 
 EXTRA = json.loads((ROOT / 'data/scenarios/econ_extra.json').read_text())
 MODEL = json.loads((ROOT / 'data/scenarios/econ_model.json').read_text())
 
 
 class Sources(unittest.TestCase):
+    def test_failed_refresh_preserves_verified_artifact(self):
+        def blocked(source, *args):
+            return {**source, 'status': 'blocked_fetch', 'monthly': [], 'receipts': []}
+        with TemporaryDirectory() as folder:
+            path = Path(folder) / 'econ_extra.json'
+            original = (ROOT / 'data/scenarios/econ_extra.json').read_bytes()
+            path.write_bytes(original)
+            with patch.object(fetch_econ_extra, 'fetch_series', side_effect=blocked), \
+                 patch.object(fetch_econ_extra.time, 'sleep'), \
+                 patch.object(fetch_econ_extra, 'SIDRA', []), \
+                 patch.object(fetch_econ_extra, 'IPEA', []), \
+                 patch.object(fetch_econ_extra, 'new_car_series', return_value=blocked({'key': 'new_car_price'})):
+                with self.assertRaises(SystemExit) as error:
+                    fetch_econ_extra.main(path, '2016-01-01', '2026-11-03', 1)
+                self.assertEqual(error.exception.code, 1)
+            self.assertEqual(path.read_bytes(), original)
+
     def test_every_series_has_receipts_and_no_gaps_filled(self):
         for s in EXTRA['series']:
             self.assertEqual(s['status'], 'available', s['key'])

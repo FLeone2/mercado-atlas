@@ -97,10 +97,11 @@ class HierarchyArtifactTests(unittest.TestCase):
         self.assertLessEqual(errors['maxTotalMinusMitAndNonMit'], 1e-7)
         self.assertGreaterEqual(errors['minimumPrediction'], 0)
 
-    def test_all_129_months_conserve_manifest_and_monthly(self):
+    def test_all_months_conserve_manifest_and_monthly(self):
         manifest = json.loads((ROOT / 'data/manifest.json').read_text())
         monthly = json.loads((ROOT / 'data/scenarios/monthly.json').read_text())['rows']
-        self.assertEqual(len(self.data['history']), 129)
+        self.assertEqual(len(self.data['history']), len(manifest['months']))
+        self.assertEqual(len(self.data['sourceAudit']['receipts']), len(manifest['months']))
         self.assertEqual([r['month'] for r in self.data['history']], manifest['expectedMonths'])
         self.assertEqual(self.data['sourceAudit']['manifestSha256'], hashlib.sha256((ROOT / 'data/manifest.json').read_bytes()).hexdigest())
         np.testing.assert_array_equal(self.history[:, 0], [r['registrations'] for r in monthly])
@@ -144,8 +145,8 @@ class HierarchyArtifactTests(unittest.TestCase):
         protocol = self.data['protocol']
         for key in ('initialTrainingMonths', 'validationOrigins', 'testOrigins', 'validationTargetRange', 'testTargetRange', 'nValidationOrigins', 'nTestOrigins'):
             self.assertEqual(protocol[key], national[key], key)
-        self.assertEqual(protocol['nValidationOrigins'], 34)
-        self.assertEqual(protocol['nTestOrigins'], 13)
+        self.assertEqual(protocol['nValidationOrigins'], len(self.history) - 24 - 12 + 1 - hierarchy.INITIAL_TRAINING)
+        self.assertEqual(protocol['nTestOrigins'], 24 - 12 + 1)
         self.assertEqual(protocol['forecastPathLength'], 12)
         for audit in self.data['reconciliationAudit']['covarianceFits']:
             self.assertLess(audit['lastResidualIndex'], audit['originIndex'])
@@ -163,11 +164,12 @@ class HierarchyArtifactTests(unittest.TestCase):
     def test_all_test_paths_and_metrics_are_recomputable(self):
         nodes = self.data['nodes']
         for model, records in self.data['candidateTestPredictions'].items():
-            self.assertEqual(len(records), 13 * 12)
+            expected_origins = list(range(len(self.history) - 24, len(self.history) - 12 + 1))
+            self.assertEqual(len(records), len(expected_origins) * 12)
             origins = sorted(set(r['originIndex'] for r in records))
-            self.assertEqual(origins, list(range(105, 118)))
-            predicted = np.array([[r['predicted'][key] for key in self.keys] for r in records]).reshape(13, 12, len(nodes))
-            actual = np.array([[r['actual'][key] for key in self.keys] for r in records]).reshape(13, 12, len(nodes))
+            self.assertEqual(origins, expected_origins)
+            predicted = np.array([[r['predicted'][key] for key in self.keys] for r in records]).reshape(len(expected_origins), 12, len(nodes))
+            actual = np.array([[r['actual'][key] for key in self.keys] for r in records]).reshape(len(expected_origins), 12, len(nodes))
             scales = np.asarray([np.mean(np.abs(self.history[12:o] - self.history[:o - 12]), axis=0) for o in origins])
             recomputed = hierarchy.group_metrics(actual, predicted, scales, nodes)
             self.assertEqual(recomputed, self.data['test'][model])
@@ -183,7 +185,7 @@ class HierarchyArtifactTests(unittest.TestCase):
 
     def test_future_selected_and_all_coherent_candidates_conserve(self):
         self.assertEqual(len(self.data['futureForecasts']), 12)
-        self.assertEqual([r['month'] for r in self.data['futureForecasts']], [hierarchy.add_month('2026-09', h) for h in range(1, 13)])
+        self.assertEqual([r['month'] for r in self.data['futureForecasts']], [hierarchy.add_month(self.data['history'][-1]['month'], h) for h in range(1, 13)])
         self.assertEqual(self.data['futureForecasts'], self.data['candidateFutureForecasts'][self.data['selectedModel']])
         for model, rows in self.data['candidateFutureForecasts'].items():
             array = np.array([[r['nodes'][key] for key in self.keys] for r in rows])

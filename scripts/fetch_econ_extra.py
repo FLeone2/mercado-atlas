@@ -141,11 +141,12 @@ def main(out, start, end, timeout):
     payload = {'schemaVersion': 'econ-extra-1.0.0', 'retrievedAt': dt.datetime.now(dt.timezone.utc).isoformat(), 'start': start, 'end': end,
                'series': series, 'importTax': IMPORT_TAX,
                'rules': ['No filling of missing months.', 'Current API vintages; revisions may exist.', 'PNAD moving quarters are dated by their last month.']}
+    print(json.dumps({s['key']: [s['status'], len(s['monthly']), s['monthly'][-1]['month'] if s['monthly'] else None] for s in series}, ensure_ascii=False))
+    if any(s['status'] != 'available' or not s['monthly'] for s in series):
+        print('Economic refresh failed; existing artifact was preserved.', file=sys.stderr)
+        sys.exit(1)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, ensure_ascii=False, separators=(',', ':')) + '\n')
-    print(json.dumps({s['key']: [s['status'], len(s['monthly']), s['monthly'][-1]['month'] if s['monthly'] else None] for s in series}, ensure_ascii=False))
-    if any(s['status'] != 'available' for s in series):
-        sys.exit(1)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build separate Cenários data, without touching existing dashboard files."""
-import argparse, collections, datetime as dt, gzip, hashlib, json, re, unicodedata
+import argparse, collections, datetime as dt, gzip, hashlib, json, unicodedata
 from pathlib import Path
 from scenario_statistics import distribution, forecast, lag_correlations
 
@@ -16,10 +16,11 @@ def write(path, value):
 
 def build(repo,out):
     manifest_path=repo/'data/manifest.json';manifest=json.loads(manifest_path.read_text())
-    snapshot=json.loads(re.search(r'<script type="application/json" id="data-app-reviewed-snapshot">(.*?)</script>',(repo/'index.html').read_text(),re.S).group(1))
+    snapshot=json.loads((repo/'data/snapshot.json').read_text())
     q=snapshot['queries']; lookup=collections.defaultdict(set); shapes={}
     for path in sorted((repo/'data/geography').glob('*.json')):
         geo=json.loads(path.read_text())
+        if not isinstance(geo,dict) or 'features' not in geo:continue
         for f in geo['features']:
             lookup[(f['uf'],norm(f['name']))].add(f['code']);shapes[f['code']]={'name':f['name'],'uf':f['uf']}
     monthly=[]; municipalities=collections.defaultdict(lambda:[0,0]);sankey=collections.Counter();audits=[];input_hashes=[]
@@ -98,7 +99,10 @@ def build(repo,out):
       'municipal_3d_per1000':{'tab':'Potencial regional','status':'available_state_local_polygons_only' if socio else 'blocked_nationwide_population_and_geographic_mesh','file':'regional.json'},
       'forecast_fan':{'tab':'Previsões','status':'exploratory_only_failed_validation','file':'forecasts.json'},
       'two_factor_3d_response':{'tab':'Simulações','status':'blocked_unvalidated_model','file':'macro_analysis.json'}}
-    write(out/'manifest.json',{**common,'tabs':['Diagnóstico','Economia e mercado','Potencial regional','Previsões','Simulações'],'visuals':visual,'files':['socioeconomic.json','monthly.json','regional.json','composition.json','forecasts.json','macro_analysis.json','audit.json','external_sources.json'],
+    previous_manifest=json.loads((out/'manifest.json').read_text()) if (out/'manifest.json').exists() else {}
+    scenario_files=['socioeconomic.json','monthly.json','regional.json','composition.json','forecasts.json','macro_analysis.json','audit.json','external_sources.json']
+    scenario_files=list(dict.fromkeys([*scenario_files,*previous_manifest.get('files',[])]))
+    write(out/'manifest.json',{**previous_manifest,**common,'tabs':['Diagnóstico','Economia e mercado','Potencial regional','Previsões','Simulações'],'visuals':visual,'files':scenario_files,
         'presentationRules':['Show source vintage, last available date, unit, scope and availability next to charts.','Never label GDP per capita as household income.','Registration location may reflect fleets, headquarters or incentives, not resident demand.','No artificial municipal point precision; use official polygons or explicitly labeled cartographic centroids.','Unavailable is not zero. Selected samples are not national coverage.']})
     print(json.dumps({'months':len(monthly),'total':sum(r['registrations'] for r in monthly),'joinCoverage':matched_total/sum(r['registrations'] for r in rows),'sampleReconciled':all(r['frozenReconciled'] for r in sample),'models':{k:v.get('selectedModel') for k,v in forecasts.items()}},indent=2))
 

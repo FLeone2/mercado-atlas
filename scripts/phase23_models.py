@@ -538,7 +538,7 @@ def regional_model(regional, socioeconomic, phase1=None):
         'rows': [{'code': r['code'], 'uf': r['uf'], 'name': r['name'], 'population': r['population'],
                   'observed': r['registrations'], 'expected': p, 'ratio': r['registrations'] / p,
                   'mitObserved': r['mitsubishi'], 'mitExpected': mp, 'mitRatio': r['mitsubishi'] / mp} for r, p, mp in zip(rows, expected, mexpected)],
-        'warning': 'Conditional association, not causal demand or actionable sales potential. GDP per capita is not household income. Counts refer to Jan–Sep registrations, not unique residents; fleets/headquarters and spatial dependence matter. GDP 2023, population 2026, income/density/urbanisation 2022 and PAM vintage differ. Overdispersion is reported; HC1 does not repair missing controls or spatial dependence.',
+        'warning': f"Conditional association, not causal demand or actionable sales potential. GDP per capita is not household income. Counts refer to {regional['period'][0]} through {regional['period'][1]} registrations, not unique residents; fleets/headquarters and spatial dependence matter. GDP 2023, population 2026, income/density/urbanisation 2022 and PAM vintage differ. Overdispersion is reported; HC1 does not repair missing controls or spatial dependence.",
         'zeroPolicy': 'Observed zero MIT counts are retained in Poisson with log(population) offset. Municipalities absent from the registration table are excluded and are never silently treated as zero.',
         'validation': 'In-sample conditional fit, no out-of-sample regional predictive validation. Expected-minus-observed is not unmet demand.'}
 
@@ -603,7 +603,7 @@ def build(repo, regional_only=False):
         'unit': monthly_file['unit'], 'scope': monthly_file['scope'],
         'sourceAsOf': max(monthly_file['sourceAsOf'], (phase1 or {}).get('retrievedAt', monthly_file['sourceAsOf'])),
         'registrationSourceAsOf': monthly_file['sourceAsOf'],
-        'filterContract': 'Fixed national monthly history and fixed regional Jan–Sep cross-section; dashboard filters do not refit models.',
+        'filterContract': f'Fixed national monthly history and fixed regional {months[-1][:4]}-01 through {months[-1]} cross-section; dashboard filters do not refit models.',
         'protocol': forecasts['protocol'],
         'economics': {'prewhitenedCcf': ccf, 'realCredit': real_credit_series(external, phase1),
             'distributedLag': {'status': 'experimental', 'specification': 'Log seasonal-difference AR(1) plus equal-weight distributed lags 2–4 of financing-rate YoY percentage-point changes and credit-flow log YoY changes. Fixed weak ridge penalty 1 on slopes.',
