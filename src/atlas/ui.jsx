@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useAtlas } from './ctx.js';
 import { fmt, pct, pp, signed, standing, label } from './lib.js';
 import { Num } from './base/motion.js';
@@ -5,12 +6,20 @@ import { Num } from './base/motion.js';
 /* Cabeçalho de página: título, recorte em uma linha e o índice das seções (âncoras, nunca abas). */
 export function PageHead({ title, toc = [], strip = true }) {
   const { scope } = useAtlas();
-  const jump = id => document.getElementById(id)?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  const [destination, setDestination] = useState('');
+  const jump = id => {
+    const section = document.getElementById(id); if (!section) return;
+    section.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    const heading = section.querySelector('h2'); if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
+  };
   return (
     <header className="px-head nx-wrap">
-      <h1>{title}</h1>
+      <h1 tabIndex={-1}>{title}</h1>
       <p className="px-scope">{scope}</p>
-      {toc.length > 0 && <nav className="px-toc" aria-label="Nesta página">{toc.map(([id, t]) => <button key={id} type="button" onClick={() => jump(id)}>{t}</button>)}</nav>}
+      {toc.length > 0 && <>
+        <nav className="px-toc" aria-label="Nesta página">{toc.map(([id, t]) => <a key={id} href={'#' + id} onClick={e => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return; e.preventDefault(); jump(id); }}>{t}</a>)}</nav>
+        <label className="px-toc-mobile">Ir para seção<select value={destination} onChange={e => { setDestination(e.target.value); if (e.target.value) jump(e.target.value); }}><option value="">Escolher seção</option>{toc.map(([id, t]) => <option key={id} value={id}>{t}</option>)}</select></label>
+      </>}
       {strip && <FocusStrip />}
     </header>
   );

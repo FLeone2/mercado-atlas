@@ -48,12 +48,51 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
   await pick('Porte', 'Picape média');
   if ((await strip()) === s1) failures.push('filtro de porte não mudou o placar');
   await page.locator('.px-fbtn', { hasText: 'Marca em foco' }).click(); await page.locator('.px-pop .nx-chip', { hasText: 'Toyota' }).first().click(); await page.waitForTimeout(9000);
-  if (!(await strip()).startsWith('TOYOTA')) failures.push('trocar a marca em foco não trocou o placar');
+  if (!/^toyota/i.test(await strip())) failures.push('trocar a marca em foco não trocou o placar');
   if ((await page.locator('.nx-links a.px-focus-link').innerText()) !== 'Toyota') failures.push('a página da marca em foco não mudou de nome');
   await page.locator('.px-clear').click(); await page.waitForTimeout(9000);
   if ((await strip()) !== s0 || new URL(page.url()).search !== '?a=concorrencia') failures.push('Limpar não voltou ao recorte inicial');
   if (page.errors.length) failures.push('filtros: ' + page.errors[0]);
   await page.close();
+
+  // Refinamento: foco devolvido pelos filtros, ranking e séries pelo teclado,
+  // tabela equivalente e navegação mobile sem destinos escondidos lateralmente.
+  {
+    const k = await open('?a=resumo');
+    await k.locator('#px-trigger-periodo').click();
+    await k.locator('#px-filter-periodo .nx-chip').first().press('Escape');
+    await k.waitForFunction(() => document.activeElement?.id === 'px-trigger-periodo');
+    if (await k.locator('.px-pop').count()) failures.push('teclado: Escape não fechou o filtro');
+    await k.locator('.nx-links a', { hasText: 'Concorrência' }).click();
+    await k.locator('.px-slope-row[tabindex="0"]').first().waitFor();
+    const first = await k.locator('.px-slope-row[tabindex="0"]').first().getAttribute('aria-label');
+    await k.locator('.px-slope-row[tabindex="0"]').first().press('ArrowDown');
+    await k.locator('.px-slope-row[tabindex="0"]').first().press('Enter');
+    const selected = k.locator('.px-slope-row[tabindex="0"]').first();
+    if ((await selected.getAttribute('aria-label')) === first || (await selected.getAttribute('aria-pressed')) !== 'true') failures.push('teclado: setas/Enter não selecionam uma marca');
+    const ranking = k.locator('.px-chartbox').filter({ has: k.locator('.px-slope') }).first();
+    await ranking.locator('.px-data summary').click();
+    if (!(await ranking.locator('tbody tr').count())) failures.push('acessibilidade: ranking sem tabela equivalente');
+    const line = k.locator('.px-line-interactive').first();
+    await line.press('Home');
+    const before = await line.locator('..').locator('.px-chart-readout').innerText();
+    await line.press('ArrowRight');
+    if ((await line.locator('..').locator('.px-chart-readout').innerText()) === before) failures.push('teclado: a série histórica não muda o período consultado');
+    await k.close();
+
+    const m = await open('?a=resumo', 390);
+    if (!(await m.locator('.px-kpi-band').isVisible()) || (await m.locator('.px-kpi-band').boundingBox()).y > 650) failures.push('mobile: indicadores principais chegam tarde');
+    await m.locator('.px-filters-toggle').click();
+    if ((await m.locator('#atlas-filters .px-fbtn').count()) !== 7) failures.push('mobile: folha de filtros incompleta');
+    await m.getByRole('button', { name: 'Concluir', exact: true }).click();
+    await m.waitForFunction(() => document.activeElement?.classList.contains('px-filters-toggle'));
+    await m.getByRole('button', { name: 'Menu', exact: true }).click();
+    if ((await m.locator('#atlas-menu nav a').count()) !== 7) failures.push('mobile: menu sem todas as páginas');
+    await m.locator('#atlas-menu a', { hasText: 'Economia' }).click();
+    await m.waitForFunction(() => document.querySelector('h1')?.textContent === 'Economia');
+    if (m.errors.length) failures.push('refinamento mobile: ' + m.errors[0]);
+    await m.close();
+  }
 
   // mapa: entrar num estado mostra o cartão dele; buscar e abrir um município; ‹ › passam de município
   {

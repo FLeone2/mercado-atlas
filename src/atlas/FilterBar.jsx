@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useAtlas } from './ctx.js';
 import { label, list, brandName, monthLabel, monthEnd, presets, rangeText, UF_NAMES, FOCUS_DEFAULT, fmt, versionLabel } from './lib.js';
 
@@ -9,6 +9,9 @@ const PROPULSAO = ['ICE', 'MHEV', 'HEV', 'PHEV', 'BEV'];
 const MORE = [['segmento', 'Tipo de veículo'], ['bd_carroceria', 'Carroceria'], ['combustivel', 'Combustível'], ['grupo_modelo', 'Modelo'], ['modelo', 'Versão'], ['bd_origem', 'Origem do veículo'], ['ano_fabricacao', 'Ano de fabricação']];
 const fold = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 const NONE = /classific|correspond|informado|indeterm|^outros$/i;
+const COMPACT = '(max-width: 980px)';
+const subscribeCompact = cb => { const media = matchMedia(COMPACT); media.addEventListener('change', cb); return () => media.removeEventListener('change', cb); };
+const FILTER_NAMES = { periodo: 'Período', territorio: 'Território', foco: 'Marca em foco', porte: 'Porte', propulsao: 'Propulsão', canal: 'Canal', mais: 'Mais filtros' };
 
 function Chips({ options, value, onChange, single }) {
   const sel = list(value);
@@ -34,23 +37,43 @@ function Search({ choices, value, onChange, show, rank, placeholder, single, lim
 
 function Btn({ id, k, v, on, open, setOpen }) {
   return (
-    <button type="button" className={'px-fbtn' + (on ? ' on' : '') + (id === 'foco' ? ' focus' : '')} aria-expanded={open === id} onClick={() => setOpen(o => (o === id ? null : id))}>
+    <button type="button" id={'px-trigger-' + id} aria-controls={'px-filter-' + id} className={'px-fbtn' + (on ? ' on' : '') + (id === 'foco' ? ' focus' : '')} aria-expanded={open === id} onClick={() => setOpen(o => (o === id ? null : id))}>
       <small>{k}</small><span>{v}</span>
       <svg viewBox="0 0 12 8" aria-hidden><path d="M1 1.5l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
     </button>
   );
 }
-const Pop = ({ id, children, wide, open }) => open === id && <div className={'px-pop' + (wide ? ' wide' : '')} role="dialog" aria-label="Filtro">{children}</div>;
+const Pop = ({ id, children, wide, open, setOpen, compact }) => open === id && <div id={'px-filter-' + id} className={'px-pop' + (wide ? ' wide' : '')} role={compact ? 'group' : 'dialog'} aria-labelledby={'px-filter-title-' + id}>
+  <div className="px-pop-head"><h3 id={'px-filter-title-' + id}>{FILTER_NAMES[id]}</h3><button type="button" onClick={() => setOpen(null)} aria-label={'Fechar filtro de ' + FILTER_NAMES[id].toLowerCase()}>Fechar</button></div>
+  <div className="px-pop-content">{children}</div>
+</div>;
 
 export default function FilterBar() {
   const { filters, setFilter, reset, market, manifest, focus, cityName } = useAtlas();
-  const [open, setOpen] = useState(null), bar = useRef(null);
+  const [open, updateOpen] = useState(null), bar = useRef(null), openRef = useRef(null), dialog = useRef(null), sheetButton = useRef(null), sheetOpener = useRef(null);
+  const [sheet, setSheet] = useState(false), compact = useSyncExternalStore(subscribeCompact, () => matchMedia(COMPACT).matches, () => false);
+  const setOpen = useCallback((value, restore = true) => {
+    const previous = openRef.current, next = typeof value === 'function' ? value(previous) : value;
+    openRef.current = next; updateOpen(next);
+    if (previous && next == null && restore) requestAnimationFrame(() => document.getElementById('px-trigger-' + previous)?.focus({ preventScroll: true }));
+  }, []);
+  const closeSheet = () => { setOpen(null, false); setSheet(false); requestAnimationFrame(() => (sheetOpener.current ?? sheetButton.current)?.focus({ preventScroll: true })); };
+  useEffect(() => {
+    if (!compact) { if (sheet) setSheet(false); return; }
+    if (sheet && !dialog.current.open) dialog.current.showModal();
+    if (!sheet && dialog.current.open) dialog.current.close();
+  }, [sheet, compact]);
+  useEffect(() => {
+    if (!open) return;
+    const frame = requestAnimationFrame(() => document.querySelector('#px-filter-' + open + ' .px-pop-content')?.querySelector('input, button, select')?.focus({ preventScroll: true }));
+    return () => cancelAnimationFrame(frame);
+  }, [open, compact]);
   useEffect(() => {
     if (!open) return undefined;
-    const away = e => { if (!bar.current?.contains(e.target)) setOpen(null); }, esc = e => { if (e.key === 'Escape') setOpen(null); };
+    const away = e => { if (!bar.current?.contains(e.target)) setOpen(null, false); }, esc = e => { if (e.key === 'Escape') { e.preventDefault(); setOpen(null); } };
     document.addEventListener('pointerdown', away); document.addEventListener('keydown', esc);
     return () => { document.removeEventListener('pointerdown', away); document.removeEventListener('keydown', esc); };
-  }, [open]);
+  }, [open, setOpen]);
 
   const months = useMemo(() => (manifest?.months ?? []).filter(m => m.cubePath).map(m => m.month), [manifest]);
   const latest = months.at(-1), choices = manifest?.dimensionChoices ?? {};
@@ -84,12 +107,12 @@ export default function FilterBar() {
   const brandChoices = useMemo(() => (choices.marca ?? []).filter(x => !NONE.test(x)), [choices.marca]);
 
   const bp = { open, setOpen };
-  return (
-    <div className="px-fbar" ref={bar}>
-      <div className="px-fbar-in nx-wrap">
+  const popup = { open, setOpen, compact };
+  const activeCount = Number(Boolean(regs.length || ufs.length || cities.length)) + Number(Boolean(list(filters.bd_segmento).length)) + Number(Boolean(list(filters.propulsao).length)) + Number(Boolean(list(filters.tipo_venda).length)) + moreOn + Number(focus !== FOCUS_DEFAULT);
+  const controls = <>
         <div className="px-fgroup">
           <Btn {...bp} id="periodo" k="Período" v={periodText} />
-          <Pop open={open} id="periodo">
+          <Pop {...popup} id="periodo">
             <h4>Atalhos</h4>
             <div className="nx-chips">{presets(latest).map(([l, v]) => <button key={l} type="button" className="nx-chip" aria-pressed={date === v} onClick={() => { setFilter('date', v); setOpen(null); }}>{l}</button>)}</div>
             {months.length > 0 && <><h4>Meses</h4><div className="nx-range">
@@ -101,7 +124,7 @@ export default function FilterBar() {
         </div>
         <div className="px-fgroup">
           <Btn {...bp} id="territorio" k="Território" v={placeText} on={regs.length || ufs.length || cities.length} />
-          <Pop open={open} id="territorio" wide>
+          <Pop {...popup} id="territorio" wide>
             <h4>Região</h4><Chips options={Object.keys(REGIOES).map(r => [r, r])} value={filters.regiao} onChange={setRegs} />
             <h4>Estado</h4><Chips options={ufChoices.map(u => [u, UF_NAMES[u], rank('uf').get(u) ?? 0]).sort((x, y) => y[2] - x[2]).map(([k, t]) => [k, t])} value={filters.uf} onChange={setUfs} />
             <h4>Município{ufs.length ? ' · ' + (ufs.length === 1 ? UF_NAMES[ufs[0]] : ufs.join(', ')) : ''}</h4>
@@ -110,7 +133,7 @@ export default function FilterBar() {
         </div>
         <div className="px-fgroup">
           <Btn {...bp} id="foco" k="Marca em foco" v={brandName(focus)} />
-          <Pop open={open} id="foco">
+          <Pop {...popup} id="foco">
             <p className="px-pop-note first">A marca em foco é destacada e comparada com o mercado em todas as páginas. Ela não recorta o mercado.</p>
             <Chips single options={(market?.groups?.marca ?? []).slice(0, 14).map(r => [r.name, brandName(r.name)])} value={[focus]} onChange={v => { setFilter('marca', v.length && v[0] !== FOCUS_DEFAULT ? v : 'all'); setOpen(null); }} />
             <Search single choices={brandChoices} value={[focus]} onChange={v => { setFilter('marca', v[0] && v[0] !== FOCUS_DEFAULT ? v : 'all'); setOpen(null); }} show={brandName} rank={rank('marca')} placeholder="Buscar marca" />
@@ -119,19 +142,19 @@ export default function FilterBar() {
         </div>
         <div className="px-fgroup">
           <Btn {...bp} id="porte" k="Porte" v={valueText('bd_segmento', 'Todos')} on={list(filters.bd_segmento).length} />
-          <Pop open={open} id="porte" wide><Chips options={opts('bd_segmento', choices.bd_segmento ?? []).filter(o => o[2] > 0 || list(filters.bd_segmento).includes(o[0])).map(([k, t]) => [k, t])} value={filters.bd_segmento} onChange={set('bd_segmento')} /></Pop>
+          <Pop {...popup} id="porte" wide><Chips options={opts('bd_segmento', choices.bd_segmento ?? []).filter(o => o[2] > 0 || list(filters.bd_segmento).includes(o[0])).map(([k, t]) => [k, t])} value={filters.bd_segmento} onChange={set('bd_segmento')} /></Pop>
         </div>
         <div className="px-fgroup">
           <Btn {...bp} id="propulsao" k="Propulsão" v={valueText('propulsao', 'Todas')} on={list(filters.propulsao).length} />
-          <Pop open={open} id="propulsao"><Chips options={PROPULSAO.map(k => [k, label('propulsao', k)])} value={filters.propulsao} onChange={set('propulsao')} /></Pop>
+          <Pop {...popup} id="propulsao"><Chips options={PROPULSAO.map(k => [k, label('propulsao', k)])} value={filters.propulsao} onChange={set('propulsao')} /></Pop>
         </div>
         <div className="px-fgroup">
           <Btn {...bp} id="canal" k="Canal" v={valueText('tipo_venda', 'Todos')} on={list(filters.tipo_venda).length} />
-          <Pop open={open} id="canal"><Chips options={[['VAREJO', 'Varejo'], ['VD', 'Venda direta']]} value={filters.tipo_venda} onChange={set('tipo_venda')} /><p className="px-pop-note">Venda direta inclui locadoras, frotistas, produtor rural, PcD e governo.</p></Pop>
+          <Pop {...popup} id="canal"><Chips options={[['VAREJO', 'Varejo'], ['VD', 'Venda direta']]} value={filters.tipo_venda} onChange={set('tipo_venda')} /><p className="px-pop-note">Venda direta inclui locadoras, frotistas, produtor rural, PcD e governo.</p></Pop>
         </div>
         <div className="px-fgroup">
           <Btn {...bp} id="mais" k="Mais filtros" v={moreOn ? moreOn + ' ativo' + (moreOn > 1 ? 's' : '') : 'Nenhum'} on={moreOn} />
-          <Pop open={open} id="mais" wide>
+          <Pop {...popup} id="mais" wide>
             {MORE.map(([id, t]) => (
               <section key={id}><h4>{t}</h4>
                 {(choices[id] ?? []).length <= 14
@@ -143,7 +166,20 @@ export default function FilterBar() {
           </Pop>
         </div>
         {changed && <button type="button" className="px-clear" onClick={() => { reset(); setOpen(null); }}>Limpar</button>}
-      </div>
+  </>;
+  return (
+    <div className="px-fbar" ref={bar}>
+      {compact ? <>
+        <div className="px-mobile-filters nx-wrap">
+          <button type="button" className="px-mobile-period" onClick={e => { sheetOpener.current = e.currentTarget; setSheet(true); setOpen('periodo'); }} aria-haspopup="dialog">{periodText}<svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5l5 5 5-5" /></svg></button>
+          <button type="button" className="px-filters-toggle" ref={sheetButton} onClick={e => { sheetOpener.current = e.currentTarget; setSheet(true); }} aria-haspopup="dialog" aria-expanded={sheet} aria-controls="atlas-filters">Filtros{activeCount > 0 ? ' (' + activeCount + ')' : ''}</button>
+          <p title={placeText + ' · ' + brandName(focus)}>{placeText} · <strong>{brandName(focus)}</strong></p>
+        </div>
+        <dialog ref={dialog} id="atlas-filters" className="px-dialog px-filter-dialog" aria-labelledby="atlas-filters-title" onCancel={e => { e.preventDefault(); if (openRef.current) setOpen(null); else closeSheet(); }} onClick={e => { if (e.target === e.currentTarget) closeSheet(); }}>
+          <div className="px-dialog-head"><h2 id="atlas-filters-title">Filtros do mercado</h2><button type="button" onClick={closeSheet}>Concluir</button></div>
+          <div className="px-fbar-in">{controls}</div>
+        </dialog>
+      </> : <div className="px-fbar-in nx-wrap">{controls}</div>}
     </div>
   );
 }
