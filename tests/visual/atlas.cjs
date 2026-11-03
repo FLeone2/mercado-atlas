@@ -29,6 +29,11 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) failures.push(`${p} ${width}: rolagem horizontal`);
     if (await page.locator('.px-skel').count() && p !== 'laboratorio') failures.push(`${p} ${width}: bloco ainda carregando depois de rolar a página`);
     if (await page.locator('a[href*="ui="], .nxl, [data-legacy-tab]').count()) failures.push(`${p} ${width}: link ou peça da interface antiga`);
+    // sazonalidade: um ano por linha, os 12 meses lado a lado, sem rolagem dentro do cartão
+    if (p === 'mercado') {
+      const heat = await page.evaluate(() => { const g = document.querySelector('#m-sazonalidade [role="table"]'); if (!g) return null; const rows = [...g.querySelectorAll('[role="row"]')], tops = rows.map(r => Math.round(r.getBoundingClientRect().top)); return { rows: rows.length, stacked: tops.every((t, i) => i === 0 || t > tops[i - 1]), inline: rows.every(r => new Set([...r.children].map(c => Math.round(c.getBoundingClientRect().top))).size === 1), scroll: g.scrollWidth > g.clientWidth + 1 }; });
+      if (!heat || heat.rows < 10 || !heat.stacked || !heat.inline || heat.scroll) failures.push(`mercado ${width}: sazonalidade fora da grade ano × mês ` + JSON.stringify(heat));
+    }
     await page.close();
   }
 

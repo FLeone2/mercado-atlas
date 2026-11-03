@@ -106,17 +106,19 @@ export function DailyBars({ days, focusDays }) {
 }
 
 /* ============ Sazonalidade: anos × meses, desvio sobre a média mensal do ano ============ */
+const PANDEMIC = [2020, 2021];
 export function SeasonHeat({ years }) {
   const tip = useTip();
   const M = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-  const max = Math.max(.05, ...years.flatMap(y => y.dev.filter(v => v != null).map(Math.abs)));
+  // a escala de cor ignora os anos da pandemia (abr/2020 a −68% apagaria o resto); fora dela, cor máxima
+  const max = Math.max(.05, ...years.filter(y => !y.median && !PANDEMIC.includes(+y.year)).flatMap(y => y.dev.filter(v => v != null).map(Math.abs)));
   const bg = v => (v == null ? 'transparent' : v >= 0 ? `color-mix(in srgb, var(--nx-up) ${Math.round(Math.min(1, v / max) * 70)}%, var(--nx-card))` : `color-mix(in srgb, var(--nx-down) ${Math.round(Math.min(1, -v / max) * 70)}%, var(--nx-card))`);
   return (
     <div className="px-heat" role="table" aria-label="Sazonalidade: cada célula compara o mês com a média mensal do ano">
       <div className="px-heat-row head" role="row"><span role="columnheader" />{M.map(m => <span key={m} role="columnheader">{m}</span>)}</div>
       {years.map(y => (
         <div key={y.year} className={'px-heat-row' + (y.median ? ' med' : '')} role="row">
-          <span role="rowheader">{y.year}</span>
+          <span role="rowheader">{y.median ? <><span className="px-heat-long">Mediana</span><span className="px-heat-short">Med.</span></> : y.year}</span>
           {y.dev.map((v, i) => <span key={i} role="cell" style={{ background: bg(v) }} className={v == null ? 'empty' : ''} onPointerMove={e => v != null && tip.show(e, <><strong>{M[i]}/{y.year}</strong><span>{v >= 0 ? '+' : '−'}{Math.abs(Math.round(v * 100))}% sobre a média mensal do ano</span>{y.vals?.[i] != null && <span>{fmt(y.vals[i])} emplacamentos</span>}</>)} onPointerLeave={tip.hide}>{v == null ? '' : Math.round(v * 100) === 0 ? '0' : (v > 0 ? '+' : '−') + Math.abs(Math.round(v * 100))}</span>)}
         </div>
       ))}

@@ -121,6 +121,9 @@
 .px-heat-row.head>span{height:22px;font-weight:500;color:var(--nx-soft)}
 .px-heat-row.med>span{box-shadow:inset 0 0 0 1.5px var(--nx-ink)}.px-heat-row.med>span[role="rowheader"]{box-shadow:none;color:var(--nx-ink)}
 .px-heat-row>span.empty{background:transparent}
+.px-heat-short{display:none}
+/* celular: 12 meses sem rolagem (colunas estreitas, ano curto) */
+@media(max-width:640px){.px-heat-long{display:none}.px-heat-short{display:inline}.px-heat-row.med>span{box-shadow:inset 0 0 0 1px var(--nx-ink)}.px-heat-row.med>span[role="rowheader"]{box-shadow:none}.px-heat-row{grid-template-columns:34px repeat(12,minmax(0,1fr));gap:2px}.px-heat{gap:2px}.px-heat-row>span{height:26px;border-radius:5px;font-size:10.5px;letter-spacing:-.02em}.px-heat-row.head>span{height:18px;font-size:10px}}
 
 /* ---- marca × mercado ---- */
 .px-pairs{display:grid;gap:4px}
@@ -371,7 +374,7 @@
 @media(max-width:700px){.px-pyr-l text{font-size:11.5px}}
 
 /* ---- mapa de calor e três primeiras marcas ---- */
-.px-heat{display:flex;justify-content:center}.px-heat canvas{display:block}
+.px-heatmap{display:flex;justify-content:center}.px-heatmap canvas{display:block}
 .px-heat-ramp{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 0;font:500 12px var(--nx-font);color:var(--nx-soft)}
 .px-heat-ramp i{width:180px;height:9px;border-radius:5px;background:linear-gradient(90deg,rgba(47,111,223,.08),rgba(47,111,223,.6),#2f6fdf,#173a7a)}.px-heat-ramp.f i{background:linear-gradient(90deg,rgba(230,15,45,.08),rgba(230,15,45,.6),#e60f2d,#7a0818)}
 .px-select input[type=range]{accent-color:var(--nx-ink);width:110px}

@@ -82,7 +82,7 @@ export function MapaCalor() {
         <ChannelSeg chan={chan} setChan={setChan} globalChannel={globalChannel} />
         <label className="px-select">Raio<input type="range" min={8} max={40} value={radius} onChange={e => setRadius(+e.target.value)} aria-label="Raio das manchas" /></label>
       </div>}>
-      <div ref={ref} className="px-heat">{!values ? <Skel h={Math.round(W * VH / VW)} /> : <canvas ref={cv} onMouseMove={move} onMouseLeave={tip.hide} role="img" aria-label="Mapa de calor dos emplacamentos por município" />}</div>
+      <div ref={ref} className="px-heatmap">{!values ? <Skel h={Math.round(W * VH / VW)} /> : <canvas ref={cv} onMouseMove={move} onMouseLeave={tip.hide} role="img" aria-label="Mapa de calor dos emplacamentos por município" />}</div>
       {values && <div className={'px-heat-ramp' + (what === 'foco' ? ' f' : '')}><span>Menos</span><i aria-hidden /><span>Mais concentrado</span></div>}
       {top.length > 0 && <p className="px-scopenote">Maiores pontos: {top.map(t => data.names[t.i].split(' · ')[0] + ' (' + fmt(t.v) + ')').join(', ')}; juntos, {pct(sum > 0 ? top.reduce((a, t) => a + t.v, 0) / sum : 0, 0)} do total{what === 'foco' ? ' da ' + focusName : ''}.</p>}
     </Block>
