@@ -104,15 +104,21 @@ def parse_date(value, epoch=CALENDAR_WINDOWS_1900):
     return None
 
 
+def bd_text(value):
+    """A BD cell, with its blank markers ("---", "-", "—") read as empty, as in the months before 2026-10."""
+    value = text(value)
+    return '' if re.fullmatch(r'[-–—\s]*', value) else value
+
+
 def bd_values(macro, segment, body, fuel, origin):
-    segment, body = text(segment), text(body)
+    segment, body = bd_text(segment), bd_text(body)
     return {
         'bd_segmento': segment or EMPTY_BD,
         'bd_carroceria': body or EMPTY_BD,
         'bd_classe': f'{body} / {segment}' if body and segment else EMPTY_BD,
-        'bd_macro': text(macro) or EMPTY_BD,
-        'bd_combustivel': text(fuel) or EMPTY_BD,
-        'bd_origem': text(origin) or EMPTY_BD,
+        'bd_macro': bd_text(macro) or EMPTY_BD,
+        'bd_combustivel': bd_text(fuel) or EMPTY_BD,
+        'bd_origem': bd_text(origin) or EMPTY_BD,
     }
 
 
@@ -353,11 +359,11 @@ def main():
     if not receipt['qualityTotals']['eligible_rows']:
         raise ValueError('No eligible registration rows; refusing an empty monthly cube')
     source_hash, bd_hash = sha256(args.source), sha256(args.bd)
-    base_path = f'cubes/{args.month}_{source_hash[:16]}_import-v1_bd{bd_hash[:16]}.json.gz'
+    base_path = f'cubes/{args.month}_{source_hash[:16]}_import-v2_bd{bd_hash[:16]}.json.gz'
     write_cube(args.output_dir / base_path, base)
-    origin_path = f'origin-cubes/{args.month}_{source_hash[:16]}_origin-import-v1_bd{bd_hash[:16]}.json.gz'
+    origin_path = f'origin-cubes/{args.month}_{source_hash[:16]}_origin-import-v2_bd{bd_hash[:16]}.json.gz'
     write_cube(args.output_dir / origin_path, origin)
-    receipt.update(importerVersion='monthly-import-1.0.0',
+    receipt.update(importerVersion='monthly-import-1.1.0',
                    generatedAt=dt.datetime.now(dt.timezone.utc).isoformat(),
                    sourceSha256=source_hash, bdSourceSha256=bd_hash,
                    dimensionChoices=base['dictionaries'],

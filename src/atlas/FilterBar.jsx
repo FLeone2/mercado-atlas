@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAtlas } from './ctx.js';
-import { label, list, brandName, monthLabel, monthEnd, presets, rangeText, UF_NAMES, FOCUS_DEFAULT, fmt, versionLabel } from './lib.js';
+import { label, list, brandName, monthLabel, monthEnd, presets, rangeText, UF_NAMES, FOCUS_DEFAULT, fmt, versionNames } from './lib.js';
 
 /* Barra de filtros fixa: cada botão mostra o valor escolhido e abre um painel curto.
    Território em cascata (região → estado → município), marca em foco separada do recorte. */
@@ -58,7 +58,8 @@ export default function FilterBar() {
   const rank = id => ranks[id] ?? new Map();
   // versões: "Triton HPE AT4 · Mitsubishi" (o registro original continua buscável)
   const vinfo = useMemo(() => new Map((market?.versionInfo ?? []).map(r => [r.modelo, r])), [market]);
-  const showVersion = v => { const i = vinfo.get(v); return i ? versionLabel(v, i.grupo_modelo) + ' · ' + brandName(i.marca) : v; };
+  const vname = useMemo(() => versionNames([...vinfo.keys()], v => vinfo.get(v)?.grupo_modelo), [vinfo]);
+  const showVersion = v => { const i = vinfo.get(v); return i ? vname(v) + ' · ' + brandName(i.marca) : v; };
   const set = id => v => setFilter(id, v.length ? v : 'all');
   const opts = (id, keys) => keys.filter(k => !NONE.test(k)).map(k => [k, label(id, k), rank(id).get(k) ?? 0]).sort((a, b) => b[2] - a[2]);
 

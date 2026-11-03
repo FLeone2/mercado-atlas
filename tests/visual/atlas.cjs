@@ -91,8 +91,18 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
   {
     const c = await open('?a=concorrencia', 1440, 9000);
     await c.evaluate(() => document.querySelector('#c-versoes')?.scrollIntoView()); await c.waitForTimeout(6000);
-    const sec = c.locator('#c-versoes');
-    if ((await sec.locator('svg path').count()) < 10) failures.push('versões: o ranking conectado das versões não desenhou');
+    // modelo × modelo: modelos de marcas diferentes, com as linhas de 36 meses
+    const ms = c.locator('#c-versoes .px-mcmp');
+    const mrows = await ms.locator('.px-cmp tbody tr').count(), mbrands = new Set(await ms.locator('.px-cmp tbody tr td:nth-child(2)').allInnerTexts());
+    if (mrows < 3 || mbrands.size < 3) failures.push('modelos: modelo × modelo com ' + mrows + ' modelos de ' + mbrands.size + ' marcas');
+    if ((await ms.locator('.px-vhead ~ div svg path').count()) < 3) failures.push('modelos: as linhas de 36 meses não desenharam');
+    // ranking conectado das versões: nenhum nome repetido do mesmo lado (importada × nacional)
+    const dup = await c.evaluate(() => { const svg = document.querySelector('#c-versoes svg.px-slope'); if (!svg) return 'sem gráfico'; const W = svg.viewBox.baseVal.width, side = { a: [], b: [] }; for (const t of svg.querySelectorAll('.px-slope-name')) side[+t.getAttribute('x') < W / 2 ? 'a' : 'b'].push(t.textContent); const d = [...side.a.filter((n, i) => side.a.indexOf(n) !== i), ...side.b.filter((n, i) => side.b.indexOf(n) !== i)]; return d.length ? d.join(', ') : null; });
+    if (dup) failures.push('versões: nome repetido no ranking conectado: ' + dup);
+    // o versão × versão carrega quando chega perto da tela (vem depois do modelo × modelo e do ranking)
+    await c.evaluate(() => [...document.querySelectorAll('#c-versoes .nx-c12')].at(-1)?.scrollIntoView({ block: 'center' })); await c.waitForTimeout(6000);
+    const sec = c.locator('#c-versoes .px-vcmp');
+    if ((await c.locator('#c-versoes svg path').count()) < 10) failures.push('versões: o ranking conectado das versões não desenhou');
     const rows = () => sec.locator('.px-cmp tbody tr').count(), n0 = await rows();
     if (n0 < 3) failures.push('versões: versão × versão com menos de 3 versões (' + n0 + ')');
     await sec.locator('.nx-chip', { hasText: '×' }).last().click(); await c.waitForTimeout(400);

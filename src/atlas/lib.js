@@ -36,6 +36,20 @@ export function versionLabel(v, grupo) {
   if (!k) return s;
   return label('grupo_modelo', grupo) + (k < words.length ? ' ' + words.slice(k).join(' ') : '');
 }
+/* Nomes curtos das versões de um conjunto, sem dois iguais: a mesma versão importada ("I/GWM POER P30 EXC")
+   e nacional ("GWM/POER P30 EXC") viram "Poer P30 EXC (importada)" e "Poer P30 EXC (nacional)"; outro empate
+   leva o registro original. */
+export function versionNames(names, grupoOf) {
+  const base = new Map(), byLabel = new Map();
+  for (const v of names) { if (base.has(v)) continue; const l = versionLabel(v, grupoOf(v)); base.set(v, l); if (!byLabel.has(l)) byLabel.set(l, []); byLabel.get(l).push(v); }
+  const imported = v => /^I\//i.test(String(v).trim());
+  return v => {
+    const l = base.get(v) ?? versionLabel(v, grupoOf(v)), same = byLabel.get(l) ?? [];
+    if (same.length < 2) return l;
+    const mates = same.filter(x => imported(x) === imported(v));
+    return mates.length === 1 ? l + (imported(v) ? ' (importada)' : ' (nacional)') : l + ' · ' + v;
+  };
+}
 export const SHORT_MONTH = m => MONTHS[+m.slice(5, 7) - 1] + '/' + m.slice(2, 4);
 
 /* ---------- filtros: recorte × marca em foco ----------

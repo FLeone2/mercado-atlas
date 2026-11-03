@@ -4,7 +4,7 @@ import { Block } from '../base/block.jsx';
 import { useAtlas } from '../ctx.js';
 import { Scope, Seg, Skel } from '../ui.jsx';
 import { Slope, Lines } from '../charts.jsx';
-import { active, brandName, fmt, pct, signed, label, rangeText, versionLabel, periodMonths, lastCompleteIndex } from '../lib.js';
+import { active, brandName, fmt, pct, signed, label, rangeText, versionLabel, versionNames, periodMonths, lastCompleteIndex } from '../lib.js';
 
 /* Versões (o campo modelo do Renavam). O ranking usa a consulta principal (todos os filtros);
    a comparação no tempo, o canal e o peso no segmento usam data/history/versions.json.gz. */
@@ -21,7 +21,10 @@ export function useVersions() {
   const { market } = useAtlas();
   return useMemo(() => {
     const info = new Map((market?.versionInfo ?? []).map(r => [r.modelo, r]));
-    return { info, name: v => versionLabel(v, info.get(v)?.grupo_modelo), brand: v => info.get(v)?.marca ?? null, seg: v => info.get(v)?.bd_segmento ?? null };
+    // todas as versões que aparecem nos dois períodos: nomes curtos sem empate (importada × nacional)
+    const all = [...(market?.groups?.modelo ?? []), ...(market?.yearGroups?.modelo ?? [])].map(r => r.name);
+    const name = versionNames(all, v => info.get(v)?.grupo_modelo);
+    return { info, name, brand: v => info.get(v)?.marca ?? null, seg: v => info.get(v)?.bd_segmento ?? null };
   }, [market]);
 }
 
@@ -72,8 +75,9 @@ export function VersionRanking() {
 /* ---------- uma passada no histórico de versões: série mensal, canal, porte e modelo ---------- */
 function versionTable(data, filters) {
   const { rows, countIndex } = engine.historyRows(data, filters), D = data.dimensions, dict = data.dictionaries, n = data.months.length;
-  const col = d => D.indexOf(d) + 1, iv = col('modelo'), ib = col('marca'), ig = col('grupo_modelo'), is = col('bd_segmento'), ic = col('tipo_venda');
-  const versions = new Map(), seg = new Map(), model = new Map();
+  const col = d => D.indexOf(d) + 1, iv = col('modelo'), ib = col('marca'), ig = col('grupo_modelo'), is = col('bd_segmento'), ic = col('tipo_venda'), ip = col('propulsao');
+  const versions = new Map(), seg = new Map(), model = new Map(), models = new Map();
+  const ELECTRIC = new Set(['BEV', 'PHEV', 'HEV', 'MHEV']);
   const arr = (map, k) => { let a = map.get(k); if (!a) { a = new Float64Array(n); map.set(k, a); } return a; };
   for (const r of rows) {
     const m = r[0], c = r[countIndex], v = dict.modelo[r[iv]], s = dict.bd_segmento[r[is]], g = dict.grupo_modelo[r[ig]];
@@ -81,9 +85,16 @@ function versionTable(data, filters) {
     if (!x) { x = { series: new Float64Array(n), vd: new Float64Array(n), segs: new Map(), brand: dict.marca[r[ib]], model: g }; versions.set(v, x); }
     x.series[m] += c; if (dict.tipo_venda[r[ic]] === 'VD') x.vd[m] += c; x.segs.set(s, (x.segs.get(s) ?? 0) + c);
     arr(seg, s)[m] += c; arr(model, g)[m] += c;
+    // o modelo inteiro (todas as versões): série, venda direta, eletrificados, porte e marca principais
+    let y = models.get(g);
+    if (!y) { y = { series: new Float64Array(n), vd: new Float64Array(n), el: new Float64Array(n), segs: new Map(), brands: new Map() }; models.set(g, y); }
+    y.series[m] += c; if (dict.tipo_venda[r[ic]] === 'VD') y.vd[m] += c; if (ip > 0 && ELECTRIC.has(dict.propulsao[r[ip]])) y.el[m] += c;
+    y.segs.set(s, (y.segs.get(s) ?? 0) + c); y.brands.set(x.brand, (y.brands.get(x.brand) ?? 0) + c);
   }
-  for (const x of versions.values()) x.seg = [...x.segs].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
-  return { months: data.months.map(m => m.month), complete: data.months.map(m => m.complete), versions, seg, model };
+  const main = m => [...m].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  for (const x of versions.values()) x.seg = main(x.segs);
+  for (const y of models.values()) { y.seg = main(y.segs); y.brand = main(y.brands); }
+  return { months: data.months.map(m => m.month), complete: data.months.map(m => m.complete), versions, seg, model, models };
 }
 export function useVersionHistory() {
   const { mFilters, base } = useAtlas();
@@ -95,6 +106,90 @@ export function useVersionHistory() {
   return { table, ignored, error: h.error };
 }
 const sumAt = (a, idx) => idx.reduce((s, i) => s + (a?.[i] ?? 0), 0);
+
+/* ---------- modelo × modelo, de marcas diferentes (o versão × versão um nível acima) ---------- */
+// marca e porte de cada modelo no recorte: os das versões dele com mais emplacamentos
+function useModels() {
+  const { market } = useAtlas();
+  return useMemo(() => {
+    const info = new Map((market?.versionInfo ?? []).map(r => [r.modelo, r])), brand = new Map(), seg = new Map(), versions = new Map();
+    const add = (m, k, v, c) => { if (v == null) return; const e = m.get(k) ?? new Map(); e.set(v, (e.get(v) ?? 0) + c); m.set(k, e); };
+    for (const r of (market?.groups?.modelo ?? []).filter(ok)) { const i = info.get(r.name); if (!i?.grupo_modelo) continue; add(brand, i.grupo_modelo, i.marca, r.count); add(seg, i.grupo_modelo, i.bd_segmento, r.count); add(versions, i.grupo_modelo, r.name, r.count); }
+    const top = m => k => { const e = m.get(k); return e ? [...e].sort((a, b) => b[1] - a[1])[0] : null; };
+    return { brand: g => top(brand)(g)?.[0] ?? null, seg: g => top(seg)(g)?.[0] ?? null, versions: g => [...(versions.get(g) ?? [])].sort((a, b) => b[1] - a[1]) };
+  }, [market]);
+}
+
+export function ModelCompare() {
+  const { market, focus, focusName, mFilters } = useAtlas(), M = useModels(), V = useVersions(), { table: T, ignored, error } = useVersionHistory();
+  const [picked, setPicked] = useState(null), [measure, setMeasure] = useState('vol'), [q, setQ] = useState('');
+  const months = useMemo(() => periodMonths(market?.range), [market?.range]);
+  const brandOf = g => M.brand(g) ?? T?.models.get(g)?.brand ?? null, segOf = g => M.seg(g) ?? T?.models.get(g)?.seg ?? null;
+  const defaults = useMemo(() => {
+    const fm = (market?.focus?.groups?.grupo_modelo ?? []).find(r => ok(r) && (!active(mFilters.grupo_modelo) || (market?.groups?.grupo_modelo ?? []).some(x => x.name === r.name && x.count > 0)))?.name;
+    const seg = fm ? M.seg(fm) : null, out = fm ? [fm] : [], brands = new Set([focus]);
+    for (const r of (market?.groups?.grupo_modelo ?? []).filter(ok)) {
+      const b = M.brand(r.name); if (!b || brands.has(b) || (seg && M.seg(r.name) !== seg)) continue;
+      brands.add(b); out.push(r.name); if (out.length >= 5) break;
+    }
+    return out;
+  }, [market, M, focus, mFilters]);
+  const chosen = (picked ?? defaults).slice(0, 5);
+  const counts = useMemo(() => {
+    const cur = new Map((market?.groups?.grupo_modelo ?? []).map(r => [r.name, r.count])), yr = new Map((market?.yearGroups?.grupo_modelo ?? []).map(r => [r.name, r.count]));
+    // posição entre os modelos do mesmo porte (picape média contra picape média)
+    const bySeg = new Map(), rank = new Map();
+    for (const r of [...(market?.groups?.grupo_modelo ?? [])].filter(ok).sort((a, b) => b.count - a.count)) { const k = M.seg(r.name); bySeg.set(k, (bySeg.get(k) ?? 0) + 1); rank.set(r.name, bySeg.get(k)); }
+    return { cur, yr, rank, bySeg };
+  }, [market, M]);
+  const options = useMemo(() => (market?.groups?.grupo_modelo ?? []).filter(ok).slice(0, 500).map(r => ({ v: r.name, text: label('grupo_modelo', r.name) + ' · ' + brandName(M.brand(r.name)) })), [market, M]);
+  const add = g => { if (!g || chosen.includes(g)) return; setPicked([...chosen, g].slice(-5)); setQ(''); };
+  const remove = g => setPicked(chosen.filter(x => x !== g));
+  const moreFocus = (market?.focus?.groups?.grupo_modelo ?? []).filter(ok).map(r => r.name).filter(g => !chosen.includes(g) && (counts.cur.get(g) ?? 0) > 0).slice(0, 4);
+
+  const data = useMemo(() => {
+    if (!market) return null;
+    let fi = 0, oi = 0;
+    const rows = chosen.map(g => {
+      const b = brandOf(g), isF = b === focus, color = isF ? FOCUS_COLORS[fi++ % 3] : OTHER_COLORS[oi++ % 5];
+      const c = counts.cur.get(g) ?? 0, y = counts.yr.get(g), x = T?.models.get(g), seg = segOf(g), vs = M.versions(g), lead = vs[0];
+      let segShare = null, vd = null, el = null;
+      if (T && x) {
+        const idx = months.map(m => T.months.indexOf(m)).filter(i => i >= 0 && T.complete[i]), own = sumAt(x.series, idx), segT = sumAt(T.seg.get(x.seg), idx);
+        segShare = segT > 0 ? own / segT : null; vd = own > 0 ? sumAt(x.vd, idx) / own : null; el = own > 0 ? sumAt(x.el, idx) / own : null;
+      }
+      return { g, name: label('grupo_modelo', g), brand: b, isF, color, count: c, change: y > 0 ? c / y - 1 : null, isNew: !(y > 0) && c > 0, rank: counts.rank.get(g), seg, segShare, vd, el, nVersions: vs.length, lead: lead ? { name: V.name(lead[0]), share: c > 0 ? lead[1] / c : null } : null, x };
+    });
+    let lines = null;
+    if (T) {
+      const ref = { complete: T.complete, months: T.months }, i1 = lastCompleteIndex(ref, market.range?.end?.slice(0, 7)), i0 = Math.max(0, i1 - 35);
+      lines = { months: T.months.slice(i0, i1 + 1), series: rows.map(r => ({ name: r.name, color: r.color, width: r.isF ? 3.2 : 2.2, values: T.months.slice(i0, i1 + 1).map((_, k) => { const i = i0 + k, own = r.x?.series[i] ?? 0; if (measure === 'vol') return own; const st = T.seg.get(r.x?.seg ?? r.seg)?.[i] ?? 0; return st > 0 ? own / st : null; }) })) };
+    }
+    return { rows, lines };
+  }, [market, chosen.join('|'), counts, T, months, measure, M, V, focus]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const lead = data?.rows.find(r => r.isF), rival = data?.rows.filter(r => !r.isF).sort((a, b) => b.count - a.count)[0];
+  return (
+    <Block className="nx-c12 px-mcmp" title="Modelo × modelo" sub={lead && rival ? <>{lead.name} contra os modelos mais vendidos de outras marcas no mesmo segmento: <em>{fmt(lead.count)}</em> emplacamentos, contra {fmt(rival.count)} do {rival.name} · escolha até cinco modelos de qualquer marca</> : <>{focusName} contra os modelos mais vendidos de outras marcas no mesmo segmento · escolha até cinco modelos de qualquer marca</>}
+      info="O modelo soma todas as suas versões. Emplacamentos, variação, posição, versões e versão mais vendida vêm da consulta com todos os filtros. Participação no segmento, venda direta, eletrificados e as linhas mensais usam o histórico mensal por versão (meses completos do período)."
+      actions={<div className="px-ctl">
+        <div className="nx-chips">{chosen.map(g => <button key={g} type="button" className="nx-chip" onClick={() => remove(g)} title={'Tirar ' + label('grupo_modelo', g)}>{label('grupo_modelo', g)}<span aria-hidden> ×</span></button>)}</div>
+        {chosen.length < 5 && <label className="px-select px-vpick">Adicionar modelo<input list="px-mlist" value={q} placeholder="digite o modelo…" onChange={e => { const t = e.target.value, hit = options.find(o => o.text === t || o.v === t); if (hit) add(hit.v); else setQ(t); }} /><datalist id="px-mlist">{options.filter(o => !chosen.includes(o.v)).map(o => <option key={o.v} value={o.text} />)}</datalist></label>}
+        {picked && <button type="button" className="px-btn-link" onClick={() => setPicked(null)}>Voltar ao padrão</button>}
+      </div>}>
+      {!data ? <Skel h={360} /> : !chosen.length ? <p className="px-scopenote">Nenhum modelo escolhido. Adicione um modelo acima.</p> : <>
+        <div className="px-table-wrap"><table className="px-table px-cmp">
+          <thead><tr><th>Modelo</th><th>Marca</th><th>Emplacamentos</th><th>Var. a/a</th><th>Posição no segmento</th><th>Participação no segmento</th><th>Versões</th><th>Versão mais vendida</th><th>Venda direta</th><th>Eletrificados</th></tr></thead>
+          <tbody>{data.rows.map(r => <tr key={r.g} className={r.isF ? 'f' : ''}><th><i style={{ background: r.color }} />{r.name}</th><td>{brandName(r.brand)}</td><td>{fmt(r.count)}</td><td className={r.change > 0 ? 'up' : r.change < 0 ? 'down' : ''}>{r.isNew ? 'novo' : signed(r.change, 1)}</td><td>{r.rank ? r.rank + 'º de ' + fmt(counts.bySeg.get(r.seg)) : '—'}</td><td>{r.segShare != null ? pct(r.segShare, 1) + ' · ' + label('bd_segmento', r.seg).toLowerCase() : '—'}</td><td>{r.nVersions || '—'}</td><td>{r.lead ? r.lead.name + (r.lead.share != null ? ' · ' + pct(r.lead.share, 0) : '') : '—'}</td><td>{pct(r.vd, 0)}</td><td>{pct(r.el, 0)}</td></tr>)}</tbody>
+        </table></div>
+        {moreFocus.length > 0 && chosen.length < 5 && <div className="nx-chips px-vmore"><span>Outros modelos da {focusName}:</span>{moreFocus.map(g => <button key={g} type="button" className="nx-chip" onClick={() => add(g)}>+ {label('grupo_modelo', g)}</button>)}</div>}
+        <div className="px-vhead"><h4 className="px-h4">{measure === 'vol' ? 'Emplacamentos por mês' : 'Participação no segmento'}, 36 meses</h4><Seg label="Medida" value={measure} onChange={setMeasure} options={[['vol', 'Emplacamentos'], ['seg', 'Participação no segmento']]} /></div>
+        {data.lines ? <Lines months={data.lines.months} series={data.lines.series} fmtY={measure === 'vol' ? fmt : v => pct(v, 0)} fmtTip={measure === 'vol' ? fmt : v => pct(v, 1)} height={300} label="Modelos comparados mês a mês" /> : error ? <p className="px-scopenote">Não foi possível carregar o histórico mensal ({error}).</p> : <Skel h={300} />}
+        <Scope ignored={ignored} />
+      </>}
+    </Block>
+  );
+}
 
 /* ---------- versão × versão, de marcas diferentes ---------- */
 export function VersionCompare() {
@@ -146,7 +241,7 @@ export function VersionCompare() {
   }, [market, chosen.join('|'), counts, T, months, measure, V, focus]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <Block className="nx-c12" title="Versão × versão" sub={<>{focusName} contra as versões mais vendidas de outras marcas no mesmo segmento · escolha até cinco versões de qualquer marca; para um duelo de modelos, marque vários em Mais filtros › Modelo (ex.: Triton, Hilux e Ranger)</>}
+    <Block className="nx-c12 px-vcmp" title="Versão × versão" sub={<>{focusName} contra as versões mais vendidas de outras marcas no mesmo segmento · escolha até cinco versões de qualquer marca</>}
       info="Emplacamentos, variação e posição vêm da consulta com todos os filtros. Peso no segmento, peso no modelo, venda direta e as linhas mensais usam o histórico mensal por versão (meses completos do período)."
       actions={<div className="px-ctl">
         <div className="nx-chips">{chosen.map(v => <button key={v} type="button" className="nx-chip" onClick={() => remove(v)} title={'Tirar ' + v}>{V.name(v)}<span aria-hidden> ×</span></button>)}</div>

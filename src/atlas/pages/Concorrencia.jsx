@@ -6,7 +6,7 @@ import { useAtlas } from '../ctx.js';
 import { PageHead, Section, Scope, Seg, Skel } from '../ui.jsx';
 import { Slope, Lines, BarRace } from '../charts.jsx';
 import { brandName, fmt, pct, pp, signed, label, rangeText, historyGroup, ignoredBy, lastCompleteIndex, hhi, monthLabel, periodMonths, UF_NAMES } from '../lib.js';
-import { VersionRanking, VersionCompare } from './versoes.jsx';
+import { ModelCompare, VersionRanking, VersionCompare } from './versoes.jsx';
 import Conexoes from './conexoes.jsx';
 
 const roll12 = a => a.map((_, i) => (i < 11 ? null : a.slice(i - 11, i + 1).reduce((s, v) => s + v, 0)));
@@ -131,7 +131,7 @@ export default function Concorrencia() {
 
   return (
     <div className="px-page">
-      <PageHead title="Concorrência" toc={[['c-conectado', 'Ranking conectado'], ['c-versoes', 'Versões'], ['c-comparar', 'Comparar marcas'], ['c-mes', 'Mês a mês'], ['c-corrida', 'Corrida das marcas'], ['c-duelo', 'Duelo'], ['c-conexoes', 'Conexões'], ['c-concentracao', 'Concentração']]} />
+      <PageHead title="Concorrência" toc={[['c-conectado', 'Ranking conectado'], ['c-versoes', 'Modelos e versões'], ['c-comparar', 'Comparar marcas'], ['c-mes', 'Mês a mês'], ['c-corrida', 'Corrida das marcas'], ['c-duelo', 'Duelo'], ['c-conexoes', 'Conexões'], ['c-concentracao', 'Concentração']]} />
 
       <Section id="c-conectado" title="Ranking conectado" sub={movers?.up && movers.up.d > 0 ? <>{label(dim, movers.up.r.name)} foi quem mais subiu ({movers.up.d} {movers.up.d === 1 ? 'posição' : 'posições'}){movers.down && movers.down.d < 0 ? <>; {label(dim, movers.down.r.name)} quem mais caiu ({-movers.down.d}).</> : '.'}</> : 'Posições de um período contra o outro.'}>
         {!slope ? <div className="nx-c12"><Skel h={520} /></div> : (
@@ -150,7 +150,8 @@ export default function Concorrencia() {
         )}
       </Section>
 
-      <Section id="c-versoes" title="Versões" sub="O mesmo ranking conectado, versão por versão, e a comparação de versões de marcas diferentes. Os filtros do site valem aqui: escolha um modelo, um porte ou um canal para focar.">
+      <Section id="c-versoes" title="Modelos e versões" sub="Modelo contra modelo, de marcas diferentes; depois o ranking conectado e a comparação versão por versão. Os filtros do site valem aqui: escolha um porte, um canal ou um modelo para focar.">
+        <div className="nx-c12"><WhenVisible h={620}><ModelCompare /></WhenVisible></div>
         <VersionRanking />
         <div className="nx-c12"><WhenVisible h={620}><VersionCompare /></WhenVisible></div>
       </Section>

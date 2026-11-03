@@ -90,6 +90,15 @@ class MonthlyImportTest(unittest.TestCase):
         self.assertEqual(base['dictionaries']['regiao'], ['Sudeste'])
         self.assertEqual(receipt['monthEntry']['chassisDateConflictGroups'], 1)
 
+    def test_bd_blank_markers_are_not_categories(self):
+        # the BD writes "---" where a class is missing; earlier months show "Não classificado no BD"
+        values = ingest.bd_values('PASSENGER', 'OUT PORTFOLIO', '---', 'GASOLINE', 'LOCAL')
+        self.assertEqual(values['bd_segmento'], 'OUT PORTFOLIO')
+        self.assertEqual(values['bd_carroceria'], ingest.EMPTY_BD)
+        self.assertEqual(values['bd_classe'], ingest.EMPTY_BD)
+        blank = ingest.bd_values(' - ', '---', '—', '--', '---')
+        self.assertEqual(set(blank.values()), {ingest.EMPTY_BD})
+
     def test_unmatched_codes_and_incomplete_matched_classifications_are_distinct(self):
         incomplete = ingest.bd_values('PASSENGER', 'MID', None, 'FFV', 'LOCAL')
         _, _, receipt = ingest.compile_rows('2026-10', HEADERS,
