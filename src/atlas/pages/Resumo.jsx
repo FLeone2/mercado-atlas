@@ -63,7 +63,7 @@ export default function Resumo() {
             {s.seg && <Tile k={'Participação em ' + s.seg.label.toLowerCase()} sub={<>segmento de {pct(s.seg.ofBrand, 0)} das vendas da marca</>}><Num value={s.seg.share} format={v => pct(v, 1)} /></Tile>}
           </div>
           {ss && <Block className="nx-c7" title="De onde veio a variação" sub={<>{focusName}: {fmt(ss.before)} → <em>{fmt(ss.after)}</em>. {Math.abs(ss.perf) >= Math.max(Math.abs(ss.size), Math.abs(ss.mix)) ? <>O que mais pesou foi o <b>desempenho dentro dos segmentos</b>.</> : Math.abs(ss.size) >= Math.abs(ss.mix) ? <>O que mais pesou foi o <b>tamanho do mercado</b>.</> : <>O que mais pesou foi o <b>mix de segmentos</b>.</>}</>}
-            info="Separa a variação da marca em três partes. Mercado: o que ela teria ganhado ou perdido mantendo a participação em cada segmento. Mix: o efeito de os segmentos onde ela vende crescerem mais ou menos que o mercado. Desempenho: ganho ou perda de participação dentro dos próprios segmentos (porte BD).">
+            info="Separa a variação da marca em três partes. Mercado: o que ela teria ganhado ou perdido mantendo a participação em cada segmento. Mix: o efeito de os segmentos onde ela vende crescerem mais ou menos que o mercado. Desempenho: ganho ou perda de participação dentro dos próprios segmentos (segmento da BD).">
             <Waterfall steps={[
               { label: yearLabel, note: 'antes', value: ss.before, kind: 'total' },
               { label: 'Tamanho do mercado', note: 'participação mantida', value: ss.size, kind: 'step' },
@@ -72,7 +72,7 @@ export default function Resumo() {
               { label: rangeText(market.range), note: 'agora', value: ss.after, kind: 'total' },
             ]} />
           </Block>}
-          {ss && <Block className="nx-c5" title="Onde o desempenho mudou" sub="Participação da marca em cada segmento, antes e agora" info="Segmentos (porte BD) onde a marca vende, ordenados pelo efeito de desempenho: participação de agora menos a de antes, vezes o tamanho do segmento agora.">
+          {ss && <Block className="nx-c5" title="Onde o desempenho mudou" sub="Participação da marca em cada segmento, antes e agora" info="Segmentos da BD onde a marca vende, ordenados pelo efeito de desempenho: participação de agora menos a de antes, vezes o tamanho do segmento agora.">
             <div className="px-segs">
               {ss.segs.slice(0, 6).map(g => <div key={g.name} className="px-segrow"><span>{label('bd_segmento', g.name)}</span><span>{pct(g.share0, 1)} → <b>{pct(g.share1, 1)}</b></span><span className={g.perf >= 0 ? 'up' : 'down'}>{g.perf >= 0 ? '+' : '−'}{fmt(Math.abs(g.perf))}</span></div>)}
             </div>

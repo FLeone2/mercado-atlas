@@ -45,14 +45,14 @@ const PAGES = ['resumo', 'mercado', 'concorrencia', 'foco', 'territorios', 'econ
   const s1 = await strip(), q1 = new URL(page.url()).search;
   if (s1 === s0 || !q1.includes('f.uf')) failures.push('filtro de estado não mudou o placar ou o endereço');
   if (!(await page.locator('.px-scope').first().innerText()).includes('São Paulo')) failures.push('o recorte em texto não mostra o estado escolhido');
-  // a barra: Período | Território | Marca em foco | Segmento | Body type | Propulsão | Mais filtros (o canal fica em Mais filtros)
+  // a barra: Período | Território | Marca em foco | Segmento | Body Type | Propulsão | Mais filtros (o canal fica em Mais filtros)
   const bar = (await page.locator('.px-fbtn small').allTextContents()).join(' | ');
   if (bar.toLowerCase() !== 'período | território | marca em foco | segmento | body type | propulsão | mais filtros') failures.push('barra de filtros fora da ordem combinada: ' + bar);
   await pick('Segmento', 'Picape média');
   const s2 = await strip();
   if (s2 === s1 || !new URL(page.url()).search.includes('f.bd_segmento')) failures.push('filtro de segmento não mudou o placar ou o endereço');
-  await pick('Body type', 'Cabine dupla');
-  if ((await strip()) === s2 || !new URL(page.url()).search.includes('f.bd_carroceria')) failures.push('filtro de body type não mudou o placar ou o endereço');
+  await pick('Body Type', 'Cabine dupla');
+  if ((await strip()) === s2 || !new URL(page.url()).search.includes('f.bd_carroceria')) failures.push('filtro de Body Type não mudou o placar ou o endereço');
   await page.locator('.px-fbtn', { hasText: 'Mais filtros' }).click();
   if (!(await page.locator('.px-pop h4', { hasText: 'Canal' }).count()) || !(await page.locator('.px-pop .nx-chip', { hasText: 'Venda direta' }).count())) failures.push('mais filtros: sem o canal (VD e varejo)');
   await page.keyboard.press('Escape');

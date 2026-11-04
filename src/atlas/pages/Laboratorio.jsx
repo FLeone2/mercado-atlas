@@ -41,7 +41,7 @@ function Perguntas() {
       if (best) out.push({ q: 'Onde a ' + focusName + ' é mais forte?', a: <>{UF_NAMES[best.uf]}: {pct(best.s, 1)} do mercado do estado, {(best.s / nat).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}× a média do país.</>, to: ['territorios', 't-estados'] });
     }
     const ys = yr('bd_segmento'), segs = (g.bd_segmento ?? []).filter(r => valid(r) && r.count / T >= .02 && ys.get(r.name) > 0).map(r => ({ ...r, ch: r.count / ys.get(r.name) - 1 })).sort((a, b) => b.ch - a.ch);
-    if (segs.length > 1) out.push({ q: 'Qual porte mais cresce?', a: <>{label('bd_segmento', segs[0].name)}: <em className={segs[0].ch >= 0 ? 'up' : 'down'}>{signed(segs[0].ch, 0)}</em> em um ano. O que mais cai: {label('bd_segmento', segs.at(-1).name).toLowerCase()} ({signed(segs.at(-1).ch, 0)}).</>, to: ['mercado'] });
+    if (segs.length > 1) out.push({ q: 'Qual segmento mais cresce?', a: <>{label('bd_segmento', segs[0].name)}: <em className={segs[0].ch >= 0 ? 'up' : 'down'}>{signed(segs[0].ch, 0)}</em> em um ano. O que mais cai: {label('bd_segmento', segs.at(-1).name).toLowerCase()} ({signed(segs.at(-1).ch, 0)}).</>, to: ['mercado'] });
     const yp = yr('propulsao'), el = (g.propulsao ?? []).filter(r => ELECTRIC.includes(r.name)).reduce((s, r) => s + r.count, 0), el0 = ELECTRIC.reduce((s, k) => s + (yp.get(k) ?? 0), 0);
     if (T > 0) out.push({ q: 'Quanto pesam os eletrificados?', a: <><em>{pct(el / T, 1)}</em> dos emplacamentos são híbridos ou elétricos{market.year > 0 && el0 > 0 ? <>, contra {pct(el0 / market.year, 1)} um ano antes</> : ''}.</>, to: ['mercado'] });
     const vd = (g.tipo_venda ?? []).find(r => r.name === 'VD')?.count ?? 0, fvd = (f?.groups?.tipo_venda ?? []).find(r => r.name === 'VD')?.count ?? 0;
@@ -55,7 +55,7 @@ function Perguntas() {
 }
 
 /* ---------- construtor de gráficos ---------- */
-const DIMS = [['marca', 'Marca'], ['grupo_modelo', 'Modelo'], ['modelo', 'Versão'], ['bd_segmento', 'Porte'], ['bd_carroceria', 'Carroceria'], ['segmento', 'Tipo de veículo'], ['combustivel', 'Combustível'], ['propulsao', 'Propulsão'], ['tipo_venda', 'Canal'], ['regiao', 'Região'], ['uf', 'Estado'], ['municipio', 'Município'], ['bd_origem', 'Origem'], ['ano_fabricacao', 'Ano de fabricação']];
+const DIMS = [['marca', 'Marca'], ['grupo_modelo', 'Modelo'], ['modelo', 'Versão'], ['bd_segmento', 'Segmento'], ['bd_carroceria', 'Body Type'], ['segmento', 'Tipo de veículo'], ['combustivel', 'Combustível'], ['propulsao', 'Propulsão'], ['tipo_venda', 'Canal'], ['regiao', 'Região'], ['uf', 'Estado'], ['municipio', 'Município'], ['bd_origem', 'Origem'], ['ano_fabricacao', 'Ano de fabricação']];
 const HIST_DIMS = { marca: 1, grupo_modelo: 1, modelo: 1, bd_segmento: 1, bd_carroceria: 1, segmento: 1, combustivel: 1, propulsao: 1, tipo_venda: 1, uf: 1 };
 function Construtor() {
   const { market, focus, focusName, mFilters, base, cityName } = useAtlas();
@@ -200,8 +200,10 @@ function StackArea({ months, series, height = 340 }) {
     </div>
   );
 }
-const COMP = [['propulsao', 'Propulsão'], ['bd_segmento', 'Porte'], ['bd_carroceria', 'Carroceria'], ['tipo_venda', 'Canal'], ['combustivel', 'Combustível']];
+const COMP = [['propulsao', 'Propulsão'], ['bd_segmento', 'Segmento'], ['bd_carroceria', 'Body Type'], ['tipo_venda', 'Canal'], ['combustivel', 'Combustível']];
 const COMP_COLORS = ['#1d1d1f', '#2f6fdf', '#2a9d8f', '#e09a2c', '#8e6bd1', '#d2589b', '#c7c7cc'];
+// "Body Type" é nome da BD: fica como está no meio da frase
+const lower = t => (t === 'Body Type' ? t : t.toLowerCase());
 function Composicao() {
   const { hist, mFilters } = useAtlas(), [dim, setDim] = useState('propulsao'), [span, setSpan] = useState(60);
   const d = useMemo(() => {
@@ -216,7 +218,7 @@ function Composicao() {
     return { months, series, first, delta };
   }, [hist.data, mFilters, dim, span]);
   return (
-    <Block className="nx-c12" title={'Composição do mercado por ' + COMP.find(c => c[0] === dim)[1].toLowerCase()} sub={d?.first ? <>{d.first.name}: {pct(d.first.values[0], 0)} em {monthLabel(d.months[0])} → <em>{pct(d.first.values.at(-1), 0)}</em> em {monthLabel(d.months.at(-1))}</> : null}
+    <Block className="nx-c12" title={'Composição do mercado por ' + lower(COMP.find(c => c[0] === dim)[1])} sub={d?.first ? <>{d.first.name}: {pct(d.first.values[0], 0)} em {monthLabel(d.months[0])} → <em>{pct(d.first.values.at(-1), 0)}</em> em {monthLabel(d.months.at(-1))}</> : null}
       actions={<div className="px-ctl"><Seg label="Grupo" value={dim} onChange={setDim} options={COMP.map(([k, t]) => [k, t])} /><Seg label="Janela" value={span} onChange={setSpan} options={[[36, '3 anos'], [60, '5 anos'], [129, 'Desde 2016']]} /></div>}>
       {!d ? <Skel h={360} /> : <StackArea months={d.months} series={d.series} />}
       <Scope ignored={ignoredBy(mFilters)} />
@@ -299,7 +301,7 @@ function Metodologia() {
       {card('De onde vêm', [fmt(f.months) + ' arquivos mensais de emplacamentos de automóveis e comerciais leves, de ' + m(f.start) + ' a ' + m(f.end) + (f.missing.length ? ' (faltam ' + f.missing.join(', ') + ')' : ', sem mês faltando') + '.', f.rows != null ? fmt(f.rows) + ' registros no total; cada linha da fonte conta uma vez.' : null, f.verified != null ? fmt(f.verified) + ' de ' + fmt(f.expected) + ' arquivos de origem conferidos no download.' : null, 'Base atualizada em ' + f.generated + '.'])}
       {card('O que os números medem', ['Emplacamento é o registro de um veículo novo, na data do registro. Não é venda faturada nem frota em circulação.', 'Participação é a parte do recorte escolhido nos filtros; mudar os filtros muda o universo. A marca em foco nunca encolhe o mercado.', 'Variação anual compara com o mesmo período do ano anterior; ritmo por dia útil desconta fins de semana, feriados nacionais, Carnaval e Corpus Christi.', 'Versão é o campo modelo do registro (Renavam); o rótulo mostra o nome do modelo na frente.', 'O local é o município de registro, não necessariamente o de uso: locadoras concentram registros em poucas cidades.'])}
       {card('O que não medem', ['Preço, desconto, estoque e vendas no atacado.', 'Usados, motos, caminhões e ônibus (fora do universo).', f.channelFrom ? 'Canal de venda (venda direta × varejo) só existe a partir de ' + m(f.channelFrom) + '; antes disso aparece como não informado.' : 'Canal de venda quando a fonte não informa.', 'Projeções e simulações da Economia são modelos, marcados como tal; não são dados observados.'])}
-      {card('Como o site é conferido', ['Nada é deduplicado automaticamente' + (f.repeated != null ? ': ' + fmt(f.repeated) + ' placas repetidas ficam como na fonte' : '') + '. Datas inválidas ou fora do mês ficam fora das contas.', f.bdJoin ? 'Porte, carroceria e tecnologia vêm da classificação BD pelo código exato do modelo (' + fmt(f.bdMonths) + ' meses cobertos), sem correspondência aproximada.' : null, 'Testes automáticos conferem os totais mensais contra os arquivos, o histórico de 10 anos (nacional, por estado e por versão) contra os mesmos arquivos, e o pré-cálculo contra o cálculo ao vivo.', 'Categorias quase vazias (“Não classificado”, “Sem correspondência BD”) ficam fora dos gráficos, mas continuam no total e nos denominadores.', f.partial.length ? 'Meses parciais: ' + f.partial.map(m).join(', ') + ' (as séries mensais usam só meses completos).' : null])}
+      {card('Como o site é conferido', ['Nada é deduplicado automaticamente' + (f.repeated != null ? ': ' + fmt(f.repeated) + ' placas repetidas ficam como na fonte' : '') + '. Datas inválidas ou fora do mês ficam fora das contas.', f.bdJoin ? 'Segmento, Body Type e tecnologia vêm da classificação BD pelo código exato do modelo (' + fmt(f.bdMonths) + ' meses cobertos), sem correspondência aproximada.' : null, 'Testes automáticos conferem os totais mensais contra os arquivos, o histórico de 10 anos (nacional, por estado e por versão) contra os mesmos arquivos, e o pré-cálculo contra o cálculo ao vivo.', 'Categorias quase vazias (“Não classificado”, “Sem correspondência BD”) ficam fora dos gráficos, mas continuam no total e nos denominadores.', f.partial.length ? 'Meses parciais: ' + f.partial.map(m).join(', ') + ' (as séries mensais usam só meses completos).' : null])}
     </div>
     <Block className="nx-c12" title="Fontes econômicas na base" sub={series.length ? <>{series.length} séries oficiais, cada uma com recibo (endereço e impressão digital sha256 do arquivo baixado)</> : 'Carregando…'}>
       {series.length > 0 && <div className="px-table-wrap"><table className="px-table">
@@ -320,7 +322,7 @@ export default function Laboratorio() {
       <Section id="l-calor" title="Mapa de calor" sub="Onde os emplacamentos se concentram, município a município, do mercado ou da marca em foco."><MapaCalor /></Section>
       <Section id="l-top3" title="Três primeiras marcas" sub="A 1ª, a 2ª e a 3ª marca de cada estado e de cada município."><Top3 /></Section>
       <Section id="l-piramide" title="Pirâmide de segmentos" sub="O tamanho de cada segmento no mercado e, dentro dele, quanto é da marca em foco, das chinesas ou dos eletrificados."><Piramide /></Section>
-      <Section id="l-composicao" title="Composição no tempo" sub="Como o mercado se divide entre propulsões, portes, carrocerias, canais e combustíveis, mês a mês."><Composicao /></Section>
+      <Section id="l-composicao" title="Composição no tempo" sub="Como o mercado se divide entre propulsões, segmentos, Body Types, canais e combustíveis, mês a mês."><Composicao /></Section>
       <Section id="l-relevo" title="Brasil em relevo" sub="Os 5.570 municípios em três dimensões."><Relevo /></Section>
       <Section id="l-metodologia" title="Dados e metodologia" sub="De onde vêm os dados, o que cada número mede (e o que não mede) e como o site é conferido."><Metodologia /></Section>
     </div>

@@ -124,7 +124,7 @@ export default function Foco() {
         <FocusVersions />
       </Section>
 
-      <Section id="f-segmentos" title="Onde a marca compete" sub="Os segmentos (porte BD) que somam ao menos 5% das vendas da marca: participação no tempo e o ranking dos modelos e das versões no período.">
+      <Section id="f-segmentos" title="Onde a marca compete" sub="Os segmentos da BD que somam ao menos 5% das vendas da marca: participação no tempo e o ranking dos modelos e das versões no período.">
         {!segs ? <div className="nx-c12"><Skel h={420} /></div> : segs.map(s => s.missing ? <Block key={s.seg} className="nx-c12" title={label('bd_segmento', s.seg)}><Scope ignored={ignored} /></Block> : (
           <Block key={s.seg} className="nx-c12" title={<>{label('bd_segmento', s.seg)} <span className="px-pill">{pct(s.ofBrand, 0)} das vendas da marca</span></>} sub={<>{focusName} é a {s.rank ? s.rank + 'ª' : '—'} de {s.n} marcas, com <em>{pct(s.share, 1)}</em> de {fmt(s.segTotal)} emplacamentos no período</>}>
             <div className="px-split">

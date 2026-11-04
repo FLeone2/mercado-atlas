@@ -28,7 +28,7 @@ export function useVersions() {
   }, [market]);
 }
 
-/* Segmento principal da marca em foco (porte BD com mais emplacamentos dela no recorte). */
+/* Segmento principal da marca em foco (segmento BD com mais emplacamentos dela no recorte). */
 const mainSegOf = market => (market?.focus?.groups?.bd_segmento ?? []).find(r => ok(r))?.name ?? null;
 
 /* ---------- ranking conectado das versões ---------- */
@@ -59,7 +59,7 @@ export function VersionRanking() {
   return (
     <Block className="nx-c12" title="Versões: quem ganhou e perdeu posições"
       sub={<>{d.labelA} → {d.labelB}{inSeg ? ' · em ' + segName : ''} · <em>vermelho</em> são as três versões mais vendidas da {focusName}{d.mv.top ? <> · mais vendida: {V.name(d.mv.top.name)} ({brandName(V.brand(d.mv.top.name))})</> : ''}</>}
-      info="As versões são o campo modelo do registro (Renavam), com o nome do modelo no começo. Use os filtros de Segmento, Body type e, em Mais filtros, Modelo, Versão e Canal para focar; a posição escrita é a real entre as versões do recorte. Passe o mouse para ver a marca e o registro original."
+      info="As versões são o campo modelo do registro (Renavam), com o nome do modelo no começo. Use os filtros de Segmento, Body Type e, em Mais filtros, Modelo, Versão e Canal para focar; a posição escrita é a real entre as versões do recorte. Passe o mouse para ver a marca e o registro original."
       actions={<div className="px-ctl">
         {mainSeg && !segFiltered && <Seg label="Onde" value={where} onChange={setWhere} options={[['seg', 'Em ' + segName], ['all', 'Todo o recorte']]} />}
         <Seg label="Comparar com" value={cmp} onChange={setCmp} options={[['ano', 'Mesmo período, ano anterior'], ['anterior', 'Período anterior']]} />
@@ -72,7 +72,7 @@ export function VersionRanking() {
   );
 }
 
-/* ---------- uma passada no histórico de versões: série mensal, canal, porte e modelo ---------- */
+/* ---------- uma passada no histórico de versões: série mensal, canal, segmento e modelo ---------- */
 function versionTable(data, filters) {
   const { rows, countIndex } = engine.historyRows(data, filters), D = data.dimensions, dict = data.dictionaries, n = data.months.length;
   const col = d => D.indexOf(d) + 1, iv = col('modelo'), ib = col('marca'), ig = col('grupo_modelo'), is = col('bd_segmento'), ic = col('tipo_venda'), ip = col('propulsao');
@@ -85,7 +85,7 @@ function versionTable(data, filters) {
     if (!x) { x = { series: new Float64Array(n), vd: new Float64Array(n), segs: new Map(), brand: dict.marca[r[ib]], model: g }; versions.set(v, x); }
     x.series[m] += c; if (dict.tipo_venda[r[ic]] === 'VD') x.vd[m] += c; x.segs.set(s, (x.segs.get(s) ?? 0) + c);
     arr(seg, s)[m] += c; arr(model, g)[m] += c;
-    // o modelo inteiro (todas as versões): série, venda direta, eletrificados, porte e marca principais
+    // o modelo inteiro (todas as versões): série, venda direta, eletrificados, segmento e marca principais
     let y = models.get(g);
     if (!y) { y = { series: new Float64Array(n), vd: new Float64Array(n), el: new Float64Array(n), segs: new Map(), brands: new Map() }; models.set(g, y); }
     y.series[m] += c; if (dict.tipo_venda[r[ic]] === 'VD') y.vd[m] += c; if (ip > 0 && ELECTRIC.has(dict.propulsao[r[ip]])) y.el[m] += c;
@@ -108,7 +108,7 @@ export function useVersionHistory() {
 const sumAt = (a, idx) => idx.reduce((s, i) => s + (a?.[i] ?? 0), 0);
 
 /* ---------- modelo × modelo, de marcas diferentes (o versão × versão um nível acima) ---------- */
-// marca e porte de cada modelo no recorte: os das versões dele com mais emplacamentos
+// marca e segmento de cada modelo no recorte: os das versões dele com mais emplacamentos
 function useModels() {
   const { market } = useAtlas();
   return useMemo(() => {
@@ -137,7 +137,7 @@ export function ModelCompare() {
   const chosen = (picked ?? defaults).slice(0, 5);
   const counts = useMemo(() => {
     const cur = new Map((market?.groups?.grupo_modelo ?? []).map(r => [r.name, r.count])), yr = new Map((market?.yearGroups?.grupo_modelo ?? []).map(r => [r.name, r.count]));
-    // posição entre os modelos do mesmo porte (picape média contra picape média)
+    // posição entre os modelos do mesmo segmento (picape média contra picape média)
     const bySeg = new Map(), rank = new Map();
     for (const r of [...(market?.groups?.grupo_modelo ?? [])].filter(ok).sort((a, b) => b.count - a.count)) { const k = M.seg(r.name); bySeg.set(k, (bySeg.get(k) ?? 0) + 1); rank.set(r.name, bySeg.get(k)); }
     return { cur, yr, rank, bySeg };
@@ -207,7 +207,7 @@ export function VersionCompare() {
   const chosen = (picked ?? defaults).slice(0, 5);
   const counts = useMemo(() => {
     const cur = new Map((market?.groups?.modelo ?? []).map(r => [r.name, r.count])), yr = new Map((market?.yearGroups?.modelo ?? []).map(r => [r.name, r.count]));
-    // posição entre as versões do mesmo porte (picape média contra picape média)
+    // posição entre as versões do mesmo segmento (picape média contra picape média)
     const bySeg = new Map(), rank = new Map();
     for (const r of [...(market?.groups?.modelo ?? [])].filter(ok).sort((a, b) => b.count - a.count)) { const k = V.seg(r.name); bySeg.set(k, (bySeg.get(k) ?? 0) + 1); rank.set(r.name, bySeg.get(k)); }
     return { cur, yr, rank, bySeg };
@@ -267,7 +267,7 @@ export function segmentVersionRows(T, seg, months, focus, V, top = 10) {
   if (!T) return null;
   const idx = months.map(m => T.months.indexOf(m)).filter(i => i >= 0 && T.complete[i]), segTotal = sumAt(T.seg.get(seg), idx);
   if (!(segTotal > 0)) return [];
-  // cada versão conta no seu porte principal (quase sempre o único)
+  // cada versão conta no seu segmento principal (quase sempre o único)
   const all = [...T.versions].filter(([, x]) => x.seg === seg).map(([v, x]) => ({ v, brand: x.brand, model: x.model, n: sumAt(x.series, idx) })).filter(r => r.n > 0).sort((a, b) => b.n - a.n);
   const row = (r, i) => ({ key: r.v, label: versionLabel(r.v, r.model), brand: brandName(r.brand), value: r.n, rank: i + 1, valueText: pct(r.n / segTotal, 1), hl: r.brand === focus, title: r.v });
   const extra = all.map((r, i) => ({ r, i })).filter(({ r, i }) => r.brand === focus && i >= top).slice(0, 3);

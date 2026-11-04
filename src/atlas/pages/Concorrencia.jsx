@@ -150,7 +150,7 @@ export default function Concorrencia() {
         )}
       </Section>
 
-      <Section id="c-versoes" title="Modelos e versões" sub="Modelo contra modelo, de marcas diferentes; depois o ranking conectado e a comparação versão por versão. Os filtros do site valem aqui: escolha um segmento, um body type, um canal ou um modelo para focar.">
+      <Section id="c-versoes" title="Modelos e versões" sub="Modelo contra modelo, de marcas diferentes; depois o ranking conectado e a comparação versão por versão. Os filtros do site valem aqui: escolha um segmento, um Body Type, um canal ou um modelo para focar.">
         <div className="nx-c12"><WhenVisible h={620}><ModelCompare /></WhenVisible></div>
         <VersionRanking />
         <div className="nx-c12"><WhenVisible h={620}><VersionCompare /></WhenVisible></div>

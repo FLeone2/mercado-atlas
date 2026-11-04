@@ -62,7 +62,7 @@ export default function Mercado() {
   /* ---------- o que o mercado compra × o que a marca em foco vende ---------- */
   const mix = useMemo(() => {
     if (!market?.focus?.groups) return null;
-    return [['bd_segmento', 'Porte'], ['bd_carroceria', 'Carroceria'], ['propulsao', 'Propulsão'], ['tipo_venda', 'Canal']].map(([dim, title]) => {
+    return [['bd_segmento', 'Segmento'], ['bd_carroceria', 'Body Type'], ['propulsao', 'Propulsão'], ['tipo_venda', 'Canal']].map(([dim, title]) => {
       const m = (market.groups?.[dim] ?? []).filter(r => r.count > 0), f = new Map((market.focus.groups[dim] ?? []).map(r => [r.name, r.count]));
       const mt = m.reduce((s, r) => s + r.count, 0), ft = [...f.values()].reduce((s, v) => s + v, 0);
       const merged = new Map();

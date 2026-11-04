@@ -89,7 +89,7 @@ export default function Piramide() {
     const kept = all.filter(r => !out(r)), sum = kept.reduce((s, r) => s + r.count, 0), small = kept.filter(r => r.count / sum < MIN_SHARE);
     const row = (key, name, list) => { const t = list.reduce((s, r) => s + r.count, 0), pc = list.reduce((s, r) => s + (part.get(r.name) ?? 0), 0), y0 = list.reduce((s, r) => s + (year.get(r.name) ?? 0), 0); return { key, codes: list.map(r => r.name), label: name, total: t, partCount: pc, part: t > 0 ? pc / t : 0, change: y0 > 0 ? t / y0 - 1 : null }; };
     const rows = kept.filter(r => !small.includes(r)).map(r => row(r.name, label(dim, r.name), [r]));
-    if (small.length) rows.push(row('outros', (dim === 'bd_segmento' ? 'Outros portes' : 'Outras carrocerias') + ' (' + small.length + ')', small));
+    if (small.length) rows.push(row('outros', (dim === 'bd_segmento' ? 'Outros segmentos' : 'Outros Body Types') + ' (' + small.length + ')', small));
     const pc = rows.reduce((s, r) => s + r.partCount, 0), tot = rows.reduce((s, r) => s + r.total, 0);
     const best = [...rows].filter(r => r.total / tot >= .02).sort((a, b) => b.part - a.part)[0];
     return { rows, hidden, share: tot > 0 ? pc / tot : 0, best, base: rows.length ? [...rows].sort((a, b) => b.total - a.total)[0] : null };
@@ -97,15 +97,15 @@ export default function Piramide() {
   const partLabel = what === 'foco' ? focusName : what === 'chinesas' ? 'chinesas' : 'eletrificados';
   const filtered = Array.isArray(mFilters[dim]) && mFilters[dim].length > 0;
   return (
-    <Block className="nx-c12" title={'Pirâmide de ' + (dim === 'bd_segmento' ? 'portes' : 'carrocerias')}
+    <Block className="nx-c12" title={'Pirâmide de ' + (dim === 'bd_segmento' ? 'segmentos' : 'Body Types')}
       sub={d?.base ? <>{d.base.label} é a base ({pct(d.base.total / d.rows.reduce((s, r) => s + r.total, 0), 0)} do mercado) · {partLabel} {what === 'foco' ? 'tem' : 'têm'} <em style={{ color: HL[what] }}>{pct(d.share, 1)}</em> do recorte{d.best ? <>, mais forte em {d.best.label.toLowerCase()} ({pct(d.best.part, 1)})</> : ''}</> : null}
       info="A área de cada faixa é proporcional aos emplacamentos do segmento: do menor, no topo, ao maior, na base (a altura não é linear). A parte colorida de cada faixa é a participação escolhida dentro daquele segmento. À direita: participação do segmento no mercado do recorte e a participação destacada. Clique numa faixa para filtrar o site por ela."
       actions={<div className="px-ctl">
-        <Seg label="Agrupar por" value={dim} onChange={setDim} options={[['bd_segmento', 'Porte'], ['bd_carroceria', 'Carroceria']]} />
+        <Seg label="Agrupar por" value={dim} onChange={setDim} options={[['bd_segmento', 'Segmento'], ['bd_carroceria', 'Body Type']]} />
         <Seg label="Destacar" value={what} onChange={setWhat} options={[['foco', focusName], ['chinesas', 'Marcas chinesas'], ['eletrificados', 'Eletrificados']]} />
       </div>}>
       {!d ? <Skel h={460} /> : !d.rows.length ? <p className="px-scopenote">Sem emplacamentos classificados neste recorte.</p> : <Pyramid rows={d.rows} color={HL[what]} partLabel={partLabel} onPick={filtered ? null : k => setFilter(dim, d.rows.find(r => r.key === k)?.codes ?? [k])} />}
-      {d?.hidden > 0 && <p className="px-scopenote">{fmt(d.hidden)} emplacamentos de caminhões leves, categorias sem {dim === 'bd_segmento' ? 'porte' : 'carroceria'} ou fora do portfólio ficam fora do desenho (continuam no total do site). Faixas com menos de 0,5% do mercado estão juntas em “Outros”.</p>}
+      {d?.hidden > 0 && <p className="px-scopenote">{fmt(d.hidden)} emplacamentos de caminhões leves, categorias sem {dim === 'bd_segmento' ? 'segmento' : 'Body Type'} ou fora do portfólio ficam fora do desenho (continuam no total do site). Faixas com menos de 0,5% do mercado estão juntas em “Outros”.</p>}
     </Block>
   );
 }

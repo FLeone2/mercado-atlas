@@ -13,9 +13,9 @@ Lista de trabalho: `docs/ROADMAP.md`.
 | Mitsubishi | Modelos, **versões da marca**, segmentos onde compete (participação, ranking de modelos e de versões), **mês a mês nos segmentos** (crescimento sobre o mês anterior ou o mesmo mês do ano anterior e participação, ao lado do segmento e do mercado), varejo × venda direta, força por estado, onde crescer |
 | Territórios | Mapa dos 5.570 municípios (marca líder, volume, por mil habitantes, participação e índice da marca em foco), clique no estado para o cartão e a lista de municípios, **concessionárias Mitsubishi** (aparecem ao aproximar ou dentro do estado; botão para ligar e desligar); estados e regiões |
 | Economia | Condições de compra, o que explica o mercado, peso de cada fator, simulador, parcela, imposto de importação, oferta, projeções, potencial regional e análises técnicas (coeficientes, validação, defasagens) |
-| Laboratório | Perguntas rápidas, construtor de gráficos (com CSV), mapa no tempo, **mapa de calor**, **três primeiras marcas** (estados em faixas ou 1º·2º·3º lugar; municípios por lugar), **pirâmide de segmentos** (porte ou carroceria; área = volume, com a parte da marca em foco, das chinesas ou dos eletrificados), composição no tempo, Brasil em relevo e dados e metodologia |
+| Laboratório | Perguntas rápidas, construtor de gráficos (com CSV), mapa no tempo, **mapa de calor**, **três primeiras marcas** (estados em faixas ou 1º·2º·3º lugar; municípios por lugar), **pirâmide de segmentos** (Segmento ou Body Type; área = volume, com a parte da marca em foco, das chinesas ou dos eletrificados), composição no tempo, Brasil em relevo e dados e metodologia |
 
-- **Filtros.** Período, território em cascata (região → estado → município), marca em foco, porte, propulsão, canal e mais filtros (tipo de veículo, carroceria, combustível, modelo, **versão**, origem, ano de fabricação). Tudo fica no endereço da página. A marca em foco nunca recorta o mercado: é destacada e comparada com ele.
+- **Filtros.** Período, território em cascata (região → estado → município), marca em foco, **Segmento** e **Body Type** (as duas classificações da BD), propulsão e mais filtros (canal, tipo de veículo, combustível, modelo, **versão**, origem, ano de fabricação). Tudo fica no endereço da página. A marca em foco nunca recorta o mercado: é destacada e comparada com ele.
 - **Versão** é o campo modelo do registro (Renavam, ex.: `MMC/TRITON HPE AT4`). O site mostra "Triton HPE AT4" e guarda o registro original no ⓘ e no CSV.
 - Links antigos (`?a=panorama`, `?ui=atual`…) abrem a página equivalente do Atlas.
 
@@ -29,7 +29,7 @@ Lista de trabalho: `docs/ROADMAP.md`.
 | Variável de ambiente | `NODE_VERSION=22` |
 
 Cada push em `main` publica sozinho. `dist/` leva o app, as fontes e `data/` (sem as fontes brutas de Economia), mais as
-fatias por estado e por porte; a pasta `functions/` vira a rota `/api/market`. O build leva ~3 min (pré-cálculo + fatias).
+fatias por estado e por segmento; a pasta `functions/` vira a rota `/api/market`. O build leva ~3 min (pré-cálculo + fatias).
 Cabeçalhos de segurança e cache ficam em `public/_headers`.
 
 ## Rodar localmente
@@ -55,7 +55,7 @@ npm run build && npm run preview   # versão de produção em http://localhost:8
 `src/market/core.js` usa `/*@include arquivo*/` para juntar os módulos num só escopo e `/*@string a + b*/`
 para embutir o código do worker. Quem faz isso é o plugin `atlas-market` em `vite.config.js`.
 
-- **Consulta principal** (`atlas`): o mercado do recorte, a marca em foco e o mesmo período do ano anterior, agrupados por marca, modelo, versão, porte, carroceria, propulsão, canal e UF, mais quem faz cada versão (marca, modelo e porte) e porte/carroceria × marca e × propulsão (pirâmide).
+- **Consulta principal** (`atlas`): o mercado do recorte, a marca em foco e o mesmo período do ano anterior, agrupados por marca, modelo, versão, Segmento, Body Type, propulsão, canal e UF, mais quem faz cada versão (marca, modelo e segmento) e Segmento/Body Type × marca e × propulsão (pirâmide).
 - **Mapa nacional** (`leaders-br`): município × UF × marca numa só consulta.
 - **Conexões** (`conexoes`): caminhos origem → canal → combustível → tipo de veículo e as ligações região × marca × combustível.
 - **Histórico mensal**: `data/history/national.json.gz` (padrão), `uf.json.gz` (com filtro de estado) e `versions.json.gz` (painéis de versão e filtro de versão). Um filtro que o arquivo não tem aparece escrito embaixo do gráfico.
@@ -67,8 +67,8 @@ para embutir o código do worker. Quem faz isso é o plugin `atlas-market` em `v
 - **Pré-cálculo:** `scripts/precompute.cjs` usa o mesmo cálculo do navegador para gerar, sem filtros, Último mês, Ano atual,
   12 meses e Ano passado das três consultas (`data/precomputed.json` + `data/precomputed/*.json.gz`, ~7 MB, ~1 min).
   O site usa um arquivo só quando ele foi gerado do manifesto em uso e responde ao mesmo pedido.
-- **Fatias:** `scripts/split-cubes.cjs` separa os últimos 36 meses por estado e por porte (`data/cubes-split/`, ~45 s, não
-  versionado). Com um estado (ou um porte) no filtro, o cálculo lê só a fatia, com a mesma resposta.
+- **Fatias:** `scripts/split-cubes.cjs` separa os últimos 36 meses por estado e por segmento (`data/cubes-split/`, ~45 s, não
+  versionado). Com um estado (ou um segmento) no filtro, o cálculo lê só a fatia, com a mesma resposta.
 - **Servidor:** `functions/api/market.js` calcula na Cloudflare com o mesmo motor (`server/engine.js`, gerado por
   `scripts/build-server.cjs`) e guarda cada resposta no cache e no KV `RESPOSTAS`. Fica desligado (404) enquanto o KV não
   estiver ligado ao projeto; então o navegador calcula sozinho. Para ligar: `docs/ROADMAP.md`, seção 3.

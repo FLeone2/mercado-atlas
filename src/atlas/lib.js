@@ -54,7 +54,7 @@ export const SHORT_MONTH = m => MONTHS[+m.slice(5, 7) - 1] + '/' + m.slice(2, 4)
 
 /* ---------- filtros: recorte × marca em foco ----------
    A marca em foco nunca encolhe o mercado: ranking, participação e mapas usam o mercado inteiro do
-   recorte e destacam a marca. Tudo o mais (período, território, porte, propulsão, canal, modelo…) recorta. */
+   recorte e destacam a marca. Tudo o mais (período, território, segmento, Body Type, propulsão, canal, modelo…) recorta. */
 export const FOCUS_DEFAULT = 'MITSUBISHI';
 export const list = v => (v == null || v === 'all' ? [] : (Array.isArray(v) ? v : [v]).filter(x => x !== 'all'));
 export const active = v => list(v).length > 0;
