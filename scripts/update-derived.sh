@@ -4,6 +4,16 @@
 # The quick period buttons (Ano atual, Último mês) follow the manifest on their own.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+# Selic, dólar e crédito do BCB (external_sources.json), lidos pelos cenários e pelas projeções abaixo:
+# o arquivo só é trocado quando todas as séries chegam; senão fica a versão anterior verificada.
+if python3 scripts/fetch_scenario_sources.py --out data/scenarios/external_sources.json.new && python3 - <<'PY'
+import json, sys
+d = json.load(open('data/scenarios/external_sources.json.new'))
+sys.exit(0 if d.get('series') and all(s.get('status') == 'available' and s.get('monthly') for s in d['series']) else 1)
+PY
+then mv data/scenarios/external_sources.json.new data/scenarios/external_sources.json
+else rm -f data/scenarios/external_sources.json.new; echo 'Fontes do BCB indisponíveis; mantendo external_sources.json anterior.'
+fi
 python3 scripts/build-history.py          # 10-year history (data/history)
 python3 scripts/build_scenarios.py --repo . # monthly, regional and composition from the same cubes
 python3 scripts/relink_regional.py        # shared municipality-name rules
