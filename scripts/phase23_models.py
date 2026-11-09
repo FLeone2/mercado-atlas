@@ -259,6 +259,32 @@ def metrics(rows):
             'atHorizon': [{'horizon': h, **one([r for r in rows if r['horizon'] == h])} for h in HORIZONS]}
 
 
+SELECTION_WINDOW = MAX_HORIZON + 1  # 13 origens: os caminhos de 12 meses que terminam nos últimos 24 meses
+SELECTION_RULE = ('Lowest MAE over the complete 12-month paths of the most recent 13 rolling origins (targets in the last 24 '
+                  'observed months), chosen again every month, and published only when choosing that way month by month '
+                  '(out of sample) has beaten the same month of the previous year over that window; otherwise the same month '
+                  'of the previous year. Validation errors (older origins) only calibrate the intervals.')
+
+
+def recent_selection(val, test_rows, test_origins, gap_rows):
+    """A regra de escolha avaliada sem olhar o futuro: em cada origem recente, o candidato de menor erro nas 13
+    origens anteriores com alvos já observados (origem - 24 a origem - 12) e a previsão dele naquela origem."""
+    by_origin = {m: {} for m in val}
+    for m in val:
+        for r in val[m] + gap_rows[m] + test_rows[m]: by_origin[m].setdefault(r['originIndex'], []).append(r)
+    rows, choices = [], []
+    for o in test_origins:
+        window = range(o - 2 * MAX_HORIZON, o - MAX_HORIZON + 1)
+        def error(m):
+            rs = [r for w in window for r in by_origin[m].get(w, [])]
+            if len(rs) != SELECTION_WINDOW * MAX_HORIZON: raise ValueError('Incomplete selection window at origin %d' % o)
+            return float(np.mean([abs(r['predicted'] - r['actual']) for r in rs]))
+        chosen = min(val, key=error)
+        choices.append({'origin': by_origin[chosen][o][0]['origin'], 'model': chosen})
+        rows.extend({**r, 'selectedBy': 'recent_window'} for r in by_origin[chosen][o])
+    return {'rows': rows, 'choices': choices}
+
+
 def fit_forecasts(monthly, raw):
     monthly = [{**r, 'nonMitsubishi': r['registrations'] - r['mitsubishi']} for r in monthly]
     months = [r['month'] for r in monthly]
@@ -266,6 +292,7 @@ def fit_forecasts(monthly, raw):
     test_start = n - 24
     validation_origins = list(range(MIN_TRAIN, test_start - MAX_HORIZON + 1))
     test_origins = list(range(test_start, n - MAX_HORIZON + 1))
+    gap_origins = list(range(validation_origins[-1] + 1, test_start))
     if len(validation_origins) < 24 or len(test_origins) < 12: raise ValueError('Insufficient rolling-origin folds')
     output = {'targets': {}, 'horizons': list(HORIZONS)}
     chosen_records = {}
@@ -274,9 +301,19 @@ def fit_forecasts(monthly, raw):
         y = np.asarray([r[target] for r in monthly], float)
         val = {m: records(y, raw, months, validation_origins, m) for m in MODELS}
         validation = {m: metrics(v) for m, v in val.items()}
-        selected = min(MODELS, key=lambda m: validation[m]['mae'])
         test_rows = {m: with_intervals(records(y, raw, months, test_origins, m), val[m]) for m in MODELS}
         test = {m: metrics(v) for m, v in test_rows.items()}
+        # Escolha pela janela recente: o menor erro nos caminhos de 12 meses das origens cujos alvos já
+        # são conhecidos e caem nos últimos 24 meses (as origens de teste). Refeita a cada mês novo.
+        window_choice = min(MODELS, key=lambda m: test[m]['mae'])
+        # as origens entre a validação e a janela recente só servem para medir a escolha mês a mês
+        gap = {m: records(y, raw, months, gap_origins, m) for m in MODELS}
+        recent = recent_selection(val, test_rows, test_origins, gap)
+        test['recent_selection'] = metrics(recent['rows'])
+        # trava: a escolha da janela só é publicada se escolher mês a mês errou menos que repetir o ano anterior
+        # nessa mesma janela (fora da amostra); senão, o mesmo mês do ano anterior
+        rule_beats_naive = test['recent_selection']['mae'] < test['seasonal_naive']['mae']
+        selected = window_choice if rule_beats_naive else 'seasonal_naive'
         points, diag = predict(y, raw, n, MAX_HORIZON, selected)
         quantiles = error_quantiles(val[selected])
         intervals = [{'month': add_month(months[-1], h), 'horizon': h, 'point': float(p),
@@ -286,11 +323,14 @@ def fit_forecasts(monthly, raw):
         output['targets'][target] = {
             'selectedModel': selected, 'qualityStatus': 'experimental_retrospective', 'validationPassed': False,
             'retrospectiveGatePassed': gate,
-            'selection': 'Lowest validation MAE across the complete 12-month path. Test scores do not select the model.',
+            'selection': SELECTION_RULE,
+            'recentSelection': {'rule': 'At each recent origin, the candidate with the lowest MAE over the 13 previous origins whose 12-month targets were already observed; its forecast from that origin. Uses only information available at the origin.', 'window': SELECTION_WINDOW, 'choices': recent['choices'],
+                                'windowChoice': window_choice, 'beatsSeasonalNaive': bool(rule_beats_naive), 'published': selected},
             'validation': validation, 'test': test, 'intervals': intervals,
             'testIntervalCoverage': {'80': test[selected]['coverage80'], '95': test[selected]['coverage95']},
             'testPredictions': test_rows[selected], 'candidateTestPredictions': test_rows, 'fitDiagnostics': diag,
             'testBeatSeasonalNaive': test[selected]['mae'] < test['seasonal_naive']['mae'],
+            'recentSelectionPredictions': recent['rows'],
             'fitAudit': {model: {'validation': [{'origin': r['origin'], **(r.get('fitDiagnostics') or {})} for r in val[model] if r['horizon'] == 1], 'test': [{'origin': r['origin'], **(r.get('fitDiagnostics') or {})} for r in test_rows[model] if r['horizon'] == 1]} for model in MODELS},
             'qualityWarning': 'The same historical evaluation period was examined in earlier work. This is not a fresh independent test or real-time-vintage validation.',
         }
@@ -355,7 +395,7 @@ def fit_forecasts(monthly, raw):
     sm = metrics(share_test)
     output['targets']['mitsubishiShare'] = {
         'selectedModel': 'coherent_ratio', 'qualityStatus': 'experimental_retrospective', 'validationPassed': False,
-        'selection': 'Ratio of independently validation-selected market and MIT point forecasts; no separate share tuning.',
+        'selection': 'Ratio of the reconciled market and MIT point forecasts, each chosen on the recent window; no separate share tuning.',
         'validation': {'coherent_ratio': metrics(share_records['validation'])}, 'test': {'coherent_ratio': sm},
         'intervals': share_intervals, 'testPredictions': share_test, 'testIntervalCoverage': {'80': sm['coverage80'], '95': sm['coverage95']},
     }
@@ -389,6 +429,8 @@ def fit_forecasts(monthly, raw):
         'testOrigins': [months[o - 1] for o in test_origins], 'validationTargetRange': [months[MIN_TRAIN], months[test_start - 1]],
         'testTargetRange': [months[test_start], months[-1]], 'nValidationOrigins': len(validation_origins), 'nTestOrigins': len(test_origins),
         'evaluation': 'Expanding rolling origin. Common origins and complete 12-step paths for all candidates. byHorizon aggregates steps 1..H; atHorizon reports step H only.',
+        'selection': SELECTION_RULE,
+        'recentWindowIsNotIndependent': 'The recent (test) origins choose the published model, so their scores for it are in-sample for the choice; recent_selection is the out-of-sample score of the month-by-month choice.',
         'biasSign': 'positive = overprediction; predicted minus actual', 'maseDenominator': 'Mean absolute seasonal-naive training difference |y[t]-y[t-12]|, recomputed at each origin.',
         'intervals': 'Horizon-specific empirical 2.5/10/90/97.5% quantiles of validation actual-minus-predicted errors, frozen before test. Lower bound clipped at zero; share bounds clipped to [0,1]. No Gaussian or guaranteed coverage claim.',
         'testFreshness': 'Historical dates already inspected in prior experiments; all outputs remain experimental even if retrospective gates pass.',

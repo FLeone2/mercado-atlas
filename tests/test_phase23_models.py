@@ -134,15 +134,48 @@ class Phase23Tests(unittest.TestCase):
         self.assertEqual(p['testTargetRange'], [self.months[-24], self.months[-1]])
         self.assertEqual(self.result['coverage']['months'], len(self.months))
 
-    def test_selection_uses_validation_only_and_no_fresh_validation_claim(self):
+    def test_selection_uses_recent_window_with_naive_guard(self):
+        # escolha pela janela recente (as origens de teste), publicada só se a escolha mês a mês, fora da
+        # amostra, errou menos que repetir o ano anterior; senão, o mesmo mês do ano anterior
         for key in ('registrations', 'mitsubishi', 'nonMitsubishi'):
             target = self.result['forecasts']['targets'][key]
-            chosen = min(m.MODELS, key=lambda model: target['validation'][model]['mae'])
-            self.assertEqual(target['baseSelectedModel'], chosen)
+            window = min(m.MODELS, key=lambda model: target['test'][model]['mae'])
+            rule = target['recentSelection']
+            self.assertEqual(rule['windowChoice'], window)
+            beats = target['test']['recent_selection']['mae'] < target['test']['seasonal_naive']['mae']
+            self.assertEqual(rule['beatsSeasonalNaive'], beats)
+            self.assertEqual(target['baseSelectedModel'], window if beats else 'seasonal_naive')
             self.assertEqual(target['selectedModel'], 'constrained_wls')
             self.assertEqual(target['qualityStatus'], 'experimental_retrospective')
             self.assertFalse(target['validationPassed'])
-            self.assertEqual(set(target['test']), set(m.MODELS) | {'constrained_wls'})
+            self.assertEqual(set(target['test']), set(m.MODELS) | {'constrained_wls', 'recent_selection'})
+            # a escolha mês a mês usa, em cada origem, a previsão do modelo escolhido naquela origem
+            self.assertEqual(len(rule['choices']), self.result['forecasts']['protocol']['nTestOrigins'])
+            chosen = {c['origin']: c['model'] for c in rule['choices']}
+            candidate = {(r['origin'], r['horizon']): r for model, rows in target['candidateTestPredictions'].items() for r in rows if chosen.get(r['origin']) == model}
+            for r in target['recentSelectionPredictions']:
+                self.assertAlmostEqual(r['predicted'], candidate[(r['origin'], r['horizon'])]['predicted'])
+
+    def test_recent_selection_never_uses_the_origin_or_later_errors(self):
+        # o modelo "a" é perfeito na janela anterior e péssimo dali em diante: a escolha em cada origem
+        # só pode ver as origens o-24 a o-12, então escolhe "a" enquanto ele estava bem
+        def rows(origins, good_until):
+            return [{'origin': str(o), 'originIndex': o, 'horizon': h, 'actual': 100., 'predicted': 100. if o <= good_until else 0.}
+                    for o in origins for h in range(1, 13)]
+        origins = list(range(60, 131)); test = list(range(106, 119))
+        a = rows(origins, good_until=94); b = [{**r, 'predicted': 90.} for r in rows(origins, good_until=0)]
+        split = lambda rs, keep: [r for r in rs if r['originIndex'] in keep]
+        val = {'a': split(a, range(60, 95)), 'b': split(b, range(60, 95))}
+        gap = {'a': split(a, range(95, 106)), 'b': split(b, range(95, 106))}
+        tst = {'a': split(a, test), 'b': split(b, test)}
+        out = m.recent_selection(val, tst, test, gap)
+        for c in out['choices']:
+            # erro médio de cada modelo só na janela o-24..o-12 (a origem e o que vem depois não contam)
+            o = int(c['origin']); window = range(o - 24, o - 11)
+            mae_a = np.mean([0. if w <= 94 else 100. for w in window]); mae_b = 10.
+            self.assertEqual(c['model'], 'a' if mae_a < mae_b else 'b', o)
+        # em 107 "a" já é péssimo na própria origem, mas a janela ainda o favorece: sem olhar o futuro, fica "a"
+        self.assertEqual({c['origin']: c['model'] for c in out['choices']}['107'], 'a')
 
     def test_reported_test_metrics_recompute_from_predictions(self):
         for name, target in self.result['forecasts']['targets'].items():

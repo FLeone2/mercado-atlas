@@ -81,6 +81,7 @@ Decisão de 02/11/2026: **ficar no Cloudflare Pages**. A lentidão vinha do cál
 - **Acesso:** site aberto. Sem Cloudflare Access.
 - **Orçamento:** até US$ 10/mês. Velocidade: Pages + **Workers Paid** (US$ 5/mês) com o cálculo no servidor e respostas guardadas (seção 3). DuckDB-WASM e banco analítico gerenciado descartados em 02/11/2026.
 - **Anfavea:** os dados detalhados virão de você (produção, exportação e licenciamento por montadora). Quando chegarem: script de carga com recibo, como as demais fontes, e os gráficos de oferta por montadora na Economia e na página da marca em foco.
+- **Projeções (09/11/2026):** o modelo de cada série é escolhido pela janela recente (as 13 origens cujos caminhos de 12 meses caem nos últimos 24 meses), refeita a cada mês novo, e só é publicado se escolher assim mês a mês, sem olhar o futuro, errou menos que repetir o mesmo mês do ano anterior; senão vale o ano anterior. Com outubro/2026: Mitsubishi passa ao SARIMAX (erro da escolha mês a mês 386 por mês contra 536 do ano anterior); mercado fica no ano anterior (a escolha mês a mês errou mais). A página mostra o erro dessa escolha ao lado do ano anterior.
 - **Imposto de importação:** 35% em vigor para elétricos, híbridos e plug-in desde jul/2026 (destacado na Economia).
 - **Pendente:** quem recebe o resumo automático do mês (e-mail, Slack) e dados FIPE (preço por versão).
 
