@@ -199,7 +199,7 @@ export function Contexto({ parts = ['resumo', 'credito', 'lag'] }) {
 const TARGETS = { registrations: 'Mercado', mitsubishi: 'Mitsubishi', nonMitsubishi: 'Demais marcas', mitsubishiShare: 'Participação Mitsubishi' };
 const MODEL = {
   seasonal_naive: 'Mesmo mês do ano anterior', seasonal_ar1: 'Sazonal + AR(1)', seasonal_arx: 'Sazonal + macro', seasonal_sarimax: 'SARIMAX sazonal com macro',
-  constrained_wls: 'Publicado · reconciliado (WLS)', coherent_ratio: 'Publicado · razão Mitsubishi / mercado', share_seasonal_naive: 'Participação · mesmo mês do ano anterior', share_logit_sarimax: 'Participação · SARIMAX logit',
+  constrained_wls: 'Publicado · reconciliado (WLS)', recent_selection: 'Escolha mês a mês (janela recente)', coherent_ratio: 'Publicado · razão Mitsubishi / mercado', share_seasonal_naive: 'Participação · mesmo mês do ano anterior', share_logit_sarimax: 'Participação · SARIMAX logit',
 };
 const HIER_MODEL = { seasonal_naive_bottom_up: 'Mesmo mês do ano anterior · soma das UFs', seasonal_growth_bottom_up: 'Crescimento sazonal · soma das UFs', seasonal_growth_base_unreconciled: 'Crescimento sazonal · sem reconciliação', mint_shrink_nonnegative: 'Reconciliação MinT não negativa' };
 
@@ -240,6 +240,8 @@ export function Projecoes() {
   const failed = t && t.validationPassed !== true;
   const sel = cmp?.sel?.s;
   const baseModel = t?.baseSelectedModel;
+  // a regra de escolha medida sem olhar o futuro, contra repetir o ano anterior (meses 1 a h)
+  const rule = useMemo(() => { const r = metricAt(t ?? {}, 'recent_selection', h), nv = metricAt(t ?? {}, 'seasonal_naive', h); return r && nv ? { mae: r.mae, naive: nv.mae, beats: t.recentSelection?.beatsSeasonalNaive !== false } : null; }, [t, h]);
 
   const first = rows[0], lastRow = rows.at(-1);
   const ready = rows.length > 0 && hist.length > 0;
@@ -254,8 +256,8 @@ export function Projecoes() {
   ].filter(Boolean).join(' ') : undefined;
 
   const title2 = headline([mod], !cmp ? 'Comparação indisponível.' : cmp.selectedIsBest
-    ? <>No teste de {h} meses, o modelo publicado <em>foi o que menos errou</em>: {maeText(cmp.sel.s.mae)}{share ? '' : ' por mês'}.</>
-    : <>No teste de {h} meses, <em>{MODEL[cmp.best[0].m] ?? cmp.best[0].m}</em> errou {nf((1 - cmp.best[0].s.mae / cmp.sel.s.mae) * 100)}% menos que o modelo publicado.</>);
+    ? <>Na janela recente, em {h} meses, o modelo publicado <em>foi o que menos errou</em>: {maeText(cmp.sel.s.mae)}{share ? '' : ' por mês'}.</>
+    : <>Na janela recente, em {h} meses, <em>{MODEL[cmp.best[0].m] ?? cmp.best[0].m}</em> errou {nf((1 - cmp.best[0].s.mae / cmp.sel.s.mae) * 100)}% menos que o modelo publicado.</>);
   const barRows = cmp?.list.map((x, i) => ({ key: x.m, name: x.m, label: MODEL[x.m] ?? x.m, rank: i + 1, value: x.s.mae, valueText: maeText(x.s.mae), deltaText: 'MASE ' + nf(x.s.mase, 2) }));
 
   return (
@@ -271,18 +273,19 @@ export function Projecoes() {
             <div className="nxo-chips">
               {failed && <Chip warn>Exploratório · não passou na validação</Chip>}
               <Chip>Modelo <b>{baseModel ? (MODEL[baseModel] ?? baseModel) + ' + reconciliação' : (MODEL[t.selectedModel] ?? t.selectedModel)}</b></Chip>
-              {sel && <Chip title="Erro absoluto médio dos meses 1 a h no teste reservado. MASE compara com uma escala sazonal de treino.">Erro médio no teste <b>{maeText(sel.mae)}{share ? '' : ' por mês'}</b> · MASE <b>{nf(sel.mase, 2)}</b></Chip>}
-              {sel && Number.isFinite(sel.bias) && !share && Math.abs(sel.bias) > 1 && <Chip title="Previsão menos observado, média no teste.">{sel.bias < 0 ? 'Subestimou' : 'Superestimou'} em média <b>{mil(Math.abs(sel.bias))}</b> por mês</Chip>}
-              {sel && Number.isFinite(sel.coverage80) && <Chip warn={sel.coverage80 < .7} title="Parcela das observações do teste que caíram dentro da faixa. O nominal é 80%.">Faixa de 80% cobriu <b>{pct(sel.coverage80, 0)}</b> no teste</Chip>}
+              {rule && <Chip warn={!rule.beats} title="Em cada origem dos últimos 24 meses, o modelo de menor erro nas 13 origens anteriores, sem olhar o futuro. O modelo da janela só é publicado se essa escolha errou menos que repetir o ano anterior; senão vale o ano anterior.">Escolha mês a mês errou <b>{maeText(rule.mae)}{share ? '' : ' por mês'}</b> · ano anterior <b>{maeText(rule.naive)}</b>{rule.beats ? '' : ' · mantido o ano anterior'}</Chip>}
+              {sel && <Chip title="Erro absoluto médio dos meses 1 a h nas origens da janela recente, que também escolhe o modelo: não é um teste independente. MASE compara com uma escala sazonal de treino.">Erro na janela recente <b>{maeText(sel.mae)}{share ? '' : ' por mês'}</b> · MASE <b>{nf(sel.mase, 2)}</b></Chip>}
+              {sel && Number.isFinite(sel.bias) && !share && Math.abs(sel.bias) > 1 && <Chip title="Previsão menos observado, média na janela recente.">{sel.bias < 0 ? 'Subestimou' : 'Superestimou'} em média <b>{mil(Math.abs(sel.bias))}</b> por mês</Chip>}
+              {sel && Number.isFinite(sel.coverage80) && <Chip warn={sel.coverage80 < .7} title="Parcela das observações da janela recente que caíram dentro da faixa. O nominal é 80%.">Faixa de 80% cobriu <b>{pct(sel.coverage80, 0)}</b></Chip>}
               {sel && Number.isFinite(sel.coverage95) && <Chip warn={sel.coverage95 < .85} title="O nominal é 95%.">Faixa de 95% cobriu <b>{pct(sel.coverage95, 0)}</b></Chip>}
             </div>
-            <p className="nx-note">Teste retrospectivo com {nOrig ?? '—'} origens{testRange ? ` (alvos de ${monthLabel(testRange[0])} a ${monthLabel(testRange[1])})` : ''}, usando a versão atual dos dados: as mesmas datas já foram examinadas antes e não há reconstrução do que se sabia na época. Faixas empíricas aproximadas, sem garantia de cobertura futura. {share ? 'A participação publicada é a razão entre os volumes reconciliados de Mitsubishi e do mercado.' : 'Os volumes de Mitsubishi e das demais marcas são reconciliados para somar o mercado.'} Base fixa: os filtros do topo não se aplicam.</p>
+            <p className="nx-note">Escolha do modelo pela janela recente: {nOrig ?? '—'} origens{testRange ? ` (alvos de ${monthLabel(testRange[0])} a ${monthLabel(testRange[1])})` : ''}, refeita a cada mês novo. Como a janela escolhe o modelo, o erro dele nela não é um teste independente; a escolha mês a mês mede a regra sem olhar o futuro. Dados na versão atual, sem reconstrução do que se sabia na época. Faixas empíricas aproximadas, sem garantia de cobertura futura. {share ? 'A participação publicada é a razão entre os volumes reconciliados de Mitsubishi e do mercado.' : 'Os volumes de Mitsubishi e das demais marcas são reconciliados para somar o mercado.'} Base fixa: os filtros do topo não se aplicam.</p>
           </div>
         )}
       </Panel>
 
       <Panel id="e-modelos" span="4" kicker="Entre os modelos" title={title2}
-        lede={cmp ? `Erro absoluto médio dos meses 1 a ${h}, nas mesmas ${nOrig ?? ''} origens do teste reservado; menor é melhor. O modelo publicado é escolhido só pelo menor erro na validação, sem olhar o teste.` : undefined}>
+        lede={cmp ? `Erro absoluto médio dos meses 1 a ${h}, nas ${nOrig ?? ''} origens da janela recente; menor é melhor. O publicado é o de menor erro nesta janela, refeito todo mês, desde que a escolha mês a mês (que não olha o futuro) tenha errado menos que repetir o ano anterior; senão vale o ano anterior.` : undefined}>
         {bad(mod) ? <Unavailable s={mod} /> : !mod.data ? <Skeleton h={260} /> : !cmp ? <p className="nxo-state">Sem métricas de teste para esta série.</p> : (
           <div className="nx-card">
             <div className="nxo-sub">
