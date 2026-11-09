@@ -20,7 +20,7 @@ export function InfoTip({ children, label = 'O que este gráfico mostra' }) {
 /* One chart = one card: a short title, a one-line subtitle (the key fact) and an ⓘ with the explanation.
    title: short label ("Marcas"); sub: one line ("Fiat lidera com 19,9%"); info: what the chart means and how to read it.
    `caption` (older blocks) goes into the ⓘ. */
-export function Block({ title, sub, info, caption, children, className = '', actions, exportScope }) {
+export function Block({ title, sub, info, caption, children, className = '', actions, exportScope, exportSource }) {
   // Footnotes written as <p className="nx-note"> directly inside the card join the ⓘ instead of showing as text.
   const notes = [], body = [];
   Children.toArray(children).forEach(c => (isValidElement(c) && c.type === 'p' && String(c.props.className ?? '').includes('nx-note') ? notes : body).push(c));
@@ -32,11 +32,12 @@ export function Block({ title, sub, info, caption, children, className = '', act
     setBusy(true);
     try {
       const slug = String(typeof title === 'string' ? title : 'grafico').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-      await exportRootToPng(root.current, { filename: 'atlas-' + slug + '_' + exportContextSlug(), title: typeof title === 'string' ? title : '' });
+      const context = exportScope ? String(exportScope).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 100) : exportContextSlug();
+      await exportRootToPng(root.current, { filename: 'atlas-' + slug + '_' + context, title: typeof title === 'string' ? title : '' });
     } catch (error) { globalThis.alert?.(error.message); } finally { setBusy(false); }
   };
   return (
-    <div className={'nx-card nx-block ' + className} ref={root} data-export-scope={exportScope} data-in={seen || undefined}>
+    <div className={'nx-card nx-block ' + className} ref={root} data-export-scope={exportScope} data-export-source={exportSource} data-in={seen || undefined}>
       {(title || actions) && (
         <div className="nx-block-head">
           <div className="nx-block-titles">

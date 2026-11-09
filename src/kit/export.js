@@ -94,7 +94,7 @@ async function drawable(node) {
 
 // Exports every visual passed (svg and canvas alike) side by side in one PNG, with title,
 // legend and a footer naming the filters and the generation date.
-export async function exportVisualsToPng(nodes, { filename = 'grafico', title = '', legend = [] } = {}) {
+export async function exportVisualsToPng(nodes, { filename = 'grafico', title = '', legend = [], scope = '', source = '' } = {}) {
   if (!nodes?.length) throw Error('Nada para exportar nesta visualização.');
   const parts = [];
   for (const node of nodes) parts.push(await drawable(node));
@@ -121,8 +121,8 @@ export async function exportVisualsToPng(nodes, { filename = 'grafico', title = 
   let y = pad + titleH + h + 10; ctx.font = '13px "Inter Variable", Inter, system-ui, sans-serif';
   for (const r of rows) { for (const item of r) { ctx.fillStyle = item.color; ctx.beginPath(); ctx.arc(pad + item.x + 6, y + 9, 5.5, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = ink; ctx.fillText(item.label, pad + item.x + 18, y + 13); } y += 22; }
   ctx.fillStyle = muted; ctx.font = '11px "Inter Variable", Inter, system-ui, sans-serif';
-  ctx.fillText(contextLine(), pad, H - pad - 10);
-  ctx.fillText('Atlas · Mercado Automotivo · emplacamentos (registros) · gerado em ' + new Date().toLocaleDateString('pt-BR'), pad, H - pad + 4);
+  ctx.fillText(scope || contextLine(), pad, H - pad - 10);
+  ctx.fillText((source ? 'Fonte: ' + source : 'Atlas · Mercado Automotivo · emplacamentos (registros)') + ' · gerado em ' + new Date().toLocaleDateString('pt-BR'), pad, H - pad + 4);
   const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
   const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = filename.replace(/[^\w.-]+/g, '-') + '.png';
   document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(link.href), 2000);
@@ -253,9 +253,17 @@ function wrapLines(ctx, text, width) {
   if (line) lines.push(line); return lines;
 }
 
+// Cards backed by another source carry their own reference/scope into both PNG paths.
+export function exportCardContext(root, { scope = '', source = '' } = {}) {
+  return {
+    scope: root?.getAttribute('data-export-scope') || scope,
+    source: root?.getAttribute('data-export-source') || source,
+  };
+}
+
 /* The card exactly as it looks on the page (HTML bars, SVG charts and canvas maps alike) on the Atlas grey,
    then a footer with the cut (period, territory, brand, filters), the source and the date. */
-export async function exportCardToPng(root, { filename = 'atlas', scope = '' } = {}) {
+export async function exportCardToPng(root, { filename = 'atlas', scope = '', source = '' } = {}) {
   if (!root) throw Error('Nada para exportar nesta visualização.');
   await (document.fonts?.ready ?? Promise.resolve());
   const box = root.getBoundingClientRect(), w = Math.ceil(box.width), h = Math.ceil(box.height);
@@ -263,8 +271,8 @@ export async function exportCardToPng(root, { filename = 'atlas', scope = '' } =
   const scale = 2, pad = 28, inner = Math.max(w, 640), probe = document.createElement('canvas').getContext('2d');
   probe.font = `500 12.5px ${stack}`;
   const picked = cardSelections(root), notes = cardNotes(root);
-  const fixed = root.getAttribute('data-export-scope');
-  const lines = [...(fixed ? ['Escopo: ' + fixed] : recortLine()), picked.length && 'Visão: ' + picked.join(' · '), scope && 'Escopo: ' + scope, ...notes.map((n, i) => (i === 0 ? 'Como ler: ' : 'Nota: ') + n), 'Fonte: emplacamentos mensais, registros (não veículos únicos), automóveis e comerciais leves, salvo indicação no gráfico.'].filter(Boolean).flatMap(t => wrapLines(probe, t, inner));
+  const { scope: fixed, source: attribution } = exportCardContext(root, { source });
+  const lines = [...(fixed ? ['Escopo: ' + fixed] : recortLine()), picked.length && 'Visão: ' + picked.join(' · '), scope && 'Escopo: ' + scope, ...notes.map((n, i) => (i === 0 ? 'Como ler: ' : 'Nota: ') + n), 'Fonte: ' + (attribution || 'emplacamentos mensais, registros (não veículos únicos), automóveis e comerciais leves, salvo indicação no gráfico.')].filter(Boolean).flatMap(t => wrapLines(probe, t, inner));
   const footH = 22 + lines.length * 19 + 26, W = inner + pad * 2, H = pad + h + footH + pad - 8;
   const canvas = document.createElement('canvas'); canvas.width = W * scale; canvas.height = H * scale;
   const ctx = canvas.getContext('2d'); ctx.scale(scale, scale);
@@ -285,9 +293,9 @@ export async function exportCardToPng(root, { filename = 'atlas', scope = '' } =
 }
 
 /* The card as it looks on screen; if the browser refuses (canvas tainted by foreignObject), the charts alone on the same template. */
-export async function exportRootToPng(root, { filename = 'atlas', title = '', legend = [], scope = '' } = {}) {
-  try { await exportCardToPng(root, { filename, scope }); return; } catch { /* fall back below */ }
+export async function exportRootToPng(root, { filename = 'atlas', title = '', legend = [], scope = '', source = '' } = {}) {
+  try { await exportCardToPng(root, { filename, scope, source }); return; } catch { /* fall back below */ }
   const nodes = [...root.querySelectorAll('svg:not(.ax-icon), canvas')].filter(n => !n.parentElement?.closest('svg') && n.getBoundingClientRect().width >= 120);
   if (!nodes.length) throw Error('Este cartão não tem um gráfico exportável como imagem.');
-  await exportVisualsToPng(nodes, { filename, title: title || root.getAttribute('data-export-title') || '', legend });
+  await exportVisualsToPng(nodes, { filename, title: title || root.getAttribute('data-export-title') || '', legend, ...exportCardContext(root, { scope, source }) });
 }

@@ -13,7 +13,7 @@ Lista de trabalho: `docs/ROADMAP.md`.
 | Mitsubishi | Modelos, **versões da marca**, segmentos onde compete (participação, ranking de modelos e de versões), **mês a mês nos segmentos** (crescimento sobre o mês anterior ou o mesmo mês do ano anterior e participação, ao lado do segmento e do mercado), varejo × venda direta, força por estado, onde crescer |
 | Territórios | Mapa dos 5.570 municípios (marca líder, volume, por mil habitantes, participação e índice da marca em foco), clique no estado para o cartão e a lista de municípios, **concessionárias Mitsubishi** (aparecem ao aproximar ou dentro do estado; botão para ligar e desligar); estados e regiões |
 | Economia | Condições de compra, o que explica o mercado, peso de cada fator, simulador, parcela, imposto de importação, oferta, projeções, potencial regional e análises técnicas (coeficientes, validação, defasagens) |
-| Laboratório | Perguntas rápidas, construtor de gráficos (com CSV), mapa no tempo, **mapa de calor**, **três primeiras marcas** (estados em faixas ou 1º·2º·3º lugar; municípios por lugar), **pirâmide de segmentos** (Segmento ou Body Type; área = volume, com a parte da marca em foco, das chinesas ou dos eletrificados), composição no tempo, Brasil em relevo e dados e metodologia |
+| Laboratório | **Eletropostos** (fotografia ABVE/Tupi, mapa e ranking por UF, busca por município/distrito, filtros AC/DC, CSV e levantamentos nacionais), perguntas rápidas, construtor de gráficos (com CSV), mapa no tempo, **mapa de calor**, **três primeiras marcas** (estados em faixas ou 1º·2º·3º lugar; municípios por lugar), **pirâmide de segmentos** (Segmento ou Body Type; área = volume, com a parte da marca em foco, das chinesas ou dos eletrificados), composição no tempo, Brasil em relevo e dados e metodologia |
 
 - **Filtros.** Período, território em cascata (região → estado → município), marca em foco, **Segmento** e **Body Type** (as duas classificações da BD), propulsão e mais filtros (canal, tipo de veículo, combustível, modelo, **versão**, origem, ano de fabricação). Tudo fica no endereço da página. A marca em foco nunca recorta o mercado: é destacada e comparada com ele.
 - **Versão** é o campo modelo do registro (Renavam, ex.: `MMC/TRITON HPE AT4`). O site mostra "Triton HPE AT4" e guarda o registro original no ⓘ e no CSV.
@@ -47,7 +47,7 @@ npm run build && npm run preview   # versão de produção em http://localhost:8
 | `src/atlas/` | O site: `App.jsx` (páginas, consulta principal, barra), `FilterBar.jsx`, `MapaBrasil.jsx`, `pages/` (uma por página, mais `versoes.jsx`, `conexoes.jsx` e `economia-modelos.jsx`), `charts.jsx`, `lib.js` (nomes, filtros, histórico), `base/` (cartões, gráficos de apoio, mapa dos estados, estilos de base) |
 | `src/market/` | O motor: `core.js` (consultas, worker, pré-cálculo, histórico), `modules/` (histórico, nomes de municípios, marcas chinesas, pedido e pré-cálculo), `workers/` (o cálculo sobre os cubos, fora da tela) |
 | `src/kit/` | Estado do painel na URL, exportação PNG/CSV e o aviso de erro de tela |
-| `data/` | Cubos mensais, cubos de origem, geografia, histórico de 10 anos (`history/national`, `uf` e `versions`), população IBGE, rede Mitsubishi (`reference/concessionarias-mitsubishi.json`), cenários e `snapshot.json` |
+| `data/` | Cubos mensais, cubos de origem, geografia, histórico de 10 anos (`history/national`, `uf` e `versions`), recarga ABVE/Tupi (`charging/abve.json`), população IBGE, rede Mitsubishi (`reference/concessionarias-mitsubishi.json`), cenários e `snapshot.json` |
 | `scripts/` | Histórico, população, cenários, economia, pré-cálculo, fatias (`split-cubes.cjs`), motor do servidor (`build-server.cjs`), aquecimento (`warm-api.cjs`) e `update-derived.sh` |
 | `functions/`, `server/` | O cálculo no servidor (Cloudflare Pages Function `/api/market`) |
 | `tests/` | Testes automáticos (dados reais) e a varredura visual (`tests/visual/atlas.cjs`) |
@@ -134,3 +134,11 @@ npm run test:visual                                  # todas as páginas no desk
 ## Cores
 
 Vermelho é exclusivo da marca em foco. Queda usa âmbar; crescimento, verde.
+
+## Recarga e revisão de propulsão
+
+O Laboratório usa uma fotografia de recarga independente dos filtros de veículos, com contagens territoriais públicas/semipúblicas e referência visível. O [guia da base de recarga](docs/charging-data.md) explica os dados originais, correspondências geográficas, limitações e como atualizar. `npm run charging:build` reconstrói o JSON público e o build de produção executa essa verificação antes de empacotar o app.
+
+A [revisão de classificação](docs/classification-revision-2026-11.md) registra a comparação dos BDs de setembro/outubro, as correções confirmadas, as especificações dos fabricantes e os códigos novos ainda pendentes de reimportação.
+
+Na Eletrificação do Mercado, a definição BEV + PHEV + HEV e a opção Com MHEV permanecem constantes em toda a série, com total calculado antes do corte visual de categorias pequenas. FCEL fica fora desses conjuntos explicitamente nomeados.

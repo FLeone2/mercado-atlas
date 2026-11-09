@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "reviewedAt": "2026-11-09",
+  "method": "Exact source model/year + expected raw BD FUEL. Raw BD and source fuel labels are preserved. Manufacturer specifications establish propulsion; fuel text alone is never the classification rule.",
+  "rules": [
+    {
+      "id": "tank300-phev",
+      "years": [
+        2025,
+        2026
+      ],
+      "model": "I/GWM TANK 300 PHEV",
+      "bdCode": 202331,
+      "expectedBdFuel": "GASOLINE",
+      "propulsion": "PHEV",
+      "sourceUrl": "https://www.gwmmotors.com.br/pt/media-center/news/2025/gwm-brasil-lanca-tank-300-o-suv-hibrido-plug-in-que-une-os-universos-de-luxo-e-off-road",
+      "evidence": "GWM launch specification: gasoline and electric motors, externally charged37.1kWh battery.",
+      "bdBrand": "GREAT WALL",
+      "bdVersion": "TANK 300 PHEV"
+    },
+    {
+      "id": "macan-e4-electric",
+      "years": [
+        2024,
+        2025,
+        2026
+      ],
+      "model": "I/PORSCHE MACAN E4",
+      "bdCode": 201852,
+      "expectedBdFuel": "GASOLINE",
+      "propulsion": "BEV",
+      "sourceUrl": "https://newsroom.porsche.com/christophorus/pt/2024/410/dossier-macan-charging.html",
+      "evidence": "Porsche2024 Macan4 specification: fully electric PPE/800V architecture. Does not include gasoline Macan or other versions.",
+      "bdBrand": "PORSCHE",
+      "bdVersion": "MACAN E4"
+    },
+    {
+      "id": "captiva-ev-premier",
+      "years": [
+        2025
+      ],
+      "model": "I/CHEV CAPTIVA EV PR",
+      "bdCode": 202515,
+      "expectedBdFuel": "GASOLINE",
+      "propulsion": "BEV",
+      "sourceUrl": "https://news.chevrolet.com.br/newsroom.detail.html/Pages/news/br/pt/2025/nov/1118-captiva-ev.html",
+      "evidence": "Chevrolet18Nov2025 CaptivaEV launch: electric201cv, Premier version.2026 BD already marks this code BEV.",
+      "bdBrand": "GM",
+      "bdVersion": "CHEV CAPTIVA EV PR"
+    },
+    {
+      "id": "yaris-cross-xre-hybrid",
+      "years": [
+        2026
+      ],
+      "model": "TOYOTA/YCROSS XRE-HYBRID",
+      "bdCode": 101870,
+      "expectedBdFuel": "FFV",
+      "propulsion": "HEV",
+      "sourceUrl": "https://media.toyota.com.br/2671c5a6-5110-4329-8372-da9258e20bdf.pdf",
+      "evidence": "Toyota2026 XREHybrid specification: full flex hybrid,MG1/MG2 motors,111cv combined, no external charging.",
+      "bdBrand": "TOYOTA",
+      "bdVersion": "YCROSS XRE-HYBRID"
+    }
+  ]
+}

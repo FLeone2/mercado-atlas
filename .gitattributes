@@ -1,0 +1,3 @@
+# Preserve the bytes of source CSV receipts, including spreadsheet CRLF endings.
+data/charging/source/**/values/*.csv -text whitespace=cr-at-eol
+data/revisions/*.csv -text whitespace=cr-at-eol

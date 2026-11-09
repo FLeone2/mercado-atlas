@@ -94,7 +94,7 @@ export default function Piramide() {
     const best = [...rows].filter(r => r.total / tot >= .02).sort((a, b) => b.part - a.part)[0];
     return { rows, hidden, share: tot > 0 ? pc / tot : 0, best, base: rows.length ? [...rows].sort((a, b) => b.total - a.total)[0] : null };
   }, [market, dim, what, sel]);
-  const partLabel = what === 'foco' ? focusName : what === 'chinesas' ? 'chinesas' : 'eletrificados';
+  const partLabel = what === 'foco' ? focusName : what === 'chinesas' ? 'chinesas' : 'eletrificados, com MHEV';
   const filtered = Array.isArray(mFilters[dim]) && mFilters[dim].length > 0;
   return (
     <Block className="nx-c12" title={'Pirâmide de ' + (dim === 'bd_segmento' ? 'segmentos' : 'Body Types')}
@@ -102,7 +102,7 @@ export default function Piramide() {
       info="A área de cada faixa é proporcional aos emplacamentos do segmento: do menor, no topo, ao maior, na base (a altura não é linear). A parte colorida de cada faixa é a participação escolhida dentro daquele segmento. À direita: participação do segmento no mercado do recorte e a participação destacada. Clique numa faixa para filtrar o site por ela."
       actions={<div className="px-ctl">
         <Seg label="Agrupar por" value={dim} onChange={setDim} options={[['bd_segmento', 'Segmento'], ['bd_carroceria', 'Body Type']]} />
-        <Seg label="Destacar" value={what} onChange={setWhat} options={[['foco', focusName], ['chinesas', 'Marcas chinesas'], ['eletrificados', 'Eletrificados']]} />
+        <Seg label="Destacar" value={what} onChange={setWhat} options={[['foco', focusName], ['chinesas', 'Marcas chinesas'], ['eletrificados', 'Eletrificados + MHEV']]} />
       </div>}>
       {!d ? <Skel h={460} /> : !d.rows.length ? <p className="px-scopenote">Sem emplacamentos classificados neste recorte.</p> : <Pyramid rows={d.rows} color={HL[what]} partLabel={partLabel} onPick={filtered ? null : k => setFilter(dim, d.rows.find(r => r.key === k)?.codes ?? [k])} />}
       {d?.hidden > 0 && <p className="px-scopenote">{fmt(d.hidden)} emplacamentos de caminhões leves, categorias sem {dim === 'bd_segmento' ? 'segmento' : 'Body Type'} ou fora do portfólio ficam fora do desenho (continuam no total do site). Faixas com menos de 0,5% do mercado estão juntas em “Outros”.</p>}

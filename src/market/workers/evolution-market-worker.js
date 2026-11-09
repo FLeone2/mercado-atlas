@@ -109,8 +109,19 @@
    const historyDimensions=options.includeHistoryComparisons?['marca','modelo','bd_carroceria']:[];
    const trackChannels=options.includeHistoryComparisons||options.includeChannelCoverage||options.includeStateChannels;
    const add=(map,key,count)=>map.set(key,(map.get(key)??0)+count);
-   const descriptor=d=>{if(descriptors.has(d))return descriptors.get(d);const flow=FLOW_SOURCE[d]!==undefined,source=flow?FLOW_SOURCE[d]:d==='propulsao'?'bd_combustivel':d,values=dictionaries[source]??[],labels=values.map(v=>flow?flowLabel(d,v):d==='propulsao'?propulsionClass(v):categoryLabel(v));const fallback=labels.length;labels.push(flow?flowLabel(d,null):d==='propulsao'?'Não classificado':'Não informado');const result={dim:d,col:idx[source],labels,fallback};descriptors.set(d,result);return result;};
-   const codeFor=(d,row)=>{const code=row[d.col];return d.labels[code]===undefined?d.fallback:code;};
+   // Audited exceptions preserve the raw BD FUEL category. They affect only the
+   // exact source version and expected old fuel in this month, never fuel text.
+   const propulsionExceptions=new Map();
+   for(const rule of options.sourceMeta?.propulsionOverrides??[]){
+    if(typeof rule.model!=='string'||typeof rule.expectedBdFuel!=='string'||!['HEV','PHEV','BEV','MHEV','FCEL'].includes(rule.propulsion))throw Error('Correção de propulsão inválida.');
+    const modelCode=(dictionaries.modelo??[]).indexOf(rule.model),fuelCode=(dictionaries.bd_combustivel??[]).indexOf(rule.expectedBdFuel);
+    if(modelCode<0||fuelCode<0)continue;
+    const key=modelCode+'|'+fuelCode;
+    if(propulsionExceptions.has(key)&&propulsionExceptions.get(key)!==rule.propulsion)throw Error('Correções conflitantes de propulsão.');
+    propulsionExceptions.set(key,rule.propulsion);
+   }
+   const descriptor=d=>{if(descriptors.has(d))return descriptors.get(d);const flow=FLOW_SOURCE[d]!==undefined,source=flow?FLOW_SOURCE[d]:d==='propulsao'?'bd_combustivel':d,values=dictionaries[source]??[],labels=values.map(v=>flow?flowLabel(d,v):d==='propulsao'?propulsionClass(v):categoryLabel(v));const fallback=labels.length;labels.push(flow?flowLabel(d,null):d==='propulsao'?'Não classificado':'Não informado');const overrideCodes=d==='propulsao'?new Map([...propulsionExceptions].map(([key,value])=>{let code=labels.indexOf(value);if(code<0){code=labels.length;labels.push(value);}return [key,code];})):null;const result={dim:d,col:idx[source],labels,fallback,overrideCodes};descriptors.set(d,result);return result;};
+   const codeFor=(d,row)=>{const code=row[d.col];if(d.overrideCodes){const override=d.overrideCodes.get(row[idx.modelo]+'|'+code);if(override!==undefined)return override;}return d.labels[code]===undefined?d.fallback:code;};
    const checks=DIMS.filter(d=>hasFilterSelection(filters[d],d)).map(d=>{const desc=descriptor(d),allowed=new Set(categoricalSelection(filters[d]));return {...desc,allowed:desc.labels.map(v=>allowed.has(v))};});
    if(filters.population==='light'){const desc=descriptor('segmento');checks.push({...desc,allowed:desc.labels.map(v=>v==='Auto'||v==='Comercial Leve')});}
    const grouped=dimensions.filter(d=>d!=='municipio').map(descriptor),municipality=dimensions.includes('municipio')?descriptor('municipio'):null;
@@ -512,7 +523,8 @@
       if((includeOriginAnalysis||includeFlow)&&!columns.includes('bd_origem'))throw Error('O agregado de origem do veículo é incompatível para '+needed[i]+'.');
       const collectMonthly=async(target,cube,selected,selectedRange,collectOptions={})=>{
        const clipped={start:selectedRange.start>cube.month+'-01'?selectedRange.start:cube.month+'-01',end:selectedRange.end<monthEnd(cube.month)?selectedRange.end:monthEnd(cube.month)};
-       const {membership,catalogExtra,...projection}=collectOptions;
+       const {membership,catalogExtra,...requestedProjection}=collectOptions;
+       const projection={...requestedProjection,sourceMeta:meta};
        const nonDate={...selected};delete nonDate.date;
        const key=JSON.stringify([namespace,loadMeta.cubePath,loadMeta.sha256??'',cube.month,canonicalFilterKey(nonDate),clipped,projection,Boolean(membership),catalogExtra?catalogExtra.limit:null]);
        let contribution=aggregateCache.get(key);

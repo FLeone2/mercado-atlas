@@ -1,0 +1,101 @@
+{
+  "raw_rows": 1914,
+  "geographic_label_uf_groups": 1911,
+  "states": 27,
+  "history_snapshots": 17,
+  "blank_history_members_excluded": 0,
+  "totals": {
+    "ac": 18469,
+    "dc": 11397,
+    "total": 29866
+  },
+  "complete_response": true,
+  "municipal_state_reconciliation": "passed",
+  "national_history_reconciliation": "passed",
+  "repeated_name_uf_groups": [
+    {
+      "reference_date": "2026-09-01",
+      "uf": "BA",
+      "municipality_name": "Mata De São João",
+      "region": "Nordeste",
+      "ac": 12,
+      "dc": 4,
+      "total": 16,
+      "source_row_count": 2,
+      "source_codes": "3721"
+    },
+    {
+      "reference_date": "2026-09-01",
+      "uf": "MA",
+      "municipality_name": "Itapecuru Mirim",
+      "region": "Nordeste",
+      "ac": 1,
+      "dc": 6,
+      "total": 7,
+      "source_row_count": 2,
+      "source_codes": "807"
+    },
+    {
+      "reference_date": "2026-09-01",
+      "uf": "RS",
+      "municipality_name": "Soledade",
+      "region": "Sul",
+      "ac": 5,
+      "dc": 5,
+      "total": 10,
+      "source_row_count": 2,
+      "source_codes": "8919"
+    }
+  ],
+  "source_code_collisions": {
+    "2787": [
+      [
+        "AL",
+        "Major Isidoro"
+      ],
+      [
+        "AL",
+        "Major Izidoro"
+      ]
+    ],
+    "4267": [
+      [
+        "MG",
+        "Caratinga"
+      ],
+      [
+        "MG",
+        "Sapucaia"
+      ]
+    ],
+    "9701": [
+      [
+        "DF",
+        "Brasília"
+      ],
+      [
+        "DF",
+        "Guará"
+      ],
+      [
+        "DF",
+        "Sobradinho"
+      ],
+      [
+        "DF",
+        "Taguatinga"
+      ]
+    ]
+  },
+  "distinct_source_codes": 1906,
+  "repeated_source_codes": {
+    "807": 2,
+    "2787": 2,
+    "3721": 2,
+    "4267": 2,
+    "8919": 2,
+    "9701": 4
+  },
+  "aggregation_rule": "SUM(AC), SUM(DC) por data/UF/rótulo exato; linhas originais preservadas; aliases não resolvidos",
+  "geographic_label_warning": "1911 rótulos distintos não equivalem a 1911 municípios IBGE. Há distritos/regiões administrativas e nomes sem correspondência."
+}

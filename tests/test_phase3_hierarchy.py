@@ -112,6 +112,22 @@ class HierarchyArtifactTests(unittest.TestCase):
             self.assertEqual(audit['sha256'], receipt['originCubeSha256'])
             self.assertTrue(audit['conserved'])
 
+    def test_classification_refresh_preserves_modelled_payload(self):
+        proof = self.data['sourceAudit'].get('classificationRevisionVerification')
+        if not proof:
+            self.skipTest('No classification-only provenance refresh on this model build')
+        self.assertFalse(proof['forecastRefit'])
+        payload = {key: value for key, value in self.data.items() if key != 'sourceAudit'}
+        raw = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), proof['preservedPayloadSha256'])
+        self.assertTrue(proof['changedMonths'])
+        audit = {row['month']: row for row in self.data['sourceAudit']['receipts']}
+        for row in proof['changedMonths']:
+            self.assertTrue(row['exactUfRawBrandVectorUnchanged'])
+            self.assertTrue(row['exactModelLeafVectorUnchanged'])
+            self.assertTrue(row['storedHierarchyNodesUnchanged'])
+            self.assertEqual((row['path'], row['sha256']), (audit[row['month']]['path'], audit[row['month']]['sha256']))
+
     def test_all_original_cube_counts_match_every_geographic_leaf(self):
         # Deliberately read original inputs independently from the build loader.
         # This test guards against dropping unknown UF, model-name brand inference,

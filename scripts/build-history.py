@@ -18,6 +18,7 @@ Usage: python3 scripts/build-history.py   (rerun whenever data/cubes changes)
 """
 from pathlib import Path
 import collections, gzip, json
+from lib.propulsion import effective_propulsion
 
 root = Path(__file__).resolve().parents[1]
 manifest = json.loads((root / 'data/manifest.json').read_text())
@@ -64,7 +65,11 @@ def build():
         cols = cube.get('columns') or cube['dimensions'] + ['count']
         ix = {c: i for i, c in enumerate(cols)}
         dicts = cube['dictionaries']
-        value = {d: (lambda d: (lambda r: propulsion(dicts['bd_combustivel'][r[ix['bd_combustivel']]]) if 'bd_combustivel' in ix else 'Não classificado'))(d)
+        overrides = meta.get('propulsionOverrides', [])
+        value = {d: (lambda d: (lambda r: effective_propulsion(
+                    dicts['bd_combustivel'][r[ix['bd_combustivel']]],
+                    dicts['modelo'][r[ix['modelo']]], overrides)
+                    if 'bd_combustivel' in ix else 'Não classificado'))(d)
                  if d == 'propulsao' else
                  (lambda d: (lambda r: label(dicts[d][r[ix[d]]]) if d in ix else UNKNOWN))(d)
                  for d in {x for dims in FILES.values() for x in dims}}
@@ -92,7 +97,7 @@ def build():
                 'dimensions': dims, 'columns': ['month'] + dims + ['count'],
                 'dictionaries': {d: [v for v, _ in sorted(book.items(), key=lambda kv: kv[1])] for d, book in dictionaries[name].items()},
                 'rows': rows,
-                'note': 'Soma mensal dos cubos revisados, com os mesmos rótulos do painel. Propulsão = classe de bd_combustivel.'}
+                'note': 'Soma mensal dos cubos revisados, com os mesmos rótulos do painel. Propulsão = classe BD com exceções auditadas por versão exata e mês no manifesto; bd_combustivel original preservado.'}
         data = json.dumps(body, ensure_ascii=False, separators=(',', ':')).encode()
         (out / (name + '.json.gz')).write_bytes(gzip.compress(data, compresslevel=9, mtime=0))
         print(name, len(rows), 'rows', round((out / (name + '.json.gz')).stat().st_size / 1e6, 2), 'MB')

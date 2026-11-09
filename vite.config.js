@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { cpSync, existsSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -86,7 +86,12 @@ function dataPlugin() {
     closeBundle() {
       const out = resolve(root, 'dist/data');
       rmSync(out, { recursive: true, force: true });
-      for (const name of ['manifest.json', 'precomputed.json', 'precomputed', 'cubes', 'cubes-split', 'origin-cubes', 'imports', 'geography', 'history', 'reference']) if (existsSync(join(dataDir, name))) cpSync(join(dataDir, name), join(out, name), { recursive: true });
+      for (const name of ['manifest.json', 'precomputed.json', 'precomputed', 'cubes', 'cubes-split', 'origin-cubes', 'imports', 'classification', 'revisions', 'geography', 'history', 'reference']) if (existsSync(join(dataDir, name))) cpSync(join(dataDir, name), join(out, name), { recursive: true });
+      // The charging source receipts stay in the repository; ship only the compact lab asset.
+      if (existsSync(join(dataDir, 'charging/abve.json'))) {
+        mkdirSync(join(out, 'charging'), { recursive: true });
+        cpSync(join(dataDir, 'charging/abve.json'), join(out, 'charging/abve.json'));
+      }
       for (const name of readdirSync(join(dataDir, 'scenarios'))) if (name.endsWith('.json')) cpSync(join(dataDir, 'scenarios', name), join(out, 'scenarios', name));
       rmSync(join(out, 'geography/.gitkeep'), { force: true });
     },

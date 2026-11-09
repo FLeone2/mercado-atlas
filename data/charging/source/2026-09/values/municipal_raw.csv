@@ -1,0 +1,1915 @@
+﻿source_row,reference_date,source_municipality_code,uf,municipality_name,region,ac,dc,total
+1,2026-09-01,3,RO,Porto Velho,Norte,30,43,73
+2,2026-09-01,4,RO,Buritis,Norte,1,0,1
+3,2026-09-01,5,RO,Ji-Paraná,Norte,4,2,6
+4,2026-09-01,7,RO,Ariquemes,Norte,5,9,14
+5,2026-09-01,9,RO,Cacoal,Norte,5,3,8
+6,2026-09-01,10,RO,Nova União,Norte,1,0,1
+7,2026-09-01,13,RO,Vilhena,Norte,8,1,9
+8,2026-09-01,15,RO,Jaru,Norte,3,0,3
+9,2026-09-01,17,RO,Ouro Preto Do Oeste,Norte,0,1,1
+10,2026-09-01,19,RO,Presidente Médici,Norte,0,2,2
+11,2026-09-01,21,RO,Costa Marques,Norte,0,1,1
+12,2026-09-01,25,RO,Espigão D'oeste,Norte,2,0,2
+13,2026-09-01,26,RR,Amajari,Norte,2,2,4
+14,2026-09-01,29,RO,Rolim De Moura,Norte,5,0,5
+15,2026-09-01,33,RO,Alta Floresta D'oeste,Norte,1,0,1
+16,2026-09-01,36,RR,Rorainópolis,Norte,2,3,5
+17,2026-09-01,48,PA,Canaã Dos Carajás,Norte,3,6,9
+18,2026-09-01,54,PA,Marituba,Norte,0,1,1
+19,2026-09-01,55,GO,Cocalzinho De Goiás,Centro-Oeste,1,0,1
+20,2026-09-01,68,PA,Tracuateua,Norte,1,0,1
+21,2026-09-01,71,GO,Aparecida Do Rio Doce,Centro-Oeste,1,0,1
+22,2026-09-01,77,GO,Cidade Ocidental,Centro-Oeste,1,0,1
+23,2026-09-01,85,GO,Alto Horizonte,Centro-Oeste,1,0,1
+24,2026-09-01,106,MA,Alto Alegre Do Maranhão,Nordeste,1,8,9
+25,2026-09-01,128,MA,Bom Jesus Das Selvas,Nordeste,1,0,1
+26,2026-09-01,131,MT,Confresa,Centro-Oeste,1,0,1
+27,2026-09-01,134,MA,Buriticupu,Nordeste,1,2,3
+28,2026-09-01,139,AC,Rio Branco,Norte,19,22,41
+29,2026-09-01,140,MA,Campestre Do Maranhão,Nordeste,1,0,1
+30,2026-09-01,143,MS,Nova Alvorada Do Sul,Centro-Oeste,0,2,2
+31,2026-09-01,145,AC,Sena Madureira,Norte,1,0,1
+32,2026-09-01,168,MA,Governador Nunes Freire,Nordeste,2,5,7
+33,2026-09-01,190,MA,Maracaçumé,Nordeste,1,0,1
+34,2026-09-01,201,AM,Novo Airão,Norte,1,0,1
+35,2026-09-01,208,MA,Pedro Do Rosário,Nordeste,1,0,1
+36,2026-09-01,210,MA,Peritoró,Nordeste,0,2,2
+37,2026-09-01,225,AM,Coari,Norte,3,0,3
+38,2026-09-01,226,MA,Santo Amaro Do Maranhão,Nordeste,1,1,2
+39,2026-09-01,235,AM,Humaitá,Norte,2,1,3
+40,2026-09-01,241,AM,Itacoatiara,Norte,9,4,13
+41,2026-09-01,253,AM,Manacapuru,Norte,2,0,2
+42,2026-09-01,255,AM,Manaus,Norte,86,185,271
+43,2026-09-01,266,PI,Acauã,Nordeste,0,1,1
+44,2026-09-01,288,PI,Cajueiro Da Praia,Nordeste,12,4,16
+45,2026-09-01,301,RR,Boa Vista,Norte,5,22,27
+46,2026-09-01,307,RR,Bonfim,Norte,0,2,2
+47,2026-09-01,327,TO,Cariri Do Tocantins,Norte,1,0,1
+48,2026-09-01,336,PI,Lagoinha Do Piauí,Nordeste,0,2,2
+49,2026-09-01,340,PI,Lagoa Do Piauí,Nordeste,1,0,1
+50,2026-09-01,351,TO,Lajeado,Norte,2,0,2
+51,2026-09-01,395,PA,Tailândia,Norte,2,4,6
+52,2026-09-01,399,PA,Uruará,Norte,1,1,2
+53,2026-09-01,401,PA,Abaetetuba,Norte,1,0,1
+54,2026-09-01,403,PA,Acará,Norte,1,2,3
+55,2026-09-01,411,PA,Altamira,Norte,5,10,15
+56,2026-09-01,414,RN,Caiçara Do Norte,Nordeste,1,0,1
+57,2026-09-01,415,PA,Ananindeua,Norte,4,14,18
+58,2026-09-01,422,RN,Rio Do Fogo,Nordeste,1,0,1
+59,2026-09-01,424,RN,Santa Maria,Nordeste,0,1,1
+60,2026-09-01,425,PA,Barcarena,Norte,1,3,4
+61,2026-09-01,427,PA,Belém,Norte,57,57,114
+62,2026-09-01,428,RN,Tibau,Nordeste,1,3,4
+63,2026-09-01,430,RN,São Miguel Do Gostoso,Nordeste,7,1,8
+64,2026-09-01,433,PA,Bragança,Norte,2,2,4
+65,2026-09-01,436,RN,Triunfo Potiguar,Nordeste,1,0,1
+66,2026-09-01,443,PA,Capanema,Norte,0,3,3
+67,2026-09-01,446,PB,Aparecida,Nordeste,1,0,1
+68,2026-09-01,447,PA,Castanhal,Norte,4,17,21
+69,2026-09-01,453,PA,Conceição Do Araguaia,Norte,1,0,1
+70,2026-09-01,465,PA,Igarapé-Miri,Norte,1,0,1
+71,2026-09-01,467,PA,Inhangapi,Norte,0,21,21
+72,2026-09-01,471,PA,Itaituba,Norte,1,0,1
+73,2026-09-01,483,PA,Marabá,Norte,11,5,16
+74,2026-09-01,487,PA,Marapanim,Norte,2,0,2
+75,2026-09-01,509,PA,Paragominas,Norte,2,2,4
+76,2026-09-01,523,PA,Salinópolis,Norte,9,11,20
+77,2026-09-01,529,PA,Santa Izabel Do Pará,Norte,1,1,2
+78,2026-09-01,531,PA,Santa Maria Do Pará,Norte,0,1,1
+79,2026-09-01,533,PA,Santana Do Araguaia,Norte,2,0,2
+80,2026-09-01,535,PA,Santarém,Norte,10,11,21
+81,2026-09-01,547,PA,São Francisco Do Pará,Norte,1,9,10
+82,2026-09-01,558,PE,Tamandaré,Nordeste,7,3,10
+83,2026-09-01,563,PA,Vigia,Norte,2,0,2
+84,2026-09-01,564,MG,Alto Caparaó,Sudeste,1,0,1
+85,2026-09-01,567,PA,Redenção,Norte,9,5,14
+86,2026-09-01,571,PA,Xinguara,Norte,0,2,2
+87,2026-09-01,573,PA,Rondon Do Pará,Norte,2,0,2
+88,2026-09-01,583,PA,Dom Eliseu,Norte,0,3,3
+89,2026-09-01,587,PA,Mãe Do Rio,Norte,1,1,2
+90,2026-09-01,591,PA,Ourilândia Do Norte,Norte,0,2,2
+91,2026-09-01,592,MG,Confins,Sudeste,5,0,5
+92,2026-09-01,595,PA,Parauapebas,Norte,15,13,28
+93,2026-09-01,597,PA,Rurópolis,Norte,2,0,2
+94,2026-09-01,603,AP,Calçoene,Norte,2,1,3
+95,2026-09-01,605,AP,Macapá,Norte,14,8,22
+96,2026-09-01,611,AP,Ferreira Gomes,Norte,1,3,4
+97,2026-09-01,615,AP,Santana,Norte,1,1,2
+98,2026-09-01,617,AP,Tartarugalzinho,Norte,1,0,1
+99,2026-09-01,619,PA,São Geraldo Do Araguaia,Norte,1,0,1
+100,2026-09-01,620,MG,Goianá,Sudeste,1,0,1
+101,2026-09-01,623,PA,Ulianópolis,Norte,0,1,1
+102,2026-09-01,627,PA,Goianésia Do Pará,Norte,0,6,6
+103,2026-09-01,629,PA,Novo Repartimento,Norte,2,2,4
+104,2026-09-01,633,PA,Novo Progresso,Norte,1,0,1
+105,2026-09-01,635,PA,Trairão,Norte,1,0,1
+106,2026-09-01,641,PA,Vitória Do Xingu,Norte,4,2,6
+107,2026-09-01,656,MG,Naque,Sudeste,3,4,7
+108,2026-09-01,702,MG,Santa Cruz De Minas,Sudeste,0,2,2
+109,2026-09-01,723,MA,Bacabal,Nordeste,14,3,17
+110,2026-09-01,724,MG,São José Da Barra,Sudeste,2,0,2
+111,2026-09-01,727,MA,Balsas,Nordeste,1,1,2
+112,2026-09-01,731,MA,Barra Do Corda,Nordeste,0,2,2
+113,2026-09-01,733,MA,Barreirinhas,Nordeste,6,3,9
+114,2026-09-01,753,MA,Carolina,Nordeste,1,1,2
+115,2026-09-01,757,MA,Caxias,Nordeste,2,8,10
+116,2026-09-01,760,ES,Marataízes,Sudeste,1,1,2
+117,2026-09-01,761,MA,Chapadinha,Nordeste,0,1,1
+118,2026-09-01,763,MA,Codó,Nordeste,1,0,1
+119,2026-09-01,766,ES,Sooretama,Sudeste,2,0,2
+120,2026-09-01,768,ES,Vila Valério,Sudeste,1,0,1
+121,2026-09-01,770,RJ,Armação Dos Búzios,Sudeste,10,8,18
+122,2026-09-01,772,RJ,Carapebus,Sudeste,3,0,3
+123,2026-09-01,773,MA,Dom Pedro,Nordeste,0,2,2
+124,2026-09-01,774,RJ,Iguaba Grande,Sudeste,2,0,2
+125,2026-09-01,778,RJ,Pinheiral,Sudeste,1,2,3
+126,2026-09-01,780,RJ,Porto Real,Sudeste,2,0,2
+127,2026-09-01,782,RJ,São Francisco De Itabapoana,Sudeste,2,1,3
+128,2026-09-01,786,RJ,Seropédica,Sudeste,6,2,8
+129,2026-09-01,788,RJ,Tanguá,Sudeste,0,3,3
+130,2026-09-01,793,MA,Grajaú,Nordeste,0,1,1
+131,2026-09-01,803,MA,Imperatriz,Nordeste,17,8,25
+132,2026-09-01,807,MA,Itapecuru Mirim,Nordeste,0,2,2
+133,2026-09-01,807,MA,Itapecuru Mirim,Nordeste,1,4,5
+134,2026-09-01,808,SP,Ouroeste,Sudeste,1,2,3
+135,2026-09-01,810,SP,Paulistânia,Sudeste,1,0,1
+136,2026-09-01,813,MA,Lago Da Pedra,Nordeste,2,1,3
+137,2026-09-01,819,MA,Lima Campos,Nordeste,4,0,4
+138,2026-09-01,824,SP,Taquaral,Sudeste,1,0,1
+139,2026-09-01,831,MA,Matões,Nordeste,1,0,1
+140,2026-09-01,844,PR,Carambeí,Sul,4,3,7
+141,2026-09-01,849,MA,Paço Do Lumiar,Nordeste,3,2,5
+142,2026-09-01,854,PR,Fernandes Pinheiro,Sul,1,5,6
+143,2026-09-01,862,PR,Imbaú,Sul,1,8,9
+144,2026-09-01,868,PR,Perobal,Sul,2,0,2
+145,2026-09-01,870,PR,Pontal Do Paraná,Sul,3,9,12
+146,2026-09-01,879,MA,Presidente Dutra,Nordeste,0,1,1
+147,2026-09-01,887,MA,Riachão,Nordeste,1,0,1
+148,2026-09-01,889,MA,São José De Ribamar,Nordeste,2,4,6
+149,2026-09-01,890,SC,Balneário Gaivota,Sul,8,0,8
+150,2026-09-01,905,MA,São Benedito Do Rio Preto,Nordeste,2,0,2
+151,2026-09-01,906,SC,Capão Alto,Sul,3,1,4
+152,2026-09-01,919,MA,São João Dos Patos,Nordeste,1,2,3
+153,2026-09-01,921,MA,São Luís,Nordeste,52,107,159
+154,2026-09-01,928,SC,Paial,Sul,2,0,2
+155,2026-09-01,937,MA,Timon,Nordeste,2,1,3
+156,2026-09-01,943,MA,Tutóia,Nordeste,1,2,3
+157,2026-09-01,944,SC,São Pedro De Alcântara,Sul,2,0,2
+158,2026-09-01,947,MA,Vargem Grande,Nordeste,2,0,2
+159,2026-09-01,952,RS,Araricá,Sul,2,0,2
+160,2026-09-01,957,MA,Santa Inês,Nordeste,2,2,4
+161,2026-09-01,963,MA,Estreito,Nordeste,1,0,1
+162,2026-09-01,968,RS,Chuí,Sul,4,8,12
+163,2026-09-01,971,AL,Teotônio Vilela,Nordeste,0,4,4
+164,2026-09-01,973,SC,Forquilhinha,Sul,1,0,1
+165,2026-09-01,976,RS,Dom Pedro De Alcântara,Sul,0,3,3
+166,2026-09-01,985,CE,Jijoca De Jericoacoara,Nordeste,2,1,3
+167,2026-09-01,987,CE,Fortim,Nordeste,5,6,11
+168,2026-09-01,1002,RS,Muitos Capões,Sul,2,0,2
+169,2026-09-01,1003,PI,Água Branca,Nordeste,2,1,3
+170,2026-09-01,1007,PI,Altos,Nordeste,3,0,3
+171,2026-09-01,1020,RS,Turuçu,Sul,0,1,1
+172,2026-09-01,1029,PI,Batalha,Nordeste,0,4,4
+173,2026-09-01,1034,MT,Carlinda,Centro-Oeste,1,0,1
+174,2026-09-01,1037,PI,Bom Jesus,Nordeste,0,1,1
+175,2026-09-01,1043,PI,Campo Maior,Nordeste,0,1,1
+176,2026-09-01,1044,MT,Novo Mundo,Centro-Oeste,1,0,1
+177,2026-09-01,1047,PI,Capitão De Campos,Nordeste,0,1,1
+178,2026-09-01,1052,GO,Águas Lindas De Goiás,Centro-Oeste,2,8,10
+179,2026-09-01,1053,PI,Cocal,Nordeste,0,2,2
+180,2026-09-01,1057,PI,Corrente,Nordeste,0,1,1
+181,2026-09-01,1058,GO,Novo Gama,Centro-Oeste,1,2,3
+182,2026-09-01,1066,GO,Valparaíso De Goiás,Centro-Oeste,6,16,22
+183,2026-09-01,1068,GO,Vila Propício,Centro-Oeste,3,2,5
+184,2026-09-01,1069,PI,Elesbão Veloso,Nordeste,1,4,5
+185,2026-09-01,1073,PI,Esperantina,Nordeste,1,3,4
+186,2026-09-01,1077,PI,Floriano,Nordeste,3,1,4
+187,2026-09-01,1086,MT,Nova Nazaré,Centro-Oeste,4,0,4
+188,2026-09-01,1089,PI,Guadalupe,Nordeste,0,2,2
+189,2026-09-01,1103,PI,Jaicós,Nordeste,0,1,1
+190,2026-09-01,1109,PI,José De Freitas,Nordeste,1,0,1
+191,2026-09-01,1112,BA,Luís Eduardo Magalhães,Nordeste,12,7,19
+192,2026-09-01,1113,PI,Luís Correia,Nordeste,17,7,24
+193,2026-09-01,1118,RS,Aceguá,Sul,0,1,1
+194,2026-09-01,1139,PI,Oeiras,Nordeste,1,0,1
+195,2026-09-01,1144,RS,Itati,Sul,1,2,3
+196,2026-09-01,1153,PI,Parnaíba,Nordeste,11,16,27
+197,2026-09-01,1159,PI,Picos,Nordeste,2,2,4
+198,2026-09-01,1160,RS,Pinto Bandeira,Sul,4,0,4
+199,2026-09-01,1164,RS,Rolador,Sul,1,0,1
+200,2026-09-01,1165,PI,Piracuruca,Nordeste,1,4,5
+201,2026-09-01,1167,PI,Piripiri,Nordeste,3,10,13
+202,2026-09-01,1168,RS,Santa Margarida Do Sul,Sul,0,4,4
+203,2026-09-01,1171,PI,Prata Do Piauí,Nordeste,2,0,2
+204,2026-09-01,1175,PI,Regeneração,Nordeste,0,1,1
+205,2026-09-01,1192,SC,Balneário Rincão,Sul,0,1,1
+206,2026-09-01,1211,PI,São Raimundo Nonato,Nordeste,4,1,5
+207,2026-09-01,1213,PI,Simões,Nordeste,1,0,1
+208,2026-09-01,1219,PI,Teresina,Nordeste,53,63,116
+209,2026-09-01,1221,PI,União,Nordeste,0,1,1
+210,2026-09-01,1237,CE,Barroquinha,Nordeste,1,0,1
+211,2026-09-01,1239,CE,Chorozinho,Nordeste,0,1,1
+212,2026-09-01,1247,CE,Eusébio,Nordeste,18,7,25
+213,2026-09-01,1253,CE,Horizonte,Nordeste,3,2,5
+214,2026-09-01,1261,CE,Madalena,Nordeste,0,1,1
+215,2026-09-01,1283,MA,Miranda Do Norte,Nordeste,0,1,1
+216,2026-09-01,1285,MA,Santa Luzia Do Paruá,Nordeste,0,3,3
+217,2026-09-01,1301,CE,Abaiara,Nordeste,0,1,1
+218,2026-09-01,1303,CE,Acaraú,Nordeste,0,2,2
+219,2026-09-01,1307,CE,Aiuaba,Nordeste,1,0,1
+220,2026-09-01,1319,CE,Aquiraz,Nordeste,11,13,24
+221,2026-09-01,1321,CE,Aracati,Nordeste,25,3,28
+222,2026-09-01,1333,CE,Aurora,Nordeste,1,0,1
+223,2026-09-01,1337,CE,Barbalha,Nordeste,2,0,2
+224,2026-09-01,1341,CE,Baturité,Nordeste,3,0,3
+225,2026-09-01,1343,CE,Beberibe,Nordeste,4,5,9
+226,2026-09-01,1347,CE,Boa Viagem,Nordeste,1,0,1
+227,2026-09-01,1351,CE,Camocim,Nordeste,7,0,7
+228,2026-09-01,1353,CE,Campos Sales,Nordeste,2,0,2
+229,2026-09-01,1355,CE,Canindé,Nordeste,3,6,9
+230,2026-09-01,1369,CE,Cascavel,Nordeste,4,0,4
+231,2026-09-01,1373,CE,Caucaia,Nordeste,10,11,21
+232,2026-09-01,1383,CE,Crateús,Nordeste,1,1,2
+233,2026-09-01,1385,CE,Crato,Nordeste,0,2,2
+234,2026-09-01,1389,CE,Fortaleza,Nordeste,248,250,498
+235,2026-09-01,1395,CE,Granja,Nordeste,1,2,3
+236,2026-09-01,1401,CE,Guaraciaba Do Norte,Nordeste,3,0,3
+237,2026-09-01,1403,CE,Guaramiranga,Nordeste,4,3,7
+238,2026-09-01,1407,CE,Ibiapina,Nordeste,1,0,1
+239,2026-09-01,1409,CE,Icó,Nordeste,3,1,4
+240,2026-09-01,1411,CE,Iguatu,Nordeste,0,3,3
+241,2026-09-01,1421,CE,Iracema,Nordeste,2,0,2
+242,2026-09-01,1427,CE,Itapajé,Nordeste,5,2,7
+243,2026-09-01,1429,CE,Itapipoca,Nordeste,1,4,5
+244,2026-09-01,1437,CE,Jaguaribara,Nordeste,2,1,3
+245,2026-09-01,1441,CE,Jaguaruana,Nordeste,1,0,1
+246,2026-09-01,1445,CE,Jati,Nordeste,1,0,1
+247,2026-09-01,1447,CE,Juazeiro Do Norte,Nordeste,8,21,29
+248,2026-09-01,1453,CE,Limoeiro Do Norte,Nordeste,3,3,6
+249,2026-09-01,1457,CE,Marco,Nordeste,0,1,1
+250,2026-09-01,1461,CE,Massapê,Nordeste,1,0,1
+251,2026-09-01,1465,CE,Meruoca,Nordeste,0,1,1
+252,2026-09-01,1471,CE,Mombaça,Nordeste,0,2,2
+253,2026-09-01,1475,CE,Morada Nova,Nordeste,0,2,2
+254,2026-09-01,1483,CE,Mulungu,Nordeste,1,0,1
+255,2026-09-01,1489,CE,Novo Oriente,Nordeste,2,0,2
+256,2026-09-01,1495,CE,Pacatuba,Nordeste,1,3,4
+257,2026-09-01,1497,CE,Pacoti,Nordeste,1,4,5
+258,2026-09-01,1501,CE,Palhano,Nordeste,2,1,3
+259,2026-09-01,1527,CE,Quixadá,Nordeste,6,4,10
+260,2026-09-01,1529,CE,Quixeramobim,Nordeste,0,3,3
+261,2026-09-01,1533,CE,Redenção,Nordeste,1,0,1
+262,2026-09-01,1535,CE,Reriutaba,Nordeste,1,0,1
+263,2026-09-01,1537,CE,Russas,Nordeste,4,2,6
+264,2026-09-01,1545,CE,Santa Quitéria,Nordeste,0,2,2
+265,2026-09-01,1547,CE,São Benedito,Nordeste,1,0,1
+266,2026-09-01,1549,CE,São Gonçalo Do Amarante,Nordeste,4,6,10
+267,2026-09-01,1553,CE,São Luís Do Curu,Nordeste,0,1,1
+268,2026-09-01,1559,CE,Sobral,Nordeste,13,14,27
+269,2026-09-01,1561,CE,Solonópole,Nordeste,1,2,3
+270,2026-09-01,1565,CE,Tamboril,Nordeste,2,0,2
+271,2026-09-01,1567,CE,Tauá,Nordeste,1,1,2
+272,2026-09-01,1569,CE,Tianguá,Nordeste,3,2,5
+273,2026-09-01,1571,CE,Trairi,Nordeste,9,2,11
+274,2026-09-01,1577,CE,Uruburetama,Nordeste,1,0,1
+275,2026-09-01,1583,CE,Viçosa Do Ceará,Nordeste,5,0,5
+276,2026-09-01,1585,CE,Maracanaú,Nordeste,3,7,10
+277,2026-09-01,1587,CE,Amontada,Nordeste,5,0,5
+278,2026-09-01,1589,CE,Cruz,Nordeste,9,4,13
+279,2026-09-01,1591,CE,Forquilha,Nordeste,4,0,4
+280,2026-09-01,1593,CE,Icapuí,Nordeste,1,0,1
+281,2026-09-01,1599,CE,Paraipaba,Nordeste,1,7,8
+282,2026-09-01,1603,RN,Açu,Nordeste,2,13,15
+283,2026-09-01,1613,RN,Alto Do Rodrigues,Nordeste,0,1,1
+284,2026-09-01,1615,RN,Angicos,Nordeste,0,2,2
+285,2026-09-01,1619,RN,Apodi,Nordeste,0,1,1
+286,2026-09-01,1621,RN,Areia Branca,Nordeste,1,2,3
+287,2026-09-01,1627,RN,Baía Formosa,Nordeste,1,0,1
+288,2026-09-01,1639,RN,Caicó,Nordeste,1,13,14
+289,2026-09-01,1643,RN,Canguaretama,Nordeste,3,4,7
+290,2026-09-01,1647,RN,Carnaúba Dos Dantas,Nordeste,1,0,1
+291,2026-09-01,1649,RN,Carnaubais,Nordeste,0,2,2
+292,2026-09-01,1651,RN,Ceará-Mirim,Nordeste,3,2,5
+293,2026-09-01,1659,RN,Cruzeta,Nordeste,1,0,1
+294,2026-09-01,1661,RN,Currais Novos,Nordeste,3,4,7
+295,2026-09-01,1671,RN,Extremoz,Nordeste,4,6,10
+296,2026-09-01,1681,RN,Goianinha,Nordeste,1,6,7
+297,2026-09-01,1685,RN,Grossos,Nordeste,1,0,1
+298,2026-09-01,1687,RN,Guamaré,Nordeste,0,2,2
+299,2026-09-01,1699,RN,Jandaíra,Nordeste,0,2,2
+300,2026-09-01,1709,RN,Jardim De Piranhas,Nordeste,1,1,2
+301,2026-09-01,1711,RN,Jardim Do Seridó,Nordeste,2,0,2
+302,2026-09-01,1713,RN,João Câmara,Nordeste,1,2,3
+303,2026-09-01,1719,RN,Jucurutu,Nordeste,1,0,1
+304,2026-09-01,1721,RN,Messias Targino,Nordeste,2,0,2
+305,2026-09-01,1733,RN,Lajes,Nordeste,0,2,2
+306,2026-09-01,1741,RN,Macaíba,Nordeste,3,6,9
+307,2026-09-01,1743,RN,Macau,Nordeste,0,4,4
+308,2026-09-01,1747,RN,Martins,Nordeste,3,4,7
+309,2026-09-01,1749,RN,Maxaranguape,Nordeste,1,0,1
+310,2026-09-01,1755,RN,Monte Alegre,Nordeste,1,0,1
+311,2026-09-01,1757,RN,Monte Das Gameleiras,Nordeste,2,1,3
+312,2026-09-01,1759,RN,Mossoró,Nordeste,26,39,65
+313,2026-09-01,1761,RN,Natal,Nordeste,135,114,249
+314,2026-09-01,1763,RN,Nísia Floresta,Nordeste,2,1,3
+315,2026-09-01,1765,RN,Nova Cruz,Nordeste,2,4,6
+316,2026-09-01,1767,RN,Olho D'água Do Borges,Nordeste,1,0,1
+317,2026-09-01,1777,RN,Parelhas,Nordeste,2,1,3
+318,2026-09-01,1779,RN,Parnamirim,Nordeste,21,32,53
+319,2026-09-01,1781,RN,Passa E Fica,Nordeste,6,1,7
+320,2026-09-01,1783,RN,Passagem,Nordeste,1,0,1
+321,2026-09-01,1785,RN,Patu,Nordeste,3,3,6
+322,2026-09-01,1787,RN,Pau Dos Ferros,Nordeste,4,6,10
+323,2026-09-01,1801,RN,Poço Branco,Nordeste,1,0,1
+324,2026-09-01,1811,RN,Riacho Da Cruz,Nordeste,1,0,1
+325,2026-09-01,1823,RN,Santa Cruz,Nordeste,2,1,3
+326,2026-09-01,1829,RN,Santo Antônio,Nordeste,2,1,3
+327,2026-09-01,1837,RN,São Gonçalo Do Amarante,Nordeste,3,8,11
+328,2026-09-01,1841,RN,São José De Mipibu,Nordeste,3,5,8
+329,2026-09-01,1847,RN,São Miguel,Nordeste,1,2,3
+330,2026-09-01,1863,RN,Serra De São Bento,Nordeste,1,1,2
+331,2026-09-01,1875,RN,Taipu,Nordeste,2,0,2
+332,2026-09-01,1877,RN,Tangará,Nordeste,0,4,4
+333,2026-09-01,1879,RN,Tenente Ananias,Nordeste,1,0,1
+334,2026-09-01,1881,RN,Tibau Do Sul,Nordeste,6,4,10
+335,2026-09-01,1885,RN,Touros,Nordeste,6,4,10
+336,2026-09-01,1887,RN,Umarizal,Nordeste,1,0,1
+337,2026-09-01,1889,RN,Upanema,Nordeste,1,0,1
+338,2026-09-01,1891,RN,Várzea,Nordeste,0,2,2
+339,2026-09-01,1905,PB,Alagoa Grande,Nordeste,0,2,2
+340,2026-09-01,1909,PB,Alagoinha,Nordeste,0,1,1
+341,2026-09-01,1911,PB,Alhandra,Nordeste,3,6,9
+342,2026-09-01,1919,PB,Araruna,Nordeste,0,1,1
+343,2026-09-01,1921,PB,Areia,Nordeste,2,1,3
+344,2026-09-01,1931,PB,Bananeiras,Nordeste,6,3,9
+345,2026-09-01,1937,PB,Bayeux,Nordeste,1,9,10
+346,2026-09-01,1941,PB,Belém Do Brejo Do Cruz,Nordeste,1,0,1
+347,2026-09-01,1957,PB,Brejo Do Cruz,Nordeste,1,0,1
+348,2026-09-01,1965,PB,Cabedelo,Nordeste,2,1,3
+349,2026-09-01,1975,PB,Cajazeiras,Nordeste,2,3,5
+350,2026-09-01,1981,PB,Campina Grande,Nordeste,59,38,97
+351,2026-09-01,1987,PB,Catolé Do Rocha,Nordeste,2,2,4
+352,2026-09-01,1993,PB,Conde,Nordeste,2,1,3
+353,2026-09-01,2003,PB,Cuité,Nordeste,1,0,1
+354,2026-09-01,2021,PB,Esperança,Nordeste,1,1,2
+355,2026-09-01,2027,PB,Guarabira,Nordeste,4,3,7
+356,2026-09-01,2029,PB,Gurinhém,Nordeste,14,7,21
+357,2026-09-01,2047,PB,Jacaraú,Nordeste,1,0,1
+358,2026-09-01,2051,PB,João Pessoa,Nordeste,95,143,238
+359,2026-09-01,2053,PB,Juarez Távora,Nordeste,0,1,1
+360,2026-09-01,2055,PB,Juazeirinho,Nordeste,1,1,2
+361,2026-09-01,2079,PB,Mamanguape,Nordeste,0,9,9
+362,2026-09-01,2085,PB,Massaranduba,Nordeste,0,1,1
+363,2026-09-01,2095,PB,Monteiro,Nordeste,1,3,4
+364,2026-09-01,2107,PB,Nova Palmeira,Nordeste,1,0,1
+365,2026-09-01,2117,PB,Patos,Nordeste,8,10,18
+366,2026-09-01,2129,PB,Picuí,Nordeste,2,0,2
+367,2026-09-01,2139,PB,Pitimbu,Nordeste,2,0,2
+368,2026-09-01,2143,PB,Pombal,Nordeste,1,3,4
+369,2026-09-01,2147,PB,Princesa Isabel,Nordeste,3,0,3
+370,2026-09-01,2151,PB,Queimadas,Nordeste,0,2,2
+371,2026-09-01,2155,PB,Remígio,Nordeste,4,0,4
+372,2026-09-01,2175,PB,Santa Rita,Nordeste,0,3,3
+373,2026-09-01,2179,PB,São Bento,Nordeste,0,2,2
+374,2026-09-01,2199,PB,São Mamede,Nordeste,2,1,3
+375,2026-09-01,2201,PB,São Miguel De Taipu,Nordeste,0,2,2
+376,2026-09-01,2207,PB,Sapé,Nordeste,3,2,5
+377,2026-09-01,2213,PB,Serra Da Raiz,Nordeste,2,0,2
+378,2026-09-01,2221,PB,Solânea,Nordeste,2,0,2
+379,2026-09-01,2223,PB,Soledade,Nordeste,2,4,6
+380,2026-09-01,2225,PB,Sousa,Nordeste,3,7,10
+381,2026-09-01,2227,PB,Sumé,Nordeste,2,1,3
+382,2026-09-01,2231,PB,Taperoá,Nordeste,1,2,3
+383,2026-09-01,2249,PI,Colônia Do Gurguéia,Nordeste,0,1,1
+384,2026-09-01,2301,PE,Afogados Da Ingazeira,Nordeste,0,1,1
+385,2026-09-01,2303,PE,Afrânio,Nordeste,0,1,1
+386,2026-09-01,2321,PE,Araripina,Nordeste,3,2,5
+387,2026-09-01,2323,PE,Arcoverde,Nordeste,8,3,11
+388,2026-09-01,2333,PE,Belo Jardim,Nordeste,1,3,4
+389,2026-09-01,2337,PE,Bezerros,Nordeste,4,2,6
+390,2026-09-01,2345,PE,Bonito,Nordeste,2,0,2
+391,2026-09-01,2351,PE,Brejo Da Madre De Deus,Nordeste,1,0,1
+392,2026-09-01,2355,PE,Buíque,Nordeste,1,0,1
+393,2026-09-01,2357,PE,Cabo De Santo Agostinho,Nordeste,5,11,16
+394,2026-09-01,2359,PE,Cabrobó,Nordeste,3,4,7
+395,2026-09-01,2361,PE,Cachoeirinha,Nordeste,0,2,2
+396,2026-09-01,2375,PE,Capoeiras,Nordeste,0,1,1
+397,2026-09-01,2379,PE,Carpina,Nordeste,2,5,7
+398,2026-09-01,2381,PE,Caruaru,Nordeste,28,51,79
+399,2026-09-01,2391,PE,Condado,Nordeste,1,0,1
+400,2026-09-01,2401,PE,Custódia,Nordeste,2,0,2
+401,2026-09-01,2403,PE,Escada,Nordeste,2,2,4
+402,2026-09-01,2411,PE,Flores,Nordeste,0,1,1
+403,2026-09-01,2413,PE,Floresta,Nordeste,0,2,2
+404,2026-09-01,2415,PE,Frei Miguelinho,Nordeste,1,0,1
+405,2026-09-01,2419,PE,Garanhuns,Nordeste,11,13,24
+406,2026-09-01,2423,PE,Goiana,Nordeste,2,6,8
+407,2026-09-01,2427,PE,Gravatá,Nordeste,6,16,22
+408,2026-09-01,2429,PE,Iati,Nordeste,2,0,2
+409,2026-09-01,2435,PE,Igarassu,Nordeste,5,6,11
+410,2026-09-01,2443,PE,Ipojuca,Nordeste,35,14,49
+411,2026-09-01,2451,PE,Ilha De Itamaracá,Nordeste,0,1,1
+412,2026-09-01,2457,PE,Jaboatão Dos Guararapes,Nordeste,10,95,105
+413,2026-09-01,2461,PE,João Alfredo,Nordeste,1,0,1
+414,2026-09-01,2475,PE,Lajedo,Nordeste,4,2,6
+415,2026-09-01,2477,PE,Limoeiro,Nordeste,0,2,2
+416,2026-09-01,2479,PE,Macaparana,Nordeste,1,0,1
+417,2026-09-01,2481,PE,Machados,Nordeste,2,0,2
+418,2026-09-01,2487,PE,Moreno,Nordeste,4,0,4
+419,2026-09-01,2491,PE,Olinda,Nordeste,9,22,31
+420,2026-09-01,2495,PE,Orocó,Nordeste,0,1,1
+421,2026-09-01,2497,PE,Ouricuri,Nordeste,0,3,3
+422,2026-09-01,2499,PE,Palmares,Nordeste,3,3,6
+423,2026-09-01,2509,PE,Passira,Nordeste,3,0,3
+424,2026-09-01,2511,PE,Paudalho,Nordeste,3,2,5
+425,2026-09-01,2513,PE,Paulista,Nordeste,9,21,30
+426,2026-09-01,2519,PE,Petrolândia,Nordeste,1,2,3
+427,2026-09-01,2521,PE,Petrolina,Nordeste,11,44,55
+428,2026-09-01,2531,PE,Recife,Nordeste,190,263,453
+429,2026-09-01,2537,PE,Rio Formoso,Nordeste,0,1,1
+430,2026-09-01,2543,PE,Salgueiro,Nordeste,3,4,7
+431,2026-09-01,2545,PE,Saloá,Nordeste,5,0,5
+432,2026-09-01,2547,PE,Sanharó,Nordeste,0,3,3
+433,2026-09-01,2549,PE,Santa Cruz Do Capibaribe,Nordeste,5,3,8
+434,2026-09-01,2557,PE,São Benedito Do Sul,Nordeste,1,0,1
+435,2026-09-01,2561,PE,São Caetano,Nordeste,0,2,2
+436,2026-09-01,2565,PE,São Joaquim Do Monte,Nordeste,2,0,2
+437,2026-09-01,2571,PE,São José Do Egito,Nordeste,0,1,1
+438,2026-09-01,2573,PE,São Lourenço Da Mata,Nordeste,3,8,11
+439,2026-09-01,2577,PE,Serra Talhada,Nordeste,2,7,9
+440,2026-09-01,2581,PE,Sertânia,Nordeste,1,0,1
+441,2026-09-01,2583,PE,Sirinhaém,Nordeste,0,4,4
+442,2026-09-01,2589,PE,Surubim,Nordeste,2,4,6
+443,2026-09-01,2599,PE,Taquaritinga Do Norte,Nordeste,2,0,2
+444,2026-09-01,2607,PE,Toritama,Nordeste,1,3,4
+445,2026-09-01,2613,PE,Triunfo,Nordeste,6,0,6
+446,2026-09-01,2627,PE,Vitória De Santo Antão,Nordeste,1,3,4
+447,2026-09-01,2629,PE,Camaragibe,Nordeste,6,9,15
+448,2026-09-01,2631,PE,Abreu E Lima,Nordeste,3,11,14
+449,2026-09-01,2641,AL,Paripueira,Nordeste,2,0,2
+450,2026-09-01,2647,SE,Santana Do São Francisco,Nordeste,1,0,1
+451,2026-09-01,2657,MG,Divisópolis,Sudeste,1,0,1
+452,2026-09-01,2667,MG,Santa Bárbara Do Leste,Sudeste,1,0,1
+453,2026-09-01,2671,MG,Ubaporanga,Sudeste,1,2,3
+454,2026-09-01,2685,MG,Carneirinho,Sudeste,1,0,1
+455,2026-09-01,2687,MG,Limeira Do Oeste,Sudeste,2,0,2
+456,2026-09-01,2701,AL,Água Branca,Nordeste,0,2,2
+457,2026-09-01,2703,AL,Anadia,Nordeste,1,0,1
+458,2026-09-01,2705,AL,Arapiraca,Nordeste,33,29,62
+459,2026-09-01,2709,AL,Barra De Santo Antônio,Nordeste,8,1,9
+460,2026-09-01,2711,AL,Barra De São Miguel,Nordeste,1,0,1
+461,2026-09-01,2727,AL,Campo Alegre,Nordeste,2,2,4
+462,2026-09-01,2743,AL,Coqueiro Seco,Nordeste,1,0,1
+463,2026-09-01,2745,AL,Coruripe,Nordeste,4,3,7
+464,2026-09-01,2747,AL,Delmiro Gouveia,Nordeste,8,0,8
+465,2026-09-01,2771,AL,Japaratinga,Nordeste,1,0,1
+466,2026-09-01,2777,AL,Jundiá,Nordeste,1,0,1
+467,2026-09-01,2779,AL,Junqueiro,Nordeste,0,2,2
+468,2026-09-01,2785,AL,Maceió,Nordeste,116,100,216
+469,2026-09-01,2787,AL,Major Isidoro,Nordeste,1,0,1
+470,2026-09-01,2787,AL,Major Izidoro,Nordeste,0,2,2
+471,2026-09-01,2789,AL,Maragogi,Nordeste,15,6,21
+472,2026-09-01,2793,AL,Marechal Deodoro,Nordeste,9,4,13
+473,2026-09-01,2795,AL,Maribondo,Nordeste,0,1,1
+474,2026-09-01,2803,AL,Messias,Nordeste,0,2,2
+475,2026-09-01,2811,AL,Novo Lino,Nordeste,0,2,2
+476,2026-09-01,2813,AL,Olho D'água Das Flores,Nordeste,3,1,4
+477,2026-09-01,2825,AL,Palmeira Dos Índios,Nordeste,4,3,7
+478,2026-09-01,2829,AL,Passo De Camaragibe,Nordeste,7,0,7
+479,2026-09-01,2833,AL,Penedo,Nordeste,6,4,10
+480,2026-09-01,2837,AL,Pilar,Nordeste,4,0,4
+481,2026-09-01,2841,AL,Piranhas,Nordeste,6,4,10
+482,2026-09-01,2847,AL,Porto De Pedras,Nordeste,6,0,6
+483,2026-09-01,2849,AL,Porto Real Do Colégio,Nordeste,1,1,2
+484,2026-09-01,2853,AL,Rio Largo,Nordeste,2,9,11
+485,2026-09-01,2859,AL,Santana Do Ipanema,Nordeste,0,1,1
+486,2026-09-01,2869,AL,São Luís Do Quitunde,Nordeste,1,0,1
+487,2026-09-01,2871,AL,São Miguel Dos Campos,Nordeste,4,1,5
+488,2026-09-01,2873,AL,São Miguel Dos Milagres,Nordeste,1,1,2
+489,2026-09-01,2875,AL,São Sebastião,Nordeste,4,2,6
+490,2026-09-01,2883,AL,Traipu,Nordeste,8,0,8
+491,2026-09-01,2885,AL,União Dos Palmares,Nordeste,4,2,6
+492,2026-09-01,2893,MG,Jaíba,Sudeste,1,0,1
+493,2026-09-01,2895,MG,Mamonas,Sudeste,1,0,1
+494,2026-09-01,2903,MG,Araporã,Sudeste,0,2,2
+495,2026-09-01,2907,RJ,Guapimirim,Sudeste,6,1,7
+496,2026-09-01,2909,RJ,Belford Roxo,Sudeste,1,1,2
+497,2026-09-01,2911,RJ,Queimados,Sudeste,4,0,4
+498,2026-09-01,2921,RJ,Rio Das Ostras,Sudeste,38,10,48
+499,2026-09-01,2929,ES,Marechal Floriano,Sudeste,4,0,4
+500,2026-09-01,2943,SP,Ilha Solteira,Sudeste,2,0,2
+501,2026-09-01,2949,SP,Engenheiro Coelho,Sudeste,4,0,4
+502,2026-09-01,2951,SP,Hortolândia,Sudeste,4,7,11
+503,2026-09-01,2953,SP,Holambra,Sudeste,10,0,10
+504,2026-09-01,2955,SP,Tuiuti,Sudeste,1,0,1
+505,2026-09-01,2959,SP,Estiva Gerbi,Sudeste,1,2,3
+506,2026-09-01,2965,SP,Bertioga,Sudeste,24,12,36
+507,2026-09-01,2967,SP,Cajati,Sudeste,1,3,4
+508,2026-09-01,3001,PE,Fernando De Noronha,Nordeste,1,1,2
+509,2026-09-01,3023,BA,Presidente Tancredo Neves,Nordeste,1,0,1
+510,2026-09-01,3039,BA,Serra Do Ramalho,Nordeste,1,0,1
+511,2026-09-01,3067,SP,Araçariguama,Sudeste,11,11,22
+512,2026-09-01,3083,BA,Capim Grosso,Nordeste,2,5,7
+513,2026-09-01,3085,BA,Canudos,Nordeste,1,2,3
+514,2026-09-01,3089,BA,Fátima,Nordeste,1,0,1
+515,2026-09-01,3103,SE,Aquidabã,Nordeste,2,1,3
+516,2026-09-01,3105,SE,Aracaju,Nordeste,93,78,171
+517,2026-09-01,3111,SE,Barra Dos Coqueiros,Nordeste,3,4,7
+518,2026-09-01,3115,SE,Boquim,Nordeste,2,0,2
+519,2026-09-01,3117,BA,Eunápolis,Nordeste,5,2,7
+520,2026-09-01,3123,SE,Canindé De São Francisco,Nordeste,2,1,3
+521,2026-09-01,3141,SE,Estância,Nordeste,5,5,10
+522,2026-09-01,3157,SE,Itabaiana,Nordeste,10,6,16
+523,2026-09-01,3169,SE,Lagarto,Nordeste,4,10,14
+524,2026-09-01,3171,SE,Laranjeiras,Nordeste,2,0,2
+525,2026-09-01,3179,SE,Maruim,Nordeste,1,1,2
+526,2026-09-01,3189,SE,Nossa Senhora Da Glória,Nordeste,1,5,6
+527,2026-09-01,3195,SE,Nossa Senhora Do Socorro,Nordeste,4,2,6
+528,2026-09-01,3211,SE,Porto Da Folha,Nordeste,1,0,1
+529,2026-09-01,3213,SE,Propriá,Nordeste,4,5,9
+530,2026-09-01,3219,SE,Ribeirópolis,Nordeste,2,0,2
+531,2026-09-01,3241,SE,Simão Dias,Nordeste,3,0,3
+532,2026-09-01,3251,SE,Umbaúba,Nordeste,1,1,2
+533,2026-09-01,3265,BA,Bonito,Nordeste,1,0,1
+534,2026-09-01,3283,BA,Itatim,Nordeste,1,0,1
+535,2026-09-01,3313,BA,Alagoinhas,Nordeste,4,3,7
+536,2026-09-01,3315,BA,Alcobaça,Nordeste,1,1,2
+537,2026-09-01,3319,BA,Amargosa,Nordeste,3,0,3
+538,2026-09-01,3323,BA,Anagé,Nordeste,0,1,1
+539,2026-09-01,3325,BA,Andaraí,Nordeste,2,0,2
+540,2026-09-01,3337,BA,Aporá,Nordeste,1,0,1
+541,2026-09-01,3347,BA,Aurelino Leal,Nordeste,1,0,1
+542,2026-09-01,3351,BA,Baixa Grande,Nordeste,2,0,2
+543,2026-09-01,3353,BA,Barra,Nordeste,1,0,1
+544,2026-09-01,3357,BA,Barra Do Choça,Nordeste,3,0,3
+545,2026-09-01,3363,BA,Barreiras,Nordeste,10,5,15
+546,2026-09-01,3365,BA,Barro Preto,Nordeste,2,2,4
+547,2026-09-01,3377,BA,Bom Jesus Da Lapa,Nordeste,12,2,14
+548,2026-09-01,3383,BA,Botuporã,Nordeste,1,0,1
+549,2026-09-01,3391,BA,Brumado,Nordeste,6,5,11
+550,2026-09-01,3399,BA,Caculé,Nordeste,3,1,4
+551,2026-09-01,3403,BA,Caetité,Nordeste,1,2,3
+552,2026-09-01,3413,BA,Camaçari,Nordeste,25,33,58
+553,2026-09-01,3415,BA,Camamu,Nordeste,1,2,3
+554,2026-09-01,3423,BA,Canarana,Nordeste,0,2,2
+555,2026-09-01,3425,BA,Canavieiras,Nordeste,1,0,1
+556,2026-09-01,3429,BA,Candeias,Nordeste,2,0,2
+557,2026-09-01,3431,BA,Candiba,Nordeste,3,0,3
+558,2026-09-01,3441,BA,Carinhanha,Nordeste,0,1,1
+559,2026-09-01,3443,BA,Casa Nova,Nordeste,1,0,1
+560,2026-09-01,3449,BA,Catu,Nordeste,1,0,1
+561,2026-09-01,3455,BA,Cícero Dantas,Nordeste,0,1,1
+562,2026-09-01,3457,BA,Cipó,Nordeste,2,0,2
+563,2026-09-01,3463,BA,Conceição Da Feira,Nordeste,1,1,2
+564,2026-09-01,3467,BA,Conceição Do Coité,Nordeste,4,1,5
+565,2026-09-01,3469,BA,Conceição Do Jacuípe,Nordeste,1,0,1
+566,2026-09-01,3473,BA,Condeúba,Nordeste,1,2,3
+567,2026-09-01,3477,BA,Coração De Maria,Nordeste,1,0,1
+568,2026-09-01,3485,BA,Correntina,Nordeste,13,5,18
+569,2026-09-01,3491,BA,Crisópolis,Nordeste,3,1,4
+570,2026-09-01,3495,BA,Cruz Das Almas,Nordeste,2,0,2
+571,2026-09-01,3509,BA,Entre Rios,Nordeste,2,2,4
+572,2026-09-01,3513,BA,Euclides Da Cunha,Nordeste,4,1,5
+573,2026-09-01,3515,BA,Feira De Santana,Nordeste,32,35,67
+574,2026-09-01,3523,BA,Gandu,Nordeste,2,2,4
+575,2026-09-01,3533,BA,Guanambi,Nordeste,2,3,5
+576,2026-09-01,3541,BA,Ibicaraí,Nordeste,1,1,2
+577,2026-09-01,3555,BA,Ibirapitanga,Nordeste,6,0,6
+578,2026-09-01,3565,BA,Ibotirama,Nordeste,4,5,9
+579,2026-09-01,3569,BA,Igaporã,Nordeste,14,0,14
+580,2026-09-01,3571,BA,Iguaí,Nordeste,2,0,2
+581,2026-09-01,3573,BA,Ilhéus,Nordeste,8,8,16
+582,2026-09-01,3581,BA,Ipirá,Nordeste,3,2,5
+583,2026-09-01,3593,BA,Irecê,Nordeste,3,0,3
+584,2026-09-01,3595,BA,Itaberaba,Nordeste,6,7,13
+585,2026-09-01,3597,BA,Itabuna,Nordeste,9,6,15
+586,2026-09-01,3599,BA,Itacaré,Nordeste,2,1,3
+587,2026-09-01,3613,BA,Itamaraju,Nordeste,1,1,2
+588,2026-09-01,3623,BA,Itaparica,Nordeste,2,0,2
+589,2026-09-01,3629,BA,Itapetinga,Nordeste,1,5,6
+590,2026-09-01,3645,BA,Ituaçu,Nordeste,0,4,4
+591,2026-09-01,3651,BA,Jacobina,Nordeste,7,0,7
+592,2026-09-01,3653,BA,Jaguaquara,Nordeste,2,2,4
+593,2026-09-01,3655,BA,Jaguarari,Nordeste,1,0,1
+594,2026-09-01,3657,BA,Jaguaripe,Nordeste,1,0,1
+595,2026-09-01,3659,BA,Jandaíra,Nordeste,0,1,1
+596,2026-09-01,3661,BA,Jequié,Nordeste,5,3,8
+597,2026-09-01,3665,BA,Jiquiriçá,Nordeste,2,1,3
+598,2026-09-01,3669,BA,Juazeiro,Nordeste,2,10,12
+599,2026-09-01,3685,BA,Lauro De Freitas,Nordeste,20,17,37
+600,2026-09-01,3687,BA,Lençóis,Nordeste,7,2,9
+601,2026-09-01,3689,BA,Licínio De Almeida,Nordeste,2,0,2
+602,2026-09-01,3691,BA,Livramento De Nossa Senhora,Nordeste,0,1,1
+603,2026-09-01,3695,BA,Macarani,Nordeste,2,0,2
+604,2026-09-01,3711,BA,Maracás,Nordeste,1,0,1
+605,2026-09-01,3715,BA,Maraú,Nordeste,1,0,1
+606,2026-09-01,3721,BA,Mata De São João,Nordeste,1,0,1
+607,2026-09-01,3721,BA,Mata De São João,Nordeste,11,4,15
+608,2026-09-01,3727,BA,Milagres,Nordeste,3,4,7
+609,2026-09-01,3735,BA,Morro Do Chapéu,Nordeste,3,0,3
+610,2026-09-01,3739,BA,Mucugê,Nordeste,4,2,6
+611,2026-09-01,3761,BA,Nova Viçosa,Nordeste,3,3,6
+612,2026-09-01,3769,BA,Palmas De Monte Alto,Nordeste,1,0,1
+613,2026-09-01,3771,BA,Palmeiras,Nordeste,12,0,12
+614,2026-09-01,3773,BA,Paramirim,Nordeste,0,2,2
+615,2026-09-01,3777,BA,Paripiranga,Nordeste,5,0,5
+616,2026-09-01,3781,BA,Paulo Afonso,Nordeste,5,3,8
+617,2026-09-01,3803,BA,Poções,Nordeste,1,0,1
+618,2026-09-01,3807,BA,Porto Seguro,Nordeste,52,8,60
+619,2026-09-01,3809,BA,Potiraguá,Nordeste,1,0,1
+620,2026-09-01,3811,BA,Prado,Nordeste,10,0,10
+621,2026-09-01,3813,BA,Presidente Dutra,Nordeste,1,0,1
+622,2026-09-01,3821,BA,Remanso,Nordeste,0,1,1
+623,2026-09-01,3823,BA,Retirolândia,Nordeste,0,2,2
+624,2026-09-01,3825,BA,Riachão Das Neves,Nordeste,1,0,1
+625,2026-09-01,3827,BA,Riachão Do Jacuípe,Nordeste,4,0,4
+626,2026-09-01,3833,BA,Ribeira Do Pombal,Nordeste,2,2,4
+627,2026-09-01,3849,BA,Salvador,Nordeste,218,131,349
+628,2026-09-01,3851,BA,Santa Bárbara,Nordeste,1,0,1
+629,2026-09-01,3855,BA,Santa Cruz Cabrália,Nordeste,0,1,1
+630,2026-09-01,3869,BA,Santa Terezinha,Nordeste,3,0,3
+631,2026-09-01,3873,BA,Santo Antônio De Jesus,Nordeste,4,4,8
+632,2026-09-01,3877,BA,São Desidério,Nordeste,4,0,4
+633,2026-09-01,3889,BA,São Sebastião Do Passé,Nordeste,2,1,3
+634,2026-09-01,3897,BA,Seabra,Nordeste,9,3,12
+635,2026-09-01,3901,BA,Senhor Do Bonfim,Nordeste,7,3,10
+636,2026-09-01,3909,BA,Serrinha,Nordeste,0,1,1
+637,2026-09-01,3911,BA,Serrolândia,Nordeste,1,0,1
+638,2026-09-01,3913,BA,Simões Filho,Nordeste,0,7,7
+639,2026-09-01,3917,BA,Tabocas Do Brejo Velho,Nordeste,1,0,1
+640,2026-09-01,3921,BA,Tanquinho,Nordeste,1,0,1
+641,2026-09-01,3923,BA,Taperoá,Nordeste,1,0,1
+642,2026-09-01,3937,BA,Tucano,Nordeste,5,5,10
+643,2026-09-01,3949,BA,Una,Nordeste,2,0,2
+644,2026-09-01,3951,BA,Urandi,Nordeste,1,2,3
+645,2026-09-01,3953,BA,Uruçuca,Nordeste,1,0,1
+646,2026-09-01,3955,BA,Utinga,Nordeste,2,0,2
+647,2026-09-01,3957,BA,Valença,Nordeste,7,2,9
+648,2026-09-01,3959,BA,Valente,Nordeste,0,1,1
+649,2026-09-01,3961,BA,Várzea Do Poço,Nordeste,3,0,3
+650,2026-09-01,3965,BA,Vitória Da Conquista,Nordeste,29,51,80
+651,2026-09-01,3969,BA,Wenceslau Guimarães,Nordeste,2,0,2
+652,2026-09-01,3979,BA,Nordestina,Nordeste,2,0,2
+653,2026-09-01,3989,BA,São Gabriel,Nordeste,5,0,5
+654,2026-09-01,3993,BA,Teixeira De Freitas,Nordeste,5,4,9
+655,2026-09-01,3997,BA,Várzea Da Roça,Nordeste,1,0,1
+656,2026-09-01,4001,MG,Abadia Dos Dourados,Sudeste,0,1,1
+657,2026-09-01,4003,MG,Abaeté,Sudeste,3,0,3
+658,2026-09-01,4005,MG,Abre Campo,Sudeste,2,2,4
+659,2026-09-01,4007,MG,Acaiaca,Sudeste,1,0,1
+660,2026-09-01,4017,MG,Águas Formosas,Sudeste,2,0,2
+661,2026-09-01,4021,MG,Aimorés,Sudeste,2,2,4
+662,2026-09-01,4029,MG,Além Paraíba,Sudeste,4,0,4
+663,2026-09-01,4031,MG,Alfenas,Sudeste,9,2,11
+664,2026-09-01,4035,MG,Alpercata,Sudeste,1,1,2
+665,2026-09-01,4037,MG,Alpinópolis,Sudeste,3,0,3
+666,2026-09-01,4041,MG,Alto Rio Doce,Sudeste,1,0,1
+667,2026-09-01,4045,MG,Alvinópolis,Sudeste,1,0,1
+668,2026-09-01,4051,MG,Andradas,Sudeste,3,0,3
+669,2026-09-01,4055,MG,Andrelândia,Sudeste,2,0,2
+670,2026-09-01,4067,MG,Araçuaí,Sudeste,1,1,2
+671,2026-09-01,4069,MG,Araguari,Sudeste,2,1,3
+672,2026-09-01,4073,MG,Araponga,Sudeste,3,0,3
+673,2026-09-01,4079,MG,Araxá,Sudeste,16,8,24
+674,2026-09-01,4083,MG,Arcos,Sudeste,2,0,2
+675,2026-09-01,4085,MG,Areado,Sudeste,2,0,2
+676,2026-09-01,4095,MG,Augusto De Lima,Sudeste,2,0,2
+677,2026-09-01,4097,MG,Baependi,Sudeste,1,0,1
+678,2026-09-01,4107,MG,Barão De Cocais,Sudeste,1,0,1
+679,2026-09-01,4111,MG,Barbacena,Sudeste,5,14,19
+680,2026-09-01,4115,MG,Três Marias,Sudeste,1,2,3
+681,2026-09-01,4123,MG,Belo Horizonte,Sudeste,248,247,495
+682,2026-09-01,4125,MG,Belo Oriente,Sudeste,0,2,2
+683,2026-09-01,4133,MG,Betim,Sudeste,44,22,66
+684,2026-09-01,4141,MG,Boa Esperança,Sudeste,3,0,3
+685,2026-09-01,4145,MG,Bocaiúva,Sudeste,1,0,1
+686,2026-09-01,4147,MG,Bom Despacho,Sudeste,1,1,2
+687,2026-09-01,4155,MG,Bom Jesus Do Galho,Sudeste,1,0,1
+688,2026-09-01,4157,MG,Bom Repouso,Sudeste,2,0,2
+689,2026-09-01,4165,MG,Borda Da Mata,Sudeste,5,0,5
+690,2026-09-01,4173,MG,Brás Pires,Sudeste,1,0,1
+691,2026-09-01,4179,MG,Brumadinho,Sudeste,6,2,8
+692,2026-09-01,4181,MG,Bueno Brandão,Sudeste,2,0,2
+693,2026-09-01,4183,MG,Buenópolis,Sudeste,1,0,1
+694,2026-09-01,4187,MG,Buritizeiro,Sudeste,1,0,1
+695,2026-09-01,4197,MG,Caetanópolis,Sudeste,0,1,1
+696,2026-09-01,4199,MG,Caeté,Sudeste,3,4,7
+697,2026-09-01,4205,MG,Caldas,Sudeste,3,0,3
+698,2026-09-01,4209,MG,Camanducaia,Sudeste,27,4,31
+699,2026-09-01,4211,MG,Cambuí,Sudeste,1,0,1
+700,2026-09-01,4213,MG,Cambuquira,Sudeste,1,0,1
+701,2026-09-01,4217,MG,Campanha,Sudeste,0,1,1
+702,2026-09-01,4219,MG,Campestre,Sudeste,2,0,2
+703,2026-09-01,4223,MG,Campo Belo,Sudeste,6,2,8
+704,2026-09-01,4229,MG,Campos Altos,Sudeste,1,1,2
+705,2026-09-01,4249,MG,Capim Branco,Sudeste,2,0,2
+706,2026-09-01,4255,MG,Capitólio,Sudeste,15,2,17
+707,2026-09-01,4265,MG,Carangola,Sudeste,1,0,1
+708,2026-09-01,4267,MG,Caratinga,Sudeste,7,3,10
+709,2026-09-01,4267,MG,Sapucaia,Sudeste,0,2,2
+710,2026-09-01,4279,MG,Carmo Da Mata,Sudeste,1,0,1
+711,2026-09-01,4289,MG,Carmópolis De Minas,Sudeste,1,6,7
+712,2026-09-01,4291,MG,Carrancas,Sudeste,1,0,1
+713,2026-09-01,4301,MG,Cássia,Sudeste,4,0,4
+714,2026-09-01,4305,MG,Cataguases,Sudeste,3,0,3
+715,2026-09-01,4309,MG,Caxambu,Sudeste,3,0,3
+716,2026-09-01,4337,MG,Comendador Gomes,Sudeste,0,1,1
+717,2026-09-01,4345,MG,Conceição Das Alagoas,Sudeste,0,2,2
+718,2026-09-01,4349,MG,Conceição Do Mato Dentro,Sudeste,0,1,1
+719,2026-09-01,4353,MG,Conceição Do Rio Verde,Sudeste,1,0,1
+720,2026-09-01,4359,MG,Congonhas,Sudeste,9,1,10
+721,2026-09-01,4365,MG,Conselheiro Lafaiete,Sudeste,11,2,13
+722,2026-09-01,4371,MG,Contagem,Sudeste,64,50,114
+723,2026-09-01,4377,MG,Cordisburgo,Sudeste,1,0,1
+724,2026-09-01,4385,MG,Coromandel,Sudeste,1,0,1
+725,2026-09-01,4387,MG,Coronel Fabriciano,Sudeste,0,6,6
+726,2026-09-01,4389,MG,Coronel Murta,Sudeste,1,0,1
+727,2026-09-01,4403,MG,Cristais,Sudeste,3,0,3
+728,2026-09-01,4417,MG,Curvelo,Sudeste,10,11,21
+729,2026-09-01,4423,MG,Delfinópolis,Sudeste,5,0,5
+730,2026-09-01,4431,MG,Diamantina,Sudeste,10,3,13
+731,2026-09-01,4435,MG,Dionísio,Sudeste,1,0,1
+732,2026-09-01,4439,MG,Divino,Sudeste,1,0,1
+733,2026-09-01,4445,MG,Divinópolis,Sudeste,12,20,32
+734,2026-09-01,4471,MG,Elói Mendes,Sudeste,2,1,3
+735,2026-09-01,4477,MG,Entre Rios De Minas,Sudeste,1,0,1
+736,2026-09-01,4481,MG,Esmeraldas,Sudeste,3,0,3
+737,2026-09-01,4483,MG,Espera Feliz,Sudeste,1,0,1
+738,2026-09-01,4489,MG,Estiva,Sudeste,1,2,3
+739,2026-09-01,4501,MG,Extrema,Sudeste,7,5,12
+740,2026-09-01,4519,MG,Florestal,Sudeste,1,2,3
+741,2026-09-01,4521,MG,Formiga,Sudeste,1,1,2
+742,2026-09-01,4539,MG,Fronteira,Sudeste,3,1,4
+743,2026-09-01,4541,MG,Frutal,Sudeste,9,3,12
+744,2026-09-01,4547,MG,Gonçalves,Sudeste,4,0,4
+745,2026-09-01,4553,MG,Governador Valadares,Sudeste,26,23,49
+746,2026-09-01,4559,MG,Guanhães,Sudeste,2,1,3
+747,2026-09-01,4561,MG,Guapé,Sudeste,2,1,3
+748,2026-09-01,4567,MG,Guarani,Sudeste,2,2,4
+749,2026-09-01,4581,MG,Gurinhatã,Sudeste,3,0,3
+750,2026-09-01,4589,MG,Ibiá,Sudeste,2,0,2
+751,2026-09-01,4595,MG,Ibirité,Sudeste,1,3,4
+752,2026-09-01,4619,MG,Inhaúma,Sudeste,1,0,1
+753,2026-09-01,4625,MG,Ipatinga,Sudeste,7,14,21
+754,2026-09-01,4629,MG,Ipuiúna,Sudeste,1,1,2
+755,2026-09-01,4633,MG,Itabira,Sudeste,5,8,13
+756,2026-09-01,4637,MG,Itabirito,Sudeste,3,0,3
+757,2026-09-01,4647,MG,Itajubá,Sudeste,3,7,10
+758,2026-09-01,4649,MG,Itamarandiba,Sudeste,2,1,3
+759,2026-09-01,4659,MG,Itamonte,Sudeste,1,0,1
+760,2026-09-01,4665,MG,Itaobim,Sudeste,5,1,6
+761,2026-09-01,4667,MG,Itapagipe,Sudeste,1,0,1
+762,2026-09-01,4671,MG,Itapeva,Sudeste,2,0,2
+763,2026-09-01,4675,MG,Itaúna,Sudeste,3,4,7
+764,2026-09-01,4677,MG,Itaverava,Sudeste,1,0,1
+765,2026-09-01,4683,MG,Ituiutaba,Sudeste,6,1,7
+766,2026-09-01,4687,MG,Iturama,Sudeste,4,2,6
+767,2026-09-01,4691,MG,Jaboticatubas,Sudeste,4,0,4
+768,2026-09-01,4697,MG,Jacutinga,Sudeste,2,0,2
+769,2026-09-01,4701,MG,Janaúba,Sudeste,4,2,6
+770,2026-09-01,4703,MG,Januária,Sudeste,0,1,1
+771,2026-09-01,4719,MG,Joaíma,Sudeste,1,0,1
+772,2026-09-01,4723,MG,João Monlevade,Sudeste,4,25,29
+773,2026-09-01,4725,MG,João Pinheiro,Sudeste,2,1,3
+774,2026-09-01,4727,MG,Joaquim Felício,Sudeste,1,0,1
+775,2026-09-01,4733,MG,Juiz De Fora,Sudeste,54,23,77
+776,2026-09-01,4749,MG,Lagoa Formosa,Sudeste,1,0,1
+777,2026-09-01,4751,MG,Lagoa Santa,Sudeste,20,16,36
+778,2026-09-01,4755,MG,Lambari,Sudeste,2,0,2
+779,2026-09-01,4759,MG,Laranjal,Sudeste,1,0,1
+780,2026-09-01,4761,MG,Lassance,Sudeste,2,0,2
+781,2026-09-01,4763,MG,Lavras,Sudeste,5,1,6
+782,2026-09-01,4767,MG,Leopoldina,Sudeste,4,0,4
+783,2026-09-01,4771,MG,Lima Duarte,Sudeste,4,0,4
+784,2026-09-01,4773,MG,Luminárias,Sudeste,2,0,2
+785,2026-09-01,4775,MG,Luz,Sudeste,1,1,2
+786,2026-09-01,4779,MG,Machado,Sudeste,6,0,6
+787,2026-09-01,4787,MG,Manhuaçu,Sudeste,10,6,16
+788,2026-09-01,4799,MG,Mariana,Sudeste,1,0,1
+789,2026-09-01,4809,MG,Martinho Campos,Sudeste,2,2,4
+790,2026-09-01,4813,MG,Mateus Leme,Sudeste,1,0,1
+791,2026-09-01,4815,MG,Matias Barbosa,Sudeste,1,2,3
+792,2026-09-01,4817,MG,Matipó,Sudeste,2,0,2
+793,2026-09-01,4821,MG,Matozinhos,Sudeste,3,3,6
+794,2026-09-01,4827,MG,Medina,Sudeste,2,0,2
+795,2026-09-01,4831,MG,Mercês,Sudeste,1,0,1
+796,2026-09-01,4841,MG,Miradouro,Sudeste,1,0,1
+797,2026-09-01,4855,MG,Monte Alegre De Minas,Sudeste,2,0,2
+798,2026-09-01,4861,MG,Monte Carmelo,Sudeste,1,0,1
+799,2026-09-01,4865,MG,Montes Claros,Sudeste,15,23,38
+800,2026-09-01,4867,MG,Monte Sião,Sudeste,2,0,2
+801,2026-09-01,4877,MG,Muriaé,Sudeste,3,7,10
+802,2026-09-01,4881,MG,Muzambinho,Sudeste,1,0,1
+803,2026-09-01,4895,MG,Nova Lima,Sudeste,38,18,56
+804,2026-09-01,4903,MG,Nova Serrana,Sudeste,2,2,4
+805,2026-09-01,4911,MG,Oliveira,Sudeste,4,3,7
+806,2026-09-01,4919,MG,Ouro Fino,Sudeste,3,0,3
+807,2026-09-01,4921,MG,Ouro Preto,Sudeste,17,3,20
+808,2026-09-01,4933,MG,Palma,Sudeste,1,0,1
+809,2026-09-01,4939,MG,Paracatu,Sudeste,2,4,6
+810,2026-09-01,4941,MG,Pará De Minas,Sudeste,8,2,10
+811,2026-09-01,4943,MG,Paraguaçu,Sudeste,2,0,2
+812,2026-09-01,4945,MG,Paraisópolis,Sudeste,2,0,2
+813,2026-09-01,4947,MG,Paraopeba,Sudeste,1,2,3
+814,2026-09-01,4951,MG,Passa Quatro,Sudeste,4,0,4
+815,2026-09-01,4957,MG,Passos,Sudeste,5,3,8
+816,2026-09-01,4959,MG,Patos De Minas,Sudeste,19,7,26
+817,2026-09-01,4961,MG,Patrocínio,Sudeste,7,3,10
+818,2026-09-01,4973,MG,Pedra Azul,Sudeste,2,2,4
+819,2026-09-01,4983,MG,Pedrinópolis,Sudeste,1,0,1
+820,2026-09-01,4985,MG,Pedro Leopoldo,Sudeste,0,2,2
+821,2026-09-01,4993,MG,Perdigão,Sudeste,1,0,1
+822,2026-09-01,4995,MG,Perdizes,Sudeste,0,2,2
+823,2026-09-01,4997,MG,Perdões,Sudeste,3,4,7
+824,2026-09-01,5015,MG,Piranga,Sudeste,1,0,1
+825,2026-09-01,5019,MG,Piranguinho,Sudeste,2,0,2
+826,2026-09-01,5021,MG,Pirapetinga,Sudeste,1,0,1
+827,2026-09-01,5023,MG,Pirapora,Sudeste,7,0,7
+828,2026-09-01,5027,MG,Pitangui,Sudeste,1,0,1
+829,2026-09-01,5029,MG,Piumhi,Sudeste,5,4,9
+830,2026-09-01,5031,MG,Planura,Sudeste,2,0,2
+831,2026-09-01,5033,MG,Poço Fundo,Sudeste,1,0,1
+832,2026-09-01,5035,MG,Poços De Caldas,Sudeste,40,4,44
+833,2026-09-01,5039,MG,Pompéu,Sudeste,3,1,4
+834,2026-09-01,5041,MG,Ponte Nova,Sudeste,8,3,11
+835,2026-09-01,5049,MG,Pouso Alegre,Sudeste,16,23,39
+836,2026-09-01,5055,MG,Prata,Sudeste,3,0,3
+837,2026-09-01,5067,MG,Presidente Olegário,Sudeste,1,0,1
+838,2026-09-01,5069,MG,Alto Jequitibá,Sudeste,1,0,1
+839,2026-09-01,5071,MG,Prudente De Morais,Sudeste,2,0,2
+840,2026-09-01,5085,MG,Resplendor,Sudeste,2,0,2
+841,2026-09-01,5091,MG,Ribeirão Das Neves,Sudeste,1,2,3
+842,2026-09-01,5093,MG,Ribeirão Vermelho,Sudeste,0,1,1
+843,2026-09-01,5097,MG,Rio Casca,Sudeste,1,2,3
+844,2026-09-01,5109,MG,Rio Paranaíba,Sudeste,1,0,1
+845,2026-09-01,5113,MG,Rio Piracicaba,Sudeste,1,0,1
+846,2026-09-01,5115,MG,Rio Pomba,Sudeste,2,0,2
+847,2026-09-01,5133,MG,Sabará,Sudeste,1,0,1
+848,2026-09-01,5137,MG,Sacramento,Sudeste,6,0,6
+849,2026-09-01,5139,MG,Salinas,Sudeste,2,2,4
+850,2026-09-01,5143,MG,Santa Bárbara,Sudeste,1,0,1
+851,2026-09-01,5153,MG,Santa Juliana,Sudeste,1,0,1
+852,2026-09-01,5155,MG,Santa Luzia,Sudeste,0,3,3
+853,2026-09-01,5159,MG,Santa Maria De Itabira,Sudeste,1,0,1
+854,2026-09-01,5173,MG,Santana Do Garambéu,Sudeste,1,0,1
+855,2026-09-01,5185,MG,Santa Rita De Jacutinga,Sudeste,2,0,2
+856,2026-09-01,5191,MG,Santa Rita Do Sapucaí,Sudeste,12,3,15
+857,2026-09-01,5195,MG,Santa Vitória,Sudeste,6,0,6
+858,2026-09-01,5221,MG,São Francisco,Sudeste,1,0,1
+859,2026-09-01,5233,MG,São Gonçalo Do Abaeté,Sudeste,1,2,3
+860,2026-09-01,5235,MG,São Gonçalo Do Pará,Sudeste,2,0,2
+861,2026-09-01,5237,MG,São Gonçalo Do Rio Abaixo,Sudeste,1,2,3
+862,2026-09-01,5239,MG,São Gonçalo Do Sapucaí,Sudeste,1,2,3
+863,2026-09-01,5241,MG,São Gotardo,Sudeste,2,0,2
+864,2026-09-01,5243,MG,São João Batista Do Glória,Sudeste,1,0,1
+865,2026-09-01,5249,MG,São João Del Rei,Sudeste,10,1,11
+866,2026-09-01,5255,MG,São João Evangelista,Sudeste,1,2,3
+867,2026-09-01,5273,MG,São Lourenço,Sudeste,12,5,17
+868,2026-09-01,5285,MG,São Roque De Minas,Sudeste,1,0,1
+869,2026-09-01,5293,MG,São Sebastião Do Paraíso,Sudeste,4,0,4
+870,2026-09-01,5299,MG,São Tiago,Sudeste,2,1,3
+871,2026-09-01,5325,MG,Sericita,Sudeste,3,0,3
+872,2026-09-01,5335,MG,Serra Do Salitre,Sudeste,1,0,1
+873,2026-09-01,5341,MG,Serro,Sudeste,2,0,2
+874,2026-09-01,5343,MG,Sete Lagoas,Sudeste,8,8,16
+875,2026-09-01,5357,MG,Tabuleiro,Sudeste,1,0,1
+876,2026-09-01,5359,MG,Taiobeiras,Sudeste,7,2,9
+877,2026-09-01,5367,MG,Tarumirim,Sudeste,1,2,3
+878,2026-09-01,5371,MG,Teófilo Otoni,Sudeste,8,2,10
+879,2026-09-01,5373,MG,Timóteo,Sudeste,1,0,1
+880,2026-09-01,5375,MG,Tiradentes,Sudeste,37,0,37
+881,2026-09-01,5383,MG,Tombos,Sudeste,2,0,2
+882,2026-09-01,5385,MG,Três Corações,Sudeste,1,8,9
+883,2026-09-01,5387,MG,Três Pontas,Sudeste,6,1,7
+884,2026-09-01,5393,MG,Turmalina,Sudeste,3,0,3
+885,2026-09-01,5397,MG,Ubá,Sudeste,1,2,3
+886,2026-09-01,5401,MG,Uberaba,Sudeste,28,18,46
+887,2026-09-01,5403,MG,Uberlândia,Sudeste,73,79,152
+888,2026-09-01,5407,MG,Unaí,Sudeste,2,1,3
+889,2026-09-01,5413,MG,Varginha,Sudeste,8,10,18
+890,2026-09-01,5415,MG,Várzea Da Palma,Sudeste,2,0,2
+891,2026-09-01,5425,MG,Vespasiano,Sudeste,2,2,4
+892,2026-09-01,5427,MG,Viçosa,Sudeste,3,0,3
+893,2026-09-01,5435,MG,Virgínia,Sudeste,3,0,3
+894,2026-09-01,5441,MG,Visconde Do Rio Branco,Sudeste,1,0,1
+895,2026-09-01,5453,PR,Pinhais,Sul,12,13,25
+896,2026-09-01,5459,PR,Mauá Da Serra,Sul,2,4,6
+897,2026-09-01,5495,PR,Pinhal De São Bento,Sul,1,0,1
+898,2026-09-01,5499,PR,Candói,Sul,5,10,15
+899,2026-09-01,5515,PR,São Manoel Do Paraná,Sul,2,0,2
+900,2026-09-01,5529,PR,Entre Rios Do Oeste,Sul,3,1,4
+901,2026-09-01,5537,SC,Bombinhas,Sul,12,3,15
+902,2026-09-01,5541,SC,Passo De Torres,Sul,1,5,6
+903,2026-09-01,5547,SC,Sangão,Sul,0,1,1
+904,2026-09-01,5555,SC,Santa Terezinha,Sul,0,2,2
+905,2026-09-01,5573,SC,São Cristóvão Do Sul,Sul,11,0,11
+906,2026-09-01,5601,ES,Afonso Cláudio,Sudeste,3,0,3
+907,2026-09-01,5605,ES,Alfredo Chaves,Sudeste,0,1,1
+908,2026-09-01,5607,ES,Anchieta,Sudeste,6,1,7
+909,2026-09-01,5611,ES,Aracruz,Sudeste,6,5,11
+910,2026-09-01,5615,ES,Baixo Guandu,Sudeste,3,2,5
+911,2026-09-01,5617,ES,Barra De São Francisco,Sudeste,4,3,7
+912,2026-09-01,5623,ES,Cachoeiro De Itapemirim,Sudeste,31,14,45
+913,2026-09-01,5625,ES,Cariacica,Sudeste,12,17,29
+914,2026-09-01,5627,ES,Castelo,Sudeste,2,0,2
+915,2026-09-01,5629,ES,Colatina,Sudeste,11,3,14
+916,2026-09-01,5631,ES,Conceição Da Barra,Sudeste,4,0,4
+917,2026-09-01,5635,ES,Divino De São Lourenço,Sudeste,1,0,1
+918,2026-09-01,5637,ES,Domingos Martins,Sudeste,38,6,44
+919,2026-09-01,5639,ES,Dores Do Rio Preto,Sudeste,5,1,6
+920,2026-09-01,5641,ES,Ecoporanga,Sudeste,1,1,2
+921,2026-09-01,5643,ES,Fundão,Sudeste,1,0,1
+922,2026-09-01,5645,ES,Guaçuí,Sudeste,2,0,2
+923,2026-09-01,5647,ES,Guarapari,Sudeste,20,12,32
+924,2026-09-01,5649,ES,Ibiraçu,Sudeste,2,2,4
+925,2026-09-01,5655,ES,Itapemirim,Sudeste,3,1,4
+926,2026-09-01,5657,ES,Itarana,Sudeste,1,0,1
+927,2026-09-01,5663,ES,Linhares,Sudeste,22,9,31
+928,2026-09-01,5667,ES,Mimoso Do Sul,Sudeste,4,2,6
+929,2026-09-01,5669,ES,Montanha,Sudeste,2,0,2
+930,2026-09-01,5677,ES,Nova Venécia,Sudeste,3,3,6
+931,2026-09-01,5681,ES,Pinheiros,Sudeste,0,2,2
+932,2026-09-01,5683,ES,Piúma,Sudeste,5,0,5
+933,2026-09-01,5689,ES,Santa Leopoldina,Sudeste,1,0,1
+934,2026-09-01,5691,ES,Santa Teresa,Sudeste,5,0,5
+935,2026-09-01,5693,ES,São Gabriel Da Palha,Sudeste,2,2,4
+936,2026-09-01,5697,ES,São Mateus,Sudeste,13,3,16
+937,2026-09-01,5699,ES,Serra,Sudeste,43,65,108
+938,2026-09-01,5701,ES,Viana,Sudeste,2,4,6
+939,2026-09-01,5703,ES,Vila Velha,Sudeste,40,20,60
+940,2026-09-01,5705,ES,Vitória,Sudeste,66,51,117
+941,2026-09-01,5711,ES,Rio Bananal,Sudeste,2,0,2
+942,2026-09-01,5715,ES,Pedro Canário,Sudeste,0,1,1
+943,2026-09-01,5721,ES,João Neiva,Sudeste,2,0,2
+944,2026-09-01,5727,ES,Vargem Alta,Sudeste,4,0,4
+945,2026-09-01,5729,ES,Venda Nova Do Imigrante,Sudeste,4,0,4
+946,2026-09-01,5733,ES,Águia Branca,Sudeste,0,1,1
+947,2026-09-01,5757,RS,Nova Santa Rita,Sul,2,2,4
+948,2026-09-01,5779,RS,Arambaré,Sul,0,1,1
+949,2026-09-01,5781,RS,Sentinela Do Sul,Sul,1,0,1
+950,2026-09-01,5785,RS,Xangri-Lá,Sul,20,19,39
+951,2026-09-01,5801,RJ,Angra Dos Reis,Sudeste,26,8,34
+952,2026-09-01,5803,RJ,Araruama,Sudeste,3,5,8
+953,2026-09-01,5805,RJ,Barra Do Piraí,Sudeste,3,0,3
+954,2026-09-01,5807,RJ,Barra Mansa,Sudeste,7,16,23
+955,2026-09-01,5811,RJ,Bom Jesus Do Itabapoana,Sudeste,4,0,4
+956,2026-09-01,5813,RJ,Cabo Frio,Sudeste,17,9,26
+957,2026-09-01,5819,RJ,Campos Dos Goytacazes,Sudeste,24,13,37
+958,2026-09-01,5821,RJ,Cantagalo,Sudeste,1,0,1
+959,2026-09-01,5823,RJ,Carmo,Sudeste,1,0,1
+960,2026-09-01,5825,RJ,Casimiro De Abreu,Sudeste,7,2,9
+961,2026-09-01,5829,RJ,Cordeiro,Sudeste,1,0,1
+962,2026-09-01,5833,RJ,Duque De Caxias,Sudeste,8,7,15
+963,2026-09-01,5837,RJ,Itaboraí,Sudeste,3,6,9
+964,2026-09-01,5839,RJ,Itaguaí,Sudeste,6,2,8
+965,2026-09-01,5843,RJ,Itaperuna,Sudeste,13,3,16
+966,2026-09-01,5847,RJ,Macaé,Sudeste,37,13,50
+967,2026-09-01,5849,RJ,Magé,Sudeste,6,0,6
+968,2026-09-01,5851,RJ,Mangaratiba,Sudeste,9,2,11
+969,2026-09-01,5853,RJ,Maricá,Sudeste,9,4,13
+970,2026-09-01,5855,RJ,Mendes,Sudeste,0,1,1
+971,2026-09-01,5857,RJ,Miguel Pereira,Sudeste,4,3,7
+972,2026-09-01,5865,RJ,Niterói,Sudeste,47,23,70
+973,2026-09-01,5867,RJ,Nova Friburgo,Sudeste,14,3,17
+974,2026-09-01,5869,RJ,Nova Iguaçu,Sudeste,31,8,39
+975,2026-09-01,5871,RJ,Paracambi,Sudeste,5,0,5
+976,2026-09-01,5873,RJ,Paraíba Do Sul,Sudeste,4,0,4
+977,2026-09-01,5875,RJ,Paraty,Sudeste,24,9,33
+978,2026-09-01,5877,RJ,Petrópolis,Sudeste,39,18,57
+979,2026-09-01,5879,RJ,Piraí,Sudeste,2,4,6
+980,2026-09-01,5883,RJ,Resende,Sudeste,15,12,27
+981,2026-09-01,5885,RJ,Rio Bonito,Sudeste,2,2,4
+982,2026-09-01,5887,RJ,Rio Claro,Sudeste,1,0,1
+983,2026-09-01,5889,RJ,Rio Das Flores,Sudeste,1,0,1
+984,2026-09-01,5891,RJ,Santa Maria Madalena,Sudeste,2,0,2
+985,2026-09-01,5893,RJ,Santo Antônio De Pádua,Sudeste,1,0,1
+986,2026-09-01,5897,RJ,São Gonçalo,Sudeste,21,13,34
+987,2026-09-01,5899,RJ,São João Da Barra,Sudeste,2,0,2
+988,2026-09-01,5901,RJ,São João De Meriti,Sudeste,7,5,12
+989,2026-09-01,5903,RJ,São Pedro Da Aldeia,Sudeste,3,10,13
+990,2026-09-01,5907,RJ,Sapucaia,Sudeste,3,1,4
+991,2026-09-01,5909,RJ,Saquarema,Sudeste,1,11,12
+992,2026-09-01,5911,RJ,Silva Jardim,Sudeste,2,1,3
+993,2026-09-01,5915,RJ,Teresópolis,Sudeste,30,6,36
+994,2026-09-01,5919,RJ,Três Rios,Sudeste,2,0,2
+995,2026-09-01,5921,RJ,Valença,Sudeste,5,1,6
+996,2026-09-01,5923,RJ,Vassouras,Sudeste,3,0,3
+997,2026-09-01,5925,RJ,Volta Redonda,Sudeste,6,10,16
+998,2026-09-01,5927,RJ,Arraial Do Cabo,Sudeste,1,0,1
+999,2026-09-01,5969,RS,Ametista Do Sul,Sul,1,0,1
+1000,2026-09-01,5991,RS,Nova Pádua,Sul,5,0,5
+1001,2026-09-01,6001,RJ,Rio De Janeiro,Sudeste,897,174,1071
+1002,2026-09-01,6003,RJ,Itatiaia,Sudeste,24,2,26
+1003,2026-09-01,6005,RJ,Paty Do Alferes,Sudeste,1,0,1
+1004,2026-09-01,6021,RS,Picada Café,Sul,2,0,2
+1005,2026-09-01,6047,RS,Linha Nova,Sul,1,0,1
+1006,2026-09-01,6065,RS,Porto Mauá,Sul,0,1,1
+1007,2026-09-01,6079,RS,Manoel Viana,Sul,0,1,1
+1008,2026-09-01,6083,RS,Candiota,Sul,2,0,2
+1009,2026-09-01,6101,SP,Adamantina,Sudeste,9,2,11
+1010,2026-09-01,6105,SP,Aguaí,Sudeste,1,0,1
+1011,2026-09-01,6109,SP,Águas De Lindóia,Sudeste,17,1,18
+1012,2026-09-01,6111,SP,Águas De São Pedro,Sudeste,4,0,4
+1013,2026-09-01,6113,SP,Agudos,Sudeste,3,0,3
+1014,2026-09-01,6119,SP,Altinópolis,Sudeste,1,1,2
+1015,2026-09-01,6127,SP,Álvaro De Carvalho,Sudeste,1,0,1
+1016,2026-09-01,6131,SP,Americana,Sudeste,19,17,36
+1017,2026-09-01,6137,SP,Amparo,Sudeste,7,1,8
+1018,2026-09-01,6139,SP,Analândia,Sudeste,2,0,2
+1019,2026-09-01,6141,SP,Andradina,Sudeste,13,2,15
+1020,2026-09-01,6143,SP,Angatuba,Sudeste,1,0,1
+1021,2026-09-01,6145,SP,Anhembi,Sudeste,1,0,1
+1022,2026-09-01,6149,SP,Aparecida,Sudeste,14,8,22
+1023,2026-09-01,6155,SP,Araçatuba,Sudeste,28,11,39
+1024,2026-09-01,6157,SP,Araçoiaba Da Serra,Sudeste,3,0,3
+1025,2026-09-01,6161,SP,Arandu,Sudeste,1,0,1
+1026,2026-09-01,6163,SP,Araraquara,Sudeste,19,16,35
+1027,2026-09-01,6165,SP,Araras,Sudeste,7,1,8
+1028,2026-09-01,6175,SP,Artur Nogueira,Sudeste,1,0,1
+1029,2026-09-01,6177,SP,Arujá,Sudeste,10,0,10
+1030,2026-09-01,6179,SP,Assis,Sudeste,4,7,11
+1031,2026-09-01,6181,SP,Atibaia,Sudeste,30,14,44
+1032,2026-09-01,6189,SP,Avaré,Sudeste,18,11,29
+1033,2026-09-01,6191,SP,Bady Bassitt,Sudeste,0,1,1
+1034,2026-09-01,6197,SP,Bananal,Sudeste,1,0,1
+1035,2026-09-01,6199,SP,Barbosa,Sudeste,1,0,1
+1036,2026-09-01,6203,SP,Bariri,Sudeste,3,0,3
+1037,2026-09-01,6205,SP,Barra Bonita,Sudeste,4,1,5
+1038,2026-09-01,6209,SP,Barretos,Sudeste,25,15,40
+1039,2026-09-01,6211,SP,Barrinha,Sudeste,4,0,4
+1040,2026-09-01,6213,SP,Barueri,Sudeste,156,50,206
+1041,2026-09-01,6217,SP,Batatais,Sudeste,2,2,4
+1042,2026-09-01,6219,SP,Bauru,Sudeste,34,24,58
+1043,2026-09-01,6221,SP,Bebedouro,Sudeste,3,0,3
+1044,2026-09-01,6227,SP,Bilac,Sudeste,1,0,1
+1045,2026-09-01,6229,SP,Birigui,Sudeste,13,0,13
+1046,2026-09-01,6235,SP,Bocaina,Sudeste,1,0,1
+1047,2026-09-01,6239,SP,Boituva,Sudeste,5,5,10
+1048,2026-09-01,6249,SP,Botucatu,Sudeste,24,9,33
+1049,2026-09-01,6251,SP,Bragança Paulista,Sudeste,18,9,27
+1050,2026-09-01,6259,SP,Brotas,Sudeste,13,1,14
+1051,2026-09-01,6271,SP,Caçapava,Sudeste,4,3,7
+1052,2026-09-01,6273,SP,Cachoeira Paulista,Sudeste,2,1,3
+1053,2026-09-01,6275,SP,Caconde,Sudeste,1,0,1
+1054,2026-09-01,6281,SP,Caieiras,Sudeste,5,3,8
+1055,2026-09-01,6285,SP,Cajamar,Sudeste,3,9,12
+1056,2026-09-01,6291,SP,Campinas,Sudeste,241,108,349
+1057,2026-09-01,6293,SP,Campo Limpo Paulista,Sudeste,1,0,1
+1058,2026-09-01,6295,SP,Campos Do Jordão,Sudeste,77,3,80
+1059,2026-09-01,6299,SP,Cananéia,Sudeste,4,0,4
+1060,2026-09-01,6301,SP,Cândido Mota,Sudeste,2,0,2
+1061,2026-09-01,6305,SP,Capão Bonito,Sudeste,6,0,6
+1062,2026-09-01,6307,SP,Capela Do Alto,Sudeste,0,1,1
+1063,2026-09-01,6309,SP,Capivari,Sudeste,2,1,3
+1064,2026-09-01,6311,SP,Caraguatatuba,Sudeste,12,11,23
+1065,2026-09-01,6313,SP,Carapicuíba,Sudeste,18,2,20
+1066,2026-09-01,6323,SP,Catanduva,Sudeste,13,5,18
+1067,2026-09-01,6329,SP,Cerqueira César,Sudeste,1,0,1
+1068,2026-09-01,6331,SP,Cerquilho,Sudeste,1,1,2
+1069,2026-09-01,6333,SP,Cesário Lange,Sudeste,3,0,3
+1070,2026-09-01,6337,SP,Chavantes,Sudeste,2,1,3
+1071,2026-09-01,6341,SP,Colina,Sudeste,1,0,1
+1072,2026-09-01,6343,SP,Colômbia,Sudeste,1,0,1
+1073,2026-09-01,6349,SP,Cordeirópolis,Sudeste,2,4,6
+1074,2026-09-01,6361,SP,Cotia,Sudeste,42,6,48
+1075,2026-09-01,6363,SP,Cravinhos,Sudeste,9,5,14
+1076,2026-09-01,6369,SP,Cruzeiro,Sudeste,5,0,5
+1077,2026-09-01,6371,SP,Cubatão,Sudeste,4,0,4
+1078,2026-09-01,6373,SP,Cunha,Sudeste,4,1,5
+1079,2026-09-01,6377,SP,Diadema,Sudeste,9,3,12
+1080,2026-09-01,6387,SP,Dourado,Sudeste,3,0,3
+1081,2026-09-01,6389,SP,Dracena,Sudeste,6,0,6
+1082,2026-09-01,6397,SP,Eldorado,Sudeste,1,0,1
+1083,2026-09-01,6399,SP,Elias Fausto,Sudeste,3,0,3
+1084,2026-09-01,6401,SP,Embu Das Artes,Sudeste,10,2,12
+1085,2026-09-01,6411,SP,Fernandópolis,Sudeste,7,6,13
+1086,2026-09-01,6425,SP,Franca,Sudeste,29,16,45
+1087,2026-09-01,6427,SP,Francisco Morato,Sudeste,4,1,5
+1088,2026-09-01,6429,SP,Franco Da Rocha,Sudeste,7,2,9
+1089,2026-09-01,6433,SP,Gália,Sudeste,3,1,4
+1090,2026-09-01,6435,SP,Garça,Sudeste,3,0,3
+1091,2026-09-01,6445,SP,Guaiçara,Sudeste,1,0,1
+1092,2026-09-01,6457,SP,Guaraçaí,Sudeste,1,0,1
+1093,2026-09-01,6465,SP,Guararapes,Sudeste,1,0,1
+1094,2026-09-01,6467,SP,Guararema,Sudeste,11,11,22
+1095,2026-09-01,6469,SP,Guaratinguetá,Sudeste,5,7,12
+1096,2026-09-01,6471,SP,Guareí,Sudeste,1,0,1
+1097,2026-09-01,6475,SP,Guarujá,Sudeste,36,11,47
+1098,2026-09-01,6477,SP,Guarulhos,Sudeste,81,50,131
+1099,2026-09-01,6481,SP,Herculândia,Sudeste,3,1,4
+1100,2026-09-01,6487,SP,Ibaté,Sudeste,2,4,6
+1101,2026-09-01,6495,SP,Ibiúna,Sudeste,7,0,7
+1102,2026-09-01,6501,SP,Igaraçu Do Tietê,Sudeste,4,0,4
+1103,2026-09-01,6505,SP,Igaratá,Sudeste,2,0,2
+1104,2026-09-01,6507,SP,Iguape,Sudeste,2,0,2
+1105,2026-09-01,6509,SP,Ilhabela,Sudeste,14,0,14
+1106,2026-09-01,6511,SP,Indaiatuba,Sudeste,51,14,65
+1107,2026-09-01,6521,SP,Iperó,Sudeste,1,0,1
+1108,2026-09-01,6525,SP,Iporanga,Sudeste,1,0,1
+1109,2026-09-01,6529,SP,Iracemápolis,Sudeste,1,0,1
+1110,2026-09-01,6533,SP,Irapuru,Sudeste,0,1,1
+1111,2026-09-01,6537,SP,Itaí,Sudeste,1,1,2
+1112,2026-09-01,6541,SP,Itaju,Sudeste,1,0,1
+1113,2026-09-01,6543,SP,Itanhaém,Sudeste,15,2,17
+1114,2026-09-01,6545,SP,Itapecerica Da Serra,Sudeste,7,0,7
+1115,2026-09-01,6547,SP,Itapetininga,Sudeste,31,4,35
+1116,2026-09-01,6549,SP,Itapeva,Sudeste,5,1,6
+1117,2026-09-01,6551,SP,Itapevi,Sudeste,1,2,3
+1118,2026-09-01,6553,SP,Itapira,Sudeste,6,2,8
+1119,2026-09-01,6555,SP,Itápolis,Sudeste,3,0,3
+1120,2026-09-01,6563,SP,Itaquaquecetuba,Sudeste,4,3,7
+1121,2026-09-01,6567,SP,Itariri,Sudeste,4,0,4
+1122,2026-09-01,6569,SP,Itatiba,Sudeste,16,2,18
+1123,2026-09-01,6571,SP,Itatinga,Sudeste,1,0,1
+1124,2026-09-01,6573,SP,Itirapina,Sudeste,4,1,5
+1125,2026-09-01,6579,SP,Itu,Sudeste,33,18,51
+1126,2026-09-01,6581,SP,Itupeva,Sudeste,26,4,30
+1127,2026-09-01,6587,SP,Jaboticabal,Sudeste,8,2,10
+1128,2026-09-01,6589,SP,Jacareí,Sudeste,16,6,22
+1129,2026-09-01,6595,SP,Jaguariúna,Sudeste,35,3,38
+1130,2026-09-01,6597,SP,Jales,Sudeste,3,1,4
+1131,2026-09-01,6601,SP,Jandira,Sudeste,0,4,4
+1132,2026-09-01,6603,SP,Jardinópolis,Sudeste,4,0,4
+1133,2026-09-01,6605,SP,Jarinu,Sudeste,3,2,5
+1134,2026-09-01,6607,SP,Jaú,Sudeste,6,4,10
+1135,2026-09-01,6611,SP,Joanópolis,Sudeste,3,0,3
+1136,2026-09-01,6615,SP,José Bonifácio,Sudeste,1,0,1
+1137,2026-09-01,6619,SP,Jundiaí,Sudeste,77,39,116
+1138,2026-09-01,6623,SP,Juquiá,Sudeste,3,0,3
+1139,2026-09-01,6625,SP,Juquitiba,Sudeste,0,2,2
+1140,2026-09-01,6627,SP,Lagoinha,Sudeste,1,0,1
+1141,2026-09-01,6629,SP,Laranjal Paulista,Sudeste,7,0,7
+1142,2026-09-01,6633,SP,Lavrinhas,Sudeste,2,0,2
+1143,2026-09-01,6635,SP,Leme,Sudeste,3,2,5
+1144,2026-09-01,6637,SP,Lençóis Paulista,Sudeste,2,2,4
+1145,2026-09-01,6639,SP,Limeira,Sudeste,33,28,61
+1146,2026-09-01,6643,SP,Lins,Sudeste,6,2,8
+1147,2026-09-01,6645,SP,Lorena,Sudeste,3,2,5
+1148,2026-09-01,6647,SP,Louveira,Sudeste,8,4,12
+1149,2026-09-01,6649,SP,Lucélia,Sudeste,1,0,1
+1150,2026-09-01,6669,SP,Mairinque,Sudeste,2,0,2
+1151,2026-09-01,6671,SP,Mairiporã,Sudeste,3,2,5
+1152,2026-09-01,6679,SP,Mariápolis,Sudeste,1,0,1
+1153,2026-09-01,6681,SP,Marília,Sudeste,16,14,30
+1154,2026-09-01,6685,SP,Martinópolis,Sudeste,4,2,6
+1155,2026-09-01,6687,SP,Matão,Sudeste,4,1,5
+1156,2026-09-01,6689,SP,Mauá,Sudeste,2,0,2
+1157,2026-09-01,6691,SP,Mendonça,Sudeste,1,0,1
+1158,2026-09-01,6697,SP,Mineiros Do Tietê,Sudeste,2,0,2
+1159,2026-09-01,6699,SP,Miracatu,Sudeste,7,4,11
+1160,2026-09-01,6707,SP,Mirassol,Sudeste,9,12,21
+1161,2026-09-01,6711,SP,Mococa,Sudeste,5,0,5
+1162,2026-09-01,6713,SP,Mogi Das Cruzes,Sudeste,48,22,70
+1163,2026-09-01,6715,SP,Mogi Guaçu,Sudeste,14,12,26
+1164,2026-09-01,6717,SP,Mogi Mirim,Sudeste,29,5,34
+1165,2026-09-01,6723,SP,Mongaguá,Sudeste,1,0,1
+1166,2026-09-01,6725,SP,Monte Alegre Do Sul,Sudeste,2,0,2
+1167,2026-09-01,6729,SP,Monte Aprazível,Sudeste,1,0,1
+1168,2026-09-01,6731,SP,Monte Azul Paulista,Sudeste,2,0,2
+1169,2026-09-01,6737,SP,Monte Mor,Sudeste,2,0,2
+1170,2026-09-01,6747,SP,Natividade Da Serra,Sudeste,1,0,1
+1171,2026-09-01,6749,SP,Nazaré Paulista,Sudeste,2,0,2
+1172,2026-09-01,6751,SP,Neves Paulista,Sudeste,1,0,1
+1173,2026-09-01,6769,SP,Nova Odessa,Sudeste,3,1,4
+1174,2026-09-01,6771,SP,Novo Horizonte,Sudeste,1,0,1
+1175,2026-09-01,6775,SP,Ocauçu,Sudeste,1,0,1
+1176,2026-09-01,6779,SP,Olímpia,Sudeste,34,3,37
+1177,2026-09-01,6783,SP,Oriente,Sudeste,4,0,4
+1178,2026-09-01,6785,SP,Orindiúva,Sudeste,2,0,2
+1179,2026-09-01,6787,SP,Orlândia,Sudeste,1,0,1
+1180,2026-09-01,6789,SP,Osasco,Sudeste,27,18,45
+1181,2026-09-01,6793,SP,Osvaldo Cruz,Sudeste,2,0,2
+1182,2026-09-01,6795,SP,Ourinhos,Sudeste,10,7,17
+1183,2026-09-01,6803,SP,Palmares Paulista,Sudeste,1,0,1
+1184,2026-09-01,6811,SP,Paraguaçu Paulista,Sudeste,0,1,1
+1185,2026-09-01,6813,SP,Paraibuna,Sudeste,0,4,4
+1186,2026-09-01,6817,SP,Paranapanema,Sudeste,9,0,9
+1187,2026-09-01,6821,SP,Parapuã,Sudeste,1,0,1
+1188,2026-09-01,6823,SP,Pardinho,Sudeste,6,7,13
+1189,2026-09-01,6825,SP,Pariquera-Açu,Sudeste,2,4,6
+1190,2026-09-01,6831,SP,Paulínia,Sudeste,14,4,18
+1191,2026-09-01,6835,SP,Pederneiras,Sudeste,9,2,11
+1192,2026-09-01,6841,SP,Pedregulho,Sudeste,1,0,1
+1193,2026-09-01,6843,SP,Pedreira,Sudeste,1,0,1
+1194,2026-09-01,6845,SP,Pedro De Toledo,Sudeste,2,0,2
+1195,2026-09-01,6847,SP,Penápolis,Sudeste,4,2,6
+1196,2026-09-01,6853,SP,Peruíbe,Sudeste,4,1,5
+1197,2026-09-01,6857,SP,Piedade,Sudeste,1,0,1
+1198,2026-09-01,6861,SP,Pindamonhangaba,Sudeste,6,2,8
+1199,2026-09-01,6865,SP,Espírito Santo Do Pinhal,Sudeste,8,0,8
+1200,2026-09-01,6873,SP,Piracaia,Sudeste,1,0,1
+1201,2026-09-01,6875,SP,Piracicaba,Sudeste,43,21,64
+1202,2026-09-01,6877,SP,Piraju,Sudeste,1,0,1
+1203,2026-09-01,6879,SP,Pirajuí,Sudeste,1,0,1
+1204,2026-09-01,6881,SP,Pirangi,Sudeste,1,0,1
+1205,2026-09-01,6883,SP,Pirapora Do Bom Jesus,Sudeste,2,0,2
+1206,2026-09-01,6885,SP,Pirapozinho,Sudeste,1,0,1
+1207,2026-09-01,6887,SP,Pirassununga,Sudeste,4,8,12
+1208,2026-09-01,6889,SP,Piratininga,Sudeste,4,0,4
+1209,2026-09-01,6891,SP,Pitangueiras,Sudeste,2,0,2
+1210,2026-09-01,6897,SP,Poá,Sudeste,0,5,5
+1211,2026-09-01,6901,SP,Pompéia,Sudeste,1,0,1
+1212,2026-09-01,6911,SP,Porangaba,Sudeste,1,1,2
+1213,2026-09-01,6913,SP,Porto Feliz,Sudeste,5,2,7
+1214,2026-09-01,6915,SP,Porto Ferreira,Sudeste,12,2,14
+1215,2026-09-01,6917,SP,Potirendaba,Sudeste,4,0,4
+1216,2026-09-01,6921,SP,Praia Grande,Sudeste,18,5,23
+1217,2026-09-01,6927,SP,Presidente Epitácio,Sudeste,1,2,3
+1218,2026-09-01,6929,SP,Presidente Prudente,Sudeste,23,13,36
+1219,2026-09-01,6931,SP,Presidente Venceslau,Sudeste,2,0,2
+1220,2026-09-01,6939,SP,Queluz,Sudeste,3,4,7
+1221,2026-09-01,6941,SP,Quintana,Sudeste,1,0,1
+1222,2026-09-01,6949,SP,Regente Feijó,Sudeste,0,2,2
+1223,2026-09-01,6953,SP,Registro,Sudeste,5,2,7
+1224,2026-09-01,6959,SP,Ribeirão Bonito,Sudeste,1,0,1
+1225,2026-09-01,6967,SP,Ribeirão Pires,Sudeste,7,2,9
+1226,2026-09-01,6969,SP,Ribeirão Preto,Sudeste,148,87,235
+1227,2026-09-01,6973,SP,Rifaina,Sudeste,6,2,8
+1228,2026-09-01,6977,SP,Rinópolis,Sudeste,1,0,1
+1229,2026-09-01,6979,SP,Rio Claro,Sudeste,4,2,6
+1230,2026-09-01,6981,SP,Rio Das Pedras,Sudeste,1,2,3
+1231,2026-09-01,6987,SP,Roseira,Sudeste,0,2,2
+1232,2026-09-01,6991,SP,Rubinéia,Sudeste,1,0,1
+1233,2026-09-01,6993,SP,Sabino,Sudeste,1,0,1
+1234,2026-09-01,6999,SP,Sales Oliveira,Sudeste,0,2,2
+1235,2026-09-01,7005,SP,Salto,Sudeste,8,4,12
+1236,2026-09-01,7007,SP,Salto De Pirapora,Sudeste,1,1,2
+1237,2026-09-01,7009,SP,Salto Grande,Sudeste,1,0,1
+1238,2026-09-01,7013,SP,Santa Adélia,Sudeste,1,0,1
+1239,2026-09-01,7017,SP,Santa Bárbara D'oeste,Sudeste,14,8,22
+1240,2026-09-01,7019,SP,Águas De Santa Bárbara,Sudeste,2,2,4
+1241,2026-09-01,7023,SP,Santa Clara D'oeste,Sudeste,2,0,2
+1242,2026-09-01,7025,SP,Santa Cruz Da Conceição,Sudeste,3,0,3
+1243,2026-09-01,7029,SP,Santa Cruz Do Rio Pardo,Sudeste,2,4,6
+1244,2026-09-01,7031,SP,Santa Ernestina,Sudeste,1,0,1
+1245,2026-09-01,7033,SP,Santa Fé Do Sul,Sudeste,5,8,13
+1246,2026-09-01,7035,SP,Santa Gertrudes,Sudeste,3,1,4
+1247,2026-09-01,7037,SP,Santa Isabel,Sudeste,1,0,1
+1248,2026-09-01,7041,SP,Santa Maria Da Serra,Sudeste,0,1,1
+1249,2026-09-01,7047,SP,Santana De Parnaíba,Sudeste,46,10,56
+1250,2026-09-01,7051,SP,Santa Rita Do Passa Quatro,Sudeste,4,8,12
+1251,2026-09-01,7055,SP,Santo Anastácio,Sudeste,2,0,2
+1252,2026-09-01,7057,SP,Santo André,Sudeste,64,34,98
+1253,2026-09-01,7059,SP,Santo Antônio Da Alegria,Sudeste,0,2,2
+1254,2026-09-01,7061,SP,Santo Antônio De Posse,Sudeste,3,0,3
+1255,2026-09-01,7065,SP,Santo Antônio Do Pinhal,Sudeste,13,2,15
+1256,2026-09-01,7071,SP,Santos,Sudeste,100,20,120
+1257,2026-09-01,7073,SP,São Bento Do Sapucaí,Sudeste,10,0,10
+1258,2026-09-01,7075,SP,São Bernardo Do Campo,Sudeste,117,45,162
+1259,2026-09-01,7077,SP,São Caetano Do Sul,Sudeste,37,11,48
+1260,2026-09-01,7079,SP,São Carlos,Sudeste,20,8,28
+1261,2026-09-01,7083,SP,São João Da Boa Vista,Sudeste,13,2,15
+1262,2026-09-01,7089,SP,São Joaquim Da Barra,Sudeste,0,1,1
+1263,2026-09-01,7095,SP,São José Do Rio Pardo,Sudeste,6,0,6
+1264,2026-09-01,7097,SP,São José Do Rio Preto,Sudeste,106,34,140
+1265,2026-09-01,7099,SP,São José Dos Campos,Sudeste,86,63,149
+1266,2026-09-01,7101,SP,São Luiz Do Paraitinga,Sudeste,3,0,3
+1267,2026-09-01,7105,SP,São Miguel Arcanjo,Sudeste,2,0,2
+1268,2026-09-01,7107,SP,São Paulo,Sudeste,2489,612,3101
+1269,2026-09-01,7109,SP,São Pedro,Sudeste,10,0,10
+1270,2026-09-01,7113,SP,São Roque,Sudeste,43,5,48
+1271,2026-09-01,7115,SP,São Sebastião,Sudeste,40,3,43
+1272,2026-09-01,7121,SP,São Vicente,Sudeste,10,4,14
+1273,2026-09-01,7133,SP,Serra Negra,Sudeste,11,1,12
+1274,2026-09-01,7135,SP,Sertãozinho,Sudeste,13,7,20
+1275,2026-09-01,7143,SP,Socorro,Sudeste,5,1,6
+1276,2026-09-01,7145,SP,Sorocaba,Sudeste,59,29,88
+1277,2026-09-01,7147,SP,Sud Mennucci,Sudeste,1,0,1
+1278,2026-09-01,7149,SP,Sumaré,Sudeste,4,5,9
+1279,2026-09-01,7151,SP,Suzano,Sudeste,6,8,14
+1280,2026-09-01,7167,SP,Tambaú,Sudeste,0,1,1
+1281,2026-09-01,7169,SP,Tanabi,Sudeste,2,0,2
+1282,2026-09-01,7175,SP,Taquaritinga,Sudeste,6,3,9
+1283,2026-09-01,7177,SP,Taquarituba,Sudeste,1,0,1
+1284,2026-09-01,7181,SP,Tatuí,Sudeste,7,1,8
+1285,2026-09-01,7183,SP,Taubaté,Sudeste,32,15,47
+1286,2026-09-01,7191,SP,Tietê,Sudeste,0,1,1
+1287,2026-09-01,7197,SP,Tremembé,Sudeste,3,0,3
+1288,2026-09-01,7201,SP,Tupã,Sudeste,2,1,3
+1289,2026-09-01,7209,SP,Ubatuba,Sudeste,24,9,33
+1290,2026-09-01,7213,SP,Uchoa,Sudeste,1,0,1
+1291,2026-09-01,7221,SP,Urupês,Sudeste,1,0,1
+1292,2026-09-01,7225,SP,Valinhos,Sudeste,19,8,27
+1293,2026-09-01,7237,SP,Vinhedo,Sudeste,22,1,23
+1294,2026-09-01,7243,SP,Votorantim,Sudeste,30,2,32
+1295,2026-09-01,7245,SP,Votuporanga,Sudeste,13,2,15
+1296,2026-09-01,7273,SP,Vargem Grande Paulista,Sudeste,4,1,5
+1297,2026-09-01,7297,RS,Imbé,Sul,7,4,11
+1298,2026-09-01,7311,RS,Vila Flores,Sul,3,0,3
+1299,2026-09-01,7321,RS,Tupandi,Sul,1,0,1
+1300,2026-09-01,7325,RS,Trindade Do Sul,Sul,1,0,1
+1301,2026-09-01,7329,RS,Três Cachoeiras,Sul,1,2,3
+1302,2026-09-01,7333,RS,Terra De Areia,Sul,0,4,4
+1303,2026-09-01,7339,RS,Saldanha Marinho,Sul,1,0,1
+1304,2026-09-01,7341,RS,São Miguel Das Missões,Sul,1,0,1
+1305,2026-09-01,7343,RS,São José Do Hortêncio,Sul,2,0,2
+1306,2026-09-01,7359,RS,Protásio Alves,Sul,1,0,1
+1307,2026-09-01,7363,RS,Pouso Novo,Sul,2,0,2
+1308,2026-09-01,7371,RS,Paverama,Sul,1,3,4
+1309,2026-09-01,7375,RS,Pantano Grande,Sul,0,3,3
+1310,2026-09-01,7381,RS,Nova Esperança Do Sul,Sul,0,2,2
+1311,2026-09-01,7399,RS,Ipiranga Do Sul,Sul,1,0,1
+1312,2026-09-01,7405,PR,Agudos Do Sul,Sul,0,1,1
+1313,2026-09-01,7407,PR,Almirante Tamandaré,Sul,5,1,6
+1314,2026-09-01,7411,PR,Alto Piquiri,Sul,4,1,5
+1315,2026-09-01,7417,PR,Ampére,Sul,1,1,2
+1316,2026-09-01,7421,PR,Antonina,Sul,1,2,3
+1317,2026-09-01,7425,PR,Apucarana,Sul,9,8,17
+1318,2026-09-01,7427,PR,Arapongas,Sul,5,8,13
+1319,2026-09-01,7429,PR,Arapoti,Sul,2,0,2
+1320,2026-09-01,7431,PR,Araruna,Sul,2,0,2
+1321,2026-09-01,7433,PR,Marilândia Do Sul,Sul,1,2,3
+1322,2026-09-01,7435,PR,Araucária,Sul,7,14,21
+1323,2026-09-01,7439,PR,Astorga,Sul,1,0,1
+1324,2026-09-01,7443,PR,Balsa Nova,Sul,4,1,5
+1325,2026-09-01,7445,PR,Bandeirantes,Sul,5,1,6
+1326,2026-09-01,7455,PR,Bituruna,Sul,1,0,1
+1327,2026-09-01,7469,PR,Cambará,Sul,1,0,1
+1328,2026-09-01,7471,PR,Cambé,Sul,4,7,11
+1329,2026-09-01,7477,PR,Campina Grande Do Sul,Sul,2,6,8
+1330,2026-09-01,7481,PR,Campo Largo,Sul,16,12,28
+1331,2026-09-01,7483,PR,Campo Mourão,Sul,9,4,13
+1332,2026-09-01,7493,PR,Cascavel,Sul,59,58,117
+1333,2026-09-01,7495,PR,Castro,Sul,3,4,7
+1334,2026-09-01,7501,PR,Cerro Azul,Sul,2,0,2
+1335,2026-09-01,7503,PR,Chopinzinho,Sul,3,0,3
+1336,2026-09-01,7505,PR,Cianorte,Sul,9,9,18
+1337,2026-09-01,7511,PR,Mangueirinha,Sul,1,0,1
+1338,2026-09-01,7513,PR,Colombo,Sul,3,14,17
+1339,2026-09-01,7521,PR,Contenda,Sul,1,0,1
+1340,2026-09-01,7523,PR,Corbélia,Sul,2,2,4
+1341,2026-09-01,7525,PR,Cornélio Procópio,Sul,3,0,3
+1342,2026-09-01,7527,PR,Coronel Vivida,Sul,3,2,5
+1343,2026-09-01,7529,PR,Cruzeiro Do Oeste,Sul,1,0,1
+1344,2026-09-01,7535,PR,Curitiba,Sul,403,393,796
+1345,2026-09-01,7541,PR,Dois Vizinhos,Sul,2,5,7
+1346,2026-09-01,7561,PR,Formosa Do Oeste,Sul,1,0,1
+1347,2026-09-01,7563,PR,Foz Do Iguaçu,Sul,63,41,104
+1348,2026-09-01,7565,PR,Francisco Beltrão,Sul,11,8,19
+1349,2026-09-01,7567,PR,General Carneiro,Sul,0,4,4
+1350,2026-09-01,7569,PR,Goioerê,Sul,1,0,1
+1351,2026-09-01,7571,PR,Guaíra,Sul,4,4,8
+1352,2026-09-01,7573,PR,Guairaçá,Sul,1,2,3
+1353,2026-09-01,7583,PR,Guarapuava,Sul,26,22,48
+1354,2026-09-01,7587,PR,Guaratuba,Sul,8,7,15
+1355,2026-09-01,7589,PR,Ibaiti,Sul,0,2,2
+1356,2026-09-01,7591,PR,Ibiporã,Sul,1,4,5
+1357,2026-09-01,7593,PR,Icaraíma,Sul,1,0,1
+1358,2026-09-01,7595,PR,Iguaraçu,Sul,1,0,1
+1359,2026-09-01,7597,PR,Imbituva,Sul,1,0,1
+1360,2026-09-01,7603,PR,Ipiranga,Sul,0,2,2
+1361,2026-09-01,7605,PR,Iporã,Sul,2,0,2
+1362,2026-09-01,7607,PR,Irati,Sul,7,10,17
+1363,2026-09-01,7609,PR,Iretama,Sul,6,0,6
+1364,2026-09-01,7621,PR,Ivaí,Sul,1,0,1
+1365,2026-09-01,7623,PR,Ivaiporã,Sul,2,3,5
+1366,2026-09-01,7629,PR,Jacarezinho,Sul,2,1,3
+1367,2026-09-01,7633,PR,Jaguariaíva,Sul,1,2,3
+1368,2026-09-01,7635,PR,Jandaia Do Sul,Sul,1,0,1
+1369,2026-09-01,7639,PR,Japira,Sul,1,0,1
+1370,2026-09-01,7657,PR,Lapa,Sul,3,2,5
+1371,2026-09-01,7659,PR,Laranjeiras Do Sul,Sul,2,3,5
+1372,2026-09-01,7663,PR,Loanda,Sul,8,0,8
+1373,2026-09-01,7667,PR,Londrina,Sul,117,96,213
+1374,2026-09-01,7671,PR,Mallet,Sul,1,0,1
+1375,2026-09-01,7675,PR,Mandaguaçu,Sul,2,0,2
+1376,2026-09-01,7679,PR,Mandirituba,Sul,2,3,5
+1377,2026-09-01,7683,PR,Marechal Cândido Rondon,Sul,13,3,16
+1378,2026-09-01,7685,PR,Maria Helena,Sul,2,0,2
+1379,2026-09-01,7687,PR,Marialva,Sul,1,2,3
+1380,2026-09-01,7689,PR,Mariluz,Sul,2,0,2
+1381,2026-09-01,7691,PR,Maringá,Sul,116,82,198
+1382,2026-09-01,7695,PR,Marmeleiro,Sul,1,4,5
+1383,2026-09-01,7699,PR,Matelândia,Sul,3,0,3
+1384,2026-09-01,7701,PR,Medianeira,Sul,3,10,13
+1385,2026-09-01,7709,PR,Morretes,Sul,1,1,2
+1386,2026-09-01,7719,PR,Nova Cantu,Sul,1,0,1
+1387,2026-09-01,7725,PR,Nova Londrina,Sul,2,0,2
+1388,2026-09-01,7727,PR,Ortigueira,Sul,3,3,6
+1389,2026-09-01,7733,PR,Palmas,Sul,0,2,2
+1390,2026-09-01,7735,PR,Palmeira,Sul,6,15,21
+1391,2026-09-01,7739,PR,Palotina,Sul,1,0,1
+1392,2026-09-01,7745,PR,Paranaguá,Sul,5,4,9
+1393,2026-09-01,7749,PR,Paranavaí,Sul,6,13,19
+1394,2026-09-01,7751,PR,Pato Branco,Sul,22,16,38
+1395,2026-09-01,7753,PR,Paula Freitas,Sul,1,2,3
+1396,2026-09-01,7757,PR,Peabiru,Sul,2,1,3
+1397,2026-09-01,7761,PR,Piên,Sul,1,0,1
+1398,2026-09-01,7763,PR,Pinhalão,Sul,1,0,1
+1399,2026-09-01,7767,PR,Piraí Do Sul,Sul,0,1,1
+1400,2026-09-01,7769,PR,Piraquara,Sul,0,3,3
+1401,2026-09-01,7771,PR,Pitanga,Sul,1,2,3
+1402,2026-09-01,7773,PR,Planaltina Do Paraná,Sul,1,0,1
+1403,2026-09-01,7777,PR,Ponta Grossa,Sul,44,45,89
+1404,2026-09-01,7783,PR,Porto Rico,Sul,7,0,7
+1405,2026-09-01,7787,PR,Presidente Castelo Branco,Sul,0,1,1
+1406,2026-09-01,7791,PR,Prudentópolis,Sul,5,4,9
+1407,2026-09-01,7795,PR,Quatro Barras,Sul,4,6,10
+1408,2026-09-01,7797,PR,Querência Do Norte,Sul,2,0,2
+1409,2026-09-01,7805,PR,Realeza,Sul,3,2,5
+1410,2026-09-01,7813,PR,Ribeirão Claro,Sul,2,0,2
+1411,2026-09-01,7817,PR,Rio Azul,Sul,0,2,2
+1412,2026-09-01,7823,PR,Rio Negro,Sul,3,2,5
+1413,2026-09-01,7825,PR,Rolândia,Sul,4,2,6
+1414,2026-09-01,7831,PR,Sabáudia,Sul,1,0,1
+1415,2026-09-01,7843,PR,Santa Cruz De Monte Castelo,Sul,2,0,2
+1416,2026-09-01,7845,PR,Santa Fé,Sul,2,0,2
+1417,2026-09-01,7847,PR,Santa Inês,Sul,1,0,1
+1418,2026-09-01,7849,PR,Santa Isabel Do Ivaí,Sul,2,0,2
+1419,2026-09-01,7851,PR,Santa Izabel Do Oeste,Sul,1,0,1
+1420,2026-09-01,7859,PR,Santo Antônio Da Platina,Sul,1,7,8
+1421,2026-09-01,7865,PR,Santo Inácio,Sul,1,0,1
+1422,2026-09-01,7871,PR,São João,Sul,3,1,4
+1423,2026-09-01,7881,PR,São Jorge D'oeste,Sul,1,0,1
+1424,2026-09-01,7885,PR,São José Dos Pinhais,Sul,49,68,117
+1425,2026-09-01,7887,PR,São Mateus Do Sul,Sul,5,7,12
+1426,2026-09-01,7901,PR,Sengés,Sul,1,2,3
+1427,2026-09-01,7905,PR,Sertanópolis,Sul,3,1,4
+1428,2026-09-01,7907,PR,Siqueira Campos,Sul,0,3,3
+1429,2026-09-01,7915,PR,Telêmaco Borba,Sul,0,1,1
+1430,2026-09-01,7921,PR,Terra Roxa,Sul,2,0,2
+1431,2026-09-01,7923,PR,Tibagi,Sul,3,7,10
+1432,2026-09-01,7925,PR,Tijucas Do Sul,Sul,0,3,3
+1433,2026-09-01,7927,PR,Toledo,Sul,24,10,34
+1434,2026-09-01,7933,PR,Ubiratã,Sul,0,2,2
+1435,2026-09-01,7935,PR,Umuarama,Sul,8,11,19
+1436,2026-09-01,7937,PR,União Da Vitória,Sul,3,2,5
+1437,2026-09-01,7943,PR,Wenceslau Braz,Sul,2,3,5
+1438,2026-09-01,7947,PR,Vitorino,Sul,0,1,1
+1439,2026-09-01,7951,PR,Altônia,Sul,2,0,2
+1440,2026-09-01,7953,PR,Assis Chateaubriand,Sul,1,0,1
+1441,2026-09-01,7955,PR,Quedas Do Iguaçu,Sul,2,0,2
+1442,2026-09-01,7957,PR,Céu Azul,Sul,1,2,3
+1443,2026-09-01,7963,PR,Matinhos,Sul,1,3,4
+1444,2026-09-01,7965,PR,Nova Aurora,Sul,1,2,3
+1445,2026-09-01,7967,PR,Nova Olímpia,Sul,1,0,1
+1446,2026-09-01,7969,PR,Pérola,Sul,2,0,2
+1447,2026-09-01,7971,PR,Santa Helena,Sul,1,1,2
+1448,2026-09-01,7979,PR,Nova Santa Rosa,Sul,2,0,2
+1449,2026-09-01,7985,PR,Cafelândia,Sul,4,1,5
+1450,2026-09-01,7991,PR,Pranchita,Sul,0,1,1
+1451,2026-09-01,8003,SC,Agrolândia,Sul,2,0,2
+1452,2026-09-01,8013,SC,Alfredo Wagner,Sul,8,4,12
+1453,2026-09-01,8015,SC,Anchieta,Sul,1,0,1
+1454,2026-09-01,8023,SC,Antônio Carlos,Sul,1,0,1
+1455,2026-09-01,8025,SC,Araquari,Sul,7,11,18
+1456,2026-09-01,8027,SC,Araranguá,Sul,6,6,12
+1457,2026-09-01,8033,SC,Ascurra,Sul,1,0,1
+1458,2026-09-01,8039,SC,Balneário Camboriú,Sul,123,34,157
+1459,2026-09-01,8041,SC,Barra Velha,Sul,6,7,13
+1460,2026-09-01,8043,SC,Benedito Novo,Sul,1,1,2
+1461,2026-09-01,8045,SC,Biguaçu,Sul,12,7,19
+1462,2026-09-01,8047,SC,Blumenau,Sul,89,38,127
+1463,2026-09-01,8049,SC,Bom Retiro,Sul,5,1,6
+1464,2026-09-01,8053,SC,Braço Do Norte,Sul,5,2,7
+1465,2026-09-01,8055,SC,Brusque,Sul,12,18,30
+1466,2026-09-01,8057,SC,Caçador,Sul,5,9,14
+1467,2026-09-01,8061,SC,Camboriú,Sul,10,5,15
+1468,2026-09-01,8063,SC,Campo Alegre,Sul,3,2,5
+1469,2026-09-01,8067,SC,Campo Erê,Sul,1,0,1
+1470,2026-09-01,8069,SC,Campos Novos,Sul,5,4,9
+1471,2026-09-01,8073,SC,Canoinhas,Sul,2,2,4
+1472,2026-09-01,8075,SC,Capinzal,Sul,3,0,3
+1473,2026-09-01,8081,SC,Chapecó,Sul,48,19,67
+1474,2026-09-01,8083,SC,Concórdia,Sul,11,5,16
+1475,2026-09-01,8087,SC,Corupá,Sul,0,1,1
+1476,2026-09-01,8089,SC,Criciúma,Sul,36,18,54
+1477,2026-09-01,8093,SC,Curitibanos,Sul,7,0,7
+1478,2026-09-01,8095,SC,Descanso,Sul,3,0,3
+1479,2026-09-01,8097,SC,Dionísio Cerqueira,Sul,1,2,3
+1480,2026-09-01,8101,SC,Erval Velho,Sul,1,1,2
+1481,2026-09-01,8103,SC,Faxinal Dos Guedes,Sul,1,0,1
+1482,2026-09-01,8105,SC,Florianópolis,Sul,286,102,388
+1483,2026-09-01,8107,SC,Fraiburgo,Sul,5,0,5
+1484,2026-09-01,8111,SC,Governador Celso Ramos,Sul,6,0,6
+1485,2026-09-01,8113,SC,Garopaba,Sul,11,2,13
+1486,2026-09-01,8115,SC,Garuva,Sul,0,2,2
+1487,2026-09-01,8117,SC,Gaspar,Sul,15,2,17
+1488,2026-09-01,8127,SC,Guaramirim,Sul,5,2,7
+1489,2026-09-01,8133,SC,Ibicaré,Sul,2,0,2
+1490,2026-09-01,8135,SC,Ibirama,Sul,2,1,3
+1491,2026-09-01,8137,SC,Içara,Sul,2,6,8
+1492,2026-09-01,8139,SC,Ilhota,Sul,2,2,4
+1493,2026-09-01,8143,SC,Imbituba,Sul,10,14,24
+1494,2026-09-01,8145,SC,Imbuia,Sul,1,0,1
+1495,2026-09-01,8147,SC,Indaial,Sul,0,2,2
+1496,2026-09-01,8157,SC,Itá,Sul,3,0,3
+1497,2026-09-01,8161,SC,Itajaí,Sul,58,26,84
+1498,2026-09-01,8163,SC,Itapema,Sul,31,14,45
+1499,2026-09-01,8165,SC,Itapiranga,Sul,2,1,3
+1500,2026-09-01,8167,SC,Ituporanga,Sul,2,1,3
+1501,2026-09-01,8173,SC,Jaguaruna,Sul,3,0,3
+1502,2026-09-01,8175,SC,Jaraguá Do Sul,Sul,52,35,87
+1503,2026-09-01,8177,SC,Joaçaba,Sul,15,8,23
+1504,2026-09-01,8179,SC,Joinville,Sul,120,76,196
+1505,2026-09-01,8183,SC,Lages,Sul,27,24,51
+1506,2026-09-01,8185,SC,Laguna,Sul,3,8,11
+1507,2026-09-01,8189,SC,Lauro Müller,Sul,9,0,9
+1508,2026-09-01,8191,SC,Lebon Régis,Sul,1,0,1
+1509,2026-09-01,8195,SC,Lontras,Sul,1,0,1
+1510,2026-09-01,8197,SC,Luiz Alves,Sul,1,1,2
+1511,2026-09-01,8199,SC,Mafra,Sul,9,5,14
+1512,2026-09-01,8205,SC,Maravilha,Sul,2,4,6
+1513,2026-09-01,8207,SC,Massaranduba,Sul,0,1,1
+1514,2026-09-01,8217,SC,Monte Castelo,Sul,1,1,2
+1515,2026-09-01,8221,SC,Navegantes,Sul,14,9,23
+1516,2026-09-01,8225,SC,Nova Trento,Sul,2,2,4
+1517,2026-09-01,8227,SC,Nova Veneza,Sul,1,0,1
+1518,2026-09-01,8229,SC,Orleans,Sul,3,1,4
+1519,2026-09-01,8233,SC,Palhoça,Sul,25,25,50
+1520,2026-09-01,8237,SC,Palmitos,Sul,1,0,1
+1521,2026-09-01,8239,SC,Papanduva,Sul,5,1,6
+1522,2026-09-01,8241,SC,Paulo Lopes,Sul,6,9,15
+1523,2026-09-01,8245,SC,Penha,Sul,5,2,7
+1524,2026-09-01,8251,SC,Balneário Piçarras,Sul,7,6,13
+1525,2026-09-01,8253,SC,Pinhalzinho,Sul,6,4,10
+1526,2026-09-01,8257,SC,Piratuba,Sul,4,3,7
+1527,2026-09-01,8259,SC,Pomerode,Sul,14,1,15
+1528,2026-09-01,8263,SC,Ponte Serrada,Sul,0,2,2
+1529,2026-09-01,8265,SC,Porto Belo,Sul,28,26,54
+1530,2026-09-01,8271,SC,Praia Grande,Sul,3,0,3
+1531,2026-09-01,8281,SC,Rancho Queimado,Sul,1,2,3
+1532,2026-09-01,8289,SC,Rio Dos Cedros,Sul,1,0,1
+1533,2026-09-01,8291,SC,Rio Do Sul,Sul,14,14,28
+1534,2026-09-01,8295,SC,Rio Negrinho,Sul,7,3,10
+1535,2026-09-01,8297,SC,Rodeio,Sul,2,0,2
+1536,2026-09-01,8305,SC,Santa Cecília,Sul,1,0,1
+1537,2026-09-01,8309,SC,Santo Amaro Da Imperatriz,Sul,8,12,20
+1538,2026-09-01,8311,SC,São Bento Do Sul,Sul,10,4,14
+1539,2026-09-01,8319,SC,São Francisco Do Sul,Sul,3,0,3
+1540,2026-09-01,8321,SC,São João Batista,Sul,3,0,3
+1541,2026-09-01,8323,SC,São João Do Sul,Sul,4,3,7
+1542,2026-09-01,8325,SC,São Joaquim,Sul,6,0,6
+1543,2026-09-01,8327,SC,São José,Sul,48,51,99
+1544,2026-09-01,8329,SC,São José Do Cedro,Sul,1,0,1
+1545,2026-09-01,8331,SC,São José Do Cerrito,Sul,1,2,3
+1546,2026-09-01,8333,SC,São Lourenço Do Oeste,Sul,2,0,2
+1547,2026-09-01,8337,SC,São Martinho,Sul,3,0,3
+1548,2026-09-01,8339,SC,São Miguel Do Oeste,Sul,11,4,15
+1549,2026-09-01,8343,SC,Schroeder,Sul,1,0,1
+1550,2026-09-01,8345,SC,Seara,Sul,1,0,1
+1551,2026-09-01,8349,SC,Sombrio,Sul,2,15,17
+1552,2026-09-01,8355,SC,Tijucas,Sul,7,2,9
+1553,2026-09-01,8357,SC,Timbó,Sul,10,2,12
+1554,2026-09-01,8363,SC,Treze Tílias,Sul,2,0,2
+1555,2026-09-01,8367,SC,Tubarão,Sul,24,22,46
+1556,2026-09-01,8371,SC,Urubici,Sul,26,5,31
+1557,2026-09-01,8373,SC,Urussanga,Sul,1,0,1
+1558,2026-09-01,8379,SC,Videira,Sul,20,3,23
+1559,2026-09-01,8383,SC,Xanxerê,Sul,9,5,14
+1560,2026-09-01,8387,SC,Xaxim,Sul,4,0,4
+1561,2026-09-01,8389,SC,Bom Jardim Da Serra,Sul,2,0,2
+1562,2026-09-01,8391,SC,Maracajá,Sul,2,3,5
+1563,2026-09-01,8393,SC,Timbé Do Sul,Sul,0,2,2
+1564,2026-09-01,8397,SC,Otacílio Costa,Sul,2,2,4
+1565,2026-09-01,8419,RS,Entre-Ijuís,Sul,2,3,5
+1566,2026-09-01,8423,RS,Eldorado Do Sul,Sul,0,10,10
+1567,2026-09-01,8427,RS,Dois Lajeados,Sul,1,0,1
+1568,2026-09-01,8431,RS,Cristal,Sul,2,5,7
+1569,2026-09-01,8433,RS,Cidreira,Sul,0,1,1
+1570,2026-09-01,8441,RS,Caseiros,Sul,2,0,2
+1571,2026-09-01,8451,PR,Cantagalo,Sul,1,1,2
+1572,2026-09-01,8453,PR,Turvo,Sul,0,1,1
+1573,2026-09-01,8461,PR,Sarandi,Sul,2,2,4
+1574,2026-09-01,8465,PR,Douradina,Sul,3,0,3
+1575,2026-09-01,8467,PR,Santa Terezinha De Itaipu,Sul,2,0,2
+1576,2026-09-01,8485,RS,Barão,Sul,2,0,2
+1577,2026-09-01,8489,RS,Arroio Do Sal,Sul,0,3,3
+1578,2026-09-01,8501,RS,Agudo,Sul,0,1,1
+1579,2026-09-01,8507,RS,Alegrete,Sul,6,8,14
+1580,2026-09-01,8511,RS,Alvorada,Sul,0,4,4
+1581,2026-09-01,8515,RS,Antônio Prado,Sul,4,1,5
+1582,2026-09-01,8519,RS,Arroio Do Meio,Sul,4,1,5
+1583,2026-09-01,8521,RS,Arroio Dos Ratos,Sul,4,0,4
+1584,2026-09-01,8523,RS,Arroio Do Tigre,Sul,2,1,3
+1585,2026-09-01,8525,RS,Arroio Grande,Sul,1,0,1
+1586,2026-09-01,8531,RS,Bagé,Sul,14,4,18
+1587,2026-09-01,8533,RS,Barão De Cotegipe,Sul,1,4,5
+1588,2026-09-01,8537,RS,Barra Do Ribeiro,Sul,4,5,9
+1589,2026-09-01,8541,RS,Bento Gonçalves,Sul,46,14,60
+1590,2026-09-01,8543,RS,Boa Vista Do Buricá,Sul,2,1,3
+1591,2026-09-01,8553,RS,Butiá,Sul,2,0,2
+1592,2026-09-01,8555,RS,Caçapava Do Sul,Sul,1,3,4
+1593,2026-09-01,8559,RS,Cachoeira Do Sul,Sul,9,5,14
+1594,2026-09-01,8561,RS,Cachoeirinha,Sul,4,9,13
+1595,2026-09-01,8569,RS,Camaquã,Sul,6,9,15
+1596,2026-09-01,8571,RS,Cambará Do Sul,Sul,5,5,10
+1597,2026-09-01,8577,RS,Campo Bom,Sul,6,6,12
+1598,2026-09-01,8585,RS,Canela,Sul,24,14,38
+1599,2026-09-01,8587,RS,Canguçu,Sul,1,1,2
+1600,2026-09-01,8589,RS,Canoas,Sul,19,38,57
+1601,2026-09-01,8591,RS,Carazinho,Sul,6,3,9
+1602,2026-09-01,8593,RS,Carlos Barbosa,Sul,7,2,9
+1603,2026-09-01,8595,RS,Casca,Sul,2,0,2
+1604,2026-09-01,8599,RS,Caxias Do Sul,Sul,59,73,132
+1605,2026-09-01,8603,RS,Chapada,Sul,1,0,1
+1606,2026-09-01,8609,RS,Colorado,Sul,1,0,1
+1607,2026-09-01,8617,RS,Crissiumal,Sul,1,0,1
+1608,2026-09-01,8619,RS,Cruz Alta,Sul,13,6,19
+1609,2026-09-01,8625,RS,Dois Irmãos,Sul,5,2,7
+1610,2026-09-01,8629,RS,Dom Pedrito,Sul,1,0,1
+1611,2026-09-01,8633,RS,Encantado,Sul,8,1,9
+1612,2026-09-01,8637,RS,Erechim,Sul,13,14,27
+1613,2026-09-01,8643,RS,Erval Seco,Sul,2,0,2
+1614,2026-09-01,8647,RS,Espumoso,Sul,1,0,1
+1615,2026-09-01,8649,RS,Estância Velha,Sul,6,2,8
+1616,2026-09-01,8651,RS,Esteio,Sul,13,3,16
+1617,2026-09-01,8653,RS,Estrela,Sul,3,3,6
+1618,2026-09-01,8655,RS,Farroupilha,Sul,14,11,25
+1619,2026-09-01,8659,RS,Feliz,Sul,1,0,1
+1620,2026-09-01,8661,RS,Flores Da Cunha,Sul,4,1,5
+1621,2026-09-01,8667,RS,Frederico Westphalen,Sul,7,10,17
+1622,2026-09-01,8669,RS,Garibaldi,Sul,2,4,6
+1623,2026-09-01,8677,RS,Getúlio Vargas,Sul,2,3,5
+1624,2026-09-01,8681,RS,Gramado,Sul,103,32,135
+1625,2026-09-01,8683,RS,Gravataí,Sul,12,12,24
+1626,2026-09-01,8685,RS,Guaíba,Sul,3,3,6
+1627,2026-09-01,8687,RS,Guaporé,Sul,5,2,7
+1628,2026-09-01,8691,RS,Horizontina,Sul,2,4,6
+1629,2026-09-01,8693,RS,Charqueadas,Sul,1,0,1
+1630,2026-09-01,8699,RS,Ibiraiaras,Sul,3,0,3
+1631,2026-09-01,8701,RS,Ibirubá,Sul,6,0,6
+1632,2026-09-01,8703,RS,Igrejinha,Sul,7,2,9
+1633,2026-09-01,8705,RS,Ijuí,Sul,20,16,36
+1634,2026-09-01,8707,RS,Ilópolis,Sul,3,0,3
+1635,2026-09-01,8709,RS,Independência,Sul,2,0,2
+1636,2026-09-01,8713,RS,Itaqui,Sul,1,0,1
+1637,2026-09-01,8717,RS,Ivoti,Sul,7,0,7
+1638,2026-09-01,8721,RS,Jaguarão,Sul,3,2,5
+1639,2026-09-01,8727,RS,Lagoa Vermelha,Sul,3,0,3
+1640,2026-09-01,8729,RS,Lajeado,Sul,18,16,34
+1641,2026-09-01,8735,RS,Machadinho,Sul,2,0,2
+1642,2026-09-01,8737,RS,Marau,Sul,17,1,18
+1643,2026-09-01,8739,RS,Marcelino Ramos,Sul,1,0,1
+1644,2026-09-01,8749,RS,Montenegro,Sul,8,5,13
+1645,2026-09-01,8751,RS,Mostardas,Sul,3,0,3
+1646,2026-09-01,8757,RS,Nonoai,Sul,0,1,1
+1647,2026-09-01,8761,RS,Nova Bassano,Sul,2,1,3
+1648,2026-09-01,8763,RS,Nova Bréscia,Sul,2,0,2
+1649,2026-09-01,8767,RS,Nova Petrópolis,Sul,10,2,12
+1650,2026-09-01,8769,RS,Nova Prata,Sul,8,4,12
+1651,2026-09-01,8771,RS,Novo Hamburgo,Sul,47,24,71
+1652,2026-09-01,8773,RS,Osório,Sul,8,24,32
+1653,2026-09-01,8777,RS,Palmeira Das Missões,Sul,0,4,4
+1654,2026-09-01,8781,RS,Panambi,Sul,2,0,2
+1655,2026-09-01,8785,RS,Passo Fundo,Sul,33,40,73
+1656,2026-09-01,8791,RS,Pelotas,Sul,27,24,51
+1657,2026-09-01,8793,RS,Pinheiro Machado,Sul,1,0,1
+1658,2026-09-01,8799,RS,Portão,Sul,3,7,10
+1659,2026-09-01,8801,RS,Porto Alegre,Sul,322,183,505
+1660,2026-09-01,8805,RS,Porto Xavier,Sul,1,0,1
+1661,2026-09-01,8807,RS,Putinga,Sul,1,0,1
+1662,2026-09-01,8809,RS,Quaraí,Sul,2,0,2
+1663,2026-09-01,8813,RS,Restinga Sêca,Sul,13,0,13
+1664,2026-09-01,8815,RS,Rio Grande,Sul,13,11,24
+1665,2026-09-01,8823,RS,Rolante,Sul,2,0,2
+1666,2026-09-01,8831,RS,Rosário Do Sul,Sul,4,1,5
+1667,2026-09-01,8835,RS,Sananduva,Sul,2,1,3
+1668,2026-09-01,8839,RS,Santa Cruz Do Sul,Sul,23,22,45
+1669,2026-09-01,8841,RS,Santa Maria,Sul,28,36,64
+1670,2026-09-01,8845,RS,Sant'ana Do Livramento,Sul,5,3,8
+1671,2026-09-01,8847,RS,Santa Rosa,Sul,9,11,20
+1672,2026-09-01,8849,RS,Santa Vitória Do Palmar,Sul,4,6,10
+1673,2026-09-01,8851,RS,Santiago,Sul,7,8,15
+1674,2026-09-01,8853,RS,Santo Ângelo,Sul,13,3,16
+1675,2026-09-01,8855,RS,Santo Antônio Da Patrulha,Sul,5,1,6
+1676,2026-09-01,8859,RS,Santo Augusto,Sul,3,0,3
+1677,2026-09-01,8863,RS,São Borja,Sul,4,1,5
+1678,2026-09-01,8867,RS,São Francisco De Paula,Sul,5,1,6
+1679,2026-09-01,8869,RS,São Gabriel,Sul,1,2,3
+1680,2026-09-01,8871,RS,São Jerônimo,Sul,2,1,3
+1681,2026-09-01,8875,RS,São José Do Ouro,Sul,2,1,3
+1682,2026-09-01,8877,RS,São Leopoldo,Sul,25,12,37
+1683,2026-09-01,8879,RS,São Lourenço Do Sul,Sul,3,0,3
+1684,2026-09-01,8881,RS,São Luiz Gonzaga,Sul,4,1,5
+1685,2026-09-01,8883,RS,São Marcos,Sul,9,1,10
+1686,2026-09-01,8885,RS,São Martinho,Sul,1,0,1
+1687,2026-09-01,8891,RS,São Pedro Do Sul,Sul,5,0,5
+1688,2026-09-01,8893,RS,São Sebastião Do Caí,Sul,3,4,7
+1689,2026-09-01,8895,RS,São Sepé,Sul,3,0,3
+1690,2026-09-01,8899,RS,Sapiranga,Sul,12,1,13
+1691,2026-09-01,8901,RS,Sapucaia Do Sul,Sul,12,0,12
+1692,2026-09-01,8903,RS,Sarandi,Sul,3,0,3
+1693,2026-09-01,8907,RS,Selbach,Sul,2,0,2
+1694,2026-09-01,8915,RS,Capão Da Canoa,Sul,12,8,20
+1695,2026-09-01,8919,RS,Soledade,Sul,1,2,3
+1696,2026-09-01,8919,RS,Soledade,Sul,4,3,7
+1697,2026-09-01,8921,RS,Tapejara,Sul,6,1,7
+1698,2026-09-01,8923,RS,Tapera,Sul,3,0,3
+1699,2026-09-01,8925,RS,Tapes,Sul,0,1,1
+1700,2026-09-01,8927,RS,Taquara,Sul,4,2,6
+1701,2026-09-01,8929,RS,Taquari,Sul,2,0,2
+1702,2026-09-01,8933,RS,Torres,Sul,14,18,32
+1703,2026-09-01,8935,RS,Tramandaí,Sul,13,3,16
+1704,2026-09-01,8937,RS,Três Coroas,Sul,1,2,3
+1705,2026-09-01,8939,RS,Três De Maio,Sul,6,4,10
+1706,2026-09-01,8941,RS,Três Passos,Sul,3,0,3
+1707,2026-09-01,8943,RS,Triunfo,Sul,1,4,5
+1708,2026-09-01,8949,RS,Tuparendi,Sul,1,0,1
+1709,2026-09-01,8951,RS,Uruguaiana,Sul,8,1,9
+1710,2026-09-01,8953,RS,Vacaria,Sul,10,4,14
+1711,2026-09-01,8955,RS,Venâncio Aires,Sul,4,8,12
+1712,2026-09-01,8959,RS,Veranópolis,Sul,4,1,5
+1713,2026-09-01,8963,RS,Viamão,Sul,9,6,15
+1714,2026-09-01,8967,RS,Palmares Do Sul,Sul,1,0,1
+1715,2026-09-01,8971,RS,Tavares,Sul,1,0,1
+1716,2026-09-01,8979,MT,Colíder,Centro-Oeste,1,1,2
+1717,2026-09-01,8983,MT,Paranatinga,Centro-Oeste,8,1,9
+1718,2026-09-01,8985,MT,Sinop,Centro-Oeste,27,31,58
+1719,2026-09-01,8987,MT,Alta Floresta,Centro-Oeste,2,1,3
+1720,2026-09-01,8993,MT,São José Dos Quatro Marcos,Centro-Oeste,0,1,1
+1721,2026-09-01,8999,MT,Pontes E Lacerda,Centro-Oeste,12,4,16
+1722,2026-09-01,9003,MS,Água Clara,Centro-Oeste,0,1,1
+1723,2026-09-01,9005,MT,Alto Araguaia,Centro-Oeste,4,0,4
+1724,2026-09-01,9007,MT,Alto Garças,Centro-Oeste,3,0,3
+1725,2026-09-01,9011,MS,Amambai,Centro-Oeste,3,0,3
+1726,2026-09-01,9013,MS,Anastácio,Centro-Oeste,4,2,6
+1727,2026-09-01,9029,MS,Bandeirantes,Centro-Oeste,0,1,1
+1728,2026-09-01,9033,MT,Barra Do Bugres,Centro-Oeste,1,0,1
+1729,2026-09-01,9035,MT,Barra Do Garças,Centro-Oeste,8,3,11
+1730,2026-09-01,9043,MS,Bonito,Centro-Oeste,12,2,14
+1731,2026-09-01,9047,MT,Cáceres,Centro-Oeste,12,5,17
+1732,2026-09-01,9051,MS,Campo Grande,Centro-Oeste,98,69,167
+1733,2026-09-01,9055,MS,Caarapó,Centro-Oeste,0,1,1
+1734,2026-09-01,9057,MS,Cassilândia,Centro-Oeste,5,0,5
+1735,2026-09-01,9059,MT,Chapada Dos Guimarães,Centro-Oeste,4,2,6
+1736,2026-09-01,9063,MS,Corumbá,Centro-Oeste,6,2,8
+1737,2026-09-01,9065,MS,Coxim,Centro-Oeste,10,12,22
+1738,2026-09-01,9067,MT,Cuiabá,Centro-Oeste,100,78,178
+1739,2026-09-01,9069,MT,Diamantino,Centro-Oeste,2,0,2
+1740,2026-09-01,9073,MS,Dourados,Centro-Oeste,18,20,38
+1741,2026-09-01,9075,MS,Fátima Do Sul,Centro-Oeste,2,0,2
+1742,2026-09-01,9079,MS,Glória De Dourados,Centro-Oeste,1,0,1
+1743,2026-09-01,9081,MS,Guia Lopes Da Laguna,Centro-Oeste,1,1,2
+1744,2026-09-01,9093,MS,Ivinhema,Centro-Oeste,1,0,1
+1745,2026-09-01,9097,MS,Jaraguari,Centro-Oeste,1,1,2
+1746,2026-09-01,9099,MS,Jardim,Centro-Oeste,1,1,2
+1747,2026-09-01,9107,MS,Maracaju,Centro-Oeste,3,3,6
+1748,2026-09-01,9111,MS,Miranda,Centro-Oeste,0,2,2
+1749,2026-09-01,9113,MS,Naviraí,Centro-Oeste,5,4,9
+1750,2026-09-01,9123,MS,Nova Andradina,Centro-Oeste,4,2,6
+1751,2026-09-01,9125,MS,Paranaíba,Centro-Oeste,7,0,7
+1752,2026-09-01,9129,MT,Poconé,Centro-Oeste,0,2,2
+1753,2026-09-01,9131,MS,Ponta Porã,Centro-Oeste,6,11,17
+1754,2026-09-01,9135,MT,Porto Dos Gaúchos,Centro-Oeste,3,0,3
+1755,2026-09-01,9141,MS,Ribas Do Rio Pardo,Centro-Oeste,4,0,4
+1756,2026-09-01,9143,MS,Rio Brilhante,Centro-Oeste,3,0,3
+1757,2026-09-01,9147,MS,Rio Verde De Mato Grosso,Centro-Oeste,1,2,3
+1758,2026-09-01,9151,MT,Rondonópolis,Centro-Oeste,15,18,33
+1759,2026-09-01,9153,MT,Rosário Oeste,Centro-Oeste,1,0,1
+1760,2026-09-01,9155,MT,Santo Antônio do Leverger,Centro-Oeste,1,1,2
+1761,2026-09-01,9157,MS,Sidrolândia,Centro-Oeste,1,0,1
+1762,2026-09-01,9159,MS,Terenos,Centro-Oeste,2,0,2
+1763,2026-09-01,9165,MS,Três Lagoas,Centro-Oeste,7,2,9
+1764,2026-09-01,9167,MT,Várzea Grande,Centro-Oeste,14,20,34
+1765,2026-09-01,9173,MS,Eldorado,Centro-Oeste,1,0,1
+1766,2026-09-01,9179,MS,Mundo Novo,Centro-Oeste,1,0,1
+1767,2026-09-01,9185,MT,Tangará Da Serra,Centro-Oeste,5,7,12
+1768,2026-09-01,9187,MS,Vicentina,Centro-Oeste,1,0,1
+1769,2026-09-01,9201,GO,Abadiânia,Centro-Oeste,7,11,18
+1770,2026-09-01,9205,GO,Alexânia,Centro-Oeste,8,7,15
+1771,2026-09-01,9211,GO,Alto Paraíso De Goiás,Centro-Oeste,13,1,14
+1772,2026-09-01,9213,TO,Alvorada,Norte,1,0,1
+1773,2026-09-01,9215,GO,Alvorada Do Norte,Centro-Oeste,1,0,1
+1774,2026-09-01,9219,TO,Ananás,Norte,1,0,1
+1775,2026-09-01,9221,GO,Anápolis,Centro-Oeste,20,50,70
+1776,2026-09-01,9225,GO,Anicuns,Centro-Oeste,1,0,1
+1777,2026-09-01,9227,GO,Aparecida De Goiânia,Centro-Oeste,18,35,53
+1778,2026-09-01,9235,GO,Aragoiânia,Centro-Oeste,1,0,1
+1779,2026-09-01,9241,TO,Araguaína,Norte,5,8,13
+1780,2026-09-01,9247,TO,Arraias,Norte,0,1,1
+1781,2026-09-01,9249,GO,Aruanã,Centro-Oeste,1,1,2
+1782,2026-09-01,9263,GO,Barro Alto,Centro-Oeste,1,1,2
+1783,2026-09-01,9265,GO,Bela Vista De Goiás,Centro-Oeste,0,2,2
+1784,2026-09-01,9281,GO,Cachoeira Alta,Centro-Oeste,1,0,1
+1785,2026-09-01,9285,GO,Caçu,Centro-Oeste,1,0,1
+1786,2026-09-01,9289,GO,Caldas Novas,Centro-Oeste,33,26,59
+1787,2026-09-01,9293,GO,Campinorte,Centro-Oeste,1,0,1
+1788,2026-09-01,9295,GO,Campo Alegre De Goiás,Centro-Oeste,2,0,2
+1789,2026-09-01,9297,GO,Campos Belos,Centro-Oeste,1,0,1
+1790,2026-09-01,9301,GO,Catalão,Centro-Oeste,9,9,18
+1791,2026-09-01,9305,GO,Cavalcante,Centro-Oeste,3,1,4
+1792,2026-09-01,9307,GO,Ceres,Centro-Oeste,4,6,10
+1793,2026-09-01,9311,TO,Colinas Do Tocantins,Norte,1,1,2
+1794,2026-09-01,9319,GO,Corumbaíba,Centro-Oeste,1,0,1
+1795,2026-09-01,9325,GO,Cristalina,Centro-Oeste,5,3,8
+1796,2026-09-01,9327,GO,Cristianópolis,Centro-Oeste,0,4,4
+1797,2026-09-01,9329,GO,Crixás,Centro-Oeste,1,0,1
+1798,2026-09-01,9333,GO,Cumari,Centro-Oeste,1,0,1
+1799,2026-09-01,9351,GO,Estrela Do Norte,Centro-Oeste,1,0,1
+1800,2026-09-01,9361,GO,Formosa,Centro-Oeste,7,10,17
+1801,2026-09-01,9371,GO,Goianésia,Centro-Oeste,1,4,5
+1802,2026-09-01,9373,GO,Goiânia,Centro-Oeste,281,250,531
+1803,2026-09-01,9375,GO,Goianira,Centro-Oeste,3,0,3
+1804,2026-09-01,9377,GO,Goiás,Centro-Oeste,1,3,4
+1805,2026-09-01,9379,GO,Goiatuba,Centro-Oeste,2,5,7
+1806,2026-09-01,9385,TO,Gurupi,Norte,4,1,5
+1807,2026-09-01,9389,GO,Hidrolândia,Centro-Oeste,2,0,2
+1808,2026-09-01,9395,GO,Inhumas,Centro-Oeste,7,1,8
+1809,2026-09-01,9397,GO,Ipameri,Centro-Oeste,7,2,9
+1810,2026-09-01,9399,GO,Iporá,Centro-Oeste,6,1,7
+1811,2026-09-01,9401,GO,Israelândia,Centro-Oeste,1,0,1
+1812,2026-09-01,9403,GO,Itaberaí,Centro-Oeste,0,3,3
+1813,2026-09-01,9413,GO,Itapaci,Centro-Oeste,0,2,2
+1814,2026-09-01,9419,GO,Itapuranga,Centro-Oeste,1,0,1
+1815,2026-09-01,9423,GO,Itauçu,Centro-Oeste,1,1,2
+1816,2026-09-01,9425,GO,Itumbiara,Centro-Oeste,13,17,30
+1817,2026-09-01,9431,GO,Jaraguá,Centro-Oeste,3,6,9
+1818,2026-09-01,9433,GO,Jataí,Centro-Oeste,19,3,22
+1819,2026-09-01,9437,GO,Joviânia,Centro-Oeste,1,0,1
+1820,2026-09-01,9439,GO,Jussara,Centro-Oeste,2,3,5
+1821,2026-09-01,9441,TO,Aliança Do Tocantins,Norte,1,0,1
+1822,2026-09-01,9445,GO,Luziânia,Centro-Oeste,6,11,17
+1823,2026-09-01,9447,GO,Mairipotaba,Centro-Oeste,2,0,2
+1824,2026-09-01,9459,GO,Mineiros,Centro-Oeste,4,0,4
+1825,2026-09-01,9461,TO,Miracema Do Tocantins,Norte,0,2,2
+1826,2026-09-01,9471,GO,Montes Claros De Goiás,Centro-Oeste,1,0,1
+1827,2026-09-01,9473,GO,Morrinhos,Centro-Oeste,0,1,1
+1828,2026-09-01,9477,GO,Mozarlândia,Centro-Oeste,1,0,1
+1829,2026-09-01,9481,TO,Natividade,Norte,1,2,3
+1830,2026-09-01,9485,GO,Nazário,Centro-Oeste,2,0,2
+1831,2026-09-01,9487,GO,Nerópolis,Centro-Oeste,2,0,2
+1832,2026-09-01,9489,GO,Niquelândia,Centro-Oeste,1,0,1
+1833,2026-09-01,9517,GO,Panamá,Centro-Oeste,0,1,1
+1834,2026-09-01,9519,TO,Paraíso Do Tocantins,Norte,0,1,1
+1835,2026-09-01,9531,GO,Petrolina De Goiás,Centro-Oeste,2,0,2
+1836,2026-09-01,9539,GO,Piracanjuba,Centro-Oeste,2,0,2
+1837,2026-09-01,9543,GO,Pirenópolis,Centro-Oeste,34,6,40
+1838,2026-09-01,9545,GO,Pires Do Rio,Centro-Oeste,1,2,3
+1839,2026-09-01,9555,GO,Porangatu,Centro-Oeste,4,1,5
+1840,2026-09-01,9559,TO,Porto Nacional,Norte,3,2,5
+1841,2026-09-01,9561,GO,Posse,Centro-Oeste,2,0,2
+1842,2026-09-01,9563,GO,Quirinópolis,Centro-Oeste,4,1,5
+1843,2026-09-01,9565,GO,Rialma,Centro-Oeste,1,0,1
+1844,2026-09-01,9571,GO,Rio Verde,Centro-Oeste,17,16,33
+1845,2026-09-01,9573,GO,Rubiataba,Centro-Oeste,4,0,4
+1846,2026-09-01,9577,GO,Santa Bárbara De Goiás,Centro-Oeste,0,1,1
+1847,2026-09-01,9581,GO,Santa Helena De Goiás,Centro-Oeste,3,0,3
+1848,2026-09-01,9587,GO,Santa Tereza De Goiás,Centro-Oeste,1,0,1
+1849,2026-09-01,9595,GO,Planaltina,Centro-Oeste,0,12,12
+1850,2026-09-01,9597,GO,São João D'aliança,Centro-Oeste,0,4,4
+1851,2026-09-01,9599,GO,São Luís De Montes Belos,Centro-Oeste,2,1,3
+1852,2026-09-01,9605,GO,São Simão,Centro-Oeste,7,1,8
+1853,2026-09-01,9609,GO,Silvânia,Centro-Oeste,3,0,3
+1854,2026-09-01,9625,GO,Trindade,Centro-Oeste,4,8,12
+1855,2026-09-01,9627,TO,Guaraí,Norte,0,1,1
+1856,2026-09-01,9633,GO,Uruaçu,Centro-Oeste,1,0,1
+1857,2026-09-01,9635,GO,Uruana,Centro-Oeste,1,0,1
+1858,2026-09-01,9641,GO,Vianópolis,Centro-Oeste,2,2,4
+1859,2026-09-01,9645,GO,Acreúna,Centro-Oeste,1,0,1
+1860,2026-09-01,9653,GO,Nova Crixás,Centro-Oeste,1,0,1
+1861,2026-09-01,9665,TO,Wanderlândia,Norte,1,0,1
+1862,2026-09-01,9673,GO,Cachoeira Dourada,Centro-Oeste,0,1,1
+1863,2026-09-01,9677,GO,Santo Antônio Do Descoberto,Centro-Oeste,1,0,1
+1864,2026-09-01,9681,GO,Indiara,Centro-Oeste,1,1,2
+1865,2026-09-01,9685,TO,Augustinópolis,Norte,2,0,2
+1866,2026-09-01,9701,DF,Brasília,Centro-Oeste,627,598,1225
+1867,2026-09-01,9701,DF,Guará,Centro-Oeste,11,15,26
+1868,2026-09-01,9701,DF,Sobradinho,Centro-Oeste,1,0,1
+1869,2026-09-01,9701,DF,Taguatinga,Centro-Oeste,0,4,4
+1870,2026-09-01,9719,TO,Divinópolis Do Tocantins,Norte,1,0,1
+1871,2026-09-01,9733,TO,Palmas,Norte,15,33,48
+1872,2026-09-01,9753,GO,Senador Canedo,Centro-Oeste,8,10,18
+1873,2026-09-01,9755,GO,Simolândia,Centro-Oeste,1,2,3
+1874,2026-09-01,9763,MT,Tapurah,Centro-Oeste,1,0,1
+1875,2026-09-01,9777,MT,Campo Novo Do Parecis,Centro-Oeste,5,0,5
+1876,2026-09-01,9779,MT,Campo Verde,Centro-Oeste,6,1,7
+1877,2026-09-01,9785,GO,Cezarina,Centro-Oeste,0,1,1
+1878,2026-09-01,9787,MS,Chapadão Do Sul,Centro-Oeste,3,0,3
+1879,2026-09-01,9789,MT,Cláudia,Centro-Oeste,2,0,2
+1880,2026-09-01,9801,MS,Bodoquena,Centro-Oeste,2,0,2
+1881,2026-09-01,9803,MS,Costa Rica,Centro-Oeste,2,0,2
+1882,2026-09-01,9809,MS,São Gabriel Do Oeste,Centro-Oeste,9,2,11
+1883,2026-09-01,9811,MS,Selvíria,Centro-Oeste,2,0,2
+1884,2026-09-01,9819,MT,Juara,Centro-Oeste,4,0,4
+1885,2026-09-01,9821,RS,Teutônia,Sul,6,2,8
+1886,2026-09-01,9823,RS,Bom Princípio,Sul,1,0,1
+1887,2026-09-01,9825,RS,Parobé,Sul,1,2,3
+1888,2026-09-01,9831,MT,Juína,Centro-Oeste,1,0,1
+1889,2026-09-01,9841,AM,Presidente Figueiredo,Norte,7,2,9
+1890,2026-09-01,9843,AM,Rio Preto Da Eva,Norte,0,2,2
+1891,2026-09-01,9857,CE,Varjota,Nordeste,3,0,3
+1892,2026-09-01,9871,MT,Primavera Do Leste,Centro-Oeste,2,2,4
+1893,2026-09-01,9891,MT,Peixoto De Azevedo,Centro-Oeste,1,0,1
+1894,2026-09-01,9897,MT,Vila Rica,Centro-Oeste,1,1,2
+1895,2026-09-01,9901,MT,Itaúba,Centro-Oeste,0,1,1
+1896,2026-09-01,9905,MT,Vera,Centro-Oeste,1,0,1
+1897,2026-09-01,9907,MT,Sorriso,Centro-Oeste,7,7,14
+1898,2026-09-01,9911,MT,Alto Taquari,Centro-Oeste,1,0,1
+1899,2026-09-01,9925,MT,Lucas Do Rio Verde,Centro-Oeste,10,0,10
+1900,2026-09-01,9929,MT,Matupá,Centro-Oeste,1,1,2
+1901,2026-09-01,9937,MT,Nova Mutum,Centro-Oeste,5,4,9
+1902,2026-09-01,9939,SC,Abdon Batista,Sul,2,0,2
+1903,2026-09-01,9941,SC,Apiúna,Sul,1,0,1
+1904,2026-09-01,9949,PR,Ibema,Sul,1,2,3
+1905,2026-09-01,9951,SC,Iporã Do Oeste,Sul,2,0,2
+1906,2026-09-01,9955,PR,Ivaté,Sul,1,0,1
+1907,2026-09-01,9959,PR,Lindoeste,Sul,0,2,2
+1908,2026-09-01,9963,SC,Marema,Sul,1,0,1
+1909,2026-09-01,9967,SC,Santa Rosa Do Sul,Sul,4,1,5
+1910,2026-09-01,9969,PR,Santa Tereza Do Oeste,Sul,1,5,6
+1911,2026-09-01,9975,SC,Urupema,Sul,1,0,1
+1912,2026-09-01,9983,PR,Fazenda Rio Grande,Sul,0,7,7
+1913,2026-09-01,9985,SC,Itapoá,Sul,14,4,18
+1914,2026-09-01,9995,GO,Rio Quente,Centro-Oeste,25,0,25

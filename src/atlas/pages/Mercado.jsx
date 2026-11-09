@@ -1,19 +1,20 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { engine } from 'virtual:market';
 import { BarList } from '../base/charts.jsx';
 import { Block } from '../base/block.jsx';
+import { electrificationSeries } from '../base/electrification.js';
 import { useAtlas } from '../ctx.js';
-import { PageHead, Section, Scope, Skel } from '../ui.jsx';
+import { PageHead, Section, Scope, Seg, Skel } from '../ui.jsx';
 import { DailyBars, Lines, PairBars, SeasonHeat } from '../charts.jsx';
 import { brandName, fmt, pct, signed, label, monthLabel, monthEnd, historyGroup, ignoredBy, lastCompleteIndex, sumRange } from '../lib.js';
 
 const MONTH = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 const YEAR_COLORS = ['#d1d1d6', '#b4b4ba', '#8e8e93', '#5f5f66'];
-const ELEC = [['BEV', 'Elétrico', '#e60f2d'], ['PHEV', 'Híbrido plug-in', '#1d1d1f'], ['HEV', 'Híbrido', '#6e6e73'], ['MHEV', 'Microhíbrido', '#b4b4ba']];
 const compactK = v => (v >= 1e6 ? (v / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mi' : v >= 1e3 ? Math.round(v / 1e3) + ' mil' : fmt(v));
 
 export default function Mercado() {
   const { market, focus, focusName, hist, mFilters } = useAtlas();
+  const [electricScope, setElectricScope] = useState('sem-mhev');
   const ignored = ignoredBy(mFilters), end = market?.range?.end?.slice(0, 7);
 
   /* ---------- ritmo do período ---------- */
@@ -77,11 +78,8 @@ export default function Mercado() {
   const elec = useMemo(() => {
     const p = historyGroup(hist.data, mFilters, ['propulsao']); if (!p) return null;
     const i1 = lastCompleteIndex(p, end), i0 = Math.max(0, i1 - 59), months = p.months.slice(i0, i1 + 1);
-    const share = k => months.map((_, j) => (p.total[i0 + j] > 0 ? (p.by.get(k)?.[i0 + j] ?? 0) / p.total[i0 + j] : null));
-    const series = ELEC.map(([k, n, c]) => ({ name: n, color: c, values: share(k) })).filter(s => s.values.some(v => v > .001));
-    const totalS = months.map((_, j) => series.reduce((s, x) => s + (x.values[j] ?? 0), 0));
-    return { months, series: [{ name: 'Eletrificados', color: 'var(--nx-up)', width: 3.5, values: totalS }, ...series], now: totalS.at(-1), yearAgo: totalS.at(-13) };
-  }, [hist.data, mFilters, end]);
+    return { months, ...electrificationSeries({ months, total: p.total, by: p.by, start: i0, includeMhev: electricScope === 'com-mhev' }) };
+  }, [hist.data, mFilters, end, electricScope]);
 
   /* ---------- marcas chinesas ---------- */
   const sel = engine.useChineseSelection();
@@ -146,7 +144,10 @@ export default function Mercado() {
 
       <Section id="m-eletrificacao" title="Eletrificação" sub={elec ? <>{pct(elec.now, 1)} dos emplacamentos no último mês completo; {pct(elec.yearAgo, 1)} um ano antes.</> : null}>
         {!elec ? <div className="nx-c12"><Skel h={300} /></div> : (
-          <Block className="nx-c12" title="Participação por tipo de propulsão, últimos 60 meses" sub="Eletrificados = microhíbrido, híbrido, plug-in e elétrico">
+          <Block className="nx-c12" title="Participação por tipo de propulsão, últimos 60 meses"
+            sub={electricScope === 'com-mhev' ? 'BEV + PHEV + HEV + MHEV · recorte constante em toda a série' : 'BEV + PHEV + HEV · recorte constante em toda a série'}
+            info="A ABVE exclui MHEV de seu total principal desde janeiro de 2025. Aqui, a definição escolhida vale para todos os meses, usando a classificação de propulsão do Atlas. FCEL fica separado desses dois recortes."
+            actions={<Seg label="Recorte de eletrificados" value={electricScope} onChange={setElectricScope} options={[[ 'sem-mhev', 'BEV + PHEV + HEV' ], [ 'com-mhev', 'Com MHEV' ]]} />}>
             <Lines months={elec.months} series={elec.series} fmtY={v => pct(v, 0)} fmtTip={v => pct(v, 1)} height={320} label="Participação dos eletrificados" />
             <Scope ignored={ignored} />
           </Block>

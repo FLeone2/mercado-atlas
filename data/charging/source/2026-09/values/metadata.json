@@ -1,0 +1,24 @@
+{
+  "page_url": "https://abve.org.br/abve-data/bi-eletropostos/",
+  "retrieved_at_utc": "2026-11-09T16:14:02.27Z",
+  "report_url": "https://app.powerbi.com/view?r=eyJrIjoiZTliZDk2MzktNTAyYi00MTk5LWIyZTktNWIwMDFmN2UwOWY2IiwidCI6IjQwNmMyNTc1LWM5ZDQtNGQ0NC1hNWI2LWJiNThiYzg2MDMzZSJ9",
+  "source": "ABVE/Tupi Mobilidade — painel público ABVE",
+  "report_name": "BI_Eletro_Out26_v5",
+  "model_id": 8720751,
+  "last_refresh_time": "2026-10-09T18:17:17.383",
+  "reference_dates": [
+    "2026-09-01"
+  ],
+  "grain": "observação agregada por rótulo geográfico/UF/data; inclui distritos; sem locais individuais",
+  "municipality_code_system": "código opaco da fonte; não presumir IBGE",
+  "reuse_license": "Licença aberta de redistribuição não identificada; verificar antes de publicar/comercializar",
+  "period_conflict": "Painel: setembro/2026. Matéria ABVE de 28/09/2026: agosto/2026 para os mesmos totais.",
+  "snapshot_sha256": {
+    "history.response.json": "90da478871b5c771dc570d0f7023d44a87cd267fefbe7e904402b30533df1643",
+    "models.json": "be49cfbb9b31c708a0a98e5e85a6ebe817807f676f0d2e68eeec8980da40c3df",
+    "municipalities.request.json": "7522654ca29dad0a1863a33e76091cb8e6bb93b98d649410707836e8c7b9e100",
+    "municipalities.response.json": "fcab32aba151940a1114a01b352e9701b06104438c8b338c2bcce4d7b13d39e4",
+    "schema.json": "4540f21d0bb8c93ecfe54a20e9929d6cb7a59fd073962a7b048cf685d62bf965",
+    "states.response.json": "a39989c9aebc63dd45749d99e823e9a88e8888ae520f6891a71215a58fddb2fb"
+  }
+}

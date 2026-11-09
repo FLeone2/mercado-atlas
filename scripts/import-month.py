@@ -122,34 +122,50 @@ def bd_values(macro, segment, body, fuel, origin):
     }
 
 
+def bd_rows(path, year):
+    """Read only an exact annual tab, preserving the workbook's native values."""
+    if Path(path).suffix.lower() == '.xlsb':
+        from pyxlsb import open_workbook
+        with open_workbook(str(path)) as workbook:
+            if str(year) not in workbook.sheets:
+                raise ValueError(f'BD has no exact annual sheet {year}; no backcast allowed')
+            with workbook.get_sheet(str(year)) as sheet:
+                for row in sheet.rows():
+                    yield [cell.v for cell in row]
+    elif Path(path).suffix.lower() == '.xlsx':
+        workbook = load_workbook(path, read_only=True, data_only=True)
+        try:
+            if str(year) not in workbook.sheetnames:
+                raise ValueError(f'BD has no exact annual sheet {year}; no backcast allowed')
+            yield from workbook[str(year)].iter_rows(values_only=True)
+        finally:
+            workbook.close()
+    else:
+        raise ValueError('BD must be an original .xlsb or .xlsx workbook')
+
+
 def load_bd(path, year):
-    from pyxlsb import open_workbook
-    result = {}
-    with open_workbook(str(path)) as workbook:
-        if str(year) not in workbook.sheets:
-            raise ValueError(f'BD has no exact annual sheet {year}; no backcast allowed')
-        with workbook.get_sheet(str(year)) as sheet:
-            header = None
-            for row in sheet.rows():
-                values = [cell.v for cell in row]
-                if header is None:
-                    if values and text(values[0]) == 'CODE':
-                        header = [text(value) for value in values]
-                        expected = {0: 'CODE', 4: 'MACRO', 5: 'SEGMENT',
-                                    6: 'BODY TIPE', 8: 'FUEL', 11: 'ORIGIN'}
-                        if any(len(header) <= col or header[col] != name
-                               for col, name in expected.items()):
-                            raise ValueError('Unexpected BD classification layout')
-                    continue
-                code = numeric_code(values[0] if values else None)
-                if code is None:
-                    continue
-                values += [None] * max(0, 12 - len(values))
-                classification = bd_values(values[4], values[5], values[6],
-                                           values[8], values[11])
-                if code in result and result[code] != classification:
-                    raise ValueError('Conflicting BD classifications for an exact annual key')
-                result[code] = classification
+    result, header = {}, None
+    for source in bd_rows(path, year):
+        values = list(source)
+        if header is None:
+            if values and text(values[0]) == 'CODE':
+                header = [text(value) for value in values]
+                expected = {0: 'CODE', 4: 'MACRO', 5: 'SEGMENT',
+                            6: 'BODY TIPE', 8: 'FUEL', 11: 'ORIGIN'}
+                if any(len(header) <= col or header[col] != name
+                       for col, name in expected.items()):
+                    raise ValueError('Unexpected BD classification layout')
+            continue
+        code = numeric_code(values[0] if values else None)
+        if code is None:
+            continue
+        values += [None] * max(0, 12 - len(values))
+        classification = bd_values(values[4], values[5], values[6],
+                                   values[8], values[11])
+        if code in result and result[code] != classification:
+            raise ValueError('Conflicting BD classifications for an exact annual key')
+        result[code] = classification
     if not result:
         raise ValueError('BD annual sheet contains no numeric classification keys')
     return result

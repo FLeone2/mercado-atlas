@@ -3,6 +3,7 @@
 import argparse, collections, datetime as dt, gzip, hashlib, json, unicodedata
 from pathlib import Path
 from scenario_statistics import distribution, forecast, lag_correlations
+from lib.propulsion import effective_propulsion
 
 
 def norm(s):
@@ -35,7 +36,8 @@ def build(repo,out):
             total+=count; is_mit=dic['marca'][row[cols['marca']]].strip().upper()=='MITSUBISHI';mit+=count*is_mit
             if ytd:
                 uf=dic['uf'][row[cols['uf']]];city=dic['municipio'][row[cols['municipio']]];v=municipalities[(uf,city)];v[0]+=count;v[1]+=count*is_mit
-                nodes=tuple(dic[k][row[cols[k]]] for k in ['bd_origem','bd_combustivel','bd_carroceria']);sankey[nodes]+=count
+                propulsion=effective_propulsion(dic['bd_combustivel'][row[cols['bd_combustivel']]],dic['modelo'][row[cols['modelo']]],receipt.get('propulsionOverrides',[]))
+                nodes=(dic['bd_origem'][row[cols['bd_origem']]],propulsion,dic['bd_carroceria'][row[cols['bd_carroceria']]]);sankey[nodes]+=count
         expected=receipt['lightVehicleRows']
         if total!=expected:raise ValueError(f"Scope mismatch {receipt['month']}: {total} != {expected}")
         monthly.append({'month':receipt['month'],'registrations':total,'mitsubishi':mit,'mitsubishiShare':mit/total if total else None,
@@ -81,9 +83,9 @@ def build(repo,out):
         'geometry':'Use existing data/geography/{UF}.json municipality polygon paths. State-local projected SVG coordinates cannot be treated as longitude/latitude or stitched into a national 3D mesh.',
         'joinAudit':{'keys':len(rows),'matchedKeys':len(rows)-len(unmatched),'unmatchedKeys':len(unmatched),'registrationCoverage':matched_total/sum(r['registrations'] for r in rows),'unmatched':unmatched},
         'socioeconomicCoverage':socioeconomic.get('coverage'),'socioeconomicSources':socioeconomic['sources'],'distributions':{'gdpPerCapitaAllMunicipalities':distribution([r.get('gdpPerCapita') for r in socioeconomic['rows']]),'populationAllMunicipalities':distribution([r.get('population') for r in socioeconomic['rows']]),'registrationsPer1000MatchedObserved':distribution([r.get('registrationsPer1000') for r in rows])},'caveats':frozen['source']['caveats'],'sources':frozen['source']['tables'],'frozenAsOf':frozen['source']['executedAt']})
-    write(out/'composition.json',{**common,'period':[year+'-01',last],'dimensions':['bd_origem','bd_combustivel','bd_carroceria'],
+    write(out/'composition.json',{**common,'period':[year+'-01',last],'dimensions':['bd_origem','propulsao','bd_carroceria'],
         'rows':[{'origin':a,'propulsion':b,'body':c,'count':n} for (a,b,c),n in sorted(sankey.items())],
-        'meaning':'Composition of the same registration records across attributes. This is not customer movement, conversion, or migration.'})
+        'meaning':'Composition of the same registration records across attributes; propulsion uses audited exact-version exceptions while original BD FUEL is preserved. This is not customer movement, conversion, or migration.'})
     write(out/'forecasts.json',{**common,'models':forecasts,'frozenReference':{'asOf':q['phase2_context']['rows'][0]['asOf'],'metrics':q['phase2_forecast_metrics']['rows'],'source':q['phase2_forecast_metrics']['source']},
         'warning':'Frozen ETS comparison uses its original test protocol; its scores cannot be ranked against the new experiment with different folds. No macro coefficient or causal elasticity has been validated.'})
     write(out/'macro_analysis.json',{**common,'status':'available' if lags else 'blocked_external_data','lagCorrelations':lags,'simulation':{'status':'blocked','reason':'No validated two-factor exogenous model. Do not fabricate response surfaces or impacts from slider inputs.'}})

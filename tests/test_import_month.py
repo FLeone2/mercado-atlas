@@ -8,6 +8,7 @@ import tempfile
 import unittest
 
 from openpyxl.utils.datetime import CALENDAR_MAC_1904, to_excel
+from openpyxl import Workbook
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('import_month', ROOT / 'scripts/import-month.py')
@@ -134,6 +135,24 @@ class MonthlyImportTest(unittest.TestCase):
             ingest.write_cube(first, base)
             ingest.write_cube(second, base)
             self.assertEqual(first.read_bytes(), second.read_bytes())
+
+    def test_xlsx_bd_keeps_exact_annual_sheet_and_conflict_checks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'bd.xlsx'
+            workbook = Workbook()
+            sheet = workbook.active
+            sheet.title = '2026'
+            sheet.append(['CODE', 'BRAND', 'MODEL', 'LABEL', 'MACRO', 'SEGMENT',
+                          'BODY TIPE', 'CLASS', 'FUEL', 'BLANK', 'BLANK2', 'ORIGIN'])
+            sheet.append([123, '', '', '', 'PASSENGER', 'MID', 'SUV', '', 'PHEV', '', '', 'IMP'])
+            workbook.save(path)
+            self.assertEqual(ingest.load_bd(path, 2026)[123]['bd_combustivel'], 'PHEV')
+            with self.assertRaisesRegex(ValueError, 'no exact annual sheet'):
+                ingest.load_bd(path, 2025)
+            sheet.append([123, '', '', '', 'PASSENGER', 'MID', 'SUV', '', 'GASOLINE', '', '', 'IMP'])
+            workbook.save(path)
+            with self.assertRaisesRegex(ValueError, 'Conflicting BD classifications'):
+                ingest.load_bd(path, 2026)
 
 
 if __name__ == '__main__':

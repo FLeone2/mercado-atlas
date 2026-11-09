@@ -1,0 +1,158 @@
+{
+  "version": "1.0.0",
+  "queries": [
+    {
+      "Query": {
+        "Commands": [
+          {
+            "SemanticQueryDataShapeCommand": {
+              "Query": {
+                "Version": 2,
+                "From": [
+                  {
+                    "Name": "b",
+                    "Entity": "BaseEletropostos_Mun",
+                    "Type": 0
+                  }
+                ],
+                "Select": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Source": "b"
+                        }
+                      },
+                      "Property": "Municipio_Codigo"
+                    },
+                    "Name": "BaseEletropostos_Mun.Municipio_Codigo"
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Source": "b"
+                        }
+                      },
+                      "Property": "SIGLA_UF"
+                    },
+                    "Name": "BaseEletropostos_Mun.SIGLA_UF"
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Source": "b"
+                        }
+                      },
+                      "Property": "NM_MUN"
+                    },
+                    "Name": "BaseEletropostos_Mun.NM_MUN"
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Source": "b"
+                        }
+                      },
+                      "Property": "Região"
+                    },
+                    "Name": "BaseEletropostos_Mun.Região"
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Source": "b"
+                        }
+                      },
+                      "Property": "AC"
+                    },
+                    "Name": "BaseEletropostos_Mun.AC"
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Source": "b"
+                        }
+                      },
+                      "Property": "DC"
+                    },
+                    "Name": "BaseEletropostos_Mun.DC"
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Source": "b"
+                        }
+                      },
+                      "Property": "Data"
+                    },
+                    "Name": "BaseEletropostos_Mun.Data"
+                  }
+                ],
+                "OrderBy": [
+                  {
+                    "Direction": 1,
+                    "Expression": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "b"
+                          }
+                        },
+                        "Property": "Municipio_Codigo"
+                      }
+                    }
+                  }
+                ]
+              },
+              "Binding": {
+                "Primary": {
+                  "Groupings": [
+                    {
+                      "Projections": [
+                        0,
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6
+                      ]
+                    }
+                  ]
+                },
+                "DataReduction": {
+                  "DataVolume": 6,
+                  "Primary": {
+                    "Window": {
+                      "Count": 10000
+                    }
+                  }
+                },
+                "Version": 1
+              },
+              "ExecutionMetricsKind": 1
+            }
+          }
+        ]
+      },
+      "QueryId": "",
+      "ApplicationContext": {
+        "DatasetId": "c5cb6a64-09f8-4851-b3ce-43d43d173a55",
+        "Sources": [
+          {
+            "ReportId": "0ba0445d-a1e9-46b6-865a-773d32780272",
+            "VisualId": "76539bf62c3bdc2db096"
+          }
+        ]
+      }
+    }
+  ],
+  "cancelQueries": [],
+  "modelId": 8720751
+}

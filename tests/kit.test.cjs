@@ -29,5 +29,12 @@ const assert = require('assert');
   m = C.chartModel({ type: 'stackedBar100', x: 'k', y: 'count', series: 's' }, [{ k: 'x', s: 'p', count: 1 }, { k: 'x', s: 'q', count: 3 }]);
   assert.equal(m.get('x', 'q').value, 0.75);
   assert.equal(m.percent, true);
+  // A charging image keeps its own snapshot attribution instead of inheriting vehicle filters.
+  const E = await import('../src/kit/export.js');
+  const attrs = { 'data-export-scope': 'Recarga · set/2026 · São Paulo', 'data-export-source': 'ABVE/Tupi' };
+  const card = { getAttribute: key => attrs[key] ?? null };
+  assert.deepEqual(E.exportCardContext(card, { scope: 'Veículos · out/2026', source: 'Emplacamentos' }), { scope: attrs['data-export-scope'], source: 'ABVE/Tupi' });
+  assert.deepEqual(E.exportCardContext({ getAttribute: () => null }, { scope: 'Escopo original', source: 'Fonte original' }), { scope: 'Escopo original', source: 'Fonte original' });
+  assert.deepEqual(E.exportCardContext(null), { scope: '', source: '' });
   console.log('PASS kit');
 })().catch(e => { console.error(e); process.exit(1); });
