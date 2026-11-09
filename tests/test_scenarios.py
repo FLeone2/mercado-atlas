@@ -49,7 +49,8 @@ class OfficialSourceTests(unittest.TestCase):
  def test_all_macro_sources_have_metadata(self):
   d=json.loads((ROOT/'external_sources.json').read_text());self.assertEqual(len(d['series']),5)
   for s in d['series']:
-   self.assertEqual(s['status'],'available');self.assertTrue(s['metadataVerified']);self.assertTrue(all(r['month']<'2026-10' for r in s['monthly']))
+   # só meses completos: nenhum mês igual ou posterior ao da coleta (o mês em andamento fica de fora)
+   self.assertEqual(s['status'],'available');self.assertTrue(s['metadataVerified']);self.assertTrue(all(r['month']<s['retrievedAt'][:7] for r in s['monthly']))
  def test_scatter_matches_heatmap(self):
   d=json.loads((ROOT/'macro_analysis.json').read_text())
   for v in d['lagCorrelations'].values():
